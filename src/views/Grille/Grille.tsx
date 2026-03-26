@@ -343,6 +343,10 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                 {isInCombo && idx === 0 && (
                   <span style={{ fontSize: 9, color: '#ffd666', fontWeight: 600, flexShrink: 0 }}>🔗</span>
                 )}
+                {/* NEW badge — résa créée il y a moins de 15 min */}
+                {(Date.now() - r.createdAt) < 15 * 60 * 1000 && (
+                  <span style={{ fontSize: 7, fontWeight: 900, color: '#a78bfa', background: 'rgba(167,139,250,.15)', padding: '1px 4px', borderRadius: 4, flexShrink: 0, letterSpacing: .5 }}>NEW</span>
+                )}
               </div>
             ))
           )}

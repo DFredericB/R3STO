@@ -38,7 +38,7 @@ function planTableSvg(
   t: Table,
   status: 'free' | 'reserved' | 'arrived' | 'blocked' | 'combo_partial' | 'held',
   isSelected: boolean,
-  resaInfo?: { name: string; covers: number; time: string; statusIcon: string; vip: boolean; allergie: boolean; bebe: number; pmr: number; isCombo: boolean },
+  resaInfo?: { name: string; covers: number; time: string; statusIcon: string; vip: boolean; allergie: boolean; bebe: number; pmr: number; isCombo: boolean; isNew: boolean },
 ): string {
   const tRef = Math.min(t.w, t.h)
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2
@@ -124,6 +124,7 @@ function planTableSvg(
     s += `<text x="${cx}" y="${(cy + tRef*0.30).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsCov}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${resaInfo.covers}p · ${resaInfo.time}</text>`
     // Badges top-right : VIP ⭐ Allergie ⚠ Bébé 👶 PMR ♿ Combo 🔗
     const badges: string[] = []
+    if (resaInfo.isNew) badges.push('🆕')
     if (resaInfo.vip) badges.push('⭐')
     if (resaInfo.allergie) badges.push('⚠')
     if (resaInfo.bebe > 0) badges.push('👶')
@@ -383,6 +384,7 @@ export function Plan() {
           bebe: resa.bebe || 0,
           pmr: resa.pmr || 0,
           isCombo: !!(resa.tbl && resa.tbl.includes('+')),
+          isNew: (Date.now() - resa.createdAt) < 15 * 60 * 1000,
         }
       }
 
