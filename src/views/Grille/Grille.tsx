@@ -248,7 +248,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
         const comboNames = table.n.includes('+') ? table.n.split('+') : null
         const comboCount = comboNames ? comboNames.length : 0
         const lineHeight = comboCount >= 4 ? 92 : comboCount >= 3 ? 78 : comboCount === 2 ? 62 : 44
-        const badgeW = comboCount >= 3 ? 64 : comboCount === 2 ? 60 : 52
+        const badgeW = 60 // largeur uniforme pour aligner toutes les lignes
         return (
       <div style={{ display: 'flex', minHeight: lineHeight }}>
         {/* Bande combo dorée */}
