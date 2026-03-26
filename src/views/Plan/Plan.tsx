@@ -44,6 +44,7 @@ function planTableSvg(
   isSelected: boolean,
   resaInfo?: { name: string; covers: number; time: string; statusIcon: string; vip: boolean; allergie: boolean; bebe: number; pmr: number; isCombo: boolean; isNew: boolean; isIA: boolean; canal?: string },
   isInOccupiedCombo?: boolean,
+  ghostInfo?: { name: string; covers: number; time: string; isDone: boolean },
 ): string {
   const tRef = Math.min(t.w, t.h)
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2
@@ -193,6 +194,20 @@ function planTableSvg(
     }
     // Status icon
     s += `<text x="${(t.x + tRef*0.1).toFixed(2)}" y="${(t.y + tRef*0.15).toFixed(2)}" font-size="${(tRef*0.18).toFixed(1)}" style="pointer-events:none">${resaInfo.statusIcon}</text>`
+  } else if (ghostInfo) {
+    // Table libre avec historique fantôme (done/noshow) — en transparence
+    const ghostCol = ghostInfo.isDone ? 'rgba(60,200,112,.35)' : 'rgba(220,80,80,.35)'
+    const ghostIcon = ghostInfo.isDone ? '🪑' : '👻'
+    // Numéro de table (normal)
+    s += `<text x="${cx}" y="${(cy - tRef*0.25).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
+    // Nom client fantôme
+    const maxChars = Math.max(4, Math.floor(t.w / 1.8))
+    const shortName = ghostInfo.name.length > maxChars ? ghostInfo.name.slice(0, maxChars - 1) + '…' : ghostInfo.name
+    s += `<text x="${cx}" y="${(cy + tRef*0.02).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.16).toFixed(1)}" font-family="DM Mono,monospace" font-weight="500" fill="${ghostCol}" style="pointer-events:none;font-style:italic">${shortName}</text>`
+    // Couverts + heure fantôme
+    s += `<text x="${cx}" y="${(cy + tRef*0.22).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.13).toFixed(1)}" font-family="DM Mono,monospace" fill="${ghostCol}" style="pointer-events:none">${ghostInfo.covers}p · ${ghostInfo.time}</text>`
+    // Icône statut
+    s += `<text x="${(t.x + tRef*0.08).toFixed(2)}" y="${(t.y + tRef*0.15).toFixed(2)}" font-size="${(tRef*0.16).toFixed(1)}" opacity=".5" style="pointer-events:none">${ghostIcon}</text>`
   } else {
     // Table libre — numéro + capacité (même positions que éditeur)
     s += `<text x="${cx}" y="${(cy - tRef*0.108).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
@@ -454,6 +469,21 @@ export function Plan() {
     return map
   }, [filteredResas])
 
+  // Ghost map — résas done/noshow (historique transparent sur table libre)
+  const ghostMap = useMemo(() => {
+    const map: Record<string, Resa> = {}
+    for (const r of filteredResas) {
+      if ((r.s !== 'done' && r.s !== 'noshow') || !r.tbl) continue
+      const names = r.tbl.includes('+') ? r.tbl.split('+').map(s => s.trim()) : [r.tbl]
+      for (const tn of names) {
+        // Ne pas afficher de ghost si la table est occupée par une autre résa
+        if (occupiedMap[tn]) continue
+        if (!map[tn]) map[tn] = r
+      }
+    }
+    return map
+  }, [filteredResas, occupiedMap])
+
   // Orphans detection
   const orphans = useMemo(() =>
     detectOrphans(resas, tables, combos, activeDate, svcFilter),
@@ -551,11 +581,20 @@ export function Plan() {
         (resa && (resa.n?.toLowerCase().includes(search.trim().toLowerCase()) || resa.nom?.toLowerCase().includes(search.trim().toLowerCase())))
       )
 
-      h += planTableSvg(t, status, !!isHighlighted, resaInfo, isInOccupiedCombo)
+      // Ghost info pour tables libres avec historique done/noshow
+      const ghost = !resa && !t.blocked && !t.held ? ghostMap[t.n] : undefined
+      const ghostInfo = ghost ? {
+        name: ghost.nom || ghost.n?.split(' ')[0] || '?',
+        covers: ghost.c,
+        time: ghost.t,
+        isDone: ghost.s === 'done',
+      } : undefined
+
+      h += planTableSvg(t, status, !!isHighlighted, resaInfo, isInOccupiedCombo, ghostInfo)
     }
 
     svg.innerHTML = h
-  }, [salleTables, salleRoomItems, occupiedMap, tables, combos, search, filteredResas])
+  }, [salleTables, salleRoomItems, occupiedMap, ghostMap, tables, combos, search, filteredResas])
 
   useEffect(() => { renderPlan() }, [renderPlan, salle, filteredResas, search])
 

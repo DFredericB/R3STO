@@ -196,10 +196,12 @@ export function Dashboard() {
     email: dayResas.filter(r => r.canal === 'email').length,
   }
 
-  // Tables libres/occupées
+  // Tables libres/occupées/bloquées/réserve
   const occupiedTbls = new Set(dayResas.filter(r => r.s === 'arrived' || r.s === 'reserved').map(r => r.tbl))
-  const freeTables = activeTables.filter(tb => !occupiedTbls.has(tb.n)).length
-  const occTables = activeTables.length - freeTables
+  const blockedTables = tables.filter(tb => tb.blocked).length
+  const heldTables = activeTables.filter(tb => tb.held && !occupiedTbls.has(tb.n)).length
+  const freeTables = activeTables.filter(tb => !occupiedTbls.has(tb.n) && !tb.held).length
+  const occTables = activeTables.length - freeTables - heldTables
 
   // Badges enrichis
   const groups = dayResas.filter(r => r.c >= 6)
@@ -310,6 +312,16 @@ export function Dashboard() {
             <span style={{ color: 'var(--border)' }}>·</span>
             <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--am)', fontFamily: 'var(--fm)' }}>{occTables}</span>
             <span style={{ fontSize: 10, color: 'var(--t4)' }}>{t('dash.occupied')}</span>
+            {heldTables > 0 && (<>
+              <span style={{ color: 'var(--border)' }}>·</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: '#e8a530', fontFamily: 'var(--fm)' }}>{heldTables}</span>
+              <span style={{ fontSize: 10, color: 'var(--t4)' }}>🔒 réserve</span>
+            </>)}
+            {blockedTables > 0 && (<>
+              <span style={{ color: 'var(--border)' }}>·</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--fm)' }}>{blockedTables}</span>
+              <span style={{ fontSize: 10, color: 'var(--t4)' }}>🚫 bloquées</span>
+            </>)}
           </div>
 
           {/* No-shows */}

@@ -494,14 +494,17 @@ export function Resas() {
                       {r.tbl ? (() => {
                         const tb = tables.find(t => t.id === r.tbl || t.n === r.tbl)
                         const isPref = r.tablePref && r.tbl === r.tablePref
+                        const isBlocked = tb?.blocked
+                        const isHeld = tb?.held && !isBlocked
                         return (
                           <span style={{
                             fontSize: 12, fontWeight: 800, padding: '3px 8px', borderRadius: 6, fontFamily: 'var(--fm)',
-                            background: isPref ? 'rgba(232,165,48,.15)' : SEL.bg,
-                            color: isPref ? '#e8a530' : SEL.color,
-                            border: `1px solid ${isPref ? 'rgba(232,165,48,.4)' : SEL.border}`,
+                            background: isBlocked ? 'rgba(220,80,80,.12)' : isHeld ? 'rgba(232,165,48,.12)' : isPref ? 'rgba(232,165,48,.15)' : SEL.bg,
+                            color: isBlocked ? 'var(--rd)' : isHeld ? '#e8a530' : isPref ? '#e8a530' : SEL.color,
+                            border: `1px solid ${isBlocked ? 'rgba(220,80,80,.4)' : isHeld ? 'rgba(232,165,48,.4)' : isPref ? 'rgba(232,165,48,.4)' : SEL.border}`,
+                            textDecoration: isBlocked ? 'line-through' : 'none',
                           }}>
-                            {isPref && '★ '}{r.tbl}{tb ? <span style={{ fontWeight: 500, opacity: .65, fontSize: 10 }}>/{tb.capMax}p</span> : ''}
+                            {isBlocked ? '🚫 ' : isHeld ? '🔒 ' : isPref ? '★ ' : ''}{r.tbl}{tb ? <span style={{ fontWeight: 500, opacity: .65, fontSize: 10 }}>/{tb.capMax}p</span> : ''}
                           </span>
                         )
                       })() : <span style={{ color: 'var(--t4)' }}>—</span>}

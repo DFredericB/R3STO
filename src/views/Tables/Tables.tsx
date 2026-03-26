@@ -26,7 +26,7 @@ const DEMO_COMBOS: Combo[] = [
 
 export function Tables() {
   const { t } = useT()
-  const { tables, salles, combos, setCombos } = useAppStore()
+  const { tables, salles, combos, setCombos, setTables } = useAppStore()
   const { toast } = useToast()
 
   const [comboMode, setComboMode] = useState(false)
@@ -368,8 +368,14 @@ export function Tables() {
                       ) : (
                         <div style={{ display: 'flex', gap: 3, width: '100%', marginTop: 4 }}>
                           <button style={{ flex: 1, fontSize: 11, padding: '4px 0', background: 'rgba(91,156,246,.1)', color: 'var(--bl)', border: '1px solid rgba(91,156,246,.3)', borderRadius: 4, cursor: 'pointer' }}>✏️</button>
-                          <button style={{ fontSize: 11, padding: '4px 6px', background: table.blocked ? 'rgba(60,200,112,.15)' : 'rgba(220,80,80,.1)', color: table.blocked ? 'var(--gn)' : 'var(--rd)', border: `1px solid ${table.blocked ? 'rgba(60,200,112,.3)' : 'rgba(220,80,80,.2)'}`, borderRadius: 4, cursor: 'pointer' }}>🔒</button>
-                          <button style={{ fontSize: 11, padding: '4px 6px', background: table.held ? 'rgba(60,200,112,.15)' : 'rgba(230,170,0,.1)', color: table.held ? 'var(--gn)' : '#c8900a', border: `1px solid ${table.held ? 'rgba(60,200,112,.3)' : 'rgba(230,170,0,.2)'}`, borderRadius: 4, cursor: 'pointer' }}>⏸</button>
+                          <button
+                            onClick={() => setTables(tables.map(t => t.id === table.id ? { ...t, blocked: !t.blocked, held: t.blocked ? t.held : false } : t))}
+                            title={table.blocked ? 'Débloquer' : 'Bloquer'}
+                            style={{ fontSize: 11, padding: '4px 6px', background: table.blocked ? 'rgba(220,80,80,.25)' : 'rgba(220,80,80,.1)', color: table.blocked ? '#fff' : 'var(--rd)', border: `1px solid ${table.blocked ? 'rgba(220,80,80,.6)' : 'rgba(220,80,80,.2)'}`, borderRadius: 4, cursor: 'pointer', fontWeight: table.blocked ? 800 : 400 }}>🚫</button>
+                          <button
+                            onClick={() => { if (!table.blocked) setTables(tables.map(t => t.id === table.id ? { ...t, held: !t.held } : t)) }}
+                            title={table.held ? 'Lever réserve' : 'Mettre en réserve'}
+                            style={{ fontSize: 11, padding: '4px 6px', background: table.held ? 'rgba(230,170,0,.25)' : 'rgba(230,170,0,.1)', color: table.held ? '#fff' : '#c8900a', border: `1px solid ${table.held ? 'rgba(230,170,0,.6)' : 'rgba(230,170,0,.2)'}`, borderRadius: 4, cursor: table.blocked ? 'not-allowed' : 'pointer', fontWeight: table.held ? 800 : 400, opacity: table.blocked ? 0.4 : 1 }}>🔒</button>
                           <button onClick={() => handleDeleteTable(table.id)} style={{ fontSize: 11, padding: '4px 6px', background: 'rgba(220,80,80,.1)', color: 'var(--rd)', border: '1px solid rgba(220,80,80,.2)', borderRadius: 4, cursor: 'pointer' }}>🗑</button>
                         </div>
                       )}

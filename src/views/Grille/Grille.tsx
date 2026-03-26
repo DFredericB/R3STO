@@ -310,16 +310,30 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
         {/* ── Contenu compact (droite) ── */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 10px', minWidth: 0 }}>
           {isFree ? (
-            /* ════ TABLE LIBRE ════ */
+            /* ════ TABLE LIBRE (avec ghost done/noshow si applicable) ════ */
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {isValidMoveTarget ? (
                 <span style={{ fontSize: 12, color: 'var(--gn)', fontWeight: 700 }}>→ Déplacer ici</span>
-              ) : (
-                <>
-                  <span style={{ fontSize: 12, color: 'var(--t4)', fontWeight: 600 }}>{t('grid.free')}</span>
-                  <span style={{ fontSize: 10, color: 'var(--t4)' }}>{table.shape === 'round' ? '○' : '▭'}</span>
-                </>
-              )}
+              ) : (() => {
+                const ghost = resas.find(r => r.s === 'done' || r.s === 'noshow')
+                if (ghost) {
+                  const ghostCol = ghost.s === 'done' ? 'var(--gn)' : 'var(--rd)'
+                  const ghostIcon = ghost.s === 'done' ? '🪑' : '👻'
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, opacity: .45, fontStyle: 'italic' }}>
+                      <span style={{ fontSize: 11 }}>{ghostIcon}</span>
+                      <span style={{ fontSize: 12, color: ghostCol, fontWeight: 600 }}>{ghost.nom || ghost.n?.split(' ')[0]}</span>
+                      <span style={{ fontSize: 10, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>{ghost.c}p · {ghost.t}</span>
+                    </div>
+                  )
+                }
+                return (
+                  <>
+                    <span style={{ fontSize: 12, color: 'var(--t4)', fontWeight: 600 }}>{t('grid.free')}</span>
+                    <span style={{ fontSize: 10, color: 'var(--t4)' }}>{table.shape === 'round' ? '○' : '▭'}</span>
+                  </>
+                )
+              })()}
               {/* Bouton combo */}
               {availableCombos.length > 0 && !moveMode && (
                 <button
