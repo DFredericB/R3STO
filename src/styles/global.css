@@ -1,0 +1,253 @@
+/* ══════════════════════════════════════════════════
+   R3STO — Styles globaux
+   Variables CSS identiques à l'app v52
+   ════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Fraunces:wght@400;700&display=swap');
+
+/* ── Variables thème dark (défaut) ──────────────── */
+:root {
+  --surf:   #0d1829;
+  --surf2:  #111e33;
+  --surf3:  #162440;
+  --surf4:  #1c2d4d;
+  --text:   #e8edf5;
+  --t2:     #a8b8d0;
+  --t3:     #6b82a0;
+  --t4:     #3d526e;
+  --muted:  #4a607a;
+  --border: rgba(100,130,180,.18);
+  --bl:     #4480d8;
+  --bp:     rgba(68,128,216,.12);
+  --b2:     rgba(68,128,216,.3);
+  --ac:     #5b9cf6;
+  --gn:     #3cc870;
+  --gp:     rgba(60,200,112,.12);
+  --gb:     rgba(60,200,112,.3);
+  --rd:     #dc5050;
+  --rp:     rgba(220,80,80,.12);
+  --rb:     rgba(220,80,80,.3);
+  --am:     #e8a530;
+  --ap:     rgba(232,165,48,.12);
+  --ab:     rgba(232,165,48,.3);
+  --pu:     #9060e0;
+  --shadow: rgba(0,0,0,.4);
+  --ff:     'DM Sans', sans-serif;
+  --fm:     'DM Mono', monospace;
+  --hh:     56px;
+  --sb:     230px;
+  --sbc:    56px;
+  --sbm:    54px;
+  --bn:     60px;
+  --br:     10px;
+}
+
+/* ── Variables thème clair ─────────────────────── */
+[data-theme="light"] {
+  --surf:   #f5f7fa;
+  --surf2:  #ffffff;
+  --surf3:  #edf0f5;
+  --surf4:  #e2e7ef;
+  --text:   #1a2332;
+  --t2:     #3d4f66;
+  --t3:     #6b7d94;
+  --t4:     #9daab8;
+  --muted:  #8e9baa;
+  --border: rgba(30,50,80,.12);
+  --bl:     #3366cc;
+  --bp:     rgba(51,102,204,.08);
+  --b2:     rgba(51,102,204,.22);
+  --ac:     #3872d9;
+  --gn:     #22a855;
+  --gp:     rgba(34,168,85,.08);
+  --gb:     rgba(34,168,85,.22);
+  --rd:     #d04040;
+  --rp:     rgba(208,64,64,.08);
+  --rb:     rgba(208,64,64,.22);
+  --am:     #d49318;
+  --ap:     rgba(212,147,24,.08);
+  --ab:     rgba(212,147,24,.22);
+  --pu:     #7040c8;
+  --shadow: rgba(0,0,0,.1);
+}
+
+/* ── Reset ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+  background: var(--surf);
+  color: var(--text);
+  font-family: var(--ff);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout principal ───────────────────────────── */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding-bottom: 60px;
+}
+
+/* ── Typographie ────────────────────────────────── */
+.page-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: var(--t3);
+  margin-top: 2px;
+}
+
+/* ── Boutons ────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  font-family: var(--ff);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .12s;
+  white-space: nowrap;
+  min-height: 32px;
+}
+
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.btn-primary   { background: var(--bl); color: #fff; border-color: var(--bl); }
+.btn-secondary { background: var(--surf3); color: var(--t2); border-color: var(--border); }
+.btn-success   { background: var(--gp); color: var(--gn); border-color: var(--gb); }
+.btn-danger    { background: var(--rp); color: var(--rd); border-color: var(--rb); }
+.btn-warning   { background: var(--ap); color: var(--am); border-color: var(--ab); }
+
+.btn-primary:hover   { filter: brightness(1.1); }
+.btn-secondary:hover { background: var(--surf4); }
+
+/* ── Inputs ─────────────────────────────────────── */
+.input, .select, .textarea {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--surf3);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--ff);
+  font-size: 12px;
+  transition: border-color .15s;
+  outline: none;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--bl);
+}
+
+/* ── Cards ──────────────────────────────────────── */
+.card {
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: var(--br);
+  padding: 16px;
+}
+
+/* ── Pills / badges ─────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pill-reserved { background: var(--bp); color: var(--bl); border: 1px solid var(--b2); }
+.pill-arrived  { background: var(--gp); color: var(--gn); border: 1px solid var(--gb); }
+.pill-noshow   { background: var(--rp); color: var(--rd); border: 1px solid var(--rb); }
+.pill-done     { background: var(--surf3); color: var(--t3); border: 1px solid var(--border); }
+
+/* ── Page header ────────────────────────────────── */
+.ph {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  background: var(--surf);
+}
+
+/* ── Grid layouts ───────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* ── Toast ──────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  padding: 10px 16px;
+  background: var(--surf4);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px var(--shadow);
+  animation: slideIn .2s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(20px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
+}
+
+/* ── Scrollbar ──────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surf4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t4); }
+
+/* ── Responsive mobile ──────────────────────────── */
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .main-content { padding-bottom: var(--bn); }
+}
