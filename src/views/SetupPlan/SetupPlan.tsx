@@ -332,6 +332,44 @@ function spTableSvg(t: Table, ctx: SvgCtx): string {
 
   // Pas de badge 🔗 — la fusion visuelle permanente remplace
 
+  // ── Blocked : hachures diagonales clippées + X rouge ──
+  if (t.blocked) {
+    const clipId = `clip-blk-${t.id}`
+    s += `<defs><clipPath id="${clipId}">`
+    if (['round', 'round_sm', 'round_lg'].includes(t.shape))
+      s += `<circle cx="${cx}" cy="${cy}" r="${t.h/2}"/>`
+    else if (t.shape === 'oval')
+      s += `<ellipse cx="${cx}" cy="${cy}" rx="${t.w/2}" ry="${t.h/2}"/>`
+    else if (t.shape === 'bar') {
+      const bh = t.h * 0.5, by = t.y + (t.h - bh) / 2
+      s += `<rect x="${t.x}" y="${by}" width="${t.w}" height="${bh}" rx="1"/>`
+    } else {
+      const rxv = t.shape === 'square' || t.shape === 'square_sm' ? 2.5 : 1.5
+      s += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" rx="${rxv}"/>`
+    }
+    s += `</clipPath></defs>`
+    s += `<g clip-path="url(#${clipId})" style="pointer-events:none">`
+    const gap = tRef * 0.18
+    for (let i = -4; i <= 4; i++) {
+      const off = i * gap
+      s += `<line x1="${t.x + off}" y1="${t.y}" x2="${t.x + t.w + off}" y2="${t.y + t.h}" stroke="rgba(100,116,139,.25)" stroke-width="0.5"/>`
+    }
+    s += `</g>`
+    s += `<line x1="${cx - tRef*0.18}" y1="${cy - tRef*0.18}" x2="${cx + tRef*0.18}" y2="${cy + tRef*0.18}" stroke="rgba(220,80,80,.55)" stroke-width="${(tRef*0.06).toFixed(2)}" stroke-linecap="round" style="pointer-events:none"/>`
+    s += `<line x1="${cx + tRef*0.18}" y1="${cy - tRef*0.18}" x2="${cx - tRef*0.18}" y2="${cy + tRef*0.18}" stroke="rgba(220,80,80,.55)" stroke-width="${(tRef*0.06).toFixed(2)}" stroke-linecap="round" style="pointer-events:none"/>`
+  }
+
+  // ── Held : contour pointillé ambre + cadenas ──
+  if (t.held && !t.blocked) {
+    if (['round', 'round_sm', 'round_lg'].includes(t.shape))
+      s += `<circle cx="${cx}" cy="${cy}" r="${(t.h/2 + tRef*0.06).toFixed(2)}" fill="none" stroke="rgba(232,165,48,.5)" stroke-width="${(tRef*0.05).toFixed(2)}" stroke-dasharray="1.5,1.2" style="pointer-events:none"/>`
+    else if (t.shape === 'oval')
+      s += `<ellipse cx="${cx}" cy="${cy}" rx="${(t.w/2 + tRef*0.06).toFixed(2)}" ry="${(t.h/2 + tRef*0.06).toFixed(2)}" fill="none" stroke="rgba(232,165,48,.5)" stroke-width="${(tRef*0.05).toFixed(2)}" stroke-dasharray="1.5,1.2" style="pointer-events:none"/>`
+    else
+      s += `<rect x="${(t.x - tRef*0.04).toFixed(2)}" y="${(t.y - tRef*0.04).toFixed(2)}" width="${(t.w + tRef*0.08).toFixed(2)}" height="${(t.h + tRef*0.08).toFixed(2)}" rx="3" fill="none" stroke="rgba(232,165,48,.5)" stroke-width="${(tRef*0.05).toFixed(2)}" stroke-dasharray="1.5,1.2" style="pointer-events:none"/>`
+    s += `<text x="${cx}" y="${(cy - tRef*0.05).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.22).toFixed(1)}" style="pointer-events:none">🔒</text>`
+  }
+
   // Labels masqués quand combo actif — seul le label combo s'affiche au centre du groupe
   const fsN = (tRef * 0.25).toFixed(1)
   const fsC = (tRef * 0.167).toFixed(1)
@@ -420,6 +458,7 @@ export function SetupPlan() {
   const canvasW = canvasSizes[salle]?.w ?? 120
   const canvasH = canvasSizes[salle]?.h ?? 80
   const [rightTab,  setRightTab]  = useState<'props' | 'combos'>('props')
+  const [newTableState, setNewTableState] = useState<'normal' | 'blocked' | 'held'>('normal')
   const [comboPicker, setComboPicker] = useState<{ x: number; y: number; tableId: string; combos: Combo[] } | null>(null)
 
   // Refs pour drag (pas de re-render pendant le drag)
@@ -935,7 +974,7 @@ export function SetupPlan() {
       w, h,
       salle: curSalle,
       active: true, priority: salleTbls.length + 1,
-      blocked: false, held: false,
+      blocked: newTableState === 'blocked', held: newTableState === 'held',
     }
     // Mettre à jour le ref immédiatement pour que le prochain appel ait la bonne liste
     tablesRef.current = [...tablesRef.current, newTable]
@@ -1370,6 +1409,32 @@ export function SetupPlan() {
         {/* Palette gauche */}
         <div style={{ width: 172, flexShrink: 0, borderRight: '1px solid var(--border)', overflowY: 'auto', padding: '10px 8px', background: 'var(--surf)' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.09em', marginBottom: 7, fontFamily: 'DM Mono,monospace' }}>Tables</div>
+
+          {/* État par défaut des nouvelles tables */}
+          <div style={{ display: 'flex', gap: 3, marginBottom: 8 }}>
+            {([
+              { v: 'normal' as const, lbl: '✓', col: 'var(--bl)', bg: 'rgba(68,128,216,.12)', border: 'rgba(68,128,216,.4)' },
+              { v: 'blocked' as const, lbl: '🚫', col: 'var(--rd)', bg: 'rgba(220,80,80,.12)', border: 'rgba(220,80,80,.4)' },
+              { v: 'held' as const, lbl: '🔒', col: '#e8a530', bg: 'rgba(232,165,48,.12)', border: 'rgba(232,165,48,.4)' },
+            ]).map(({ v, lbl, col, bg, border }) => {
+              const on = newTableState === v
+              return (
+                <button key={v} onClick={() => setNewTableState(v)} style={{
+                  flex: 1, padding: '4px 2px', fontSize: 11, fontWeight: 700, border: `1.5px solid ${on ? border : 'var(--border)'}`,
+                  borderRadius: 5, cursor: 'pointer', background: on ? bg : 'var(--surf2)', color: on ? col : 'var(--t4)',
+                  transition: 'all .15s',
+                }}>
+                  {lbl}
+                </button>
+              )
+            })}
+          </div>
+          {newTableState !== 'normal' && (
+            <div style={{ fontSize: 10, color: newTableState === 'blocked' ? 'var(--rd)' : '#e8a530', fontWeight: 700, marginBottom: 6, textAlign: 'center', padding: '3px 6px', background: newTableState === 'blocked' ? 'rgba(220,80,80,.08)' : 'rgba(232,165,48,.08)', borderRadius: 5 }}>
+              {newTableState === 'blocked' ? '🚫 Nouvelles tables : Bloquées' : '🔒 Nouvelles tables : Réserve'}
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, marginBottom: 8 }}>
             {TABLE_TYPES.map(it => (
               <div key={it.shape} onClick={() => addTable(it.shape, it.capMin, it.capMax)}
@@ -1623,6 +1688,38 @@ export function SetupPlan() {
                         </button>
                       )
                     })}
+                  </div>
+
+                  {/* ── État initial : Bloquée / Réserve ── */}
+                  <label style={{ fontSize: 11, color: 'var(--t3)', display: 'block', marginBottom: 4 }}>État</label>
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+                    <button
+                      onClick={() => {
+                        tablesRef.current = tablesRef.current.map(tb => tb.id === selTable.id ? { ...tb, blocked: !tb.blocked, held: tb.blocked ? tb.held : false } : tb)
+                        setLocalTables(prev => prev.map(t => t.id === selTable.id ? { ...t, blocked: !t.blocked, held: t.blocked ? t.held : false } : t))
+                      }}
+                      style={{ flex: 1, padding: '5px 2px', fontSize: 10, fontWeight: 700,
+                        border: `1.5px solid ${selTable.blocked ? 'rgba(220,80,80,.5)' : 'var(--border)'}`,
+                        borderRadius: 4, cursor: 'pointer',
+                        background: selTable.blocked ? 'rgba(220,80,80,.12)' : 'var(--surf2)',
+                        color: selTable.blocked ? 'var(--rd)' : 'var(--t3)' }}>
+                      🚫 Bloquée
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!selTable.blocked) {
+                          tablesRef.current = tablesRef.current.map(tb => tb.id === selTable.id ? { ...tb, held: !tb.held } : tb)
+                          setLocalTables(prev => prev.map(t => t.id === selTable.id ? { ...t, held: !t.held } : t))
+                        }
+                      }}
+                      style={{ flex: 1, padding: '5px 2px', fontSize: 10, fontWeight: 700,
+                        border: `1.5px solid ${selTable.held ? 'rgba(232,165,48,.5)' : 'var(--border)'}`,
+                        borderRadius: 4, cursor: 'pointer',
+                        background: selTable.held ? 'rgba(232,165,48,.12)' : 'var(--surf2)',
+                        color: selTable.held ? '#e8a530' : 'var(--t3)',
+                        opacity: selTable.blocked ? 0.4 : 1 }}>
+                      🔒 Réserve
+                    </button>
                   </div>
 
                   <button onClick={handleDelete} style={{ width: '100%', padding: 6, fontSize: 11, border: '1px solid rgba(220,80,80,.3)', borderRadius: 6, background: 'rgba(220,80,80,.08)', color: 'var(--rd)', cursor: 'pointer', fontWeight: 700 }}>

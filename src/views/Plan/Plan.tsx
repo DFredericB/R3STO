@@ -80,7 +80,28 @@ function planTableSvg(
   const tcol = textCols[status] || textCols.free
   const sw = isSelected ? tRef * 0.125 : tRef * 0.067
 
+  // ── Tables dans un combo occupé → forme fantôme, aucun texte ──
+  if (isInOccupiedCombo) {
+    let s = `<g data-table="${t.id}" style="cursor:pointer;opacity:.18">`
+    // Forme seule, très discrète (pas de chaises, pas de texte)
+    if (['round', 'round_sm', 'round_lg'].includes(t.shape)) {
+      s += `<circle cx="${cx}" cy="${cy}" r="${t.h/2}" fill="rgba(68,128,216,.08)" stroke="rgba(68,128,216,.2)" stroke-width="${(tRef*0.04).toFixed(2)}"/>`
+    } else if (t.shape === 'oval') {
+      s += `<ellipse cx="${cx}" cy="${cy}" rx="${t.w/2}" ry="${t.h/2}" fill="rgba(68,128,216,.08)" stroke="rgba(68,128,216,.2)" stroke-width="${(tRef*0.04).toFixed(2)}"/>`
+    } else if (t.shape === 'bar') {
+      const bh = t.h * 0.5, by = t.y + (t.h - bh) / 2
+      s += `<rect x="${t.x}" y="${by}" width="${t.w}" height="${bh}" rx="1" fill="rgba(68,128,216,.08)" stroke="rgba(68,128,216,.2)" stroke-width="${(tRef*0.04).toFixed(2)}"/>`
+    } else {
+      const rxv = t.shape === 'square' || t.shape === 'square_sm' ? 2.5 : 1.5
+      s += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" rx="${rxv}" fill="rgba(68,128,216,.08)" stroke="rgba(68,128,216,.2)" stroke-width="${(tRef*0.04).toFixed(2)}"/>`
+    }
+    return s + '</g>'
+  }
+
   let s = `<g data-table="${t.id}" style="cursor:pointer">`
+
+  // Hitbox invisible — garantit le clic même sur tables bloquées/held
+  s += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" fill="transparent" style="pointer-events:all"/>`
 
   // ── 1. Chaises DERRIÈRE la table (identique éditeur) ──
   const chairFill = status === 'arrived' ? 'rgba(60,200,112,.18)'
@@ -126,17 +147,33 @@ function planTableSvg(
     if (isBasse) s += `<rect x="${(t.x+tRef*0.10).toFixed(2)}" y="${(t.y+tRef*0.083).toFixed(2)}" width="${(t.w-tRef*0.20).toFixed(2)}" height="${(t.h-tRef*0.167).toFixed(2)}" rx="${rxv-0.5}" fill="none" stroke="${stroke}" stroke-width="${(tRef*0.037).toFixed(2)}" stroke-dasharray="1.5,1"/>`
   }
 
-  // Blocked — hachures croisées bien visibles + X central
+  // Blocked — hachures diagonales clippées dans la forme + X central
   if (status === 'blocked') {
-    const gap = tRef * 0.18
-    // Hachures diagonales multiples
-    for (let i = -3; i <= 3; i++) {
-      const off = i * gap
-      s += `<line x1="${t.x + off}" y1="${t.y}" x2="${t.x + t.w + off}" y2="${t.y + t.h}" stroke="rgba(100,116,139,.22)" stroke-width="0.5" style="pointer-events:none"/>`
+    const clipId = `clip-blk-${t.id}`
+    s += `<defs><clipPath id="${clipId}">`
+    if (['round', 'round_sm', 'round_lg'].includes(t.shape))
+      s += `<circle cx="${cx}" cy="${cy}" r="${t.h/2}"/>`
+    else if (t.shape === 'oval')
+      s += `<ellipse cx="${cx}" cy="${cy}" rx="${t.w/2}" ry="${t.h/2}"/>`
+    else if (t.shape === 'bar') {
+      const bh = t.h * 0.5, by = t.y + (t.h - bh) / 2
+      s += `<rect x="${t.x}" y="${by}" width="${t.w}" height="${bh}" rx="1"/>`
+    } else {
+      const rxv = t.shape === 'square' || t.shape === 'square_sm' ? 2.5 : 1.5
+      s += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" rx="${rxv}"/>`
     }
-    // X central bien visible
-    s += `<line x1="${cx - tRef*0.2}" y1="${cy - tRef*0.2}" x2="${cx + tRef*0.2}" y2="${cy + tRef*0.2}" stroke="rgba(220,80,80,.5)" stroke-width="${(tRef*0.06).toFixed(2)}" stroke-linecap="round" style="pointer-events:none"/>`
-    s += `<line x1="${cx + tRef*0.2}" y1="${cy - tRef*0.2}" x2="${cx - tRef*0.2}" y2="${cy + tRef*0.2}" stroke="rgba(220,80,80,.5)" stroke-width="${(tRef*0.06).toFixed(2)}" stroke-linecap="round" style="pointer-events:none"/>`
+    s += `</clipPath></defs>`
+    s += `<g clip-path="url(#${clipId})" style="pointer-events:none">`
+    const gap = tRef * 0.18
+    const maxDim = Math.max(t.w, t.h)
+    const nLines = Math.ceil(maxDim / gap) + 2
+    for (let i = -nLines; i <= nLines; i++) {
+      const off = i * gap
+      s += `<line x1="${t.x + off - t.h}" y1="${t.y}" x2="${t.x + off + t.w}" y2="${t.y + t.h}" stroke="rgba(100,116,139,.25)" stroke-width="0.5"/>`
+    }
+    s += `</g>`
+    s += `<line x1="${cx - tRef*0.18}" y1="${cy - tRef*0.18}" x2="${cx + tRef*0.18}" y2="${cy + tRef*0.18}" stroke="rgba(220,80,80,.55)" stroke-width="${(tRef*0.06).toFixed(2)}" stroke-linecap="round" style="pointer-events:none"/>`
+    s += `<line x1="${cx + tRef*0.18}" y1="${cy - tRef*0.18}" x2="${cx - tRef*0.18}" y2="${cy + tRef*0.18}" stroke="rgba(220,80,80,.55)" stroke-width="${(tRef*0.06).toFixed(2)}" stroke-linecap="round" style="pointer-events:none"/>`
   }
 
   // Held — contour pointillé ambre + icône cadenas
@@ -166,34 +203,69 @@ function planTableSvg(
   const fsN = (tRef * 0.25).toFixed(1)
   const fsC = (tRef * 0.167).toFixed(1)
 
-  if (isInOccupiedCombo) {
-    // Combo occupé — pas de texte individuel (géré par planComboSvg)
-    // Juste le numéro de table discret
-    s += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.18).toFixed(1)}" font-family="DM Mono,monospace" font-weight="700" fill="${tcol}" opacity=".4" style="pointer-events:none">${t.n}</text>`
-  } else if (resaInfo) {
-    // Table occupée (solo) — numéro + nom + couverts/heure
-    s += `<text x="${cx}" y="${(cy - tRef*0.22).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
-    const maxChars = Math.max(4, Math.floor(t.w / 1.8))
-    const shortName = resaInfo.name.length > maxChars ? resaInfo.name.slice(0, maxChars - 1) + '…' : resaInfo.name
-    s += `<text x="${cx}" y="${(cy + tRef*0.08).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.18).toFixed(1)}" font-family="DM Mono,monospace" font-weight="600" fill="${tcol}" opacity=".85" style="pointer-events:none">${shortName}</text>`
-    s += `<text x="${cx}" y="${(cy + tRef*0.30).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.15).toFixed(1)}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${resaInfo.covers}p · ${resaInfo.time}</text>`
+  if (resaInfo) {
+    // Table occupée (solo) — layout optimisé :
+    // INTÉRIEUR : N° table (gros) + Nom client + couverts
+    // AU-DESSUS (hors cadre) : 🤖/✋  📞/🚶/🌐  HHhMM  🆕⭐⚠👶♿
 
-    // Badges au-dessus des chaises
-    const badges: string[] = []
-    if (resaInfo.isNew) badges.push('🆕')
-    if (resaInfo.isIA) badges.push('🤖')
-    if (resaInfo.vip) badges.push('⭐')
-    if (resaInfo.allergie) badges.push('⚠')
-    if (resaInfo.bebe > 0) badges.push('👶')
-    if (resaInfo.pmr > 0) badges.push('♿')
-    if (resaInfo.isCombo) badges.push('🔗')
+    const isSmallRound = t.shape === 'round_sm'
+    const fsNum = (tRef * 0.30).toFixed(1)
+    const fsNom = (tRef * 0.20).toFixed(1)
+    const fsInf = (tRef * 0.16).toFixed(1)
+    const fsBdg = (tRef * 0.14).toFixed(1)
+
+    // ── INTÉRIEUR TABLE ──
+
+    // N° table — gros, centré haut
+    s += `<text x="${cx}" y="${(cy - tRef*0.15).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNum}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
+
+    // Nom client — centre
+    const maxChars = Math.max(4, Math.floor(t.w / 1.6))
+    const shortName = resaInfo.name.length > maxChars ? resaInfo.name.slice(0, maxChars - 1) + '…' : resaInfo.name
+    s += `<text x="${cx}" y="${(cy + tRef*0.12).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNom}" font-family="DM Mono,monospace" font-weight="700" fill="${tcol}" opacity=".9" style="pointer-events:none">${shortName}</text>`
+
+    // Couverts — bas (sans heure, le service est visible dans la toolbar)
+    s += `<text x="${cx}" y="${(cy + tRef*0.32).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsInf}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".55" style="pointer-events:none">${resaInfo.covers}p</text>`
+
+    // ── AU-DESSUS DE LA TABLE (hors cadre, uniforme toutes formes) ──
+    const aboveSymbols: string[] = []
+
+    // IA/Manuel
+    const modeIcon = resaInfo.isIA ? '🤖' : '✋'
+    aboveSymbols.push(modeIcon)
+
+    // Canal
     const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
-    if (resaInfo.canal && canalIcons[resaInfo.canal]) badges.push(canalIcons[resaInfo.canal])
-    if (badges.length > 0) {
-      s += `<text x="${cx}" y="${(t.y - tRef*0.25).toFixed(2)}" text-anchor="middle" font-size="${(tRef*0.14).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
+    if (resaInfo.canal && canalIcons[resaInfo.canal]) {
+      aboveSymbols.push(canalIcons[resaInfo.canal])
     }
-    // Status icon
-    s += `<text x="${(t.x + tRef*0.1).toFixed(2)}" y="${(t.y + tRef*0.15).toFixed(2)}" font-size="${(tRef*0.18).toFixed(1)}" style="pointer-events:none">${resaInfo.statusIcon}</text>`
+
+    // Heure — sauf petites rondes (service déjà visible)
+    if (!isSmallRound) {
+      aboveSymbols.push(resaInfo.time)
+    }
+
+    // Badges spéciaux
+    if (resaInfo.isNew) aboveSymbols.push('🆕')
+    if (resaInfo.vip) aboveSymbols.push('⭐')
+    if (resaInfo.allergie) aboveSymbols.push('⚠')
+    if (resaInfo.bebe > 0) aboveSymbols.push('👶')
+    if (resaInfo.pmr > 0) aboveSymbols.push('♿')
+
+    // Rendu au-dessus — collé à la table, juste au-dessus des chaises
+    // Chaises: CH=tRef*0.104, GAP=tRef*0.046 → bord sup chaise = bord table + tRef*0.15
+    // On place les symboles à tRef*0.02 au-dessus des chaises (ou du bord si pas de chaises en haut)
+    if (aboveSymbols.length > 0) {
+      const hasTopChairs = ['round', 'round_sm', 'round_lg', 'oval'].includes(t.shape)
+        || (t.shape === 'bar' && t.barSide === 'top')
+        || (!['banquette', 'bar'].includes(t.shape) && t.orient !== 'H')
+      const chairClearance = hasTopChairs ? tRef * 0.17 : tRef * 0.06
+      const tableTop = ['round', 'round_sm', 'round_lg'].includes(t.shape) ? (cy - t.h/2)
+        : t.shape === 'oval' ? (cy - t.h/2)
+        : t.y
+      const aboveY = tableTop - chairClearance
+      s += `<text x="${cx}" y="${aboveY.toFixed(2)}" text-anchor="middle" dominant-baseline="auto" font-size="${fsBdg}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".7" style="pointer-events:none">${aboveSymbols.join(' ')}</text>`
+    }
   } else if (ghostInfo) {
     // Table libre avec historique fantôme (done/noshow) — en transparence
     const ghostCol = ghostInfo.isDone ? 'rgba(60,200,112,.35)' : 'rgba(220,80,80,.35)'
@@ -269,39 +341,45 @@ function planComboSvg(
     const fsCov = (cRef * 0.15).toFixed(1)
     s += `<text x="${lcx.toFixed(1)}" y="${(lcy + cRef*0.28).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsCov}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${comboResa.c}p · ${comboResa.t}</text>`
 
-    // Badges au-dessus du groupe
-    const badges: string[] = []
-    if ((Date.now() - comboResa.createdAt) < 15 * 60 * 1000) badges.push('🆕')
-    if (comboResa.mode === 'ia') badges.push('🤖')
-    if (comboResa.statut === 2) badges.push('⭐')
-    if (comboResa.allergie) badges.push('⚠')
-    if (comboResa.bebe > 0) badges.push('👶')
-    if (comboResa.pmr > 0) badges.push('♿')
-    badges.push('🔗') // toujours montrer l'icône combo
+    const fsBdg = (cRef * 0.15).toFixed(1)
+
+    // ── Symboles AU-DESSUS du groupe combo (hors cadre) ──
+    const aboveSymbols: string[] = []
+
+    // IA/Manuel
+    const modeIcon = comboResa.mode === 'ia' ? '🤖' : '✋'
+    aboveSymbols.push(modeIcon)
+
+    // Canal
     const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
-    if (comboResa.canal && canalIcons[comboResa.canal]) badges.push(canalIcons[comboResa.canal])
-    if (badges.length > 0) {
-      s += `<text x="${lcx.toFixed(1)}" y="${(ly - cRef*0.25).toFixed(1)}" text-anchor="middle" font-size="${(cRef*0.14).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
+    if (comboResa.canal && canalIcons[comboResa.canal]) {
+      aboveSymbols.push(canalIcons[comboResa.canal])
     }
 
-    // Status icon
-    const stIcon = STATUS[comboResa.s]?.icon || ''
-    if (stIcon) {
-      s += `<text x="${(lx + cRef*0.1).toFixed(1)}" y="${(ly + cRef*0.15).toFixed(1)}" font-size="${(cRef*0.18).toFixed(1)}" style="pointer-events:none">${stIcon}</text>`
+    // Heure
+    aboveSymbols.push(comboResa.t)
+
+    // Badges
+    if ((Date.now() - comboResa.createdAt) < 15 * 60 * 1000) aboveSymbols.push('🆕')
+    if (comboResa.statut === 2) aboveSymbols.push('⭐')
+    if (comboResa.allergie) aboveSymbols.push('⚠')
+    if (comboResa.bebe > 0) aboveSymbols.push('👶')
+    if (comboResa.pmr > 0) aboveSymbols.push('♿')
+
+    if (aboveSymbols.length > 0) {
+      s += `<text x="${lcx.toFixed(1)}" y="${(ly - cRef*0.22).toFixed(1)}" text-anchor="middle" font-size="${fsBdg}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".7" style="pointer-events:none">${aboveSymbols.join(' ')}</text>`
     }
   } else {
-    // ── Combo libre — contour pointillé + label ──
-    const fsN = (cRef * 0.20).toFixed(1)
-    s += `<rect x="${(lx-1).toFixed(1)}" y="${(ly-1).toFixed(1)}" width="${(lw+2).toFixed(1)}" height="${(lh+2).toFixed(1)}" rx="3" fill="none" stroke="rgba(180,130,255,.45)" stroke-width="0.9" stroke-dasharray="2.5,1.5"/>`
-    // Label en haut
-    const labelY = ly - cRef * 0.35
-    const lblW = (combo.label.length + capTxt.length + 3) * cRef * 0.11
-    const lblH = cRef * 0.28
-    s += `<rect x="${(lcx - lblW/2).toFixed(1)}" y="${(labelY - lblH/2).toFixed(1)}" width="${lblW.toFixed(1)}" height="${lblH.toFixed(1)}" rx="2.5" fill="rgba(30,30,42,.7)" stroke="rgba(180,130,255,.35)" stroke-width="0.5"/>`
-    s += `<text x="${lcx.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="rgba(180,130,255,.95)" style="pointer-events:none">${combo.label} · ${capTxt}</text>`
+    // ── Combo libre — contour pointillé cliquable ──
+    s += `<rect x="${(lx-1).toFixed(1)}" y="${(ly-1).toFixed(1)}" width="${(lw+2).toFixed(1)}" height="${(lh+2).toFixed(1)}" rx="3" fill="none" stroke="rgba(180,130,255,.35)" stroke-width="0.7" stroke-dasharray="2.5,1.5" style="pointer-events:none"/>`
+    // Hitbox plein sur toute la zone combo — les tables individuelles sont rendues par-dessus
+    // donc elles captent les clics en priorité, et cette zone capte les clics entre les tables
+    s += `<rect data-combo-click="${combo.label}" x="${(lx-5).toFixed(1)}" y="${(ly-5).toFixed(1)}" width="${(lw+10).toFixed(1)}" height="${(lh+10).toFixed(1)}" rx="4" fill="transparent" style="cursor:pointer;pointer-events:all"/>`
   }
 
-  return `<g style="pointer-events:none">${s}</g>`
+  return comboResa
+    ? `<g style="pointer-events:none">${s}</g>`
+    : `<g>${s}</g>`
 }
 
 // ══════════════════════════════════════════════════
@@ -399,6 +477,7 @@ export function Plan() {
   const [svcFilter, setSvcFilter] = useState('')
   const [search, setSearch] = useState('')
   const [showOrphans, setShowOrphans] = useState(false)
+  const orphansAutoShownRef = useRef(false)
   const [popup, setPopup] = useState<{ resa: any; table?: Table; x: number; y: number; flip: boolean } | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -598,6 +677,15 @@ export function Plan() {
 
   useEffect(() => { renderPlan() }, [renderPlan, salle, filteredResas, search])
 
+  // Auto-ouvrir la modale réassignation si orphelins détectés (une seule fois)
+  useEffect(() => {
+    if (orphans.length > 0 && !orphansAutoShownRef.current) {
+      orphansAutoShownRef.current = true
+      setShowOrphans(true)
+    }
+    if (orphans.length === 0) orphansAutoShownRef.current = false
+  }, [orphans])
+
   // ── Click handling ─────────────────────────────
   // Clic sur table occupée → ouvre modale résa dans /reservations
   // Clic sur table libre → ouvre nouvelle résa pré-remplie
@@ -606,6 +694,15 @@ export function Plan() {
     if (popup) { setPopup(null); return }
 
     const target = e.target as Element
+
+    // ── Clic sur tirets combo libre → nouvelle résa combo ──
+    const comboEl = target.closest('[data-combo-click]')
+    if (comboEl) {
+      const comboLabel = comboEl.getAttribute('data-combo-click')!
+      navigate(`/reservations?new=1&table=${encodeURIComponent(comboLabel)}&mode=manuel&from=plan`)
+      return
+    }
+
     const tblEl = target.closest('[data-table]')
     if (!tblEl) return
 
@@ -624,7 +721,7 @@ export function Plan() {
       // Table libre / bloquée / réserve → popup actions table
       setPopup({ resa: null, table: tbl, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
     }
-  }, [tables, occupiedMap, popup])
+  }, [tables, occupiedMap, popup, navigate])
 
   // ── Auto-réassignation ─────────────────────────
   const handleAutoReassign = () => {
@@ -660,17 +757,32 @@ export function Plan() {
         onNewResa={() => navigate('/reservations?new=1&from=plan')}
         hideAllFilter
       >
-        {/* Orphan alert — inside toolbar */}
-        {orphans.length > 0 && (
-          <div style={{ padding: '0 16px 6px' }}>
-            <button onClick={() => setShowOrphans(true)}
-              style={{ fontSize: 11, padding: '4px 12px', border: '1px solid rgba(220,80,80,.4)', borderRadius: 6, cursor: 'pointer',
-                background: 'rgba(220,80,80,.12)', color: 'var(--rd)', fontWeight: 700, animation: 'pulse 2s infinite' }}>
-              ⚠ {orphans.length} résa(s) à réassigner
-            </button>
-          </div>
-        )}
+        {/* Slot vide — les orphelins sont maintenant en bannière fixe */}
       </ViewToolbar>
+
+      {/* ── Bannière réassignation — impossible à louper ── */}
+      {orphans.length > 0 && (
+        <div onClick={() => setShowOrphans(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px', cursor: 'pointer',
+            background: 'linear-gradient(90deg, rgba(220,80,80,.18), rgba(220,80,80,.08))',
+            borderBottom: '2px solid rgba(220,80,80,.4)',
+            animation: 'pulse 2s infinite',
+          }}>
+          <span style={{ fontSize: 20 }}>⚠️</span>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--rd)' }}>
+              {orphans.length} réservation{orphans.length > 1 ? 's' : ''} à réassigner
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--t3)' }}>
+              Tables supprimées/modifiées — cliquez pour valider les réassignations
+            </div>
+          </div>
+          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: 'var(--rd)', padding: '4px 12px', border: '1.5px solid rgba(220,80,80,.4)', borderRadius: 6, background: 'rgba(220,80,80,.12)' }}>
+            Traiter →
+          </span>
+        </div>
+      )}
 
       {/* SVG Plan — pleine largeur, pas de colonne droite */}
       <div style={{ flex: 1, minWidth: 0, background: 'var(--surf2)', overflow: 'auto', position: 'relative' }}>
@@ -780,17 +892,19 @@ export function Plan() {
                 )}
 
                 {/* Bloquer / Débloquer */}
-                {tbl.blocked ? (
+                {tbl.blocked ? (<>
                   <button onClick={() => { setPopup(null); updateTable(tbl.id, { blocked: false }); toast(`${tbl.n} débloquée ✓`, 'success') }} style={btnStyle('var(--gn)')}>🔓 Débloquer</button>
-                ) : (
+                  <button onClick={() => { setPopup(null); updateTable(tbl.id, { blocked: false, held: true }); toast(`${tbl.n} → réserve 🔒`, 'info') }} style={btnStyle('#e8a530')}>🔒 Passer en réserve</button>
+                </>) : (
                   <button onClick={() => { setPopup(null); updateTable(tbl.id, { blocked: true, held: false }); toast(`${tbl.n} bloquée 🚫`, 'warning') }} style={btnStyle('rgba(100,116,139,.8)')}>🚫 Bloquer</button>
                 )}
 
                 {/* Réserve (held) / Libérer réserve */}
                 {!tbl.blocked && (
-                  tbl.held ? (
+                  tbl.held ? (<>
                     <button onClick={() => { setPopup(null); updateTable(tbl.id, { held: false }); toast(`${tbl.n} réserve levée ✓`, 'success') }} style={btnStyle('var(--gn)')}>🔓 Lever réserve</button>
-                  ) : (
+                    <button onClick={() => { setPopup(null); updateTable(tbl.id, { blocked: true, held: false }); toast(`${tbl.n} → bloquée 🚫`, 'warning') }} style={btnStyle('rgba(100,116,139,.8)')}>🚫 Bloquer</button>
+                  </>) : (
                     <button onClick={() => { setPopup(null); updateTable(tbl.id, { held: true }); toast(`${tbl.n} mise en réserve 🔒`, 'info') }} style={btnStyle('#e8a530')}>🔒 Mettre en réserve</button>
                   )
                 )}

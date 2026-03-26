@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { QuickResa } from '../../components/ui/QuickResa'
 import { useT } from '../../i18n/useTranslation'
 import { todayISO, nowMins, timeToMins } from '../../utils/date'
-import { CANAUX, sectionTitle } from '../../utils/design'
+import { STATUS, CANAUX, sectionTitle } from '../../utils/design'
 
 // ── StatCard ─────────────────────────────────────
 function StatCard({ label, value, sub, color = 'var(--bl)' }: {
@@ -362,6 +362,111 @@ export function Dashboard() {
             <WeatherWidget t={t} terraceCvt={terraceCvt} hasExterior={exteriorSalles.length > 0} />
           </div>
         )}
+
+        {/* ── AGENDA COMPACT — prochains créneaux ── */}
+        <div style={{ padding: '0 18px 14px' }}>
+          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ ...sectionTitle, padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              📅 Agenda du jour
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--t4)' }}>{dayResas.length} résas</span>
+            </div>
+            {(() => {
+              const nowM2 = nowMins()
+              const svcSlots = activeServices.map(s => ({
+                label: s.name, icon: s.icon || '',
+                open: timeToMins(s.open), close: timeToMins(s.close),
+                color: s.color || 'var(--bl)',
+              }))
+              const allSlots: number[] = []
+              svcSlots.forEach(svc => {
+                for (let m = svc.open; m < svc.close; m += 30) {
+                  if (!allSlots.includes(m)) allSlots.push(m)
+                }
+              })
+              allSlots.sort((a, b) => a - b)
+
+              const resaBySlot: Record<number, typeof dayResas> = {}
+              dayResas.forEach(r => {
+                const parts = r.t.split(/[h:]/)
+                const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
+                const slotKey = Math.floor(m / 30) * 30
+                if (!resaBySlot[slotKey]) resaBySlot[slotKey] = []
+                resaBySlot[slotKey].push(r)
+              })
+
+              return allSlots.length === 0 ? (
+                <div style={{ padding: 16, textAlign: 'center', color: 'var(--t4)', fontSize: 12 }}>Aucun service configuré</div>
+              ) : (
+                <div>
+                  {visibleSlots.map(slotMin => {
+                    const hr = Math.floor(slotMin / 60)
+                    const mn = slotMin % 60
+                    const label = `${hr}h${String(mn).padStart(2, '0')}`
+                    const isNow = nowM2 >= slotMin && nowM2 < slotMin + 30
+                    const slotResas = resaBySlot[slotMin] || []
+                    const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
+                    const svc = svcSlots.find(s => slotMin >= s.open && slotMin < s.close)
+                    const isFirstSlot = svc && slotMin === svc.open
+
+                    return (
+                      <div key={slotMin}>
+                        {isFirstSlot && svc && (
+                          <div style={{
+                            padding: '5px 12px', background: svc.color + '12',
+                            borderBottom: '1px solid var(--border)',
+                            fontSize: 11, fontWeight: 800, color: svc.color,
+                            textTransform: 'uppercase', letterSpacing: .5,
+                          }}>
+                            {svc.icon} {svc.label}
+                          </div>
+                        )}
+                        <div style={{
+                          display: 'flex', borderBottom: '1px solid var(--border)',
+                          background: isNow ? 'rgba(220,80,80,.05)' : 'transparent',
+                          minHeight: slotResas.length > 0 ? 44 : 32,
+                        }}>
+                          <div style={{
+                            width: 56, flexShrink: 0, padding: '6px 6px', textAlign: 'right',
+                            fontSize: 13, fontWeight: 800, fontFamily: 'var(--fm)',
+                            color: isNow ? 'var(--rd)' : 'var(--t3)',
+                            borderRight: isNow ? '3px solid var(--rd)' : '2px solid var(--border)',
+                          }}>
+                            {label}
+                            {slotCvt > 0 && <div style={{ fontSize: 10, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
+                          </div>
+                          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6, padding: '5px 10px', alignItems: 'center' }}>
+                            {slotResas.length === 0 && <span style={{ fontSize: 11, color: 'var(--t4)' }}>—</span>}
+                            {slotResas.map(r => {
+                              const st = STATUS[r.s as keyof typeof STATUS]
+                              return (
+                                <div key={r.id}
+                                  onClick={() => navigate(`/reservations?edit=${r.id}`)}
+                                  style={{
+                                    padding: '6px 10px', borderRadius: 7, cursor: 'pointer',
+                                    background: st?.bg || 'var(--surf2)',
+                                    border: `1.5px solid ${st?.border || 'var(--border)'}`,
+                                    display: 'flex', alignItems: 'center', gap: 5, fontSize: 13,
+                                    minHeight: 36, touchAction: 'manipulation',
+                                  }}>
+                                  <span style={{ fontSize: 10 }}>{st?.icon}</span>
+                                  <span style={{ fontWeight: 700, color: st?.hex || 'var(--text)' }}>
+                                    {r.nom || r.n?.split(' ')[0] || '?'}
+                                  </span>
+                                  <span style={{ fontFamily: 'var(--fm)', color: 'var(--t2)', fontWeight: 700 }}>{r.c}p</span>
+                                  {r.tbl && <span style={{ fontSize: 10, fontFamily: 'var(--fm)', color: 'var(--t3)', padding: '0 4px', background: 'rgba(68,128,216,.08)', borderRadius: 3 }}>{r.tbl}</span>}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
+          </div>
+        </div>
 
         {/* ── ANALYTIQUES ── */}
         <div style={{ padding: '0 18px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>

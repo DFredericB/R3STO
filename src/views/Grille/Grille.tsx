@@ -130,20 +130,20 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
       <div style={{
         display: 'flex', borderRadius: 9, overflow: 'hidden',
         border: '1px solid rgba(220,80,80,.3)', background: 'rgba(220,80,80,.06)',
-        minHeight: 44, opacity: moveMode ? .35 : .7,
+        minHeight: 48, opacity: moveMode ? .35 : .7,
       }}>
         <div style={{
-          width: 52, flexShrink: 0, display: 'flex', flexDirection: 'column',
+          width: 56, flexShrink: 0, display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', background: 'rgba(220,80,80,.2)',
           padding: '4px 0',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: 'var(--rd)' }}>{table.n}</div>
-          <div style={{ fontSize: 8, color: 'var(--rd)', fontWeight: 600 }}>{table.capMax}p</div>
+          <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: 'var(--rd)' }}>{table.n}</div>
+          <div style={{ fontSize: 10, color: 'var(--rd)', fontWeight: 600 }}>{table.capMax}p</div>
         </div>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 10px', gap: 6 }}>
-          <span style={{ fontSize: 12 }}>🚫</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--rd)' }}>Bloquée</span>
-          {table.blockedReason && <span style={{ fontSize: 10, color: 'var(--t3)', fontStyle: 'italic' }}>{table.blockedReason}</span>}
+          <span style={{ fontSize: 14 }}>🚫</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--rd)' }}>Bloquée</span>
+          {table.blockedReason && <span style={{ fontSize: 12, color: 'var(--t3)', fontStyle: 'italic' }}>{table.blockedReason}</span>}
         </div>
       </div>
     )
@@ -162,24 +162,24 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           display: 'flex', borderRadius: 9, overflow: 'hidden',
           border: canTarget ? '2px solid rgba(60,200,112,.6)' : '1px solid rgba(232,165,48,.4)',
           background: canTarget ? 'rgba(60,200,112,.08)' : 'rgba(232,165,48,.06)',
-          minHeight: 44, cursor: canTarget || !moveMode ? 'pointer' : 'default',
+          minHeight: 48, cursor: canTarget || !moveMode ? 'pointer' : 'default',
           opacity: moveMode && !canTarget ? .35 : 1,
         }}
         title={canTarget ? `Déplacer ici → ${table.n}` : `Réserver ${table.n} (de réserve)`}
       >
         <div style={{
-          width: 52, flexShrink: 0, display: 'flex', flexDirection: 'column',
+          width: 56, flexShrink: 0, display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', background: 'rgba(232,165,48,.18)', padding: '4px 0',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: '#e8a530' }}>{table.n}</div>
-          <div style={{ fontSize: 8, color: '#e8a530', fontWeight: 600 }}>{table.capMax}p</div>
+          <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: '#e8a530' }}>{table.n}</div>
+          <div style={{ fontSize: 10, color: '#e8a530', fontWeight: 600 }}>{table.capMax}p</div>
         </div>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 10px', gap: 6 }}>
-          <span style={{ fontSize: 12 }}>🔒</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#e8a530' }}>De réserve</span>
-          {canTarget && <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: 'var(--gn)' }}>→ Ici</span>}
+          <span style={{ fontSize: 14 }}>🔒</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#e8a530' }}>De réserve</span>
+          {canTarget && <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 700, color: 'var(--gn)' }}>→ Ici</span>}
           {!canTarget && hasCombos && (
-            <span style={{ fontSize: 10, color: 'var(--t4)', marginLeft: 'auto', fontFamily: 'var(--fm)' }}>
+            <span style={{ fontSize: 12, color: 'var(--t4)', marginLeft: 'auto', fontFamily: 'var(--fm)' }}>
               🔗 {tableCombos.map(c => c.label).join(' · ')}
             </span>
           )}
@@ -247,8 +247,8 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
       {(() => {
         const comboNames = table.n.includes('+') ? table.n.split('+') : null
         const comboCount = comboNames ? comboNames.length : 0
-        const lineHeight = comboCount >= 4 ? 92 : comboCount >= 3 ? 78 : comboCount === 2 ? 62 : 44
-        const badgeW = 60 // largeur uniforme pour aligner toutes les lignes
+        const lineHeight = comboCount >= 4 ? 96 : comboCount >= 3 ? 82 : comboCount === 2 ? 66 : 48
+        const badgeW = 64 // largeur uniforme pour aligner toutes les lignes
         return (
       <div style={{ display: 'flex', minHeight: lineHeight }}>
         {/* Bande combo dorée */}
@@ -281,27 +281,27 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
             <>
               {comboNames.map((tn, i) => (
                 <div key={i} style={{
-                  fontSize: 11, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
+                  fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
                   textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3,
                   borderBottom: i < comboNames.length - 1 ? '1px solid rgba(255,255,255,.2)' : 'none',
                   padding: '1px 0', width: '100%', textAlign: 'center',
                 }}>{tn}</div>
               ))}
-              <div style={{ fontSize: 7, color: 'rgba(255,255,255,.6)', fontWeight: 600, marginTop: 1 }}>{table.capMax}p</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,.6)', fontWeight: 600, marginTop: 1 }}>{table.capMax}p</div>
             </>
           ) : (
             <>
-              <div style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.3)' }}>
+              <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.3)' }}>
                 {table.n}
               </div>
-              <div style={{ fontSize: 8, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>
                 {table.capMax}p
               </div>
             </>
           )}
           {/* Chevron — seulement sur tables occupées */}
           {!moveMode && !isFree && (
-            <div style={{ fontSize: 7, color: 'rgba(255,255,255,.5)', lineHeight: 1, marginTop: -1 }}>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,.5)', lineHeight: 1, marginTop: -1 }}>
               {expanded ? '▲' : '▼'}
             </div>
           )}
@@ -313,7 +313,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
             /* ════ TABLE LIBRE (avec ghost done/noshow si applicable) ════ */
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {isValidMoveTarget ? (
-                <span style={{ fontSize: 12, color: 'var(--gn)', fontWeight: 700 }}>→ Déplacer ici</span>
+                <span style={{ fontSize: 14, color: 'var(--gn)', fontWeight: 700 }}>→ Déplacer ici</span>
               ) : (() => {
                 const ghost = resas.find(r => r.s === 'done' || r.s === 'noshow')
                 if (ghost) {
@@ -321,16 +321,16 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                   const ghostIcon = ghost.s === 'done' ? '🪑' : '👻'
                   return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5, opacity: .45, fontStyle: 'italic' }}>
-                      <span style={{ fontSize: 11 }}>{ghostIcon}</span>
-                      <span style={{ fontSize: 12, color: ghostCol, fontWeight: 600 }}>{ghost.nom || ghost.n?.split(' ')[0]}</span>
-                      <span style={{ fontSize: 10, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>{ghost.c}p · {ghost.t}</span>
+                      <span style={{ fontSize: 13 }}>{ghostIcon}</span>
+                      <span style={{ fontSize: 14, color: ghostCol, fontWeight: 600 }}>{ghost.nom || ghost.n?.split(' ')[0]}</span>
+                      <span style={{ fontSize: 12, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>{ghost.c}p · {ghost.t}</span>
                     </div>
                   )
                 }
                 return (
                   <>
-                    <span style={{ fontSize: 12, color: 'var(--t4)', fontWeight: 600 }}>{t('grid.free')}</span>
-                    <span style={{ fontSize: 10, color: 'var(--t4)' }}>{table.shape === 'round' ? '○' : '▭'}</span>
+                    <span style={{ fontSize: 14, color: 'var(--t4)', fontWeight: 600 }}>{t('grid.free')}</span>
+                    <span style={{ fontSize: 12, color: 'var(--t4)' }}>{table.shape === 'round' ? '○' : '▭'}</span>
                   </>
                 )
               })()}
@@ -343,14 +343,14 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                     marginLeft: 'auto', padding: '2px 8px', borderRadius: 6,
                     border: '1px solid rgba(255,214,102,.4)',
                     background: showComboMenu ? 'rgba(255,214,102,.2)' : 'rgba(255,214,102,.08)',
-                    cursor: 'pointer', fontSize: 10, fontWeight: 700, color: '#e8a530',
+                    cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#e8a530',
                     fontFamily: 'var(--fm)', display: 'flex', alignItems: 'center', gap: 4,
                     height: 28, flexShrink: 0,
                   }}
                 >
                   🔗 {availableCombos.length > 1 ? `${availableCombos.length} combos` : availableCombos[0].label}
-                  <span style={{ fontSize: 9, color: 'rgba(255,214,102,.7)' }}>{availableCombos.length === 1 ? `${availableCombos[0].capOverride || availableCombos[0].cap}p` : ''}</span>
-                  <span style={{ fontSize: 8, marginLeft: 2 }}>{showComboMenu ? '▲' : '▼'}</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,214,102,.7)' }}>{availableCombos.length === 1 ? `${availableCombos[0].capOverride || availableCombos[0].cap}p` : ''}</span>
+                  <span style={{ fontSize: 10, marginLeft: 2 }}>{showComboMenu ? '▲' : '▼'}</span>
                 </button>
               )}
             </div>
@@ -365,12 +365,12 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                 }}
               >
                 {/* Heure */}
-                <span style={{ fontFamily: 'var(--fm)', fontSize: 12, fontWeight: 800, color: 'var(--text)', flexShrink: 0, width: 34 }}>
+                <span style={{ fontFamily: 'var(--fm)', fontSize: 14, fontWeight: 800, color: 'var(--text)', flexShrink: 0, width: 38 }}>
                   {r.t.replace('h', ':')}
                 </span>
                 {/* Nom */}
                 <span style={{
-                  fontSize: 12, fontWeight: 700, color: 'var(--text)', flex: 1, minWidth: 0,
+                  fontSize: 14, fontWeight: 700, color: 'var(--text)', flex: 1, minWidth: 0,
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>
                   {r.nom || r.n.split(' ').slice(-1)[0]}
@@ -379,27 +379,27 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                   {r.allergie && ' ⚠️'}
                 </span>
                 {/* Couverts */}
-                <span style={{ fontFamily: 'var(--fm)', fontSize: 11, fontWeight: 800, color: 'var(--t2)', flexShrink: 0 }}>
+                <span style={{ fontFamily: 'var(--fm)', fontSize: 13, fontWeight: 800, color: 'var(--t2)', flexShrink: 0 }}>
                   {r.c}p
                 </span>
                 {/* Swap hint */}
                 {isValidSwapTarget && isOccupying(r) && (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#e8a530', flexShrink: 0 }}>↔</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#e8a530', flexShrink: 0 }}>↔</span>
                 )}
                 {/* Combo indicator */}
                 {isInCombo && idx === 0 && (
-                  <span style={{ fontSize: 9, color: '#ffd666', fontWeight: 600, flexShrink: 0 }}>🔗</span>
+                  <span style={{ fontSize: 11, color: '#ffd666', fontWeight: 600, flexShrink: 0 }}>🔗</span>
                 )}
                 {/* Canal de réservation */}
                 {r.canal && CANAUX[r.canal] && (
-                  <span style={{ fontSize: 9, flexShrink: 0, opacity: .8 }} title={CANAUX[r.canal].label}>
+                  <span style={{ fontSize: 11, flexShrink: 0, opacity: .8 }} title={CANAUX[r.canal].label}>
                     {CANAUX[r.canal].icon}
                   </span>
                 )}
                 {/* Mode IA/Manuel — badge compact coloré */}
                 <span style={{
-                  fontSize: 7, fontWeight: 800, flexShrink: 0,
-                  padding: '1px 4px', borderRadius: 3, letterSpacing: .3,
+                  fontSize: 9, fontWeight: 800, flexShrink: 0,
+                  padding: '1px 5px', borderRadius: 3, letterSpacing: .3,
                   background: r.mode === 'ia' ? 'rgba(91,156,246,.15)' : 'rgba(232,165,48,.12)',
                   color: r.mode === 'ia' ? '#7bb8ff' : '#e8a530',
                   border: `1px solid ${r.mode === 'ia' ? 'rgba(91,156,246,.3)' : 'rgba(232,165,48,.25)'}`,
@@ -408,7 +408,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                 </span>
                 {/* NEW badge — résa créée il y a moins de 15 min */}
                 {(Date.now() - r.createdAt) < 15 * 60 * 1000 && (
-                  <span style={{ fontSize: 7, fontWeight: 900, color: '#a78bfa', background: 'rgba(167,139,250,.15)', padding: '1px 4px', borderRadius: 4, flexShrink: 0, letterSpacing: .5 }}>NEW</span>
+                  <span style={{ fontSize: 9, fontWeight: 900, color: '#a78bfa', background: 'rgba(167,139,250,.15)', padding: '1px 5px', borderRadius: 4, flexShrink: 0, letterSpacing: .5 }}>NEW</span>
                 )}
               </div>
             ))
@@ -713,7 +713,13 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
             }
 
             // ── Table normale (pas dans un combo actif) ──
-            const tblResas = svcResas.filter(r => r.tbl === table.n) // match exact seulement
+            // Résas de cette table — si une résa active (reserved/arrived) existe,
+            // masquer les stales (noshow/done/cancelled) pour éviter les doublons visuels
+            const allTblResas = svcResas.filter(r => r.tbl === table.n)
+            const hasActive = allTblResas.some(r => r.s === 'reserved' || r.s === 'arrived')
+            const tblResas = hasActive
+              ? allTblResas.filter(r => r.s === 'reserved' || r.s === 'arrived' || r.s === 'waitlist')
+              : allTblResas
             elements.push(
               <TableRow
                 key={table.id}
@@ -754,6 +760,7 @@ export function Grille() {
   const [svcFilter, setSvcFilter] = useState('tous')
   const [search, setSearch] = useState('')
   const [moveMode, setMoveMode] = useState<MoveMode | null>(null)
+  const [grilleMode, setGrilleMode] = useState<'grille' | 'agenda'>('grille')
   const [moveMsg, setMoveMsg] = useState<string | null>(null)
 
   const activeServices = services.filter(s => s.active)
@@ -877,6 +884,22 @@ export function Grille() {
         onNewResa={moveMode ? undefined : () => navigate('/reservations?new=1&from=grille')}
       />
 
+      {/* ── Toggle Grille / Agenda ── */}
+      {!moveMode && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '6px 14px', borderBottom: '1px solid var(--border)', background: 'var(--surf)', flexShrink: 0 }}>
+          {(['grille', 'agenda'] as const).map(mode => (
+            <button key={mode} onClick={() => setGrilleMode(mode)} style={{
+              padding: '5px 14px', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
+              background: grilleMode === mode ? 'var(--bp)' : 'transparent',
+              color: grilleMode === mode ? 'var(--bl)' : 'var(--t3)',
+              borderRadius: 6, transition: 'all .15s',
+            }}>
+              {mode === 'grille' ? '📊 Grille' : '📅 Agenda'}
+            </button>
+          ))}
+        </div>
+      )}
+
       {moveMode && (
         <div style={{
           padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12,
@@ -912,31 +935,160 @@ export function Grille() {
         </div>
       )}
 
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-        {displayServices.map(svc => (
-          <ServiceColumn
-            key={svc.id}
-            service={svc}
-            tables={filteredTables}
-            resas={dayResas}
-            combos={combos}
-            allTables={tables}
-            moveMode={moveMode}
-            onMarkArrived={(id) => setResaStatus(id, 'arrived')}
-            onMarkNoshow={(id) => setResaStatus(id, 'noshow')}
-            onMarkDone={(id) => setResaStatus(id, 'done')}
-            onCancel={(id) => setResaStatus(id, 'cancelled')}
-            onRestore={(id) => setResaStatus(id, 'reserved')}
-            onClickResa={(id) => moveMode ? undefined : navigate(`/reservations?edit=${id}&from=grille`)}
-            onPlaceResa={handlePlaceResa}
-            onPlaceCombo={handlePlaceCombo}
-            onUncombine={handleUncombine}
-            onStartMove={handleStartMove}
-            onMoveTarget={(tbl, svc) => handleMoveTarget(tbl, svc)}
-            onMoveIA={handleMoveIA}
-          />
-        ))}
-      </div>
+      {grilleMode === 'agenda' ? (
+        /* ═══ VUE AGENDA (timeline par créneau) ═══ */
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+          {(() => {
+            const now = nowMins()
+            const svcSlots = activeServices.map(s => ({
+              label: s.name,
+              icon: s.icon || '',
+              open: timeToMins(s.open),
+              close: timeToMins(s.close),
+              color: s.color || 'var(--bl)',
+            }))
+
+            const allSlots: number[] = []
+            svcSlots.forEach(svc => {
+              for (let m = svc.open; m < svc.close; m += 30) {
+                if (!allSlots.includes(m)) allSlots.push(m)
+              }
+            })
+            allSlots.sort((a, b) => a - b)
+
+            const resaBySlot: Record<number, typeof dayResas> = {}
+            dayResas.forEach(r => {
+              const parts = r.t.split(/[h:]/)
+              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
+              const slotKey = Math.floor(m / 30) * 30
+              if (!resaBySlot[slotKey]) resaBySlot[slotKey] = []
+              resaBySlot[slotKey].push(r)
+            })
+
+            return allSlots.length === 0 ? (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)', fontSize: 14 }}>Aucun service configuré</div>
+            ) : (
+              <div>
+                {allSlots.map(slotMin => {
+                  const hr = Math.floor(slotMin / 60)
+                  const mn = slotMin % 60
+                  const label = `${hr}h${String(mn).padStart(2, '0')}`
+                  const isNow = now >= slotMin && now < slotMin + 30
+                  const slotResas = resaBySlot[slotMin] || []
+                  const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
+                  const svc = svcSlots.find(s => slotMin >= s.open && slotMin < s.close)
+                  const isFirstSlot = svc && slotMin === svc.open
+
+                  return (
+                    <div key={slotMin}>
+                      {isFirstSlot && svc && (
+                        <div style={{
+                          padding: '7px 14px', background: svc.color + '15',
+                          borderBottom: '1px solid var(--border)',
+                          fontSize: 12, fontWeight: 800, color: svc.color,
+                          textTransform: 'uppercase', letterSpacing: .5,
+                          display: 'flex', alignItems: 'center', gap: 6,
+                        }}>
+                          <span>{svc.icon}</span> {svc.label}
+                          <span style={{ fontSize: 11, fontWeight: 600, marginLeft: 'auto', opacity: .7 }}>
+                            {dayResas.filter(r => {
+                              const parts = r.t.split(/[h:]/)
+                              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
+                              return m >= svc.open && m < svc.close
+                            }).length} résas · {dayResas.filter(r => {
+                              const parts = r.t.split(/[h:]/)
+                              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
+                              return m >= svc.open && m < svc.close
+                            }).reduce((s, r) => s + r.c, 0)}p
+                          </span>
+                        </div>
+                      )}
+                      <div style={{
+                        display: 'flex', borderBottom: '1px solid var(--border)',
+                        background: isNow ? 'rgba(220,80,80,.05)' : 'transparent',
+                        minHeight: slotResas.length > 0 ? 44 : 34,
+                      }}>
+                        <div style={{
+                          width: 62, flexShrink: 0, padding: '6px 8px', textAlign: 'right',
+                          fontSize: 13, fontWeight: 800, fontFamily: 'var(--fm)',
+                          color: isNow ? 'var(--rd)' : 'var(--t3)',
+                          borderRight: isNow ? '3px solid var(--rd)' : '3px solid var(--border)',
+                        }}>
+                          {label}
+                          {slotCvt > 0 && <div style={{ fontSize: 10, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 5, padding: '5px 10px', alignItems: 'center' }}>
+                          {slotResas.length === 0 && (
+                            <span style={{ fontSize: 12, color: 'var(--t4)' }}>—</span>
+                          )}
+                          {slotResas.map(r => {
+                            const st = STATUS[r.s as keyof typeof STATUS]
+                            return (
+                              <div key={r.id}
+                                onClick={() => navigate(`/reservations?edit=${r.id}&from=grille`)}
+                                style={{
+                                  padding: '5px 10px', borderRadius: 7, cursor: 'pointer',
+                                  background: st?.bg || 'var(--surf2)',
+                                  border: `1px solid ${st?.border || 'var(--border)'}`,
+                                  display: 'flex', alignItems: 'center', gap: 5,
+                                }}>
+                                <span style={{ fontSize: 11 }}>{st?.icon}</span>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: st?.hex || 'var(--text)' }}>
+                                  {r.nom || r.n?.split(' ')[0] || '?'}
+                                </span>
+                                <span style={{ fontSize: 12, fontFamily: 'var(--fm)', color: 'var(--t2)', fontWeight: 700 }}>{r.c}p</span>
+                                {r.tbl && <span style={{ fontSize: 11, fontFamily: 'var(--fm)', color: 'var(--t3)', fontWeight: 600, padding: '1px 5px', background: 'rgba(68,128,216,.1)', borderRadius: 4 }}>{r.tbl}</span>}
+                                {r.statut === 2 && <span>⭐</span>}
+                                {r.allergie && <span>⚠️</span>}
+                                {r.bebe > 0 && <span style={{ fontSize: 11 }}>👶</span>}
+                                {r.canal && CANAUX[r.canal] && <span style={{ fontSize: 10, opacity: .8 }}>{CANAUX[r.canal].icon}</span>}
+                                <span style={{
+                                  fontSize: 9, fontWeight: 800, padding: '1px 4px', borderRadius: 3,
+                                  background: r.mode === 'ia' ? 'rgba(91,156,246,.15)' : 'rgba(232,165,48,.12)',
+                                  color: r.mode === 'ia' ? '#7bb8ff' : '#e8a530',
+                                }}>
+                                  {r.mode === 'ia' ? '🤖' : '✋'}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
+        </div>
+      ) : (
+        /* ═══ VUE GRILLE (colonnes par service) ═══ */
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+          {displayServices.map(svc => (
+            <ServiceColumn
+              key={svc.id}
+              service={svc}
+              tables={filteredTables}
+              resas={dayResas}
+              combos={combos}
+              allTables={tables}
+              moveMode={moveMode}
+              onMarkArrived={(id) => setResaStatus(id, 'arrived')}
+              onMarkNoshow={(id) => setResaStatus(id, 'noshow')}
+              onMarkDone={(id) => setResaStatus(id, 'done')}
+              onCancel={(id) => setResaStatus(id, 'cancelled')}
+              onRestore={(id) => setResaStatus(id, 'reserved')}
+              onClickResa={(id) => moveMode ? undefined : navigate(`/reservations?edit=${id}&from=grille`)}
+              onPlaceResa={handlePlaceResa}
+              onPlaceCombo={handlePlaceCombo}
+              onUncombine={handleUncombine}
+              onStartMove={handleStartMove}
+              onMoveTarget={(tbl, svc) => handleMoveTarget(tbl, svc)}
+              onMoveIA={handleMoveIA}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

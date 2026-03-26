@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { ViewToolbar } from '../../components/ui/ViewToolbar'
@@ -6,7 +6,7 @@ import type { Resa, ResaCanal } from '../../types'
 import PhoneInput, { toE164, displayPhone } from '../../components/ui/PhoneInput'
 import { useT } from '../../i18n/useTranslation'
 import { STATUS, CANAUX } from '../../utils/design'
-import { todayISO, timeToMins, shiftISO } from '../../utils/date'
+import { todayISO, timeToMins, shiftISO, nowMins } from '../../utils/date'
 import { getFreeTables, getFreeCombos, getMaxCapacity, detectTablePref as detectTablePrefCentral } from '../../utils/placementRules'
 
 // ── Helpers ────────────────────────────────────────
@@ -136,6 +136,7 @@ export function Resas() {
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<'heure' | 'table' | 'client' | 'couverts' | 'statut'>('heure')
   const [sortAsc, setSortAsc] = useState(true)
+  const [viewMode, setViewMode] = useState<'journal' | 'agenda'>('journal')
   const [showModal, setShowModal] = useState(false)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const dateRefModal = useRef<HTMLInputElement>(null)
@@ -197,7 +198,7 @@ export function Resas() {
 
   const curSvc   = activeServices.find(s => s.name.toLowerCase() === svcId)
   const svcOcc   = resas.filter(r => r.date === activeDate && r.svc === svcId).reduce((s, r) => s + r.c, 0)
-  const totalCapMax = tables.filter(t => t.active).reduce((s, tb) => s + tb.capMax, 0)
+  const totalCapMax = tables.filter(t => t.active && !t.blocked && !t.held).reduce((s, tb) => s + tb.capMax, 0)
   const svcLimit = curSvc?.maxCouverts || totalCapMax
   const capPct   = svcLimit > 0 ? Math.min(100, Math.round(svcOcc / svcLimit * 100)) : 0
   const capColor = capPct >= 90 ? 'var(--rd)' : capPct >= 60 ? 'var(--am)' : 'var(--gn)'
@@ -350,6 +351,22 @@ export function Resas() {
       updateResa(editingId, resaData)
       setLastEditedId(editingId)
     } else {
+      // ── Nettoyage : libérer les anciennes résas noshow/done/cancelled sur cette table ──
+      const assignedTable = resaData.tbl
+      if (assignedTable) {
+        const staleStatuses = ['noshow', 'done', 'cancelled']
+        const tablesToCheck = assignedTable.includes('+')
+          ? assignedTable.split('+').map((s: string) => s.trim())
+          : [assignedTable]
+        for (const r of resas) {
+          if (staleStatuses.includes(r.s) && r.tbl && r.date === activeDate) {
+            const rTables = r.tbl.includes('+') ? r.tbl.split('+').map((s: string) => s.trim()) : [r.tbl]
+            if (rTables.some(rt => tablesToCheck.includes(rt))) {
+              updateResa(r.id, { tbl: '' })  // libère la table de l'ancienne résa
+            }
+          }
+        }
+      }
       const newId = Date.now().toString()
       addResa({ ...resaData, id: newId, createdAt: Date.now() })
       setLastEditedId(newId)
@@ -423,7 +440,156 @@ export function Resas() {
         onPrint={handlePrint}
       />
 
-      {/* Liste — minHeight:0 force le flex child à respecter overflow */}
+      {/* ── Toggle Journal / Agenda ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '6px 14px', borderBottom: '1px solid var(--border)', background: 'var(--surf)', flexShrink: 0 }}>
+        {(['journal', 'agenda'] as const).map(mode => (
+          <button key={mode} onClick={() => setViewMode(mode)} style={{
+            padding: '5px 14px', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
+            background: viewMode === mode ? 'var(--bp)' : 'transparent',
+            color: viewMode === mode ? 'var(--bl)' : 'var(--t3)',
+            borderRadius: 6, transition: 'all .15s',
+          }}>
+            {mode === 'journal' ? '📋 Journal' : '📅 Agenda'}
+          </button>
+        ))}
+      </div>
+
+      {/* ═══ VUE AGENDA (timeline par créneau) ═══ */}
+      {viewMode === 'agenda' ? (
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+          {(() => {
+            const now = nowMins()
+            const svcSlots = activeServices.map(s => ({
+              label: s.name,
+              icon: s.icon || '',
+              open: timeToMins(s.open),
+              close: timeToMins(s.close),
+              color: s.color || 'var(--bl)',
+            }))
+
+            const allSlots: number[] = []
+            svcSlots.forEach(svc => {
+              for (let m = svc.open; m < svc.close; m += 30) {
+                if (!allSlots.includes(m)) allSlots.push(m)
+              }
+            })
+            allSlots.sort((a, b) => a - b)
+
+            const resaBySlot: Record<number, typeof dayResas> = {}
+            dayResas.forEach(r => {
+              const parts = r.t.split(/[h:]/)
+              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
+              const slotKey = Math.floor(m / 30) * 30
+              if (!resaBySlot[slotKey]) resaBySlot[slotKey] = []
+              resaBySlot[slotKey].push(r)
+            })
+
+            return allSlots.length === 0 ? (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)', fontSize: 14 }}>Aucun service configuré</div>
+            ) : (
+              <div>
+                {allSlots.map(slotMin => {
+                  const hr = Math.floor(slotMin / 60)
+                  const mn = slotMin % 60
+                  const label = `${hr}h${String(mn).padStart(2, '0')}`
+                  const isNow = now >= slotMin && now < slotMin + 30
+                  const slotResas = resaBySlot[slotMin] || []
+                  const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
+                  const svc = svcSlots.find(s => slotMin >= s.open && slotMin < s.close)
+                  const isFirstSlot = svc && slotMin === svc.open
+
+                  return (
+                    <div key={slotMin}>
+                      {isFirstSlot && svc && (
+                        <div style={{
+                          padding: '7px 14px', background: svc.color + '15',
+                          borderBottom: '1px solid var(--border)',
+                          fontSize: 12, fontWeight: 800, color: svc.color,
+                          textTransform: 'uppercase', letterSpacing: .5,
+                          display: 'flex', alignItems: 'center', gap: 6,
+                        }}>
+                          <span>{svc.icon}</span> {svc.label}
+                          <span style={{ fontSize: 11, fontWeight: 600, marginLeft: 'auto', opacity: .7 }}>
+                            {dayResas.filter(r => {
+                              const parts = r.t.split(/[h:]/)
+                              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
+                              return m >= svc.open && m < svc.close
+                            }).length} résas · {dayResas.filter(r => {
+                              const parts = r.t.split(/[h:]/)
+                              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
+                              return m >= svc.open && m < svc.close
+                            }).reduce((s, r) => s + r.c, 0)}p
+                          </span>
+                        </div>
+                      )}
+                      <div style={{
+                        display: 'flex', borderBottom: '1px solid var(--border)',
+                        background: isNow ? 'rgba(220,80,80,.05)' : 'transparent',
+                        minHeight: slotResas.length > 0 ? 44 : 34,
+                      }}>
+                        {/* Colonne heure */}
+                        <div style={{
+                          width: 62, flexShrink: 0, padding: '6px 8px', textAlign: 'right',
+                          fontSize: 13, fontWeight: 800, fontFamily: 'var(--fm)',
+                          color: isNow ? 'var(--rd)' : 'var(--t3)',
+                          borderRight: isNow ? '3px solid var(--rd)' : '3px solid var(--border)',
+                        }}>
+                          {label}
+                          {slotCvt > 0 && <div style={{ fontSize: 10, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
+                        </div>
+                        {/* Résas du créneau */}
+                        <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 5, padding: '5px 10px', alignItems: 'center' }}>
+                          {slotResas.length === 0 && (
+                            <span style={{ fontSize: 12, color: 'var(--t4)' }}>—</span>
+                          )}
+                          {slotResas.map(r => {
+                            const st = STATUS[r.s as keyof typeof STATUS]
+                            return (
+                              <div key={r.id}
+                                onClick={() => openEdit(r)}
+                                style={{
+                                  padding: '5px 10px', borderRadius: 7, cursor: 'pointer',
+                                  background: st?.bg || 'var(--surf2)',
+                                  border: `1px solid ${st?.border || 'var(--border)'}`,
+                                  display: 'flex', alignItems: 'center', gap: 5,
+                                  transition: 'transform .1s',
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
+                                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
+                                <span style={{ fontSize: 11 }}>{st?.icon}</span>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: st?.hex || 'var(--text)' }}>
+                                  {r.nom || r.n.split(' ')[0]}
+                                </span>
+                                <span style={{ fontSize: 12, fontFamily: 'var(--fm)', color: 'var(--t2)', fontWeight: 700 }}>
+                                  {r.c}p
+                                </span>
+                                {r.tbl && <span style={{ fontSize: 11, fontFamily: 'var(--fm)', color: 'var(--t3)', fontWeight: 600, padding: '1px 5px', background: 'rgba(68,128,216,.1)', borderRadius: 4 }}>{r.tbl}</span>}
+                                {r.statut === 2 && <span>⭐</span>}
+                                {r.allergie && <span>⚠️</span>}
+                                {r.bebe > 0 && <span style={{ fontSize: 11 }}>👶</span>}
+                                {r.canal && CANAUX[r.canal] && (
+                                  <span style={{ fontSize: 10, opacity: .8 }}>{CANAUX[r.canal].icon}</span>
+                                )}
+                                <span style={{
+                                  fontSize: 9, fontWeight: 800, padding: '1px 4px', borderRadius: 3,
+                                  background: r.mode === 'ia' ? 'rgba(91,156,246,.15)' : 'rgba(232,165,48,.12)',
+                                  color: r.mode === 'ia' ? '#7bb8ff' : '#e8a530',
+                                }}>{r.mode === 'ia' ? '🤖' : '✋'}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
+        </div>
+      ) : (
+
+      /* ═══ VUE JOURNAL (liste tableau) ═══ */
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {dayResas.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)', fontSize: 14 }}>{t('resa.noResa')}</div>
@@ -543,6 +709,7 @@ export function Resas() {
           </table>
         )}
       </div>
+      )}
 
       {/* ═══════ MODALE COMPACTE ═══════ */}
       {showModal && (

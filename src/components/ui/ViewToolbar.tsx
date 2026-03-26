@@ -121,32 +121,30 @@ export function ViewToolbar({
         {/* Date nav : ◀ [date cliquable = input natif] ▶ [Auj.] + stats */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <button onClick={() => setActiveDate(shiftISO(activeDate, -1))} style={navBtnS}>◀</button>
-          <label style={{ position: 'relative', display: 'inline-flex', cursor: 'pointer' }}>
-            <span
-              onClick={openDatePicker}
-              style={{
-                height: 36, padding: '0 14px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-                border: `2px solid ${isToday ? 'var(--b2)' : 'var(--ab)'}`,
-                background: isToday ? 'var(--bp)' : 'var(--ap)',
-                color: isToday ? 'var(--bl)' : 'var(--am)',
-                minWidth: 150, textAlign: 'center',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                pointerEvents: 'none',
-              }}>
-              {isToday ? `📅 ${t('toolbar.today')}` : `📅 ${fmtDate(activeDate)}`}
-            </span>
+          <button type="button" onClick={openDatePicker}
+            style={{
+              position: 'relative', display: 'inline-flex', cursor: 'pointer',
+              height: 36, padding: '0 14px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+              border: `2px solid ${isToday ? 'var(--b2)' : 'var(--ab)'}`,
+              background: isToday ? 'var(--bp)' : 'var(--ap)',
+              color: isToday ? 'var(--bl)' : 'var(--am)',
+              minWidth: 150, textAlign: 'center',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+            {isToday ? `📅 ${t('toolbar.today')}` : `📅 ${fmtDate(activeDate)}`}
             <input
               ref={dateRef}
               type="date"
               value={activeDate}
               onChange={e => { if (e.target.value) setActiveDate(e.target.value) }}
+              tabIndex={-1}
               style={{
                 position: 'absolute', inset: 0,
-                opacity: 0.01, width: '100%', height: '100%',
-                cursor: 'pointer', zIndex: 2, fontSize: 16,
+                opacity: 0, width: '100%', height: '100%',
+                cursor: 'pointer', pointerEvents: 'none',
               }}
             />
-          </label>
+          </button>
           <button onClick={() => setActiveDate(shiftISO(activeDate, 1))} style={navBtnS}>▶</button>
           {!isToday && (
             <button onClick={() => setActiveDate(today)}
