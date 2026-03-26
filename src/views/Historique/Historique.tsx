@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
+import { useToast } from '../../components/ui/Toast'
 
 type TabType = 'resas' | 'journal'
 
@@ -27,7 +28,10 @@ const DEMO_HISTORIQUE = [
 
 export function Historique() {
   const { t } = useT()
+  const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<TabType>('resas')
+  const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Sort resas by date desc, then time desc
   const sortedResas = useMemo(() => {
@@ -86,8 +90,47 @@ export function Historique() {
         <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--text)', marginBottom: 4 }}>
           Historique
         </div>
-        <div style={{ fontSize: 13, color: 'var(--t3)', marginBottom: 12 }}>
-          Journal complet des réservations et actions système
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <span style={{ fontSize: 13, color: 'var(--t3)' }}>
+            Journal complet des réservations et actions système
+          </span>
+          <div style={{ flex: 1 }} />
+          <input
+            placeholder="🔍 Rechercher…"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            style={{
+              fontSize: 11, padding: '4px 10px', borderRadius: 5,
+              border: '1px solid var(--border)', background: 'var(--surf2)',
+              color: 'var(--text)', width: 140,
+            }}
+          />
+          <select
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+            style={{
+              fontSize: 11, padding: '4px 8px', borderRadius: 5,
+              border: '1px solid var(--border)', background: 'var(--surf2)',
+              color: 'var(--text)',
+            }}
+          >
+            <option value="all">Tous statuts</option>
+            <option value="reserved">Réservé</option>
+            <option value="arrived">Arrivé</option>
+            <option value="done">Terminé</option>
+            <option value="cancelled">Annulé</option>
+            <option value="noshow">No-show</option>
+          </select>
+          <button
+            onClick={() => toast('Export CSV téléchargé', 'success')}
+            style={{
+              fontSize: 11, padding: '4px 10px', borderRadius: 5,
+              border: '1px solid var(--border)', background: 'var(--surf2)',
+              color: 'var(--text)', fontWeight: 700, cursor: 'pointer',
+            }}
+          >
+            📊 Exporter
+          </button>
         </div>
 
         {/* Tab Switcher */}

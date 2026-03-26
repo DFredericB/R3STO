@@ -75,6 +75,27 @@ export function Options() {
     places_pmr_active: true,
     places_pmr: 2,
     chaises_bebe_par_table: false,
+
+    // Widget & Online
+    widget_active: true,
+    widget_table_choice: false,
+    widget_client_recognition: true,
+    widget_pref_table: true,
+    widget_auto_waitlist: true,
+    widget_qr_payment: false,
+
+    // Carte & Menu
+    menu_on_widget: true,
+    menu_du_jour: true,
+    menu_allergenes: true,
+    menu_prix_visible: true,
+    menu_photos: false,
+
+    // Campagnes
+    campaigns_email: false,
+    campaigns_sms: false,
+    campaigns_birthday: false,
+    campaigns_loyalty: false,
   })
 
   const handleToggle = (key: string) => {
@@ -505,6 +526,36 @@ export function Options() {
                 <NumField label="Nombre de places PMR" keyName="places_pmr" min={0} max={20} unit="places" />
               </div>
               <Toggle label="Gérer par table" desc="Cocher les tables avec équipement PMR/bébé (vs global)" keyName="chaises_bebe_par_table" />
+            </div>
+
+            {/* Widget & Online */}
+            <div className="card">
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🌐 Widget & Réservation en ligne</div>
+              <Toggle label="Widget de réservation actif" desc="Page booking.r3sto.ch accessible aux clients" keyName="widget_active" />
+              <Toggle label="Choix de table sur le widget" desc="Les clients peuvent choisir leur table" keyName="widget_table_choice" />
+              <Toggle label="Reconnaissance profil client" desc="Remplissage auto si le client a déjà réservé" keyName="widget_client_recognition" />
+              <Toggle label="Table préférée automatique" desc="Proposer en priorité la dernière table du client" keyName="widget_pref_table" />
+              <Toggle label="Liste d'attente auto" desc="Si complet, proposer la liste d'attente" keyName="widget_auto_waitlist" />
+              <Toggle label="QR code de paiement" desc="Générer un QR code pour le prépaiement" keyName="widget_qr_payment" />
+            </div>
+
+            {/* Carte & Menu */}
+            <div className="card">
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🍽️ Carte & Menu</div>
+              <Toggle label="Afficher la carte sur le widget" desc="Les clients voient le menu avant de réserver" keyName="menu_on_widget" />
+              <Toggle label="Menu du jour" desc="Section menu du jour modifiable quotidiennement" keyName="menu_du_jour" />
+              <Toggle label="Allergènes affichés" desc="Indicateurs allergènes sur chaque plat" keyName="menu_allergenes" />
+              <Toggle label="Prix affichés" desc="Montrer les prix sur le widget" keyName="menu_prix_visible" />
+              <Toggle label="Photos des plats" desc="Galerie photos par plat" keyName="menu_photos" />
+            </div>
+
+            {/* Campagnes */}
+            <div className="card">
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📣 Campagnes & Communication</div>
+              <Toggle label="Campagnes email" desc="Envoyer des offres et promotions aux clients" keyName="campaigns_email" />
+              <Toggle label="Campagnes SMS" desc="Notifications SMS pour les événements spéciaux" keyName="campaigns_sms" />
+              <Toggle label="Anniversaires auto" desc="Message automatique pour les anniversaires clients" keyName="campaigns_birthday" />
+              <Toggle label="Fidélité" desc="Programme de fidélité basé sur les visites" keyName="campaigns_loyalty" />
             </div>
           </div>
         </div>

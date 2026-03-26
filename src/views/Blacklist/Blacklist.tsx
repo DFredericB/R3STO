@@ -29,10 +29,38 @@ const levelMap = {
 export function Blacklist() {
   const { toast } = useToast()
   const [clients, setClients] = useState(BLACKLIST)
+  const [tab, setTab] = useState<'liste' | 'regles' | 'manuel'>('liste')
+  const [autoRules, setAutoRules] = useState({
+    noshow_threshold: 3,
+    noshow_level: 2 as 1|2|3|4,
+    noshow_ban_threshold: 5,
+    cancel_late_threshold: 4,
+    cancel_late_level: 1 as 1|2|3|4,
+    auto_rehabilitate_days: 90,
+    auto_enabled: true,
+  })
+  const [manualForm, setManualForm] = useState({ name: '', tel: '', level: 2 as 1|2|3|4, reason: '' })
 
   const activeCount = clients.filter(c => c.active).length
   const level34Count = clients.filter(c => c.level >= 3).length
   const avgScore = Math.round(clients.reduce((sum, c) => sum + c.score, 0) / clients.length)
+
+  function addManualBlock() {
+    if (!manualForm.name.trim()) return
+    const newClient: BlacklistedClient = {
+      id: `m${Date.now()}`,
+      n: manualForm.name,
+      tel: manualForm.tel,
+      score: manualForm.level * 25,
+      level: manualForm.level,
+      reason: manualForm.reason || 'Blocage manuel',
+      active: true,
+    }
+    setClients(prev => [newClient, ...prev])
+    setManualForm({ name: '', tel: '', level: 2, reason: '' })
+    setTab('liste')
+    toast('Client bloqué manuellement', 'success')
+  }
 
   return (
     <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 20, overflow: 'auto', height: 'calc(100vh - var(--hh))' }}>
@@ -40,35 +68,30 @@ export function Blacklist() {
       <div>
         <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--text)', margin: 0 }}>Clients bloqués</h2>
         <p style={{ fontSize: 13, color: 'var(--t2)', margin: '8px 0 0 0' }}>
-          {activeCount} clients surveillés · 4 niveaux d'alerte
+          {activeCount} clients surveillés · 4 niveaux d'alerte ·
+          {autoRules.auto_enabled ? ' 🤖 Auto activé' : ' ✋ Manuel uniquement'}
         </p>
-        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-          <button
-            onClick={() => toast('Ajouter à la blacklist', 'success')}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 4,
-              border: 'none',
-              background: 'var(--bl)',
-              color: 'white',
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            ➕ Ajouter
-          </button>
+        <div style={{ display: 'flex', gap: 6, marginTop: 14 }}>
+          {(['liste', 'regles', 'manuel'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              style={{
+                padding: '6px 12px', borderRadius: 5, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                border: `1.5px solid ${tab === t ? 'var(--bl)' : 'var(--border)'}`,
+                background: tab === t ? 'var(--bp)' : 'transparent',
+                color: tab === t ? 'var(--bl)' : 'var(--t3)',
+              }}
+            >
+              {t === 'liste' ? `📋 Liste (${clients.length})` : t === 'regles' ? '🤖 Règles auto' : '✋ Blocage manuel'}
+            </button>
+          ))}
+          <div style={{ flex: 1 }} />
           <button
             onClick={() => toast('Export CSV', 'success')}
             style={{
-              padding: '8px 12px',
-              borderRadius: 4,
-              border: '1px solid var(--border)',
-              background: 'var(--surf2)',
-              color: 'var(--text)',
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
+              padding: '6px 12px', borderRadius: 5, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)',
             }}
           >
             📊 Exporter
@@ -76,7 +99,7 @@ export function Blacklist() {
         </div>
       </div>
 
-      {/* KPI Cards - 4 column grid */}
+      {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14, textAlign: 'center' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--t3)', marginBottom: 8 }}>Total inscrits</div>
@@ -96,8 +119,144 @@ export function Blacklist() {
         </div>
       </div>
 
-      {/* Table */}
-      <div style={{ overflow: 'auto' }}>
+      {/* ── TAB: RÈGLES AUTO ── */}
+      {tab === 'regles' && (
+        <div style={{ background: 'var(--surf2)', border: '1.5px solid var(--border)', borderRadius: 12, padding: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+            <span style={{ fontSize: 15, fontWeight: 900, color: 'var(--text)' }}>🤖 Blocage automatique</span>
+            <div style={{ flex: 1 }} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--t2)', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={autoRules.auto_enabled}
+                onChange={e => setAutoRules(r => ({ ...r, auto_enabled: e.target.checked }))}
+                style={{ accentColor: 'var(--bl)' }}
+              />
+              Activé
+            </label>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, opacity: autoRules.auto_enabled ? 1 : 0.4 }}>
+            <div style={{ padding: 14, background: 'var(--surf)', borderRadius: 8, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--rd)', marginBottom: 8 }}>No-shows</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                <span style={{ fontSize: 11, color: 'var(--t3)', minWidth: 70 }}>Surveillance à</span>
+                <input type="number" min={1} max={10} value={autoRules.noshow_threshold}
+                  onChange={e => setAutoRules(r => ({ ...r, noshow_threshold: +e.target.value }))}
+                  style={{ width: 50, padding: '3px 6px', fontSize: 12, borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }}
+                />
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>no-shows → Niveau</span>
+                <select value={autoRules.noshow_level}
+                  onChange={e => setAutoRules(r => ({ ...r, noshow_level: +e.target.value as 1|2|3|4 }))}
+                  style={{ fontSize: 11, padding: '3px 6px', borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf)', color: 'var(--text)' }}
+                >
+                  {[1,2,3,4].map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: 'var(--t3)', minWidth: 70 }}>Ban total à</span>
+                <input type="number" min={1} max={20} value={autoRules.noshow_ban_threshold}
+                  onChange={e => setAutoRules(r => ({ ...r, noshow_ban_threshold: +e.target.value }))}
+                  style={{ width: 50, padding: '3px 6px', fontSize: 12, borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }}
+                />
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>no-shows → Niveau 4</span>
+              </div>
+            </div>
+            <div style={{ padding: 14, background: 'var(--surf)', borderRadius: 8, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--am)', marginBottom: 8 }}>Annulations tardives</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                <span style={{ fontSize: 11, color: 'var(--t3)', minWidth: 70 }}>Surveillance à</span>
+                <input type="number" min={1} max={10} value={autoRules.cancel_late_threshold}
+                  onChange={e => setAutoRules(r => ({ ...r, cancel_late_threshold: +e.target.value }))}
+                  style={{ width: 50, padding: '3px 6px', fontSize: 12, borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }}
+                />
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>annulations → Niveau</span>
+                <select value={autoRules.cancel_late_level}
+                  onChange={e => setAutoRules(r => ({ ...r, cancel_late_level: +e.target.value as 1|2|3|4 }))}
+                  style={{ fontSize: 11, padding: '3px 6px', borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf)', color: 'var(--text)' }}
+                >
+                  {[1,2,3,4].map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ padding: 14, background: 'var(--surf)', borderRadius: 8, border: '1px solid var(--border)', gridColumn: '1/-1' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--gn)', marginBottom: 8 }}>Réhabilitation automatique</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>Réhabiliter après</span>
+                <input type="number" min={0} max={365} value={autoRules.auto_rehabilitate_days}
+                  onChange={e => setAutoRules(r => ({ ...r, auto_rehabilitate_days: +e.target.value }))}
+                  style={{ width: 60, padding: '3px 6px', fontSize: 12, borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }}
+                />
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>jours sans incident (0 = jamais)</span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => toast('Règles sauvegardées', 'success')}
+            style={{ marginTop: 14, padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--bl)', color: 'white', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
+          >
+            💾 Sauvegarder les règles
+          </button>
+        </div>
+      )}
+
+      {/* ── TAB: BLOCAGE MANUEL ── */}
+      {tab === 'manuel' && (
+        <div style={{ background: 'var(--surf2)', border: '1.5px solid var(--border)', borderRadius: 12, padding: 18, maxWidth: 480 }}>
+          <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--text)', marginBottom: 16 }}>✋ Blocage manuel</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Nom du client *</label>
+              <input value={manualForm.name} onChange={e => setManualForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Rechercher ou saisir un nom…"
+                style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 7, border: '1.5px solid var(--border)', background: 'var(--surf)', color: 'var(--text)', boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Téléphone</label>
+              <input value={manualForm.tel} onChange={e => setManualForm(f => ({ ...f, tel: e.target.value }))}
+                placeholder="+41 xx xxx xx xx"
+                style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 7, border: '1.5px solid var(--border)', background: 'var(--surf)', color: 'var(--text)', fontFamily: 'var(--fm)', boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Niveau</label>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {([1,2,3,4] as const).map(lv => (
+                  <button key={lv} onClick={() => setManualForm(f => ({ ...f, level: lv }))}
+                    style={{
+                      flex: 1, padding: '6px 4px', borderRadius: 5, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                      border: `1.5px solid ${manualForm.level === lv ? levelMap[lv].c : 'var(--border)'}`,
+                      background: manualForm.level === lv ? levelMap[lv].c + '20' : 'transparent',
+                      color: manualForm.level === lv ? levelMap[lv].c : 'var(--t3)',
+                    }}
+                  >
+                    {levelMap[lv].l}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Raison</label>
+              <textarea value={manualForm.reason} onChange={e => setManualForm(f => ({ ...f, reason: e.target.value }))}
+                placeholder="Raison du blocage…" rows={2}
+                style={{ width: '100%', padding: '8px 10px', fontSize: 12, borderRadius: 7, border: '1.5px solid var(--border)', background: 'var(--surf)', color: 'var(--text)', resize: 'vertical', boxSizing: 'border-box' }}
+              />
+            </div>
+            <button onClick={addManualBlock} disabled={!manualForm.name.trim()}
+              style={{
+                padding: '9px 16px', borderRadius: 7, border: 'none', fontWeight: 700, fontSize: 13, cursor: manualForm.name.trim() ? 'pointer' : 'not-allowed',
+                background: manualForm.name.trim() ? 'var(--rd)' : 'var(--border)',
+                color: manualForm.name.trim() ? 'white' : 'var(--t4)',
+              }}
+            >
+              ⛔ Bloquer ce client
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB: LISTE (Table) ── */}
+      {tab === 'liste' && <div style={{ overflow: 'auto' }}>
         <table style={{
           width: '100%',
           borderCollapse: 'collapse',
@@ -197,7 +356,7 @@ export function Blacklist() {
             })}
           </tbody>
         </table>
-      </div>
+      </div>}
     </div>
   )
 }

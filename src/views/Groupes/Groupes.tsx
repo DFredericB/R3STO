@@ -63,6 +63,18 @@ const demoGroupes: GroupRequest[] = [
 export function Groupes() {
   const { toast } = useToast()
   const [groupes, setGroupes] = useState<GroupRequest[]>(demoGroupes)
+  const [showSettings, setShowSettings] = useState(false)
+  const [grpSettings, setGrpSettings] = useState({
+    seuil_widget: 8,
+    validation_obligatoire: true,
+    delai_reponse_h: 48,
+    redirect_widget: true,
+    msg_redirect: 'Pour les groupes de {seuil}+ personnes, merci de remplir notre formulaire dédié.',
+    prepaiement_groupe: true,
+    acompte_pct: 30,
+    notification_email: true,
+    notification_sms: false,
+  })
   const tables = useAppStore((s) => s.tables)
   const combos = useAppStore((s) => s.combos)
   const resas = useAppStore((s) => s.resas)
@@ -268,14 +280,14 @@ export function Groupes() {
           Réservations groupes soumises via widget · validation manuelle activée
         </div>
         <button
-          onClick={() => toast('Paramètres groupes', 'info')}
+          onClick={() => setShowSettings(!showSettings)}
           style={{
             fontSize: 11,
             padding: '5px 14px',
             borderRadius: 6,
-            border: '1px solid var(--border)',
-            background: 'var(--surf2)',
-            color: 'var(--text)',
+            border: `1px solid ${showSettings ? 'var(--bl)' : 'var(--border)'}`,
+            background: showSettings ? 'var(--bp)' : 'var(--surf2)',
+            color: showSettings ? 'var(--bl)' : 'var(--text)',
             fontWeight: 700,
             cursor: 'pointer',
           }}
@@ -283,6 +295,95 @@ export function Groupes() {
           ⚙️ Paramètres groupes
         </button>
       </div>
+
+      {/* ── SETTINGS PANEL ── */}
+      {showSettings && (
+        <div style={{ background: 'var(--surf2)', border: '1.5px solid var(--border)', borderRadius: 12, padding: 16, marginBottom: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: 'var(--text)', marginBottom: 14 }}>⚙️ Configuration groupes</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            {/* Widget redirect */}
+            <div style={{ padding: 12, background: 'var(--surf)', borderRadius: 8, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--bl)', marginBottom: 8 }}>🌐 Redirection widget</div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--t2)', marginBottom: 8, cursor: 'pointer' }}>
+                <input type="checkbox" checked={grpSettings.redirect_widget}
+                  onChange={e => setGrpSettings(s => ({ ...s, redirect_widget: e.target.checked }))}
+                  style={{ accentColor: 'var(--bl)' }} />
+                Rediriger vers formulaire groupe quand ≥ seuil
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>Seuil :</span>
+                <input type="number" min={2} max={50} value={grpSettings.seuil_widget}
+                  onChange={e => setGrpSettings(s => ({ ...s, seuil_widget: +e.target.value }))}
+                  style={{ width: 50, padding: '3px 6px', fontSize: 12, borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }} />
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>personnes</span>
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--t4)', fontStyle: 'italic' }}>
+                Message : "{grpSettings.msg_redirect.replace('{seuil}', String(grpSettings.seuil_widget))}"
+              </div>
+            </div>
+
+            {/* Validation */}
+            <div style={{ padding: 12, background: 'var(--surf)', borderRadius: 8, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--am)', marginBottom: 8 }}>✅ Validation</div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--t2)', marginBottom: 8, cursor: 'pointer' }}>
+                <input type="checkbox" checked={grpSettings.validation_obligatoire}
+                  onChange={e => setGrpSettings(s => ({ ...s, validation_obligatoire: e.target.checked }))}
+                  style={{ accentColor: 'var(--bl)' }} />
+                Validation manuelle obligatoire
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>Délai de réponse :</span>
+                <select value={grpSettings.delai_reponse_h}
+                  onChange={e => setGrpSettings(s => ({ ...s, delai_reponse_h: +e.target.value }))}
+                  style={{ fontSize: 11, padding: '3px 6px', borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)' }}>
+                  {[12, 24, 48, 72].map(h => <option key={h} value={h}>{h}h</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Prépaiement */}
+            <div style={{ padding: 12, background: 'var(--surf)', borderRadius: 8, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--gn)', marginBottom: 8 }}>💳 Prépaiement</div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--t2)', marginBottom: 8, cursor: 'pointer' }}>
+                <input type="checkbox" checked={grpSettings.prepaiement_groupe}
+                  onChange={e => setGrpSettings(s => ({ ...s, prepaiement_groupe: e.target.checked }))}
+                  style={{ accentColor: 'var(--bl)' }} />
+                Exiger un acompte pour les groupes
+              </label>
+              {grpSettings.prepaiement_groupe && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 11, color: 'var(--t3)' }}>Acompte :</span>
+                  <input type="number" min={10} max={100} value={grpSettings.acompte_pct}
+                    onChange={e => setGrpSettings(s => ({ ...s, acompte_pct: +e.target.value }))}
+                    style={{ width: 50, padding: '3px 6px', fontSize: 12, borderRadius: 5, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }} />
+                  <span style={{ fontSize: 11, color: 'var(--t3)' }}>%</span>
+                </div>
+              )}
+            </div>
+
+            {/* Notifications */}
+            <div style={{ padding: 12, background: 'var(--surf)', borderRadius: 8, border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text)', marginBottom: 8 }}>🔔 Notifications</div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--t2)', marginBottom: 6, cursor: 'pointer' }}>
+                <input type="checkbox" checked={grpSettings.notification_email}
+                  onChange={e => setGrpSettings(s => ({ ...s, notification_email: e.target.checked }))}
+                  style={{ accentColor: 'var(--bl)' }} />
+                Email au restaurant
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--t2)', cursor: 'pointer' }}>
+                <input type="checkbox" checked={grpSettings.notification_sms}
+                  onChange={e => setGrpSettings(s => ({ ...s, notification_sms: e.target.checked }))}
+                  style={{ accentColor: 'var(--bl)' }} />
+                SMS au gérant
+              </label>
+            </div>
+          </div>
+          <button onClick={() => { toast('Paramètres sauvegardés', 'success'); setShowSettings(false) }}
+            style={{ marginTop: 12, padding: '7px 16px', borderRadius: 6, border: 'none', background: 'var(--bl)', color: 'white', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+            💾 Sauvegarder
+          </button>
+        </div>
+      )}
 
       {/* Pending Section */}
       {pending.length > 0 ? (

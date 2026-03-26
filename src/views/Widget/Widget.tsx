@@ -301,6 +301,40 @@ export function Widget() {
         <p style={{ fontSize: 13, color: 'var(--t2)', margin: '8px 0 0 0' }}>
           Interface client intégrable · Live preview
         </p>
+        {/* Domain + Status Bar */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px',
+            background: 'rgba(60,200,112,.08)', border: '1px solid rgba(60,200,112,.25)',
+            borderRadius: 20, fontSize: 11, fontWeight: 700, color: 'var(--gn)',
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--gn)' }} />
+            En ligne
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px',
+            background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 20,
+          }}>
+            <span style={{ fontSize: 11, color: 'var(--t3)' }}>🌐</span>
+            <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--bl)' }}>booking.r3sto.ch</span>
+            <button onClick={() => { navigator.clipboard?.writeText('https://booking.r3sto.ch'); toast('URL copiée', 'success') }}
+              style={{ fontSize: 10, padding: '1px 5px', borderRadius: 3, border: '1px solid var(--border)', background: 'transparent', color: 'var(--t3)', cursor: 'pointer' }}>
+              📋
+            </button>
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px',
+            background: 'rgba(68,128,216,.08)', border: '1px solid rgba(68,128,216,.2)', borderRadius: 20,
+          }}>
+            <span style={{ fontSize: 11, color: 'var(--bl)' }}>👥 Groupes 8+ → formulaire dédié</span>
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px',
+            background: 'rgba(155,89,182,.08)', border: '1px solid rgba(155,89,182,.2)', borderRadius: 20,
+          }}>
+            <span style={{ fontSize: 11, color: '#9b59b6' }}>🔍 Profil client reconnu auto</span>
+          </div>
+        </div>
       </div>
 
       {/* Config Panel & Preview */}

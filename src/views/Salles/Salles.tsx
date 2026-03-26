@@ -658,6 +658,97 @@ export function Salles() {
               ))}
             </div>
 
+            {/* ── FLUX RULES ── */}
+            <div style={{ marginTop: 24 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.09em', fontFamily: 'var(--fm)', marginBottom: 7 }}>
+                Règles de flux
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--t4)', marginBottom: 9 }}>
+                Quand une salle atteint un seuil, l'IA redirige vers la salle suivante
+              </div>
+              {salles.filter(s => s.active).map((salle, i, arr) => {
+                const nextSalle = arr[(i + 1) % arr.length]
+                return (
+                  <div key={salle.id + '-flux'} style={{
+                    display: 'flex', alignItems: 'center', gap: 8, padding: '8px 11px',
+                    background: 'var(--surf2)', border: '1.5px solid var(--border)', borderRadius: 8, marginBottom: 5,
+                  }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: salle.color }} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', minWidth: 90 }}>{salle.name}</span>
+                    <span style={{ fontSize: 10, color: 'var(--t4)' }}>à</span>
+                    <select defaultValue="80" style={{
+                      fontSize: 11, padding: '2px 6px', borderRadius: 5, border: '1px solid var(--border)',
+                      background: 'var(--surf)', color: 'var(--text)', fontFamily: 'var(--fm)',
+                    }}>
+                      {[60, 70, 80, 90, 100].map(v => <option key={v} value={v}>{v}%</option>)}
+                    </select>
+                    <span style={{ fontSize: 10, color: 'var(--t4)' }}>→</span>
+                    <select defaultValue={nextSalle?.name} style={{
+                      fontSize: 11, padding: '2px 6px', borderRadius: 5, border: '1px solid var(--border)',
+                      background: 'var(--surf)', color: 'var(--text)', flex: 1,
+                    }}>
+                      {arr.filter(s => s.id !== salle.id).map(s => (
+                        <option key={s.id} value={s.name}>{s.name}</option>
+                      ))}
+                      <option value="">— Aucun (refuser)</option>
+                    </select>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: 'var(--t3)', whiteSpace: 'nowrap' }}>
+                      <input type="checkbox" defaultChecked style={{ accentColor: 'var(--bl)', width: 12, height: 12 }} />
+                      Actif
+                    </label>
+                  </div>
+                )
+              })}
+              <button
+                onClick={() => toast('Règle de flux ajoutée', 'success')}
+                style={{
+                  fontSize: 11, padding: '4px 10px', borderRadius: 5, border: '1px dashed var(--border)',
+                  background: 'transparent', color: 'var(--t3)', cursor: 'pointer', marginTop: 4,
+                }}
+              >
+                + Ajouter une règle personnalisée
+              </button>
+            </div>
+
+            {/* ── FLOW GROUPS ── */}
+            <div style={{ marginTop: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.09em', fontFamily: 'var(--fm)', marginBottom: 7 }}>
+                Groupes de flux
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--t4)', marginBottom: 9 }}>
+                Regroupez les salles pour gérer le remplissage par zones
+              </div>
+              <div style={{
+                padding: '11px 13px', background: 'var(--surf2)', border: '1.5px solid var(--border)',
+                borderRadius: 8, marginBottom: 6,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)' }}>Flux principal</span>
+                  <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: 'rgba(68,128,216,.12)', color: 'var(--bl)', fontWeight: 700 }}>Par défaut</span>
+                </div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {salles.filter(s => s.active).map((s, i) => (
+                    <span key={s.id} style={{
+                      fontSize: 11, padding: '3px 8px', borderRadius: 5,
+                      background: s.color + '20', color: s.color, fontWeight: 700,
+                      border: `1px solid ${s.color}40`,
+                    }}>
+                      {i + 1}. {s.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <button
+                onClick={() => toast('Nouveau groupe de flux créé', 'success')}
+                style={{
+                  fontSize: 11, padding: '4px 10px', borderRadius: 5, border: '1px dashed var(--border)',
+                  background: 'transparent', color: 'var(--t3)', cursor: 'pointer',
+                }}
+              >
+                + Créer un groupe de flux
+              </button>
+            </div>
+
             {/* Table Priority Section */}
             <div style={{ marginTop: 20 }}>
               <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 8 }}>

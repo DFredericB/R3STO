@@ -26,8 +26,24 @@ const ACCES_USERS: TeamMember[] = [
 
 export function AccesRoles() {
   const { toast } = useToast()
-  const [users] = useState<TeamMember[]>(ACCES_USERS)
+  const [users, setUsers] = useState<TeamMember[]>(ACCES_USERS)
+  const [showInvite, setShowInvite] = useState(false)
+  const [inviteForm, setInviteForm] = useState({ name: '', email: '', role: 'Serveur' as TeamMember['role'] })
   const activeUserCount = users.filter(u => u.active).length
+
+  function submitInvite() {
+    if (!inviteForm.email.trim()) return
+    setUsers(prev => [...prev, {
+      n: inviteForm.name || inviteForm.email.split('@')[0],
+      email: inviteForm.email,
+      role: inviteForm.role,
+      lastLogin: '—',
+      active: true,
+    }])
+    setInviteForm({ name: '', email: '', role: 'Serveur' })
+    setShowInvite(false)
+    toast('Invitation envoyée par email', 'success')
+  }
 
   const permMatrix = [
     { role: 'Propriétaire', view: '✓', edit: '✓', delete: '✓', billing: '✓', staff: '✓' },
@@ -46,12 +62,12 @@ export function AccesRoles() {
         </p>
         <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
           <button
-            onClick={() => toast('Invitation envoyée', 'success')}
+            onClick={() => setShowInvite(!showInvite)}
             style={{
               padding: '8px 12px',
               borderRadius: 4,
               border: 'none',
-              background: 'var(--bl)',
+              background: showInvite ? 'var(--gn)' : 'var(--bl)',
               color: 'white',
               fontSize: 13,
               fontWeight: 700,
@@ -77,6 +93,48 @@ export function AccesRoles() {
           </button>
         </div>
       </div>
+
+      {/* Invite Form */}
+      {showInvite && (
+        <div style={{ background: 'var(--surf2)', border: '1.5px solid var(--bl)', borderRadius: 12, padding: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--text)', marginBottom: 12 }}>📧 Inviter un membre</div>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 120 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Nom</label>
+              <input value={inviteForm.name} onChange={e => setInviteForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Prénom Nom"
+                style={{ width: '100%', padding: '7px 10px', fontSize: 12, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf)', color: 'var(--text)', boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ flex: 1, minWidth: 160 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Email *</label>
+              <input value={inviteForm.email} onChange={e => setInviteForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="email@restaurant.ch" type="email"
+                style={{ width: '100%', padding: '7px 10px', fontSize: 12, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf)', color: 'var(--text)', fontFamily: 'var(--fm)', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Rôle</label>
+              <select value={inviteForm.role} onChange={e => setInviteForm(f => ({ ...f, role: e.target.value as TeamMember['role'] }))}
+                style={{ padding: '7px 10px', fontSize: 12, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf)', color: 'var(--text)' }}>
+                <option value="Gérant">Gérant</option>
+                <option value="Serveur">Serveur</option>
+                <option value="Lecture seule">Lecture seule</option>
+              </select>
+            </div>
+            <button onClick={submitInvite} disabled={!inviteForm.email.trim()}
+              style={{
+                padding: '7px 16px', borderRadius: 6, border: 'none', fontWeight: 700, fontSize: 12, cursor: inviteForm.email.trim() ? 'pointer' : 'not-allowed',
+                background: inviteForm.email.trim() ? 'var(--bl)' : 'var(--border)',
+                color: inviteForm.email.trim() ? 'white' : 'var(--t4)',
+              }}>
+              Envoyer l'invitation
+            </button>
+            <button onClick={() => setShowInvite(false)}
+              style={{ padding: '7px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'transparent', color: 'var(--t3)', fontSize: 12, cursor: 'pointer' }}>
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Team Members Table */}
       <div style={{ overflow: 'auto' }}>
