@@ -159,10 +159,22 @@ function spChairsSvg(t: Table): string {
   } else if (['round', 'round_sm', 'round_lg'].includes(t.shape)) {
     const cx = t.x + t.w/2, cy = t.y + t.h/2, rad = t.h/2
     const n = Math.min(cap, 10)
-    for (let i = 0; i < n; i++) {
-      const a = (i/n)*Math.PI*2 - Math.PI/2
+    if (n <= 2) {
+      // Rond 2p : orient contrôle l'axe — V = haut/bas (défaut), H = gauche/droite
       const d = rad + GAP + CH/2
-      s += rectChair(cx + Math.cos(a)*d, cy + Math.sin(a)*d, CW, CH, (a*180/Math.PI)+90)
+      if (t.orient === 'H') {
+        s += rectChair(cx - d, cy, CH, CW, 0)   // gauche
+        s += rectChair(cx + d, cy, CH, CW, 0)   // droite
+      } else {
+        s += rectChair(cx, cy - d, CW, CH, 0)   // haut
+        s += rectChair(cx, cy + d, CW, CH, 0)   // bas
+      }
+    } else {
+      for (let i = 0; i < n; i++) {
+        const a = (i/n)*Math.PI*2 - Math.PI/2
+        const d = rad + GAP + CH/2
+        s += rectChair(cx + Math.cos(a)*d, cy + Math.sin(a)*d, CW, CH, (a*180/Math.PI)+90)
+      }
     }
   } else if (t.shape === 'oval') {
     const cx = t.x + t.w/2, cy = t.y + t.h/2
@@ -1525,8 +1537,8 @@ export function SetupPlan() {
                     ))}
                   </div>
 
-                  {/* Toggle V/H pour tables carrées */}
-                  {(['square_sm', 'square'] as const).includes(selTable.shape as 'square_sm' | 'square') && (
+                  {/* Toggle V/H pour tables carrées et rondes 2p */}
+                  {((['square_sm', 'square'] as string[]).includes(selTable.shape) || (['round_sm', 'round'].includes(selTable.shape) && selTable.capMax <= 2)) && (
                     <>
                       <label style={{ fontSize: 11, color: 'var(--t3)', display: 'block', marginBottom: 4 }}>Orientation chaises</label>
                       <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
