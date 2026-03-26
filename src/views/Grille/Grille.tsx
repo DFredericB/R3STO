@@ -549,7 +549,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
   onPlaceCombo: (comboLabel: string) => void
   onUncombine: (tableId: string, resaId: string) => void
   onStartMove: (resa: Resa) => void
-  onMoveTarget: (table: Table) => void
+  onMoveTarget: (table: Table, targetSvc: string) => void
   onMoveIA: () => void
 }) {
   const { t } = useT()
@@ -570,9 +570,10 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
   const heldCount = tables.filter(t => t.held && !svcResas.some(r => tblMatchesTable(r.tbl, t.n) && (r.s === 'reserved' || r.s === 'arrived'))).length
 
   const isMoveService = moveMode ? moveMode.svc === svcName : true
+  const isMoveOtherService = moveMode && !isMoveService
 
   return (
-    <div style={{ flex: 1, minWidth: 0, minHeight: 0, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', opacity: moveMode && !isMoveService ? .3 : 1 }}>
+    <div style={{ flex: 1, minWidth: 0, minHeight: 0, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', opacity: 1 }}>
       {/* En-tête service — sticky */}
       <div style={{
         padding: '8px 12px', borderBottom: '1px solid var(--border)',
@@ -592,8 +593,16 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
             {service.open} – {service.close} · LO {service.lastOrder}
           </div>
         </div>
-        {/* ── Bouton IA move (visible en move mode sur le bon service) ── */}
-        {moveMode && isMoveService ? (
+        {/* ── Bouton IA move / indicateur service cible ── */}
+        {moveMode && isMoveOtherService ? (
+          <div style={{
+            padding: '4px 10px', borderRadius: 8,
+            background: 'rgba(232,165,48,.1)', border: '1px dashed rgba(232,165,48,.4)',
+            fontSize: 10, fontWeight: 700, color: 'var(--am)', flexShrink: 0,
+          }}>
+            ↪ Déplacer ici ({service.name})
+          </div>
+        ) : moveMode && isMoveService ? (
           <button
             onClick={onMoveIA}
             style={{
@@ -669,7 +678,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                     resas={comboResas}
                     combos={combos}
                     svcResas={svcResas}
-                    moveMode={isMoveService ? moveMode : null}
+                    moveMode={moveMode}
                     expanded={expandedId === comboTable.id}
                     onToggleExpand={() => setExpandedId(expandedId === comboTable.id ? null : comboTable.id)}
                     onMarkArrived={onMarkArrived}
@@ -682,7 +691,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                     onPlaceCombo={onPlaceCombo}
                     onUncombine={onUncombine}
                     onStartMove={onStartMove}
-                    onMoveTarget={onMoveTarget}
+                    onMoveTarget={(tbl) => onMoveTarget(tbl, svcName)}
                   />
                 )
               }
@@ -698,7 +707,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                 resas={tblResas}
                 combos={combos}
                 svcResas={svcResas}
-                moveMode={isMoveService ? moveMode : null}
+                moveMode={moveMode}
                 expanded={expandedId === table.id}
                 onToggleExpand={() => setExpandedId(expandedId === table.id ? null : table.id)}
                 onMarkArrived={onMarkArrived}
@@ -766,6 +775,10 @@ export function Grille() {
   }
 
   function handleStartMove(resa: Resa) {
+    // Verrouiller la date sur celle de la résa pour afficher la dispo correcte
+    if (resa.date && resa.date !== activeDate) {
+      setActiveDate(resa.date)
+    }
     setMoveMode({ resaId: resa.id, resaName: resa.nom || resa.n, covers: resa.c, fromTbl: resa.tbl, svc: resa.svc })
     setMoveMsg(null)
   }
@@ -791,22 +804,33 @@ export function Grille() {
     setMoveMode(null); setTimeout(() => setMoveMsg(null), 2500)
   }
 
-  function handleMoveTarget(targetTable: Table) {
+  function handleMoveTarget(targetTable: Table, targetSvc?: string) {
     if (!moveMode) return
     const sourceResa = resas.find(r => r.id === moveMode.resaId)
     if (!sourceResa) return
 
+    const effectiveSvc = targetSvc || moveMode.svc
+    const isServiceChange = effectiveSvc !== moveMode.svc
+
     const targetOccupying = dayResas.filter(r =>
-      r.svc === moveMode.svc && tblMatchesTable(r.tbl, targetTable.n) && isOccupying(r)
+      r.svc === effectiveSvc && tblMatchesTable(r.tbl, targetTable.n) && isOccupying(r)
     )
 
     if (targetOccupying.length === 0) {
       const check = canMoveResa(sourceResa, { type: 'table', table: targetTable }, tables, combos, resas)
       if (!check.valid) { setMoveMsg(`❌ ${check.reason}`); setTimeout(() => setMoveMsg(null), 3000); return }
-      updateResa(sourceResa.id, { tbl: check.newTbl! })
-      setMoveMsg(`✅ ${sourceResa.nom || sourceResa.n} → ${targetTable.n}`)
+      const patch: Record<string, any> = { tbl: check.newTbl! }
+      if (isServiceChange) patch.svc = effectiveSvc
+      updateResa(sourceResa.id, patch)
+      const svcLabel = isServiceChange ? ` (→ ${effectiveSvc})` : ''
+      setMoveMsg(`✅ ${sourceResa.nom || sourceResa.n} → ${targetTable.n}${svcLabel}`)
       setMoveMode(null); setTimeout(() => setMoveMsg(null), 2500)
     } else {
+      if (isServiceChange) {
+        setMoveMsg('❌ Swap inter-services non supporté — la table cible est occupée')
+        setTimeout(() => setMoveMsg(null), 3000)
+        return
+      }
       const targetResa = targetOccupying[0]
       const check = canSwapResas(sourceResa, targetResa, tables, combos)
       if (!check.valid) { setMoveMsg(`❌ ${check.reason}`); setTimeout(() => setMoveMsg(null), 3000); return }
@@ -894,7 +918,7 @@ export function Grille() {
             onPlaceCombo={handlePlaceCombo}
             onUncombine={handleUncombine}
             onStartMove={handleStartMove}
-            onMoveTarget={handleMoveTarget}
+            onMoveTarget={(tbl, svc) => handleMoveTarget(tbl, svc)}
             onMoveIA={handleMoveIA}
           />
         ))}
