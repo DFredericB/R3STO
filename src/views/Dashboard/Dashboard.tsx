@@ -398,7 +398,7 @@ export function Dashboard() {
                 <div style={{ padding: 16, textAlign: 'center', color: 'var(--t4)', fontSize: 12 }}>Aucun service configuré</div>
               ) : (
                 <div>
-                  {visibleSlots.map(slotMin => {
+                  {allSlots.map(slotMin => {
                     const hr = Math.floor(slotMin / 60)
                     const mn = slotMin % 60
                     const label = `${hr}h${String(mn).padStart(2, '0')}`
