@@ -125,15 +125,30 @@ function planTableSvg(
     if (isBasse) s += `<rect x="${(t.x+tRef*0.10).toFixed(2)}" y="${(t.y+tRef*0.083).toFixed(2)}" width="${(t.w-tRef*0.20).toFixed(2)}" height="${(t.h-tRef*0.167).toFixed(2)}" rx="${rxv-0.5}" fill="none" stroke="${stroke}" stroke-width="${(tRef*0.037).toFixed(2)}" stroke-dasharray="1.5,1"/>`
   }
 
-  // Blocked hatch
+  // Blocked — hachures croisées bien visibles + X central
   if (status === 'blocked') {
-    s += `<line x1="${t.x}" y1="${t.y}" x2="${t.x+t.w}" y2="${t.y+t.h}" stroke="rgba(100,116,139,.25)" stroke-width="0.5"/>`
-    s += `<line x1="${t.x+t.w}" y1="${t.y}" x2="${t.x}" y2="${t.y+t.h}" stroke="rgba(100,116,139,.25)" stroke-width="0.5"/>`
+    const gap = tRef * 0.18
+    // Hachures diagonales multiples
+    for (let i = -3; i <= 3; i++) {
+      const off = i * gap
+      s += `<line x1="${t.x + off}" y1="${t.y}" x2="${t.x + t.w + off}" y2="${t.y + t.h}" stroke="rgba(100,116,139,.22)" stroke-width="0.5" style="pointer-events:none"/>`
+    }
+    // X central bien visible
+    s += `<line x1="${cx - tRef*0.2}" y1="${cy - tRef*0.2}" x2="${cx + tRef*0.2}" y2="${cy + tRef*0.2}" stroke="rgba(220,80,80,.5)" stroke-width="${(tRef*0.06).toFixed(2)}" stroke-linecap="round" style="pointer-events:none"/>`
+    s += `<line x1="${cx + tRef*0.2}" y1="${cy - tRef*0.2}" x2="${cx - tRef*0.2}" y2="${cy + tRef*0.2}" stroke="rgba(220,80,80,.5)" stroke-width="${(tRef*0.06).toFixed(2)}" stroke-linecap="round" style="pointer-events:none"/>`
   }
 
-  // Held lock icon
+  // Held — contour pointillé ambre + icône cadenas
   if (status === 'held') {
-    s += `<text x="${cx}" y="${(cy - tRef*0.05).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.25).toFixed(1)}" style="pointer-events:none">🔒</text>`
+    // Contour pointillé ambre autour de la table
+    if (['round', 'round_sm', 'round_lg'].includes(t.shape))
+      s += `<circle cx="${cx}" cy="${cy}" r="${(t.h/2 + tRef*0.06).toFixed(2)}" fill="none" stroke="rgba(232,165,48,.5)" stroke-width="${(tRef*0.05).toFixed(2)}" stroke-dasharray="1.5,1.2" style="pointer-events:none"/>`
+    else if (t.shape === 'oval')
+      s += `<ellipse cx="${cx}" cy="${cy}" rx="${(t.w/2 + tRef*0.06).toFixed(2)}" ry="${(t.h/2 + tRef*0.06).toFixed(2)}" fill="none" stroke="rgba(232,165,48,.5)" stroke-width="${(tRef*0.05).toFixed(2)}" stroke-dasharray="1.5,1.2" style="pointer-events:none"/>`
+    else
+      s += `<rect x="${(t.x - tRef*0.04).toFixed(2)}" y="${(t.y - tRef*0.04).toFixed(2)}" width="${(t.w + tRef*0.08).toFixed(2)}" height="${(t.h + tRef*0.08).toFixed(2)}" rx="3" fill="none" stroke="rgba(232,165,48,.5)" stroke-width="${(tRef*0.05).toFixed(2)}" stroke-dasharray="1.5,1.2" style="pointer-events:none"/>`
+    // Cadenas
+    s += `<text x="${cx}" y="${(cy - tRef*0.05).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.28).toFixed(1)}" style="pointer-events:none">🔒</text>`
   }
 
   // ── 4. Selection glow (identique éditeur) ──
@@ -359,7 +374,7 @@ export function Plan() {
   const {
     resas, tables, combos, services, salles, roomItems,
     activeDate, setActiveDate,
-    updateResa, setResaStatus,
+    updateResa, setResaStatus, setTables,
   } = useAppStore()
   const { toast } = useToast()
   const { t } = useT()
@@ -369,7 +384,7 @@ export function Plan() {
   const [svcFilter, setSvcFilter] = useState('')
   const [search, setSearch] = useState('')
   const [showOrphans, setShowOrphans] = useState(false)
-  const [popup, setPopup] = useState<{ resa: any; x: number; y: number; flip: boolean } | null>(null)
+  const [popup, setPopup] = useState<{ resa: any; table?: Table; x: number; y: number; flip: boolean } | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
   // Init salle
@@ -559,17 +574,18 @@ export function Plan() {
     const tbl = tables.find(t => t.id === id)
     if (!tbl) return
 
+    const rect = (tblEl as SVGElement).getBoundingClientRect()
+    const flip = rect.bottom + 220 > window.innerHeight
+
     const resa = occupiedMap[tbl.n]
     if (resa) {
-      // Table occupée → popup actions rapides
-      const rect = (tblEl as SVGElement).getBoundingClientRect()
-      const flip = rect.bottom + 220 > window.innerHeight
-      setPopup({ resa, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
-    } else if (!tbl.blocked) {
-      // Table libre → nouvelle résa pré-remplie
-      navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel&from=plan`)
+      // Table occupée → popup actions rapides résa
+      setPopup({ resa, table: tbl, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
+    } else {
+      // Table libre / bloquée / réserve → popup actions table
+      setPopup({ resa: null, table: tbl, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
     }
-  }, [tables, occupiedMap, navigate, popup])
+  }, [tables, occupiedMap, popup])
 
   // ── Auto-réassignation ─────────────────────────
   const handleAutoReassign = () => {
@@ -635,16 +651,28 @@ export function Plan() {
         </div>
       </div>
 
-      {/* ── Popup actions rapides (clic table occupée) ── */}
+      {/* ── Popup actions rapides ── */}
       {popup && (() => {
         const r = popup.resa
-        const st = STATUS[r.s as keyof typeof STATUS]
+        const tbl = popup.table
         const btnStyle = (col: string): React.CSSProperties => ({
           width: '100%', display: 'flex', alignItems: 'center', gap: 8,
           padding: '10px 12px', border: 'none', borderBottom: '1px solid rgba(255,255,255,.04)',
           background: 'transparent', cursor: 'pointer', textAlign: 'left',
           fontSize: 13, fontWeight: 700, color: col,
         })
+
+        const updateTable = (id: string, patch: Partial<Table>) => {
+          setTables(tables.map(t => t.id === id ? { ...t, ...patch } : t))
+        }
+
+        // Popup border color
+        const st = r ? STATUS[r.s as keyof typeof STATUS] : null
+        const borderCol = r ? (st?.border || 'var(--border)')
+          : tbl?.blocked ? 'rgba(100,116,139,.5)'
+          : tbl?.held ? 'rgba(232,165,48,.5)'
+          : 'rgba(68,128,216,.4)'
+
         return createPortal(
           <>
             <div onClick={() => setPopup(null)} style={{ position: 'fixed', inset: 0, zIndex: 9998 }} />
@@ -655,45 +683,79 @@ export function Plan() {
                 ? { bottom: window.innerHeight - popup.y + 8 }
                 : { top: popup.y + 8 }),
               zIndex: 9999, minWidth: 200, maxWidth: 260,
-              background: 'var(--surf2)', border: `1px solid ${st?.border || 'var(--border)'}`,
+              background: 'var(--surf2)', border: `1px solid ${borderCol}`,
               borderRadius: 10, overflow: 'hidden',
               boxShadow: '0 8px 24px rgba(0,0,0,.4)',
             }}>
-              {/* En-tête résa */}
-              <div style={{ padding: '8px 12px', background: 'rgba(0,0,0,.08)', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {st && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 6, background: st.bg, color: st.hex, border: `1px solid ${st.border}` }}>{st.icon}</span>}
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{r.nom || r.n}</span>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--t2)', fontFamily: 'var(--fm)' }}>{r.c}p</span>
-                  <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{r.t}</span>
+
+              {r ? (<>
+                {/* ── Table occupée — actions résa ── */}
+                <div style={{ padding: '8px 12px', background: 'rgba(0,0,0,.08)', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {st && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 6, background: st.bg, color: st.hex, border: `1px solid ${st.border}` }}>{st.icon}</span>}
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{r.nom || r.n}</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--t2)', fontFamily: 'var(--fm)' }}>{r.c}p</span>
+                    <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{r.t}</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 2 }}>{r.tbl}</div>
                 </div>
-                <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 2 }}>{r.tbl}</div>
-              </div>
-              {/* Actions */}
-              <button onClick={() => { setPopup(null); navigate(`/reservations?edit=${r.id}&from=plan`) }} style={btnStyle('#7bb8ff')}>✏️ Modifier</button>
-              {(r.s === 'reserved' || r.s === 'arrived') && (
-                <button onClick={() => {
-                  setPopup(null)
-                  const newTbl = prompt(`Réassigner ${r.nom || r.n} (${r.c}p) → nouvelle table :`)
-                  if (newTbl && newTbl.trim()) { updateResa(r.id, { tbl: newTbl.trim() }); toast(`Réassigné → ${newTbl.trim()} ✓`, 'success') }
-                }} style={btnStyle('#e8a530')}>↔ Réassigner</button>
-              )}
-              {r.s === 'reserved' && (
-                <>
-                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'arrived') }} style={btnStyle('var(--gn)')}>✓ Arrivé</button>
-                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'noshow') }} style={btnStyle('var(--am)')}>👻 No-show</button>
-                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'cancelled') }} style={btnStyle('var(--rd)')}>🚫 Annuler</button>
-                </>
-              )}
-              {r.s === 'arrived' && (
-                <>
-                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'done') }} style={btnStyle('var(--gn)')}>🪑 Libérer</button>
-                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'noshow') }} style={btnStyle('var(--am)')}>👻 No-show</button>
-                </>
-              )}
-              {(r.s === 'noshow' || r.s === 'done' || r.s === 'cancelled') && (
-                <button onClick={() => { setPopup(null); setResaStatus(r.id, 'reserved') }} style={btnStyle('#7bb8ff')}>↩ Remettre</button>
-              )}
+                <button onClick={() => { setPopup(null); navigate(`/reservations?edit=${r.id}&from=plan`) }} style={btnStyle('#7bb8ff')}>✏️ Modifier</button>
+                {(r.s === 'reserved' || r.s === 'arrived') && (
+                  <button onClick={() => {
+                    setPopup(null)
+                    const newTbl = prompt(`Réassigner ${r.nom || r.n} (${r.c}p) → nouvelle table :`)
+                    if (newTbl && newTbl.trim()) { updateResa(r.id, { tbl: newTbl.trim() }); toast(`Réassigné → ${newTbl.trim()} ✓`, 'success') }
+                  }} style={btnStyle('#e8a530')}>↔ Réassigner</button>
+                )}
+                {r.s === 'reserved' && (
+                  <>
+                    <button onClick={() => { setPopup(null); setResaStatus(r.id, 'arrived') }} style={btnStyle('var(--gn)')}>✓ Arrivé</button>
+                    <button onClick={() => { setPopup(null); setResaStatus(r.id, 'noshow') }} style={btnStyle('var(--am)')}>👻 No-show</button>
+                    <button onClick={() => { setPopup(null); setResaStatus(r.id, 'cancelled') }} style={btnStyle('var(--rd)')}>🚫 Annuler</button>
+                  </>
+                )}
+                {r.s === 'arrived' && (
+                  <>
+                    <button onClick={() => { setPopup(null); setResaStatus(r.id, 'done') }} style={btnStyle('var(--gn)')}>🪑 Libérer</button>
+                    <button onClick={() => { setPopup(null); setResaStatus(r.id, 'noshow') }} style={btnStyle('var(--am)')}>👻 No-show</button>
+                  </>
+                )}
+                {(r.s === 'noshow' || r.s === 'done' || r.s === 'cancelled') && (
+                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'reserved') }} style={btnStyle('#7bb8ff')}>↩ Remettre</button>
+                )}
+              </>) : tbl ? (<>
+                {/* ── Table non-occupée — actions table ── */}
+                <div style={{ padding: '8px 12px', background: 'rgba(0,0,0,.08)', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)', fontFamily: 'var(--fm)' }}>{tbl.n}</span>
+                    <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{tbl.capMax}p</span>
+                    {tbl.blocked && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: 'rgba(100,116,139,.2)', color: 'rgba(100,116,139,.8)', border: '1px solid rgba(100,116,139,.3)' }}>BLOQUÉE</span>}
+                    {tbl.held && !tbl.blocked && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: 'rgba(232,165,48,.15)', color: '#e8a530', border: '1px solid rgba(232,165,48,.3)' }}>RÉSERVE</span>}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 2 }}>{tbl.salle} · {tbl.shape}</div>
+                </div>
+
+                {/* Nouvelle résa */}
+                {!tbl.blocked && (
+                  <button onClick={() => { setPopup(null); navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel&from=plan`) }} style={btnStyle('#7bb8ff')}>➕ Nouvelle résa</button>
+                )}
+
+                {/* Bloquer / Débloquer */}
+                {tbl.blocked ? (
+                  <button onClick={() => { setPopup(null); updateTable(tbl.id, { blocked: false }); toast(`${tbl.n} débloquée ✓`, 'success') }} style={btnStyle('var(--gn)')}>🔓 Débloquer</button>
+                ) : (
+                  <button onClick={() => { setPopup(null); updateTable(tbl.id, { blocked: true, held: false }); toast(`${tbl.n} bloquée 🚫`, 'warning') }} style={btnStyle('rgba(100,116,139,.8)')}>🚫 Bloquer</button>
+                )}
+
+                {/* Réserve (held) / Libérer réserve */}
+                {!tbl.blocked && (
+                  tbl.held ? (
+                    <button onClick={() => { setPopup(null); updateTable(tbl.id, { held: false }); toast(`${tbl.n} réserve levée ✓`, 'success') }} style={btnStyle('var(--gn)')}>🔓 Lever réserve</button>
+                  ) : (
+                    <button onClick={() => { setPopup(null); updateTable(tbl.id, { held: true }); toast(`${tbl.n} mise en réserve 🔒`, 'info') }} style={btnStyle('#e8a530')}>🔒 Mettre en réserve</button>
+                  )
+                )}
+              </>) : null}
             </div>
           </>,
           document.body
