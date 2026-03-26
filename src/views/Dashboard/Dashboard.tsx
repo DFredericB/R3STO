@@ -564,66 +564,115 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* ══ Mini-Agenda — timeline visuelle du jour ══ */}
+        {/* ══ AGENDA — vue verticale par créneau ══ */}
         <div style={{ padding: '0 18px 16px' }}>
           <div style={{ ...sectionTitle, fontSize: 12, marginBottom: 8 }}>📅 Agenda du jour</div>
-          <div className="card" style={{ padding: '10px 14px', overflow: 'hidden' }}>
+          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             {(() => {
               const now = nowMins()
-              const dayStart = 11 * 60 // 11h
-              const dayEnd = 24 * 60   // minuit
-              const daySpan = dayEnd - dayStart
-              const nowPct = Math.max(0, Math.min(100, ((now - dayStart) / daySpan) * 100))
+              const svcSlots = activeServices.map(s => ({
+                label: s.name,
+                open: timeToMins(s.open),
+                close: timeToMins(s.close),
+                color: s.color || 'var(--bl)',
+              }))
 
-              // Grouper les résas par créneau de 30min
-              const slots: Record<number, typeof dayResas> = {}
+              // Generate 30min slots
+              const allSlots: number[] = []
+              svcSlots.forEach(svc => {
+                for (let m = svc.open; m < svc.close; m += 30) {
+                  if (!allSlots.includes(m)) allSlots.push(m)
+                }
+              })
+              allSlots.sort((a, b) => a - b)
+
+              // Group resas by slot
+              const resaBySlot: Record<number, typeof dayResas> = {}
               dayResas.forEach(r => {
                 const parts = r.t.split(/[h:]/)
                 const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
                 const slotKey = Math.floor(m / 30) * 30
-                if (!slots[slotKey]) slots[slotKey] = []
-                slots[slotKey].push(r)
+                if (!resaBySlot[slotKey]) resaBySlot[slotKey] = []
+                resaBySlot[slotKey].push(r)
               })
 
-              // Heures repères
-              const hours = [11, 12, 13, 14, 18, 19, 20, 21, 22, 23]
+              const statusBg: Record<string, string> = {
+                arrived: 'rgba(60,200,112,.12)', reserved: 'rgba(68,128,216,.1)',
+                done: 'rgba(128,128,128,.08)', noshow: 'rgba(220,80,80,.1)', waitlist: 'rgba(232,165,48,.1)',
+              }
+              const statusTxt: Record<string, string> = {
+                arrived: 'var(--gn)', reserved: 'var(--bl)',
+                done: 'var(--t4)', noshow: 'var(--rd)', waitlist: 'var(--am)',
+              }
 
               return (
-                <div style={{ position: 'relative', height: 56 }}>
-                  {/* Ligne de base */}
-                  <div style={{ position: 'absolute', top: 28, left: 0, right: 0, height: 2, background: 'var(--border)', borderRadius: 1 }} />
-                  {/* Marqueur "maintenant" */}
-                  <div style={{ position: 'absolute', top: 18, left: `${nowPct}%`, width: 2, height: 22, background: 'var(--rd)', borderRadius: 1, zIndex: 2 }} />
-                  <div style={{ position: 'absolute', top: 8, left: `calc(${nowPct}% - 8px)`, fontSize: 8, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--fm)', zIndex: 2 }}>
-                    {Math.floor(now / 60)}h{String(now % 60).padStart(2, '0')}
-                  </div>
-                  {/* Heures repères */}
-                  {hours.map(h => {
-                    const pct = ((h * 60 - dayStart) / daySpan) * 100
-                    if (pct < 0 || pct > 100) return null
+                <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+                  {allSlots.map(slotMin => {
+                    const hr = Math.floor(slotMin / 60)
+                    const mn = slotMin % 60
+                    const label = `${hr}h${String(mn).padStart(2, '0')}`
+                    const isNow = now >= slotMin && now < slotMin + 30
+                    const slotResas = resaBySlot[slotMin] || []
+                    const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
+                    // Service header
+                    const svc = svcSlots.find(s => slotMin >= s.open && slotMin < s.close)
+                    const isFirstSlot = svc && slotMin === svc.open
+
                     return (
-                      <div key={h} style={{ position: 'absolute', top: 42, left: `${pct}%`, transform: 'translateX(-50%)', fontSize: 8, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>
-                        {h}h
-                      </div>
-                    )
-                  })}
-                  {/* Points de réservation */}
-                  {Object.entries(slots).map(([slotStr, slotResas]) => {
-                    const slotMin = parseInt(slotStr)
-                    const pct = ((slotMin - dayStart) / daySpan) * 100
-                    if (pct < 0 || pct > 100) return null
-                    const cnt = slotResas.length
-                    const hasArrived = slotResas.some(r => r.s === 'arrived')
-                    const col = hasArrived ? 'var(--gn)' : 'var(--bl)'
-                    return (
-                      <div key={slotStr} style={{
-                        position: 'absolute', top: 22, left: `${pct}%`, transform: 'translateX(-50%)',
-                        width: Math.min(8 + cnt * 3, 20), height: Math.min(8 + cnt * 3, 20),
-                        borderRadius: '50%', background: col, opacity: .7,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 7, fontWeight: 900, color: '#fff', zIndex: 1,
-                      }} title={`${Math.floor(slotMin/60)}h${String(slotMin%60).padStart(2,'0')} — ${cnt} résa(s)`}>
-                        {cnt > 1 ? cnt : ''}
+                      <div key={slotMin}>
+                        {isFirstSlot && svc && (
+                          <div style={{
+                            padding: '5px 10px', background: svc.color + '15',
+                            borderBottom: '1px solid var(--border)',
+                            fontSize: 10, fontWeight: 800, color: svc.color,
+                            textTransform: 'uppercase', letterSpacing: .5,
+                          }}>
+                            {svc.label}
+                          </div>
+                        )}
+                        <div style={{
+                          display: 'flex', gap: 10, borderBottom: '1px solid var(--border)',
+                          background: isNow ? 'rgba(220,80,80,.05)' : 'transparent',
+                          minHeight: 34,
+                        }}>
+                          {/* Time column */}
+                          <div style={{
+                            width: 52, flexShrink: 0, padding: '6px 6px', textAlign: 'right',
+                            fontSize: 11, fontWeight: 800, fontFamily: 'var(--fm)',
+                            color: isNow ? 'var(--rd)' : 'var(--t3)',
+                            borderRight: isNow ? '3px solid var(--rd)' : '3px solid var(--border)',
+                          }}>
+                            {label}
+                            {slotCvt > 0 && <div style={{ fontSize: 9, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
+                          </div>
+                          {/* Resas */}
+                          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 4, padding: '4px 6px 4px 0', alignItems: 'center' }}>
+                            {slotResas.length === 0 && (
+                              <span style={{ fontSize: 10, color: 'var(--t4)' }}>—</span>
+                            )}
+                            {slotResas.map(r => (
+                              <div key={r.id}
+                                onClick={() => navigate(`/reservations?edit=${r.id}`)}
+                                style={{
+                                  padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
+                                  background: statusBg[r.s] || 'var(--surf2)',
+                                  border: `1px solid ${(statusTxt[r.s] || 'var(--bl)')}25`,
+                                  display: 'flex', alignItems: 'center', gap: 4,
+                                }}>
+                                <span style={{ fontSize: 10, fontWeight: 700, color: statusTxt[r.s] || 'var(--bl)' }}>
+                                  {r.n?.split(' ')[0]}
+                                </span>
+                                <span style={{ fontSize: 9, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>
+                                  {r.c}p
+                                </span>
+                                {r.tbl && <span style={{ fontSize: 9, color: 'var(--t4)' }}>{r.tbl}</span>}
+                                {r.canal && CANAUX[r.canal] && (
+                                  <span style={{ fontSize: 8, opacity: .7 }}>{CANAUX[r.canal].icon}</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     )
                   })}

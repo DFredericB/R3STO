@@ -26,7 +26,7 @@ const DEMO_COMBOS: Combo[] = [
 
 export function Tables() {
   const { t } = useT()
-  const { tables, salles, combos } = useAppStore()
+  const { tables, salles, combos, setCombos } = useAppStore()
   const { toast } = useToast()
 
   const [comboMode, setComboMode] = useState(false)
@@ -133,7 +133,24 @@ export function Tables() {
       .filter(Boolean)
       .join('+')
     const cap = selectedForCombo.reduce((sum, id) => sum + (activeTables.find(t => t.id === id)?.capMax || 0), 0)
-    toast(`✓ Combo ${names} · ${cap}p`, 'success')
+    const salle = activeTables.find(t => t.id === selectedForCombo[0])?.salle || currentSalle
+    // Check for duplicate combo
+    if (activeCombos.some(c => c.label === names)) {
+      toast(`⚠️ Combo ${names} existe déjà`, 'warning')
+      setComboMode(false)
+      setSelectedForCombo([])
+      return
+    }
+    const newCombo: Combo = {
+      id: `c_${Date.now()}`,
+      label: names,
+      tables: [...selectedForCombo],
+      cap,
+      capOverride: null,
+      salle,
+    }
+    setCombos([...activeCombos, newCombo])
+    toast(`✓ Combo ${names} · ${cap}p créé`, 'success')
     setComboMode(false)
     setSelectedForCombo([])
   }
@@ -428,7 +445,11 @@ export function Tables() {
                               Supprimer <strong>{combo.label}</strong> ?
                             </div>
                             <div style={{ display: 'flex', gap: 6 }}>
-                              <button style={{ fontSize: 11, flex: 1, background: 'rgba(220,80,80,.2)', color: 'var(--rd)', border: 'none', borderRadius: 4, cursor: 'pointer', padding: '6px' }}>
+                              <button onClick={() => {
+                                setCombos(activeCombos.filter(c => c.id !== combo.id))
+                                toast(`✓ Combo ${combo.label} supprimé`, 'success')
+                                setConfirmDelete(null)
+                              }} style={{ fontSize: 11, flex: 1, background: 'rgba(220,80,80,.2)', color: 'var(--rd)', border: 'none', borderRadius: 4, cursor: 'pointer', padding: '6px' }}>
                                 Oui, supprimer
                               </button>
                               <button onClick={() => setConfirmDelete(null)} style={{ fontSize: 11, flex: 1, background: 'var(--surf2)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 4, cursor: 'pointer', padding: '6px' }}>

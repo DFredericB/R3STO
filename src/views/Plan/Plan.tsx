@@ -123,24 +123,43 @@ function planTableSvg(
     s += `<text x="${cx}" y="${(cy + tRef*0.08).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsName}" font-family="DM Mono,monospace" font-weight="600" fill="${tcol}" opacity=".85" style="pointer-events:none">${shortName}</text>`
     // Couverts + heure
     s += `<text x="${cx}" y="${(cy + tRef*0.30).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsCov}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${resaInfo.covers}p · ${resaInfo.time}</text>`
-    // Badges top-right : VIP ⭐ Allergie ⚠ Bébé 👶 PMR ♿ Combo 🔗 Canal
-    const badges: string[] = []
-    if (resaInfo.isNew) badges.push('🆕')
-    if (resaInfo.isIA) badges.push('🤖')
-    if (resaInfo.vip) badges.push('⭐')
-    if (resaInfo.allergie) badges.push('⚠')
-    if (resaInfo.bebe > 0) badges.push('👶')
-    if (resaInfo.pmr > 0) badges.push('♿')
-    if (resaInfo.isCombo) badges.push('🔗')
-    // Canal icon
-    const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
-    if (resaInfo.canal && canalIcons[resaInfo.canal]) badges.push(canalIcons[resaInfo.canal])
-    if (badges.length > 0) {
-      // Place badges ABOVE the table for better visibility
-      s += `<text x="${cx}" y="${(t.y - tRef*0.08).toFixed(2)}" text-anchor="middle" font-size="${(tRef*0.14).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
+    // Badges ABOVE table — pastilles SVG propres au lieu d'emojis
+    const badgeDefs: { letter: string; bg: string; fg: string }[] = []
+    if (resaInfo.isIA)      badgeDefs.push({ letter: 'IA', bg: 'rgba(91,156,246,.85)', fg: '#fff' })
+    if (resaInfo.vip)       badgeDefs.push({ letter: '★',  bg: 'rgba(250,204,21,.9)',  fg: '#7a5c00' })
+    if (resaInfo.allergie)  badgeDefs.push({ letter: '!',  bg: 'rgba(220,80,80,.85)',   fg: '#fff' })
+    if (resaInfo.bebe > 0)  badgeDefs.push({ letter: 'B',  bg: 'rgba(155,89,182,.8)',   fg: '#fff' })
+    if (resaInfo.pmr > 0)   badgeDefs.push({ letter: '♿', bg: 'rgba(68,128,216,.85)',   fg: '#fff' })
+    if (resaInfo.isCombo)   badgeDefs.push({ letter: '⊕',  bg: 'rgba(144,96,224,.8)',   fg: '#fff' })
+    // Canal
+    const canalLetters: Record<string, { letter: string; bg: string }> = {
+      telephone: { letter: 'T', bg: 'rgba(46,204,113,.8)' },
+      walkin:    { letter: 'W', bg: 'rgba(232,165,48,.8)' },
+      widget:    { letter: 'N', bg: 'rgba(68,128,216,.8)' },
+      google:    { letter: 'G', bg: 'rgba(219,68,55,.8)' },
+      email:     { letter: '@', bg: 'rgba(128,128,128,.8)' },
     }
-    // Status icon top-left
-    s += `<text x="${(t.x + tRef*0.1).toFixed(2)}" y="${(t.y + tRef*0.15).toFixed(2)}" font-size="${(tRef*0.18).toFixed(1)}" style="pointer-events:none">${resaInfo.statusIcon}</text>`
+    if (resaInfo.canal && canalLetters[resaInfo.canal]) {
+      const cl = canalLetters[resaInfo.canal]
+      badgeDefs.push({ letter: cl.letter, bg: cl.bg, fg: '#fff' })
+    }
+    if (badgeDefs.length > 0) {
+      const bR = tRef * 0.1
+      const bSpacing = bR * 2.3
+      const bStartX = cx - ((badgeDefs.length - 1) * bSpacing) / 2
+      const bY = t.y - bR - tRef * 0.04
+      badgeDefs.forEach((bd, i) => {
+        const bx = bStartX + i * bSpacing
+        s += `<circle cx="${bx.toFixed(2)}" cy="${bY.toFixed(2)}" r="${bR.toFixed(2)}" fill="${bd.bg}" style="pointer-events:none"/>`
+        s += `<text x="${bx.toFixed(2)}" y="${(bY + bR * 0.05).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(bR * 1.1).toFixed(1)}" font-weight="800" font-family="DM Mono,monospace" fill="${bd.fg}" style="pointer-events:none">${bd.letter}</text>`
+      })
+    }
+    // Status dot top-left (colored circle instead of emoji)
+    const statusDotColors: Record<string, string> = {
+      arrived: '#3cc870', reserved: '#4480d8', done: '#888', noshow: '#dc5050', waitlist: '#e8a530',
+    }
+    const dotCol = statusDotColors[status] || '#4480d8'
+    s += `<circle cx="${(t.x + tRef*0.12).toFixed(2)}" cy="${(t.y + tRef*0.12).toFixed(2)}" r="${(tRef*0.08).toFixed(2)}" fill="${dotCol}" style="pointer-events:none"/>`
 
     // Personnes autour de la table (petits cercles)
     const nPers = Math.min(resaInfo.covers, 12) // max 12 affichés
