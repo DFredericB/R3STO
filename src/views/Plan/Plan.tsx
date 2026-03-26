@@ -34,19 +34,23 @@ const CANVAS_SIZES: Record<string, { w: number; h: number }> = {}
 
 function spSnap(v: number) { return Math.round(v) }
 
-/** Table SVG body — shape + fill selon statut */
+/**
+ * Table SVG — REPRODUCTION IDENTIQUE AU STYLE ÉDITEUR (SetupPlan)
+ * Ordre de rendu : chaises → ombre 3D → forme → basse → sélection → textes → badges
+ */
 function planTableSvg(
   t: Table,
   status: 'free' | 'reserved' | 'arrived' | 'blocked' | 'combo_partial' | 'held',
   isSelected: boolean,
   resaInfo?: { name: string; covers: number; time: string; statusIcon: string; vip: boolean; allergie: boolean; bebe: number; pmr: number; isCombo: boolean; isNew: boolean; isIA: boolean; canal?: string },
+  isInOccupiedCombo?: boolean,
 ): string {
   const tRef = Math.min(t.w, t.h)
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2
 
-  // Couleurs selon statut
+  // Couleurs selon statut — identiques éditeur mais modulées par occupation
   const fills: Record<string, string> = {
-    free:           'rgba(68,128,216,.10)',
+    free:           'rgba(68,128,216,.11)',
     reserved:       'rgba(68,128,216,.22)',
     arrived:        'rgba(60,200,112,.22)',
     blocked:        'rgba(100,116,139,.15)',
@@ -54,7 +58,7 @@ function planTableSvg(
     held:           'rgba(232,165,48,.12)',
   }
   const strokes: Record<string, string> = {
-    free:           'rgba(68,128,216,.40)',
+    free:           'rgba(68,128,216,.45)',
     reserved:       'rgba(68,128,216,.75)',
     arrived:        'rgba(60,200,112,.75)',
     blocked:        'rgba(100,116,139,.40)',
@@ -62,7 +66,7 @@ function planTableSvg(
     held:           'rgba(232,165,48,.55)',
   }
   const textCols: Record<string, string> = {
-    free:           'rgba(68,128,216,.7)',
+    free:           '#4480d8',
     reserved:       '#4480d8',
     arrived:        '#3cc870',
     blocked:        'rgba(100,116,139,.5)',
@@ -73,22 +77,52 @@ function planTableSvg(
   const fill = fills[status] || fills.free
   const stroke = isSelected ? '#facc15' : (strokes[status] || strokes.free)
   const tcol = textCols[status] || textCols.free
-  const sw = isSelected ? tRef * 0.12 : tRef * 0.07
+  const sw = isSelected ? tRef * 0.125 : tRef * 0.067
 
   let s = `<g data-table="${t.id}" style="cursor:pointer">`
 
-  // Shape
+  // ── 1. Chaises DERRIÈRE la table (identique éditeur) ──
+  const chairFill = status === 'arrived' ? 'rgba(60,200,112,.18)'
+    : status === 'held' ? 'rgba(232,165,48,.10)'
+    : 'rgba(68,128,216,.13)'
+  const chairStroke = status === 'arrived' ? 'rgba(60,200,112,.45)'
+    : status === 'held' ? 'rgba(232,165,48,.28)'
+    : 'rgba(68,128,216,.32)'
+  if (!t.blocked) s += spChairsSvg(t, chairFill, chairStroke)
+
+  // ── 2. Ombre 3D pour tables hautes (identique éditeur) ──
+  const isHaute = t.tableH === 'haute'
+  const isBasse = t.tableH === 'basse'
+  if (isHaute) {
+    const ex = tRef * 0.117
+    if (['round', 'round_sm', 'round_lg'].includes(t.shape))
+      s += `<circle cx="${cx+ex}" cy="${cy+ex}" r="${t.h/2+0.3}" fill="rgba(68,128,216,.18)"/>`
+    else if (t.shape === 'oval')
+      s += `<ellipse cx="${cx+ex}" cy="${cy+ex}" rx="${t.w/2+0.3}" ry="${t.h/2+0.3}" fill="rgba(68,128,216,.18)"/>`
+    else
+      s += `<rect x="${t.x+ex}" y="${t.y+ex}" width="${t.w+0.3}" height="${t.h+0.3}" rx="3" fill="rgba(68,128,216,.18)"/>`
+  }
+
+  // ── 3. Forme de la table (toutes les shapes identiques éditeur) ──
   if (['round', 'round_sm', 'round_lg'].includes(t.shape)) {
     const r = t.h / 2
     s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`
+    if (isBasse) s += `<circle cx="${cx}" cy="${cy}" r="${(r - tRef*0.10).toFixed(2)}" fill="none" stroke="${stroke}" stroke-width="${(tRef*0.037).toFixed(2)}" stroke-dasharray="1.5,1"/>`
   } else if (t.shape === 'oval') {
-    s += `<ellipse cx="${cx}" cy="${cy}" rx="${t.w/2}" ry="${t.h/2}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`
+    const rxe = t.w / 2, rye = t.h / 2
+    s += `<ellipse cx="${cx}" cy="${cy}" rx="${rxe}" ry="${rye}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`
+    if (isBasse) s += `<ellipse cx="${cx}" cy="${cy}" rx="${(rxe - tRef*0.10).toFixed(2)}" ry="${(rye - tRef*0.083).toFixed(2)}" fill="none" stroke="${stroke}" stroke-width="${(tRef*0.037).toFixed(2)}" stroke-dasharray="1.5,1"/>`
+  } else if (t.shape === 'banquette') {
+    s += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" rx="1.5" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`
+    if (isBasse) s += `<rect x="${(t.x+tRef*0.10).toFixed(2)}" y="${(t.y+tRef*0.083).toFixed(2)}" width="${(t.w-tRef*0.20).toFixed(2)}" height="${(t.h-tRef*0.167).toFixed(2)}" rx="1" fill="none" stroke="${stroke}" stroke-width="${(tRef*0.037).toFixed(2)}" stroke-dasharray="1.5,1"/>`
   } else if (t.shape === 'bar') {
     const bh = t.h * 0.5, by = t.y + (t.h - bh) / 2
     s += `<rect x="${t.x}" y="${by}" width="${t.w}" height="${bh}" rx="1" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`
   } else {
+    // rect, square, square_sm, rect_lg
     const rxv = t.shape === 'square' || t.shape === 'square_sm' ? 2.5 : 1.5
     s += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" rx="${rxv}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`
+    if (isBasse) s += `<rect x="${(t.x+tRef*0.10).toFixed(2)}" y="${(t.y+tRef*0.083).toFixed(2)}" width="${(t.w-tRef*0.20).toFixed(2)}" height="${(t.h-tRef*0.167).toFixed(2)}" rx="${rxv-0.5}" fill="none" stroke="${stroke}" stroke-width="${(tRef*0.037).toFixed(2)}" stroke-dasharray="1.5,1"/>`
   }
 
   // Blocked hatch
@@ -102,28 +136,33 @@ function planTableSvg(
     s += `<text x="${cx}" y="${(cy - tRef*0.05).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.25).toFixed(1)}" style="pointer-events:none">🔒</text>`
   }
 
-  // Selection glow
+  // ── 4. Selection glow (identique éditeur) ──
   if (isSelected) {
     if (['round', 'round_sm', 'round_lg'].includes(t.shape))
-      s += `<circle cx="${cx}" cy="${cy}" r="${t.h/2 + tRef*0.08}" fill="none" stroke="#facc15" stroke-width="${tRef*0.1}" opacity="0.3"/>`
+      s += `<circle cx="${cx}" cy="${cy}" r="${(t.h/2 + tRef*0.075).toFixed(2)}" fill="none" stroke="#facc15" stroke-width="${(tRef*0.10).toFixed(2)}" opacity="0.3"/>`
+    else if (t.shape === 'oval')
+      s += `<ellipse cx="${cx}" cy="${cy}" rx="${(t.w/2 + tRef*0.067).toFixed(2)}" ry="${(t.h/2 + tRef*0.067).toFixed(2)}" fill="none" stroke="#facc15" stroke-width="${(tRef*0.10).toFixed(2)}" opacity="0.3"/>`
     else
-      s += `<rect x="${t.x - tRef*0.05}" y="${t.y - tRef*0.05}" width="${t.w + tRef*0.1}" height="${t.h + tRef*0.1}" rx="3" fill="none" stroke="#facc15" stroke-width="${tRef*0.1}" opacity="0.3"/>`
+      s += `<rect x="${(t.x - tRef*0.05).toFixed(2)}" y="${(t.y - tRef*0.05).toFixed(2)}" width="${(t.w + tRef*0.10).toFixed(2)}" height="${(t.h + tRef*0.10).toFixed(2)}" rx="3" fill="none" stroke="#facc15" stroke-width="${(tRef*0.10).toFixed(2)}" opacity="0.3"/>`
   }
 
+  // ── 5. Textes — positions identiques éditeur ──
   const fsN = (tRef * 0.25).toFixed(1)
+  const fsC = (tRef * 0.167).toFixed(1)
 
-  if (resaInfo) {
-    // Table occupée — afficher nom + heure
-    const fsName = (tRef * 0.18).toFixed(1)
-    const fsCov  = (tRef * 0.15).toFixed(1)
+  if (isInOccupiedCombo) {
+    // Combo occupé — pas de texte individuel (géré par planComboSvg)
+    // Juste le numéro de table discret
+    s += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.18).toFixed(1)}" font-family="DM Mono,monospace" font-weight="700" fill="${tcol}" opacity=".4" style="pointer-events:none">${t.n}</text>`
+  } else if (resaInfo) {
+    // Table occupée (solo) — numéro + nom + couverts/heure
     s += `<text x="${cx}" y="${(cy - tRef*0.22).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
-    // Nom client (tronqué)
     const maxChars = Math.max(4, Math.floor(t.w / 1.8))
     const shortName = resaInfo.name.length > maxChars ? resaInfo.name.slice(0, maxChars - 1) + '…' : resaInfo.name
-    s += `<text x="${cx}" y="${(cy + tRef*0.08).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsName}" font-family="DM Mono,monospace" font-weight="600" fill="${tcol}" opacity=".85" style="pointer-events:none">${shortName}</text>`
-    // Couverts + heure
-    s += `<text x="${cx}" y="${(cy + tRef*0.30).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsCov}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${resaInfo.covers}p · ${resaInfo.time}</text>`
-    // Badges top-right : VIP ⭐ Allergie ⚠ Bébé 👶 PMR ♿ Combo 🔗 Canal
+    s += `<text x="${cx}" y="${(cy + tRef*0.08).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.18).toFixed(1)}" font-family="DM Mono,monospace" font-weight="600" fill="${tcol}" opacity=".85" style="pointer-events:none">${shortName}</text>`
+    s += `<text x="${cx}" y="${(cy + tRef*0.30).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${(tRef*0.15).toFixed(1)}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${resaInfo.covers}p · ${resaInfo.time}</text>`
+
+    // Badges au-dessus des chaises
     const badges: string[] = []
     if (resaInfo.isNew) badges.push('🆕')
     if (resaInfo.isIA) badges.push('🤖')
@@ -132,37 +171,30 @@ function planTableSvg(
     if (resaInfo.bebe > 0) badges.push('👶')
     if (resaInfo.pmr > 0) badges.push('♿')
     if (resaInfo.isCombo) badges.push('🔗')
-    // Canal icon
     const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
     if (resaInfo.canal && canalIcons[resaInfo.canal]) badges.push(canalIcons[resaInfo.canal])
     if (badges.length > 0) {
-      // Place badges well ABOVE chairs (chairs top ≈ t.y - tRef*0.15)
       s += `<text x="${cx}" y="${(t.y - tRef*0.25).toFixed(2)}" text-anchor="middle" font-size="${(tRef*0.14).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
     }
-    // Status icon top-left
+    // Status icon
     s += `<text x="${(t.x + tRef*0.1).toFixed(2)}" y="${(t.y + tRef*0.15).toFixed(2)}" font-size="${(tRef*0.18).toFixed(1)}" style="pointer-events:none">${resaInfo.statusIcon}</text>`
-
-    // Chaises identiques à l'éditeur — colorées selon statut
-    const chairFill = status === 'arrived' ? 'rgba(60,200,112,.18)' : 'rgba(68,128,216,.13)'
-    const chairStroke = status === 'arrived' ? 'rgba(60,200,112,.45)' : 'rgba(68,128,216,.32)'
-    s += spChairsSvg(t, chairFill, chairStroke)
   } else {
-    // Table libre — numéro + capacité
-    s += `<text x="${cx}" y="${(cy - tRef*0.1).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
-    s += `<text x="${cx}" y="${(cy + tRef*0.2).toFixed(2)}" text-anchor="middle" font-size="${(tRef*0.17).toFixed(1)}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".45" style="pointer-events:none">${t.capMax}p</text>`
-    // Chaises même sur table libre — identique éditeur
-    if (!t.blocked) {
-      const freeChairFill = status === 'held' ? 'rgba(232,165,48,.10)' : 'rgba(68,128,216,.08)'
-      const freeChairStroke = status === 'held' ? 'rgba(232,165,48,.28)' : 'rgba(68,128,216,.22)'
-      s += spChairsSvg(t, freeChairFill, freeChairStroke)
-    }
+    // Table libre — numéro + capacité (même positions que éditeur)
+    s += `<text x="${cx}" y="${(cy - tRef*0.108).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
+    s += `<text x="${cx}" y="${(cy + tRef*0.208).toFixed(2)}" text-anchor="middle" font-size="${fsC}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".45" style="pointer-events:none">${t.capMax}p</text>`
   }
+
+  // ── 6. Badge hauteur H/B (identique éditeur) ──
+  if (isHaute) s += `<text x="${(t.x + tRef*0.083).toFixed(2)}" y="${(t.y+t.h - tRef*0.067).toFixed(2)}" dominant-baseline="auto" font-size="${fsC}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" opacity=".6" style="pointer-events:none">H</text>`
+  if (isBasse) s += `<text x="${(t.x + tRef*0.083).toFixed(2)}" y="${(t.y+t.h - tRef*0.067).toFixed(2)}" dominant-baseline="auto" font-size="${fsC}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" opacity=".6" style="pointer-events:none">B</text>`
 
   return s + '</g>'
 }
 
-/** Combo fusion border — identique style éditeur avec label + capacité */
-function planComboSvg(combo: Combo, tables: Table[], hasResa: boolean): string {
+/** Combo fusion border — avec infos résa centralisées quand occupé */
+function planComboSvg(
+  combo: Combo, tables: Table[], comboResa: Resa | null,
+): string {
   const ctbls = combo.tables.map(id => tables.find(t => t.id === id)).filter(Boolean) as Table[]
   if (ctbls.length < 2) return ''
 
@@ -175,20 +207,69 @@ function planComboSvg(combo: Combo, tables: Table[], hasResa: boolean): string {
 
   const capTxt = `${combo.capOverride ?? combo.cap}p`
   const cRef = ctbls.reduce((sum, t) => sum + Math.min(t.w, t.h), 0) / ctbls.length
-  const fsN  = (cRef * 0.20).toFixed(1)
-  const fsC  = (cRef * 0.14).toFixed(1)
 
   let s = ''
-  // Contour pointillé violet
-  s += `<rect x="${(lx-1).toFixed(1)}" y="${(ly-1).toFixed(1)}" width="${(lw+2).toFixed(1)}" height="${(lh+2).toFixed(1)}" rx="3" fill="none" stroke="rgba(180,130,255,.5)" stroke-width="0.9" stroke-dasharray="2.5,1.5"/>`
 
-  // Label combo en haut du groupe (au-dessus des chaises)
-  const labelY = ly - cRef * 0.35
-  // Fond semi-transparent pour le label
-  const lblW = (combo.label.length + capTxt.length + 3) * cRef * 0.11
-  const lblH = cRef * 0.28
-  s += `<rect x="${(lcx - lblW/2).toFixed(1)}" y="${(labelY - lblH/2).toFixed(1)}" width="${lblW.toFixed(1)}" height="${lblH.toFixed(1)}" rx="2.5" fill="rgba(30,30,42,.7)" stroke="rgba(180,130,255,.35)" stroke-width="0.5"/>`
-  s += `<text x="${lcx.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="rgba(180,130,255,.95)" style="pointer-events:none">${combo.label} · ${capTxt}</text>`
+  if (comboResa) {
+    // ── Combo occupé — contour plein coloré + infos résa au centre ──
+    const isArrived = comboResa.s === 'arrived'
+    const borderCol = isArrived ? 'rgba(60,200,112,.7)' : 'rgba(144,96,224,.6)'
+    const fillCol   = isArrived ? 'rgba(60,200,112,.06)' : 'rgba(144,96,224,.06)'
+    const tcol      = isArrived ? '#3cc870' : '#b482ff'
+
+    // Fond léger sur tout le groupe
+    s += `<rect x="${(lx-1).toFixed(1)}" y="${(ly-1).toFixed(1)}" width="${(lw+2).toFixed(1)}" height="${(lh+2).toFixed(1)}" rx="3" fill="${fillCol}" stroke="${borderCol}" stroke-width="1.1"/>`
+
+    // Fond opaque derrière le texte central (masque la jonction entre tables)
+    const txtPadX = lw * 0.4, txtPadY = cRef * 0.45
+    s += `<rect x="${(lcx - txtPadX).toFixed(1)}" y="${(lcy - txtPadY).toFixed(1)}" width="${(txtPadX*2).toFixed(1)}" height="${(txtPadY*2).toFixed(1)}" rx="2.5" fill="rgba(30,30,42,.6)" style="pointer-events:none"/>`
+
+    // Combo label (T10+T11)
+    const fsN = (cRef * 0.24).toFixed(1)
+    s += `<text x="${lcx.toFixed(1)}" y="${(lcy - cRef*0.22).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${combo.label}</text>`
+
+    // Nom client
+    const clientName = comboResa.nom || comboResa.n?.split(' ')[0] || '?'
+    const maxChars = Math.max(6, Math.floor(lw / 1.5))
+    const shortName = clientName.length > maxChars ? clientName.slice(0, maxChars - 1) + '…' : clientName
+    const fsName = (cRef * 0.18).toFixed(1)
+    s += `<text x="${lcx.toFixed(1)}" y="${(lcy + cRef*0.05).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsName}" font-family="DM Mono,monospace" font-weight="600" fill="${tcol}" opacity=".85" style="pointer-events:none">${shortName}</text>`
+
+    // Couverts + heure
+    const fsCov = (cRef * 0.15).toFixed(1)
+    s += `<text x="${lcx.toFixed(1)}" y="${(lcy + cRef*0.28).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsCov}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${comboResa.c}p · ${comboResa.t}</text>`
+
+    // Badges au-dessus du groupe
+    const badges: string[] = []
+    if ((Date.now() - comboResa.createdAt) < 15 * 60 * 1000) badges.push('🆕')
+    if (comboResa.mode === 'ia') badges.push('🤖')
+    if (comboResa.statut === 2) badges.push('⭐')
+    if (comboResa.allergie) badges.push('⚠')
+    if (comboResa.bebe > 0) badges.push('👶')
+    if (comboResa.pmr > 0) badges.push('♿')
+    badges.push('🔗') // toujours montrer l'icône combo
+    const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
+    if (comboResa.canal && canalIcons[comboResa.canal]) badges.push(canalIcons[comboResa.canal])
+    if (badges.length > 0) {
+      s += `<text x="${lcx.toFixed(1)}" y="${(ly - cRef*0.25).toFixed(1)}" text-anchor="middle" font-size="${(cRef*0.14).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
+    }
+
+    // Status icon
+    const stIcon = STATUS[comboResa.s]?.icon || ''
+    if (stIcon) {
+      s += `<text x="${(lx + cRef*0.1).toFixed(1)}" y="${(ly + cRef*0.15).toFixed(1)}" font-size="${(cRef*0.18).toFixed(1)}" style="pointer-events:none">${stIcon}</text>`
+    }
+  } else {
+    // ── Combo libre — contour pointillé + label ──
+    const fsN = (cRef * 0.20).toFixed(1)
+    s += `<rect x="${(lx-1).toFixed(1)}" y="${(ly-1).toFixed(1)}" width="${(lw+2).toFixed(1)}" height="${(lh+2).toFixed(1)}" rx="3" fill="none" stroke="rgba(180,130,255,.45)" stroke-width="0.9" stroke-dasharray="2.5,1.5"/>`
+    // Label en haut
+    const labelY = ly - cRef * 0.35
+    const lblW = (combo.label.length + capTxt.length + 3) * cRef * 0.11
+    const lblH = cRef * 0.28
+    s += `<rect x="${(lcx - lblW/2).toFixed(1)}" y="${(labelY - lblH/2).toFixed(1)}" width="${lblW.toFixed(1)}" height="${lblH.toFixed(1)}" rx="2.5" fill="rgba(30,30,42,.7)" stroke="rgba(180,130,255,.35)" stroke-width="0.5"/>`
+    s += `<text x="${lcx.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="rgba(180,130,255,.95)" style="pointer-events:none">${combo.label} · ${capTxt}</text>`
+  }
 
   return `<g style="pointer-events:none">${s}</g>`
 }
@@ -397,16 +478,29 @@ export function Plan() {
       h += `<g style="pointer-events:none">${spRoomBodySvg(ri)}</g>`
     }
 
-    // Combo borders (behind tables) — with label + capacité
+    // ── Pré-calcul : tables faisant partie d'un combo avec résa ──
+    // Ces tables ne montrent PAS de texte individuel (la résa est affichée au centre du combo)
+    const comboResaMap: Record<string, Resa> = {} // combo.id → resa
+    const tableInOccupiedCombo = new Set<string>() // table ids dans un combo occupé
+    for (const c of combos) {
+      if (!c.tables.some(tid => salleTables.find(t => t.id === tid))) continue
+      // Trouver la résa assignée à ce combo (tbl contient le label, ex: "T10+T11")
+      const comboResa = filteredResas.find(r => isOccupying(r) && r.tbl === c.label)
+      if (comboResa) {
+        comboResaMap[c.id] = comboResa
+        for (const tid of c.tables) tableInOccupiedCombo.add(tid)
+      }
+    }
+
+    // Combo borders — APRÈS les room items, AVANT les tables
     combos.filter(c => c.tables.some(tid => salleTables.find(t => t.id === tid)))
       .forEach(c => {
-        const comboTableNames = c.tables.map(tid => tables.find(t => t.id === tid)?.n).filter(Boolean)
-        const hasResa = filteredResas.some(r => isOccupying(r) && r.tbl && comboTableNames.some(tn => r.tbl.includes(tn)))
-        h += planComboSvg(c, tables, hasResa)
+        h += planComboSvg(c, tables, comboResaMap[c.id] || null)
       })
 
     // Tables
     for (const t of salleTables) {
+      const isInOccupiedCombo = tableInOccupiedCombo.has(t.id)
       const resa = occupiedMap[t.n]
       let status: 'free' | 'reserved' | 'arrived' | 'blocked' | 'combo_partial' | 'held' = 'free'
       let resaInfo: Parameters<typeof planTableSvg>[3] = undefined
@@ -417,19 +511,22 @@ export function Plan() {
         status = 'held'
       } else if (resa) {
         status = resa.s === 'arrived' ? 'arrived' : 'reserved'
-        resaInfo = {
-          name: resa.nom || resa.n?.split(' ')[0] || '?',
-          covers: resa.c,
-          time: resa.t,
-          statusIcon: STATUS[resa.s]?.icon || '',
-          vip: resa.statut === 2,
-          allergie: !!resa.allergie,
-          bebe: resa.bebe || 0,
-          pmr: resa.pmr || 0,
-          isCombo: !!(resa.tbl && resa.tbl.includes('+')),
-          isNew: (Date.now() - resa.createdAt) < 15 * 60 * 1000,
-          isIA: resa.mode === 'ia',
-          canal: resa.canal,
+        // Si table dans un combo occupé → pas de texte individuel (géré par planComboSvg)
+        if (!isInOccupiedCombo) {
+          resaInfo = {
+            name: resa.nom || resa.n?.split(' ')[0] || '?',
+            covers: resa.c,
+            time: resa.t,
+            statusIcon: STATUS[resa.s]?.icon || '',
+            vip: resa.statut === 2,
+            allergie: !!resa.allergie,
+            bebe: resa.bebe || 0,
+            pmr: resa.pmr || 0,
+            isCombo: !!(resa.tbl && resa.tbl.includes('+')),
+            isNew: (Date.now() - resa.createdAt) < 15 * 60 * 1000,
+            isIA: resa.mode === 'ia',
+            canal: resa.canal,
+          }
         }
       }
 
@@ -439,11 +536,11 @@ export function Plan() {
         (resa && (resa.n?.toLowerCase().includes(search.trim().toLowerCase()) || resa.nom?.toLowerCase().includes(search.trim().toLowerCase())))
       )
 
-      h += planTableSvg(t, status, !!isHighlighted, resaInfo)
+      h += planTableSvg(t, status, !!isHighlighted, resaInfo, isInOccupiedCombo)
     }
 
     svg.innerHTML = h
-  }, [salleTables, salleRoomItems, occupiedMap, tables, combos, search])
+  }, [salleTables, salleRoomItems, occupiedMap, tables, combos, search, filteredResas])
 
   useEffect(() => { renderPlan() }, [renderPlan, salle, filteredResas, search])
 
