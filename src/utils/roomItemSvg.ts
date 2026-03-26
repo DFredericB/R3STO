@@ -1,4 +1,4 @@
-import type { RoomItem } from '../types'
+import type { RoomItem, Table } from '../types'
 
 export function spRoomBodySvg(r: RoomItem): string {
   const { x, y, w, h, shape } = r
@@ -249,6 +249,110 @@ export function spRoomBodySvg(r: RoomItem): string {
     default: {
       s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5" fill="${gs}.08)" stroke="${gs}.32)" stroke-width="0.6"/>`
       s += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${w<8?'3.5':'2.4'}" font-family="DM Mono,monospace" fill="${gs}.65)" style="pointer-events:none">${r.lbl}</text>`
+    }
+  }
+  return s
+}
+
+// ── Chaises SVG identiques à l'éditeur (SetupPlan) ──
+export function spChairsSvg(t: Table, fillOverride?: string, strokeOverride?: string): string {
+  const tRef = Math.min(t.w, t.h)
+  const CW   = tRef * 0.183
+  const CH   = tRef * 0.104
+  const GAP  = tRef * 0.046
+  const fill   = fillOverride || 'rgba(68,128,216,.13)'
+  const stroke = strokeOverride || 'rgba(68,128,216,.32)'
+  const sw     = (tRef * 0.0375).toFixed(3)
+  const cap    = Math.min(t.capMax, 12)
+  let s        = ''
+
+  const rectChair = (px: number, py: number, rw: number, rh: number, rot?: number) => {
+    const base = `<rect x="${(px-rw/2).toFixed(2)}" y="${(py-rh/2).toFixed(2)}" width="${rw.toFixed(2)}" height="${rh.toFixed(2)}" rx="0.35" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" pointer-events="none"`
+    return rot !== undefined
+      ? `${base} transform="rotate(${rot.toFixed(1)},${px.toFixed(2)},${py.toFixed(2)})"/>`
+      : `${base}/>`
+  }
+
+  if (t.shape === 'square_sm') {
+    const cx = t.x + t.w / 2, cy = t.y + t.h / 2
+    if (t.orient === 'H') {
+      s += rectChair(t.x - GAP - CH / 2, cy, CH, CW)
+      s += rectChair(t.x + t.w + GAP + CH / 2, cy, CH, CW)
+    } else {
+      s += rectChair(cx, t.y - GAP - CH / 2, CW, CH)
+      s += rectChair(cx, t.y + t.h + GAP + CH / 2, CW, CH)
+    }
+  } else if (['round', 'round_sm', 'round_lg'].includes(t.shape)) {
+    const cx = t.x + t.w/2, cy = t.y + t.h/2, rad = t.h/2
+    const n = Math.min(cap, 10)
+    if (n <= 2) {
+      const d = rad + GAP + CH/2
+      if (t.orient === 'H') {
+        s += rectChair(cx - d, cy, CH, CW, 0)
+        s += rectChair(cx + d, cy, CH, CW, 0)
+      } else {
+        s += rectChair(cx, cy - d, CW, CH, 0)
+        s += rectChair(cx, cy + d, CW, CH, 0)
+      }
+    } else {
+      for (let i = 0; i < n; i++) {
+        const a = (i/n)*Math.PI*2 - Math.PI/2
+        const d = rad + GAP + CH/2
+        s += rectChair(cx + Math.cos(a)*d, cy + Math.sin(a)*d, CW, CH, (a*180/Math.PI)+90)
+      }
+    }
+  } else if (t.shape === 'oval') {
+    const cx = t.x + t.w/2, cy = t.y + t.h/2
+    const rx = t.w/2, ry = t.h/2
+    const n = Math.min(cap, 10)
+    for (let i = 0; i < n; i++) {
+      const a = (i/n)*Math.PI*2 - Math.PI/2
+      const cos = Math.cos(a), sin = Math.sin(a)
+      const nx = cos/rx, ny = sin/ry
+      const len = Math.sqrt(nx*nx + ny*ny)
+      const d = GAP + CH/2
+      s += rectChair(cx + cos*rx + (nx/len)*d, cy + sin*ry + (ny/len)*d, CW, CH, (a*180/Math.PI)+90)
+    }
+  } else if (t.shape === 'banquette') {
+    const n = Math.min(cap, Math.max(1, Math.floor(t.w/(CW + GAP*2))))
+    const sp = t.w/(n+1)
+    for (let i = 0; i < n; i++) s += rectChair(t.x+sp*(i+1), t.y+t.h+GAP+CH/2, CW, CH)
+  } else if (t.shape === 'bar') {
+    const sr = tRef * 0.121
+    const n = Math.min(cap, Math.max(1, Math.floor(t.w/(sr*3.1))))
+    const sp = t.w/(n+1)
+    const isTop = t.barSide === 'top'
+    const cy = isTop ? t.y + t.h*0.25 - GAP - sr : t.y + t.h*0.75 + GAP + sr
+    for (let i = 0; i < n; i++)
+      s += `<circle cx="${(t.x+sp*(i+1)).toFixed(2)}" cy="${cy.toFixed(2)}" r="${sr.toFixed(2)}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" pointer-events="none"/>`
+  } else {
+    // rect / square / rect_lg
+    const isLand = t.w > t.h + 3, isPort = t.h > t.w + 3
+    const maxH = Math.max(1, Math.floor(t.w/(CW + GAP*2)))
+    const maxV = Math.max(1, Math.floor(t.h/(CW + GAP*2)))
+
+    if (!isLand && !isPort) {
+      if (t.orient === 'H') {
+        const lN = Math.min(maxV, Math.ceil(cap/2)), rN = Math.min(maxV, cap - lN)
+        const sL = t.h/(lN+1), sR = t.h/(rN+1)
+        for (let i=0;i<lN;i++) s += rectChair(t.x-GAP-CH/2, t.y+sL*(i+1), CH, CW)
+        for (let i=0;i<rN;i++) s += rectChair(t.x+t.w+GAP+CH/2, t.y+sR*(i+1), CH, CW)
+      } else {
+        const tN = Math.min(maxH, Math.ceil(cap/2)), bN = Math.min(maxH, cap - tN)
+        const sT = t.w/(tN+1), sB = t.w/(bN+1)
+        for (let i=0;i<tN;i++) s += rectChair(t.x+sT*(i+1), t.y-GAP-CH/2, CW, CH)
+        for (let i=0;i<bN;i++) s += rectChair(t.x+sB*(i+1), t.y+t.h+GAP+CH/2, CW, CH)
+      }
+    } else if (isLand) {
+      const tN = Math.min(maxH, Math.ceil(cap/2)), bN = Math.min(maxH, cap-tN)
+      const sT = t.w/(tN+1), sB = t.w/(bN+1)
+      for (let i=0;i<tN;i++) s += rectChair(t.x+sT*(i+1), t.y-GAP-CH/2, CW, CH)
+      for (let i=0;i<bN;i++) s += rectChair(t.x+sB*(i+1), t.y+t.h+GAP+CH/2, CW, CH)
+    } else {
+      const lN = Math.min(maxV, Math.ceil(cap/2)), rN = Math.min(maxV, cap-lN)
+      const sL = t.h/(lN+1), sR = t.h/(Math.max(rN,1)+1)
+      for (let i=0;i<lN;i++) s += rectChair(t.x-GAP-CH/2, t.y+sL*(i+1), CH, CW)
+      for (let i=0;i<rN;i++) s += rectChair(t.x+t.w+GAP+CH/2, t.y+sR*(i+1), CH, CW)
     }
   }
   return s

@@ -24,7 +24,7 @@ import {
   isOccupying, tblMatchesTable, getOccupiedTableIds,
   iaPlacement, getFreeTables, getFreeCombos
 } from '../../utils/placementRules'
-import { spRoomBodySvg } from '../../utils/roomItemSvg'
+import { spRoomBodySvg, spChairsSvg } from '../../utils/roomItemSvg'
 import type { Table, Combo, Resa, Service, RoomItem } from '../../types'
 
 // ── Constantes ────────────────────────────────────
@@ -136,23 +136,16 @@ function planTableSvg(
     const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
     if (resaInfo.canal && canalIcons[resaInfo.canal]) badges.push(canalIcons[resaInfo.canal])
     if (badges.length > 0) {
-      // Place badges ABOVE the table for better visibility
-      s += `<text x="${cx}" y="${(t.y - tRef*0.08).toFixed(2)}" text-anchor="middle" font-size="${(tRef*0.14).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
+      // Place badges well ABOVE chairs (chairs top ≈ t.y - tRef*0.15)
+      s += `<text x="${cx}" y="${(t.y - tRef*0.25).toFixed(2)}" text-anchor="middle" font-size="${(tRef*0.14).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
     }
     // Status icon top-left
     s += `<text x="${(t.x + tRef*0.1).toFixed(2)}" y="${(t.y + tRef*0.15).toFixed(2)}" font-size="${(tRef*0.18).toFixed(1)}" style="pointer-events:none">${resaInfo.statusIcon}</text>`
 
-    // Personnes autour de la table (petits cercles)
-    const nPers = Math.min(resaInfo.covers, 12) // max 12 affichés
-    const pR = tRef * 0.08 // rayon d'une personne
-    const tblR = Math.max(t.w, t.h) / 2 + tRef * 0.18 // distance du centre
-    for (let i = 0; i < nPers; i++) {
-      const angle = (2 * Math.PI * i / nPers) - Math.PI / 2
-      const px = cx + tblR * Math.cos(angle)
-      const py = cy + tblR * Math.sin(angle)
-      const pCol = status === 'arrived' ? 'rgba(60,200,112,.55)' : 'rgba(68,128,216,.45)'
-      s += `<circle cx="${px.toFixed(2)}" cy="${py.toFixed(2)}" r="${pR.toFixed(2)}" fill="${pCol}" style="pointer-events:none"/>`
-    }
+    // Chaises identiques à l'éditeur — colorées selon statut
+    const chairFill = status === 'arrived' ? 'rgba(60,200,112,.18)' : 'rgba(68,128,216,.13)'
+    const chairStroke = status === 'arrived' ? 'rgba(60,200,112,.45)' : 'rgba(68,128,216,.32)'
+    s += spChairsSvg(t, chairFill, chairStroke)
   } else {
     // Table libre — numéro + capacité
     s += `<text x="${cx}" y="${(cy - tRef*0.1).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
