@@ -134,6 +134,8 @@ export function Resas() {
   const [filter, setFilter] = useState<string>('tous')
   const [salleFilter, setSalleFilter] = useState<string>('toutes')  // filtre par salle.id
   const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState<'heure' | 'table' | 'client' | 'couverts' | 'statut'>('heure')
+  const [sortAsc, setSortAsc] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const dateRefModal = useRef<HTMLInputElement>(null)
@@ -175,7 +177,19 @@ export function Resas() {
     .filter(r => filter === 'tous' || r.svc === filter)
     .filter(r => salleFilter === 'toutes' || tables.find(t => t.n === r.tbl)?.salle === salleFilter)
     .filter(r => !search || r.n.toLowerCase().includes(search.toLowerCase()) || r.tbl.toLowerCase().includes(search.toLowerCase()) || r.tel?.includes(search))
-    .sort((a, b) => a.t < b.t ? -1 : 1)
+    .sort((a, b) => {
+      const dir = sortAsc ? 1 : -1
+      switch (sortBy) {
+        case 'table':    return (a.tbl || 'zzz').localeCompare(b.tbl || 'zzz') * dir
+        case 'client':   return (a.nom || a.n).localeCompare(b.nom || b.n) * dir
+        case 'couverts': return (a.c - b.c) * dir
+        case 'statut': {
+          const ord: Record<string, number> = { arrived: 0, reserved: 1, waitlist: 2, noshow: 3, done: 4, cancelled: 5 }
+          return ((ord[a.s] ?? 9) - (ord[b.s] ?? 9)) * dir
+        }
+        default:         return a.t.localeCompare(b.t) * dir
+      }
+    })
 
   const total    = resas.filter(r => r.date === activeDate).length
   const totalCvt = resas.filter(r => r.date === activeDate).reduce((s, r) => s + r.c, 0)
@@ -414,8 +428,25 @@ export function Resas() {
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--surf)' }}><tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {[t('resa.hour'),t('resa.client'),t('resa.covers'),t('resa.table'),t('resa.service'),t('resa.status'),''].map(h => (
-                <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: 10, color: 'var(--t3)', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>
+              {([
+                { key: 'heure' as const,    label: t('resa.hour') },
+                { key: 'client' as const,   label: t('resa.client') },
+                { key: 'couverts' as const, label: t('resa.covers') },
+                { key: 'table' as const,    label: t('resa.table') },
+                { key: null,                label: t('resa.service') },
+                { key: 'statut' as const,   label: t('resa.status') },
+                { key: null,                label: '' },
+              ]).map(({ key, label }, i) => (
+                <th key={i}
+                  onClick={key ? () => { if (sortBy === key) setSortAsc(!sortAsc); else { setSortBy(key); setSortAsc(true) } } : undefined}
+                  style={{
+                    padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
+                    color: key && sortBy === key ? 'var(--bl)' : 'var(--t3)',
+                    cursor: key ? 'pointer' : 'default',
+                    userSelect: 'none',
+                  }}>
+                  {label}{key && sortBy === key ? (sortAsc ? ' ▲' : ' ▼') : ''}
+                </th>
               ))}
             </tr></thead>
             <tbody>
