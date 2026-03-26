@@ -136,7 +136,7 @@ export function Resas() {
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<'heure' | 'table' | 'client' | 'couverts' | 'statut'>('heure')
   const [sortAsc, setSortAsc] = useState(true)
-  const [viewMode, setViewMode] = useState<'table' | 'agenda'>('agenda')
+  const [viewMode, setViewMode] = useState<'table' | 'agenda'>('table')
   const [showModal, setShowModal] = useState(false)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const dateRefModal = useRef<HTMLInputElement>(null)
