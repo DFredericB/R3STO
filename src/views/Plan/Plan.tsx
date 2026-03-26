@@ -150,20 +150,47 @@ function planTableSvg(
     // Table libre — numéro + capacité
     s += `<text x="${cx}" y="${(cy - tRef*0.1).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
     s += `<text x="${cx}" y="${(cy + tRef*0.2).toFixed(2)}" text-anchor="middle" font-size="${(tRef*0.17).toFixed(1)}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".45" style="pointer-events:none">${t.capMax}p</text>`
+    // Chaises même sur table libre — identique éditeur
+    if (!t.blocked) {
+      const freeChairFill = status === 'held' ? 'rgba(232,165,48,.10)' : 'rgba(68,128,216,.08)'
+      const freeChairStroke = status === 'held' ? 'rgba(232,165,48,.28)' : 'rgba(68,128,216,.22)'
+      s += spChairsSvg(t, freeChairFill, freeChairStroke)
+    }
   }
 
   return s + '</g>'
 }
 
-/** Combo fusion border (simplified) */
-function planComboSvg(combo: Combo, tables: Table[]): string {
+/** Combo fusion border — identique style éditeur avec label + capacité */
+function planComboSvg(combo: Combo, tables: Table[], hasResa: boolean): string {
   const ctbls = combo.tables.map(id => tables.find(t => t.id === id)).filter(Boolean) as Table[]
   if (ctbls.length < 2) return ''
-  const lx = Math.min(...ctbls.map(t => t.x))
-  const ly = Math.min(...ctbls.map(t => t.y))
-  const lw = Math.max(...ctbls.map(t => t.x + t.w)) - lx
-  const lh = Math.max(...ctbls.map(t => t.y + t.h)) - ly
-  return `<g style="pointer-events:none"><rect x="${lx-1}" y="${ly-1}" width="${lw+2}" height="${lh+2}" rx="3" fill="none" stroke="rgba(144,96,224,.35)" stroke-width="0.8"/></g>`
+
+  const lx  = Math.min(...ctbls.map(t => t.x))
+  const ly  = Math.min(...ctbls.map(t => t.y))
+  const lx2 = Math.max(...ctbls.map(t => t.x + t.w))
+  const ly2 = Math.max(...ctbls.map(t => t.y + t.h))
+  const lw  = lx2 - lx, lh = ly2 - ly
+  const lcx = (lx + lx2) / 2, lcy = (ly + ly2) / 2
+
+  const capTxt = `${combo.capOverride ?? combo.cap}p`
+  const cRef = ctbls.reduce((sum, t) => sum + Math.min(t.w, t.h), 0) / ctbls.length
+  const fsN  = (cRef * 0.20).toFixed(1)
+  const fsC  = (cRef * 0.14).toFixed(1)
+
+  let s = ''
+  // Contour pointillé violet
+  s += `<rect x="${(lx-1).toFixed(1)}" y="${(ly-1).toFixed(1)}" width="${(lw+2).toFixed(1)}" height="${(lh+2).toFixed(1)}" rx="3" fill="none" stroke="rgba(180,130,255,.5)" stroke-width="0.9" stroke-dasharray="2.5,1.5"/>`
+
+  // Label combo en haut du groupe (au-dessus des chaises)
+  const labelY = ly - cRef * 0.35
+  // Fond semi-transparent pour le label
+  const lblW = (combo.label.length + capTxt.length + 3) * cRef * 0.11
+  const lblH = cRef * 0.28
+  s += `<rect x="${(lcx - lblW/2).toFixed(1)}" y="${(labelY - lblH/2).toFixed(1)}" width="${lblW.toFixed(1)}" height="${lblH.toFixed(1)}" rx="2.5" fill="rgba(30,30,42,.7)" stroke="rgba(180,130,255,.35)" stroke-width="0.5"/>`
+  s += `<text x="${lcx.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="rgba(180,130,255,.95)" style="pointer-events:none">${combo.label} · ${capTxt}</text>`
+
+  return `<g style="pointer-events:none">${s}</g>`
 }
 
 // ══════════════════════════════════════════════════
@@ -370,9 +397,13 @@ export function Plan() {
       h += `<g style="pointer-events:none">${spRoomBodySvg(ri)}</g>`
     }
 
-    // Combo borders (behind tables)
+    // Combo borders (behind tables) — with label + capacité
     combos.filter(c => c.tables.some(tid => salleTables.find(t => t.id === tid)))
-      .forEach(c => { h += planComboSvg(c, tables) })
+      .forEach(c => {
+        const comboTableNames = c.tables.map(tid => tables.find(t => t.id === tid)?.n).filter(Boolean)
+        const hasResa = filteredResas.some(r => isOccupying(r) && r.tbl && comboTableNames.some(tn => r.tbl.includes(tn)))
+        h += planComboSvg(c, tables, hasResa)
+      })
 
     // Tables
     for (const t of salleTables) {
