@@ -33,11 +33,11 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/menu',          icon: '📋', labelKey: 'nav.menu', groupKey: 'channels' },
   { path: '/commandes',     icon: '🔔', labelKey: 'nav.orders', groupKey: 'channels' },
   { path: '/prepaiement',   icon: '💳', labelKey: 'nav.prepayment', groupKey: 'channels' },
-  // R3STO ORDER (BÊTA)
-  { path: '/kds-cuisine',   icon: '🍳', labelKey: 'nav.kdsCuisine', groupKey: 'r3sto-order' },
-  { path: '/kds-bar',       icon: '🍸', labelKey: 'nav.kdsBar', groupKey: 'r3sto-order' },
-  { path: '/service',       icon: '🧑‍💼', labelKey: 'nav.service', groupKey: 'r3sto-order' },
-  { path: '/caisse',        icon: '💰', labelKey: 'nav.register', groupKey: 'r3sto-order' },
+  // R3STO ORDER (BÊTA) — flouté / bientôt disponible
+  { path: '/kds-cuisine',   icon: '🍳', labelKey: 'nav.kdsCuisine', groupKey: 'r3sto-order', locked: true },
+  { path: '/kds-bar',       icon: '🍸', labelKey: 'nav.kdsBar', groupKey: 'r3sto-order', locked: true },
+  { path: '/service',       icon: '🧑‍💼', labelKey: 'nav.service', groupKey: 'r3sto-order', locked: true },
+  { path: '/caisse',        icon: '💰', labelKey: 'nav.register', groupKey: 'r3sto-order', locked: true },
   // CONFIGURATION
   { path: '/profil',        icon: '🍽️', labelKey: 'nav.myRestaurant', groupKey: 'config' },
   { path: '/salles',        icon: '🚪', labelKey: 'nav.roomsServices', groupKey: 'config' },

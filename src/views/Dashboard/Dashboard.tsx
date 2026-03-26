@@ -564,6 +564,75 @@ export function Dashboard() {
           </div>
         </div>
 
+        {/* ══ Mini-Agenda — timeline visuelle du jour ══ */}
+        <div style={{ padding: '0 18px 16px' }}>
+          <div style={{ ...sectionTitle, fontSize: 12, marginBottom: 8 }}>📅 Agenda du jour</div>
+          <div className="card" style={{ padding: '10px 14px', overflow: 'hidden' }}>
+            {(() => {
+              const now = nowMins()
+              const dayStart = 11 * 60 // 11h
+              const dayEnd = 24 * 60   // minuit
+              const daySpan = dayEnd - dayStart
+              const nowPct = Math.max(0, Math.min(100, ((now - dayStart) / daySpan) * 100))
+
+              // Grouper les résas par créneau de 30min
+              const slots: Record<number, typeof dayResas> = {}
+              dayResas.forEach(r => {
+                const parts = r.t.split(/[h:]/)
+                const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
+                const slotKey = Math.floor(m / 30) * 30
+                if (!slots[slotKey]) slots[slotKey] = []
+                slots[slotKey].push(r)
+              })
+
+              // Heures repères
+              const hours = [11, 12, 13, 14, 18, 19, 20, 21, 22, 23]
+
+              return (
+                <div style={{ position: 'relative', height: 56 }}>
+                  {/* Ligne de base */}
+                  <div style={{ position: 'absolute', top: 28, left: 0, right: 0, height: 2, background: 'var(--border)', borderRadius: 1 }} />
+                  {/* Marqueur "maintenant" */}
+                  <div style={{ position: 'absolute', top: 18, left: `${nowPct}%`, width: 2, height: 22, background: 'var(--rd)', borderRadius: 1, zIndex: 2 }} />
+                  <div style={{ position: 'absolute', top: 8, left: `calc(${nowPct}% - 8px)`, fontSize: 8, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--fm)', zIndex: 2 }}>
+                    {Math.floor(now / 60)}h{String(now % 60).padStart(2, '0')}
+                  </div>
+                  {/* Heures repères */}
+                  {hours.map(h => {
+                    const pct = ((h * 60 - dayStart) / daySpan) * 100
+                    if (pct < 0 || pct > 100) return null
+                    return (
+                      <div key={h} style={{ position: 'absolute', top: 42, left: `${pct}%`, transform: 'translateX(-50%)', fontSize: 8, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>
+                        {h}h
+                      </div>
+                    )
+                  })}
+                  {/* Points de réservation */}
+                  {Object.entries(slots).map(([slotStr, slotResas]) => {
+                    const slotMin = parseInt(slotStr)
+                    const pct = ((slotMin - dayStart) / daySpan) * 100
+                    if (pct < 0 || pct > 100) return null
+                    const cnt = slotResas.length
+                    const hasArrived = slotResas.some(r => r.s === 'arrived')
+                    const col = hasArrived ? 'var(--gn)' : 'var(--bl)'
+                    return (
+                      <div key={slotStr} style={{
+                        position: 'absolute', top: 22, left: `${pct}%`, transform: 'translateX(-50%)',
+                        width: Math.min(8 + cnt * 3, 20), height: Math.min(8 + cnt * 3, 20),
+                        borderRadius: '50%', background: col, opacity: .7,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 7, fontWeight: 900, color: '#fff', zIndex: 1,
+                      }} title={`${Math.floor(slotMin/60)}h${String(slotMin%60).padStart(2,'0')} — ${cnt} résa(s)`}>
+                        {cnt > 1 ? cnt : ''}
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
+          </div>
+        </div>
+
         {/* Prochaines réservations */}
         <div style={{ padding: '0 18px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>

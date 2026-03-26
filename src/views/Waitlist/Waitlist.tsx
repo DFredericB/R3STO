@@ -161,7 +161,14 @@ export function Waitlist() {
         </button>
       </div>
 
-      {/* IA Optimization Cards */}
+      {/* IA Optimization Cards — explication claire */}
+      {(optimizationMidi || optimizationSoir) && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 11, color: 'var(--t3)', padding: '0 0 8px', lineHeight: 1.5 }}>
+            💡 <strong>Placer</strong> = assigner une table à un seul client · <strong>Appliquer ce plan</strong> = l'IA place tout le monde d'un coup de façon optimale
+          </div>
+        </div>
+      )}
       {(optimizationMidi || optimizationSoir) && (
         <div style={{ marginBottom: 14 }}>
           {[optimizationMidi, optimizationSoir].map((opt) => {
@@ -232,7 +239,7 @@ export function Waitlist() {
                     cursor: 'pointer',
                   }}
                 >
-                  ⚡ Appliquer ce plan
+                  ⚡ Appliquer ce plan — placer tous les clients d'un coup
                 </button>
               </div>
             )
@@ -325,6 +332,7 @@ export function Waitlist() {
                   </span>
                   <button
                     onClick={() => handlePlace(w.id, sugg?.label)}
+                    title="Placer ce client maintenant sur la table suggérée et créer sa réservation"
                     style={{
                       padding: '4px 9px',
                       fontSize: 11,
@@ -337,7 +345,7 @@ export function Waitlist() {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    ✓ Placer
+                    ✓ Placer{sugg?.label ? ` → ${sugg.label}` : ''}
                   </button>
                   <button
                     onClick={() => handleRemove(w.id)}

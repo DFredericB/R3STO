@@ -41,7 +41,7 @@ export function ViewToolbar({
   hideAllFilter,
   children,
 }: ViewToolbarProps) {
-  const { activeDate, setActiveDate, services, salles, resas } = useAppStore()
+  const { activeDate, setActiveDate, services, salles, resas, fermetures } = useAppStore()
   const { t, fmtDate } = useT()
   const dateRef = useRef<HTMLInputElement>(null)
   const today = todayISO()
@@ -91,8 +91,25 @@ export function ViewToolbar({
     flexShrink: 0, lineHeight: '36px',
   }
 
+  // Vérifier s'il y a une fermeture active pour la date sélectionnée
+  const activeClosure = (fermetures || []).find(f => {
+    if (!f.dateDebut || !f.dateFin) return false
+    return activeDate >= f.dateDebut && activeDate <= f.dateFin
+  })
+
   return (
     <div style={{ borderBottom: '1px solid var(--border)', flexShrink: 0, background: 'var(--surf)', position: 'sticky', top: 0, zIndex: 10 }}>
+      {/* ══ Bandeau fermeture — visible si le jour est dans une période de fermeture ══ */}
+      {activeClosure && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px',
+          background: 'rgba(220,80,80,.12)', borderBottom: '1px solid rgba(220,80,80,.25)',
+          fontSize: 12, fontWeight: 700, color: 'var(--rd)',
+        }}>
+          🚫 Fermeture : {activeClosure.label || 'Fermé'}
+          {activeClosure.note && <span style={{ fontWeight: 500, fontSize: 11, color: 'var(--t3)', marginLeft: 4 }}>— {activeClosure.note}</span>}
+        </div>
+      )}
       {/* ── Ligne 1 : titre + date + recherche + actions ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', flexWrap: 'wrap' }}>
         {/* Titre */}
@@ -162,30 +179,48 @@ export function ViewToolbar({
         )}
       </div>
 
-      {/* ── Ligne 2 : Services + bouton Réserver (tout à droite) ── */}
-      {onServiceFilter && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0 16px 5px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          <span style={labelS}>Svc</span>
-          {[...(hideAllFilter ? [] : [{ id: 'tous', label: t('toolbar.all'), sub: '', open: '', close: '' }]), ...activeServices.map(s => ({ id: s.name.toLowerCase(), label: `${s.icon} ${s.name}`, sub: `${s.open}–${s.lastOrder}`, open: s.open, close: s.close }))].map(f => {
-            const cnt = f.id === 'tous' ? total : resas.filter(r => r.date === activeDate && r.svc === f.id).length
-            // État du service : en cours (vert), prochain (orange), terminé (gris)
-            const now = nowMins()
-            const openM = f.open ? timeToMins(f.open) : 0
-            const closeM = f.close ? timeToMins(f.close) : 0
-            const svcActive = f.open && now >= openM && now <= closeM
-            const svcNext = f.open && !svcActive && now < openM && now >= openM - 60
-            const svcDone = f.close && now > closeM + 30
-            const dotColor = svcActive ? 'var(--gn)' : svcNext ? '#e8a530' : null
-            const dotShadow = svcActive ? '0 0 6px rgba(60,200,112,.5)' : svcNext ? '0 0 6px rgba(232,165,48,.5)' : 'none'
-            return (
-              <button key={f.id} style={{ ...chipS(serviceFilter === f.id), opacity: svcDone ? .5 : 1 }} onClick={() => onServiceFilter(f.id)}>
-                {dotColor && <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, display: 'inline-block', boxShadow: dotShadow, flexShrink: 0 }} />}
-                {f.label}{cnt > 0 ? ` (${cnt})` : ''}
-                {f.sub && <span style={{ fontSize: 9, opacity: .55, fontWeight: 500, marginLeft: 2 }}>{f.sub}</span>}
+      {/* ── Ligne 2 : Services + Salles + Réserver (fusionnée sur une seule ligne) ── */}
+      {(onServiceFilter || onSalleFilter) && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0 16px 6px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          {/* Services */}
+          {onServiceFilter && <>
+            <span style={labelS}>Svc</span>
+            {[...(hideAllFilter ? [] : [{ id: 'tous', label: t('toolbar.all'), sub: '', open: '', close: '' }]), ...activeServices.map(s => ({ id: s.name.toLowerCase(), label: `${s.icon} ${s.name}`, sub: `${s.open}–${s.lastOrder}`, open: s.open, close: s.close }))].map(f => {
+              const cnt = f.id === 'tous' ? total : resas.filter(r => r.date === activeDate && r.svc === f.id).length
+              const now = nowMins()
+              const openM = f.open ? timeToMins(f.open) : 0
+              const closeM = f.close ? timeToMins(f.close) : 0
+              const svcActive = f.open && now >= openM && now <= closeM
+              const svcNext = f.open && !svcActive && now < openM && now >= openM - 60
+              const svcDone = f.close && now > closeM + 30
+              const dotColor = svcActive ? 'var(--gn)' : svcNext ? '#e8a530' : null
+              const dotShadow = svcActive ? '0 0 6px rgba(60,200,112,.5)' : svcNext ? '0 0 6px rgba(232,165,48,.5)' : 'none'
+              return (
+                <button key={f.id} style={{ ...chipS(serviceFilter === f.id), opacity: svcDone ? .5 : 1 }} onClick={() => onServiceFilter(f.id)}>
+                  {dotColor && <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, display: 'inline-block', boxShadow: dotShadow, flexShrink: 0 }} />}
+                  {f.label}{cnt > 0 ? ` (${cnt})` : ''}
+                  {f.sub && <span style={{ fontSize: 9, opacity: .55, fontWeight: 500, marginLeft: 2 }}>{f.sub}</span>}
+                </button>
+              )
+            })}
+          </>}
+
+          {/* Séparateur visuel léger */}
+          {onServiceFilter && onSalleFilter && (
+            <div style={{ width: 1, height: 22, background: 'var(--border)', flexShrink: 0, margin: '0 2px' }} />
+          )}
+
+          {/* Salles */}
+          {onSalleFilter && <>
+            <span style={labelS}>Salles</span>
+            {[...(hideAllFilter ? [] : [{ id: '_all', name: 'toutes', label: t('toolbar.allRoomsIcon') }]), ...activeSalles.map(s => ({ id: s.id, name: s.name, label: s.name }))].map(salle => (
+              <button key={salle.id} style={chipS(salleFilter === salle.name)} onClick={() => onSalleFilter(salle.name)}>
+                {salle.label}
               </button>
-            )
-          })}
-          {/* Spacer + Réserver — toujours à droite de la ligne Svc */}
+            ))}
+          </>}
+
+          {/* Spacer + Réserver — toujours à droite */}
           {onNewResa && <>
             <div style={{ flex: 1 }} />
             <button className="btn btn-primary" style={{ fontSize: 13, minHeight: 36, padding: '0 16px', fontWeight: 700, flexShrink: 0 }} onClick={onNewResa}>
@@ -195,24 +230,12 @@ export function ViewToolbar({
         </div>
       )}
 
-      {/* Fallback si pas de svc bar mais onNewResa */}
-      {!onServiceFilter && onNewResa && (
+      {/* Fallback si pas de svc/salle bar mais onNewResa */}
+      {!onServiceFilter && !onSalleFilter && onNewResa && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px 5px' }}>
           <button className="btn btn-primary" style={{ fontSize: 13, minHeight: 36, padding: '0 16px', fontWeight: 700 }} onClick={onNewResa}>
             ➕ {t('toolbar.book')}
           </button>
-        </div>
-      )}
-
-      {/* ── Ligne 3 : Salles ── */}
-      {onSalleFilter && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0 16px 8px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          <span style={labelS}>Salles</span>
-          {[...(hideAllFilter ? [] : [{ id: '_all', name: 'toutes', label: t('toolbar.allRoomsIcon') }]), ...activeSalles.map(s => ({ id: s.id, name: s.name, label: s.name }))].map(salle => (
-            <button key={salle.id} style={chipS(salleFilter === salle.name)} onClick={() => onSalleFilter(salle.name)}>
-              {salle.label}
-            </button>
-          ))}
         </div>
       )}
 

@@ -12,7 +12,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { ViewToolbar } from '../../components/ui/ViewToolbar'
 import { useT } from '../../i18n/useTranslation'
 import type { Service, Resa, Table, Combo } from '../../types'
-import { STATUS } from '../../utils/design'
+import { STATUS, CANAUX } from '../../utils/design'
 import { timeToMins, nowMins } from '../../utils/date'
 import { canMoveResa, canSwapResas, isOccupying, tblMatchesTable, iaPlacement } from '../../utils/placementRules'
 
@@ -247,8 +247,8 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
       {(() => {
         const comboNames = table.n.includes('+') ? table.n.split('+') : null
         const comboCount = comboNames ? comboNames.length : 0
-        const lineHeight = comboCount >= 3 ? 76 : comboCount === 2 ? 60 : 44
-        const badgeW = comboCount ? 58 : 52
+        const lineHeight = comboCount >= 4 ? 92 : comboCount >= 3 ? 78 : comboCount === 2 ? 62 : 44
+        const badgeW = comboCount >= 3 ? 64 : comboCount === 2 ? 60 : 52
         return (
       <div style={{ display: 'flex', minHeight: lineHeight }}>
         {/* Bande combo dorée */}
@@ -376,9 +376,21 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                 {isInCombo && idx === 0 && (
                   <span style={{ fontSize: 9, color: '#ffd666', fontWeight: 600, flexShrink: 0 }}>🔗</span>
                 )}
-                {/* Mode IA/Manuel */}
-                <span style={{ fontSize: 8, flexShrink: 0, opacity: .7 }} title={r.mode === 'ia' ? 'Placé par IA' : 'Placement manuel'}>
-                  {r.mode === 'ia' ? '🤖' : '✋'}
+                {/* Canal de réservation */}
+                {r.canal && CANAUX[r.canal] && (
+                  <span style={{ fontSize: 9, flexShrink: 0, opacity: .8 }} title={CANAUX[r.canal].label}>
+                    {CANAUX[r.canal].icon}
+                  </span>
+                )}
+                {/* Mode IA/Manuel — badge compact coloré */}
+                <span style={{
+                  fontSize: 7, fontWeight: 800, flexShrink: 0,
+                  padding: '1px 4px', borderRadius: 3, letterSpacing: .3,
+                  background: r.mode === 'ia' ? 'rgba(91,156,246,.15)' : 'rgba(232,165,48,.12)',
+                  color: r.mode === 'ia' ? '#7bb8ff' : '#e8a530',
+                  border: `1px solid ${r.mode === 'ia' ? 'rgba(91,156,246,.3)' : 'rgba(232,165,48,.25)'}`,
+                }} title={r.mode === 'ia' ? 'Placé par IA' : 'Placement manuel'}>
+                  {r.mode === 'ia' ? '🤖 IA' : '✋'}
                 </span>
                 {/* NEW badge — résa créée il y a moins de 15 min */}
                 {(Date.now() - r.createdAt) < 15 * 60 * 1000 && (

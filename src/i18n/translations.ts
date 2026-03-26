@@ -45,7 +45,7 @@ const translations: Record<string, Record<Lang, string>> = {
   'nav.operations': { FR: 'OPÉRATIONS', DE: 'BETRIEB', IT: 'OPERAZIONI', EN: 'OPERATIONS' },
   'nav.dashboard': { FR: 'Tableau de bord', DE: 'Dashboard', IT: 'Cruscotto', EN: 'Dashboard' },
   'nav.journal': { FR: 'Journal', DE: 'Reservierungen', IT: 'Prenotazioni', EN: 'Reservations' },
-  'nav.grid': { FR: 'Plan de service', DE: 'Serviceplan', IT: 'Piano di servizio', EN: 'Service plan' },
+  'nav.grid': { FR: 'Plan grille', DE: 'Rasterplan', IT: 'Piano griglia', EN: 'Grid plan' },
   'nav.floorplan': { FR: 'Plan de salle', DE: 'Saalplan', IT: 'Piantina', EN: 'Floor plan' },
   'nav.waitlist': { FR: "Liste d'attente", DE: 'Warteliste', IT: 'Lista d\'attesa', EN: 'Waitlist' },
   'nav.groups': { FR: 'Groupes', DE: 'Gruppen', IT: 'Gruppi', EN: 'Groups' },
@@ -66,7 +66,7 @@ const translations: Record<string, Record<Lang, string>> = {
   'nav.myRestaurant': { FR: 'Mon restaurant', DE: 'Mein Restaurant', IT: 'Il mio ristorante', EN: 'My restaurant' },
   'nav.roomsServices': { FR: 'Salles & Services', DE: 'Räume & Services', IT: 'Sale & Servizi', EN: 'Rooms & Services' },
   'nav.closures': { FR: 'Fermetures', DE: 'Schliessungen', IT: 'Chiusure', EN: 'Closures' },
-  'nav.planTables': { FR: 'Plan & Tables', DE: 'Plan & Tische', IT: 'Piano & Tavoli', EN: 'Plan & Tables' },
+  'nav.planTables': { FR: 'Éditeur', DE: 'Editor', IT: 'Editor', EN: 'Editor' },
   'nav.options': { FR: 'Options', DE: 'Optionen', IT: 'Opzioni', EN: 'Options' },
   'nav.admin': { FR: 'ADMINISTRATION', DE: 'VERWALTUNG', IT: 'AMMINISTRAZIONE', EN: 'ADMINISTRATION' },
   'nav.teamAccess': { FR: 'Équipe & Accès', DE: 'Team & Zugang', IT: 'Team & Accesso', EN: 'Team & Access' },
@@ -128,7 +128,7 @@ const translations: Record<string, Record<Lang, string>> = {
   'dash.terraceCvt': { FR: 'cvts en terrasse', DE: 'Gedecke auf Terrasse', IT: 'coperti in terrazza', EN: 'terrace covers' },
 
   // ── Grille ─────────────────────────────────────
-  'grid.title': { FR: 'Plan de service', DE: 'Serviceplan', IT: 'Piano di servizio', EN: 'Service plan' },
+  'grid.title': { FR: 'Plan grille', DE: 'Rasterplan', IT: 'Piano griglia', EN: 'Grid plan' },
   'grid.done': { FR: 'Terminé', DE: 'Beendet', IT: 'Terminato', EN: 'Done' },
   'grid.free': { FR: 'Libre', DE: 'Frei', IT: 'Libero', EN: 'Free' },
   'grid.arrived': { FR: 'Arrivé', DE: 'Angekommen', IT: 'Arrivato', EN: 'Arrived' },

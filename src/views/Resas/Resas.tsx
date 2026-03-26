@@ -334,10 +334,12 @@ export function Resas() {
     if (noteProfil) pp.push(noteProfil)
     const fullNote = [pp.join(' | '), noteResa].filter(Boolean).join('\n---\n')
     const dn = nom ? (prenom ? `${prenom} ${nom}` : nom) : 'Anonyme'
+    // Si restaurant complet et nouvelle résa → statut waitlist auto
+    const isServiceFull = remainingCvt <= 0 && !editingId
     const resaData = {
       n: dn, nom: nom || 'Anonyme', prenom,
-      c: couverts, bebe, pmr, tbl: modeIA ? tablePref : tbl,
-      t: heure.replace(':', 'h'), svc: svcId, s: 'reserved' as const, note: fullNote,
+      c: couverts, bebe, pmr, tbl: isServiceFull ? '' : (modeIA ? tablePref : tbl),
+      t: heure.replace(':', 'h'), svc: svcId, s: (isServiceFull ? 'waitlist' : 'reserved') as any, note: fullNote,
       date: activeDate, statut: statutClient,
       mode: (modeIA ? 'ia' : 'manuel') as any, tel: toE164(tel, pays), email, canal,
       prisPar: prisPar === '—' ? '' : prisPar, allergie: allergieTags.length > 0,
@@ -471,7 +473,13 @@ export function Resas() {
                       {r.statut === 2 && <span title="VIP">⭐</span>}
                       {r.statut === 3 && <span title="Surveillé">👁</span>}
                       {r.allergie && <span title="Allergie">⚠️</span>}
-                      <span title={r.mode === 'ia' ? 'Placé par IA' : 'Placement manuel'} style={{ fontSize: 9, opacity: .7 }}>{r.mode === 'ia' ? '🤖' : '✋'}</span>
+                      {r.canal && <span title={r.canal} style={{ fontSize: 9, opacity: .7 }}>{r.canal === 'telephone' ? '📞' : r.canal === 'walkin' ? '🚶' : r.canal === 'widget' ? '🌐' : r.canal === 'google' ? '🔍' : r.canal === 'email' ? '✉️' : ''}</span>}
+                      <span title={r.mode === 'ia' ? 'Placé par IA' : 'Placement manuel'} style={{
+                        fontSize: 8, fontWeight: 800, padding: '1px 4px', borderRadius: 3,
+                        background: r.mode === 'ia' ? 'rgba(91,156,246,.15)' : 'rgba(232,165,48,.12)',
+                        color: r.mode === 'ia' ? '#7bb8ff' : '#e8a530',
+                        border: `1px solid ${r.mode === 'ia' ? 'rgba(91,156,246,.3)' : 'rgba(232,165,48,.25)'}`,
+                      }}>{r.mode === 'ia' ? '🤖 IA' : '✋'}</span>
                       {(Date.now() - r.createdAt) < 15 * 60 * 1000 && <span title="Nouvelle réservation" style={{ fontSize: 8, fontWeight: 900, color: '#a78bfa', background: 'rgba(167,139,250,.15)', padding: '1px 4px', borderRadius: 4, letterSpacing: .5 }}>NEW</span>}
                     </div>
                     {r.tel && <div style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{displayPhone(r.tel, pays)}</div>}
@@ -615,6 +623,26 @@ export function Resas() {
               )}
             </div>
 
+            {/* Bannière Complet → Liste d'attente auto */}
+            {remainingCvt <= 0 && !editingId && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px',
+                background: 'rgba(220,80,80,.1)', borderBottom: '1px solid rgba(220,80,80,.25)', flexShrink: 0,
+              }}>
+                <span style={{ fontSize: 14 }}>🚫</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--rd)' }}>Service complet</span>
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>— La réservation sera ajoutée en liste d'attente</span>
+                <button type="button" onClick={() => { closeModal(); navigateTo('/waitlist') }}
+                  style={{
+                    marginLeft: 'auto', padding: '5px 14px', borderRadius: 7, fontSize: 11, fontWeight: 700,
+                    border: '1px solid rgba(232,165,48,.5)', background: 'rgba(232,165,48,.12)',
+                    color: '#e8a530', cursor: 'pointer', flexShrink: 0,
+                  }}>
+                  ⏳ Voir la liste
+                </button>
+              </div>
+            )}
+
             {/* Corps scrollable */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
@@ -754,61 +782,73 @@ export function Resas() {
                 </div>
               )}
 
-              {/* Table — Manuel: chips cliquables + combos, IA: automatique */}
+              {/* Table — Manuel: menu déroulant compact + combos (optimisé tablette) */}
               {!modeIA && (() => {
                 const isCombo = tbl.includes('+')
                 const selectedCombo = isCombo ? combos.find(c => c.label === tbl) : null
-                // Capacité max de la sélection actuelle
                 const selectedCap = selectedCombo ? selectedCombo.cap
                   : tables.find(tb => tb.n === tbl || tb.id === tbl)?.capMax || maxCapFree
-                // Warning: couverts pourraient tenir sur une seule table du combo
                 const comboTables = selectedCombo ? selectedCombo.tables.map(tid => tables.find(tb => tb.id === tid)).filter(Boolean) : []
                 const smallestComboTable = comboTables.length > 0 ? Math.min(...comboTables.map(tb => tb!.capMax)) : 0
                 const couldFitOnSingle = isCombo && couverts <= smallestComboTable
+                const activeTables = tables.filter(t => t.active)
+                // Filtrer les tables qui correspondent au nb couverts
+                const fittingTables = activeTables.filter(tb => tb.capMax >= couverts && !tb.blocked)
+                const fittingCombos = combos.filter(c => c.cap >= couverts)
 
                 return (
                   <div>
-                    <span style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .6 }}>🪑 Table</span>
-                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
-                      <button type="button" onClick={() => setTbl('')}
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <span style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .6 }}>🪑 Table</span>
+                      {/* Menu déroulant principal — compact pour tablette */}
+                      <select
+                        value={tbl}
+                        onChange={e => setTbl(e.target.value)}
                         style={{
-                          ...selBtn(!tbl), minWidth: 44, padding: '0 10px', fontSize: 12,
-                          fontStyle: !tbl ? 'normal' : 'italic', opacity: !tbl ? 1 : .7,
-                        }}>—</button>
-                      {/* Tables individuelles */}
-                      {tables.filter(t => t.active).map(tb => {
+                          ...inp, flex: 1, minHeight: T, fontSize: 13, fontWeight: 700,
+                          fontFamily: 'var(--fm)',
+                          background: tbl ? SEL.bg : 'var(--surf3)',
+                          border: `2px solid ${tbl ? SEL.border : 'var(--border)'}`,
+                          color: tbl ? SEL.color : 'var(--t3)',
+                          borderRadius: 8, paddingRight: 10,
+                        }}
+                      >
+                        <option value="">— {t('modal.toAssign')}</option>
+                        <optgroup label={`Tables (${fittingTables.length} pour ${couverts}p)`}>
+                          {activeTables.map(tb => {
+                            const isPref = tablePref === tb.id || tablePref === tb.n
+                            const fits = tb.capMax >= couverts && !tb.blocked
+                            return (
+                              <option key={tb.id} value={tb.n} disabled={!fits}>
+                                {tb.n} ({tb.capMin}-{tb.capMax}p){isPref ? ' ★ préf.' : ''}{tb.blocked ? ' 🚫' : ''}{!fits ? ' — trop petite' : ''}
+                              </option>
+                            )
+                          })}
+                        </optgroup>
+                        {combos.length > 0 && (
+                          <optgroup label={`Combos (${fittingCombos.length} pour ${couverts}p)`}>
+                            {combos.map(c => (
+                              <option key={c.id} value={c.label}>
+                                🔗 {c.label} ({c.cap}p)
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                      </select>
+                      {/* Chips rapides pour les 4 meilleures tables */}
+                      {fittingTables.slice(0, 4).map(tb => {
                         const on = tbl === tb.n || tbl === tb.id
                         const isPref = tablePref === tb.id || tablePref === tb.n
                         return (
                           <button key={tb.id} type="button" onClick={() => setTbl(tb.n)}
                             style={{
                               ...selBtn(on), minWidth: 44, padding: '0 8px', fontSize: 12,
-                              fontWeight: on ? 700 : 400,
+                              fontWeight: on ? 700 : 400, flexShrink: 0, display: 'none',
+                              // Visible only on wider screens (hidden by default for tablet)
                               border: `2px solid ${on ? SEL.border : isPref ? 'rgba(232,165,48,.4)' : UNSEL.border}`,
                               background: on ? SEL.bg : isPref ? 'rgba(232,165,48,.08)' : UNSEL.bg,
                             }}>
-                            {tb.n} <span style={{ fontSize: 9, opacity: .6 }}>{tb.capMin}-{tb.capMax}</span>
-                            {isPref && <span style={{ fontSize: 9, marginLeft: 2 }}>★</span>}
-                          </button>
-                        )
-                      })}
-                      {/* Séparateur combos */}
-                      {combos.length > 0 && (
-                        <div style={{ width: 1, height: 30, background: 'var(--border)', margin: '0 2px', flexShrink: 0, alignSelf: 'center' }} />
-                      )}
-                      {/* Combos */}
-                      {combos.map(c => {
-                        const on = tbl === c.label
-                        return (
-                          <button key={c.id} type="button" onClick={() => setTbl(c.label)}
-                            style={{
-                              ...selBtn(on), minWidth: 56, padding: '0 10px', fontSize: 12,
-                              fontWeight: on ? 700 : 400,
-                              border: `2px solid ${on ? '#ffd666' : 'rgba(255,214,102,.25)'}`,
-                              background: on ? 'rgba(255,214,102,.2)' : 'rgba(255,214,102,.05)',
-                              color: on ? '#e8a530' : 'var(--t3)',
-                            }}>
-                            🔗 {c.label} <span style={{ fontSize: 9, opacity: .6 }}>{c.cap}p</span>
+                            {tb.n} {isPref && '★'}
                           </button>
                         )
                       })}

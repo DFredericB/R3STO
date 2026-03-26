@@ -93,19 +93,19 @@ export function loadDemoFallback() {
     // ═══ TERRASSE ═══
 
     // Rangée 1 — rondes sous parasols
-    { id:'t30', n:'T30', salle:'Terrasse', shape:'round',    capMin:2, capMax:4,  x:10,  y:10, w:9,  h:9,  active:true, priority:30, blocked:false, held:false },
-    { id:'t31', n:'T31', salle:'Terrasse', shape:'round',    capMin:2, capMax:4,  x:26,  y:10, w:9,  h:9,  active:true, priority:31, blocked:false, held:false },
-    { id:'t32', n:'T32', salle:'Terrasse', shape:'round',    capMin:2, capMax:4,  x:42,  y:10, w:9,  h:9,  active:true, priority:32, blocked:false, held:false },
-    { id:'t33', n:'T33', salle:'Terrasse', shape:'round',    capMin:2, capMax:4,  x:58,  y:10, w:9,  h:9,  active:true, priority:33, blocked:false, held:false },
+    { id:'t30', n:'TE1', salle:'Terrasse', shape:'round',    capMin:2, capMax:4,  x:10,  y:10, w:9,  h:9,  active:true, priority:30, blocked:false, held:false },
+    { id:'t31', n:'TE2', salle:'Terrasse', shape:'round',    capMin:2, capMax:4,  x:26,  y:10, w:9,  h:9,  active:true, priority:31, blocked:false, held:false },
+    { id:'t32', n:'TE3', salle:'Terrasse', shape:'round',    capMin:2, capMax:4,  x:42,  y:10, w:9,  h:9,  active:true, priority:32, blocked:false, held:false },
+    { id:'t33', n:'TE4', salle:'Terrasse', shape:'round',    capMin:2, capMax:4,  x:58,  y:10, w:9,  h:9,  active:true, priority:33, blocked:false, held:false },
 
     // Rangée 2 — rectangles
-    { id:'t34', n:'T34', salle:'Terrasse', shape:'rect',     capMin:2, capMax:4,  x:10,  y:30, w:12, h:9,  active:true, priority:34, blocked:false, held:false },
-    { id:'t35', n:'T35', salle:'Terrasse', shape:'rect',     capMin:2, capMax:4,  x:28,  y:30, w:12, h:9,  active:true, priority:35, blocked:false, held:false },
-    { id:'t36', n:'T36', salle:'Terrasse', shape:'rect',     capMin:2, capMax:4,  x:46,  y:30, w:12, h:9,  active:true, priority:36, blocked:false, held:false },
+    { id:'t34', n:'TE5', salle:'Terrasse', shape:'rect',     capMin:2, capMax:4,  x:10,  y:30, w:12, h:9,  active:true, priority:34, blocked:false, held:false },
+    { id:'t35', n:'TE6', salle:'Terrasse', shape:'rect',     capMin:2, capMax:4,  x:28,  y:30, w:12, h:9,  active:true, priority:35, blocked:false, held:false },
+    { id:'t36', n:'TE7', salle:'Terrasse', shape:'rect',     capMin:2, capMax:4,  x:46,  y:30, w:12, h:9,  active:true, priority:36, blocked:false, held:false },
 
     // Rangée 3 — grande + ovale
-    { id:'t37', n:'T37', salle:'Terrasse', shape:'rect_lg',  capMin:4, capMax:8,  x:10,  y:50, w:16, h:10, active:true, priority:37, blocked:false, held:false },
-    { id:'t38', n:'T38', salle:'Terrasse', shape:'oval',     capMin:4, capMax:6,  x:34,  y:50, w:14, h:10, active:true, priority:38, blocked:false, held:false },
+    { id:'t37', n:'TE8', salle:'Terrasse', shape:'rect_lg',  capMin:4, capMax:8,  x:10,  y:50, w:16, h:10, active:true, priority:37, blocked:false, held:false },
+    { id:'t38', n:'TE9', salle:'Terrasse', shape:'oval',     capMin:4, capMax:6,  x:34,  y:50, w:14, h:10, active:true, priority:38, blocked:false, held:false },
 
     // Tables hautes côté droit
     { id:'t39', n:'T39', salle:'Terrasse', shape:'round_sm', capMin:1, capMax:2,  x:66,  y:30, w:7,  h:7,  active:true, priority:39, blocked:false, held:false, tableH:'haute' },
@@ -145,8 +145,8 @@ export function loadDemoFallback() {
     mkCombo('combo_1774536451052', 'T21+T22', ['t12','t13'],     8,  'Salle principale', 'H', 'R'),
     mkCombo('combo_1774537407126', 'T30+T31+T32', ['t14','t15','t16'], 24, 'Salle principale', 'H', 'C'),
     // Terrasse
-    mkCombo('c6', 'T30+T31+T32',      ['t30','t31','t32'],       12, 'Terrasse'),
-    mkCombo('c7', 'T34+T35',          ['t34','t35'],             8,  'Terrasse'),
+    mkCombo('c6', 'TE1+TE2+TE3',      ['t30','t31','t32'],       12, 'Terrasse'),
+    mkCombo('c7', 'TE5+TE6',          ['t34','t35'],             8,  'Terrasse'),
     // Salon privé
     mkCombo('c8', 'P1+P2',            ['t50','t51'],             20, 'Salon privé'),
     mkCombo('c9', 'P3+P4',            ['t52','t53'],             8,  'Salon privé'),
@@ -230,9 +230,9 @@ export function loadDemoFallback() {
     { id:'r10', n:'Costa Miguel',    nom:'Costa',     prenom:'Miguel',   c:2,  tbl:'T22',     t:'12:00', svc:'midi', s:'arrived',  date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'walkin',    prisPar:'', note:'', tel:'', email:'', bebe:0, pmr:0, allergie:false },
 
     // ── MIDI — Terrasse ──
-    { id:'r14', n:'Dubois Marc',     nom:'Dubois',    prenom:'Marc',     c:4,  tbl:'T30',     t:'12:00', svc:'midi', s:'arrived',  date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'', tel:'', email:'', bebe:0, pmr:0, allergie:false },
-    { id:'r15', n:'Roth Michel',     nom:'Roth',      prenom:'Michel',   c:4,  tbl:'T31',     t:'12:15', svc:'midi', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'', tel:'', email:'', bebe:1, pmr:0, allergie:false },
-    { id:'r16', n:'Ammann Eva',      nom:'Ammann',    prenom:'Eva',      c:3,  tbl:'T34',     t:'12:30', svc:'midi', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'Chien', tel:'', email:'', bebe:0, pmr:0, allergie:false },
+    { id:'r14', n:'Dubois Marc',     nom:'Dubois',    prenom:'Marc',     c:4,  tbl:'TE1',     t:'12:00', svc:'midi', s:'arrived',  date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'', tel:'', email:'', bebe:0, pmr:0, allergie:false },
+    { id:'r15', n:'Roth Michel',     nom:'Roth',      prenom:'Michel',   c:4,  tbl:'TE2',     t:'12:15', svc:'midi', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'', tel:'', email:'', bebe:1, pmr:0, allergie:false },
+    { id:'r16', n:'Ammann Eva',      nom:'Ammann',    prenom:'Eva',      c:3,  tbl:'TE5',     t:'12:30', svc:'midi', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'Chien', tel:'', email:'', bebe:0, pmr:0, allergie:false },
 
     // ── MIDI — Salon privé ──
     { id:'r17', n:'Entreprise SA',   nom:'Entreprise',prenom:'SA',       c:10, tbl:'P1',      t:'12:00', svc:'midi', s:'reserved', date:t, createdAt:Date.now(), statut:1, mode:'manuel', canal:'email',     prisPar:'Manager', note:'Séminaire — menu fixe commandé', tel:'+41 21 555 66 77', email:'contact@entreprise.ch', bebe:0, pmr:0, allergie:false },
@@ -260,11 +260,11 @@ export function loadDemoFallback() {
     { id:'r30', n:'Petit Jean-Luc',  nom:'Petit',     prenom:'Jean-Luc', c:4,  tbl:'T22',     t:'19:00', svc:'soir', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'walkin',    prisPar:'', note:'Apéro avant dîner', tel:'', email:'', bebe:0, pmr:0, allergie:false },
 
     // ── SOIR — Terrasse ──
-    { id:'r31', n:'Bonvin Nathalie', nom:'Bonvin',    prenom:'Nathalie', c:4,  tbl:'T30',     t:'19:00', svc:'soir', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'Si beau temps', tel:'', email:'', bebe:0, pmr:0, allergie:false },
-    { id:'r32', n:'Crettaz Yves',    nom:'Crettaz',   prenom:'Yves',     c:3,  tbl:'T32',     t:'19:30', svc:'soir', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'', tel:'', email:'', bebe:0, pmr:0, allergie:false },
+    { id:'r31', n:'Bonvin Nathalie', nom:'Bonvin',    prenom:'Nathalie', c:4,  tbl:'TE1',     t:'19:00', svc:'soir', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'Si beau temps', tel:'', email:'', bebe:0, pmr:0, allergie:false },
+    { id:'r32', n:'Crettaz Yves',    nom:'Crettaz',   prenom:'Yves',     c:3,  tbl:'TE3',     t:'19:30', svc:'soir', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'ia',     canal:'telephone', prisPar:'', note:'', tel:'', email:'', bebe:0, pmr:0, allergie:false },
 
     // ── SOIR — Combo terrasse ──
-    { id:'r33', n:'Jeanrenaud Famille', nom:'Jeanrenaud', prenom:'Famille', c:7, tbl:'T34+T35', t:'19:00', svc:'soir', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'manuel', canal:'telephone', prisPar:'', note:'Réunion familiale mensuelle', tel:'+41 79 777 66 55', email:'', bebe:1, pmr:0, allergie:false },
+    { id:'r33', n:'Jeanrenaud Famille', nom:'Jeanrenaud', prenom:'Famille', c:7, tbl:'TE5+TE6', t:'19:00', svc:'soir', s:'reserved', date:t, createdAt:Date.now(), statut:0, mode:'manuel', canal:'telephone', prisPar:'', note:'Réunion familiale mensuelle', tel:'+41 79 777 66 55', email:'', bebe:1, pmr:0, allergie:false },
 
     // ── SOIR — Salon privé combo ──
     { id:'r34', n:'Mariage Réception', nom:'Dupuis',   prenom:'Marc',     c:18, tbl:'P1+P2',   t:'19:00', svc:'soir', s:'reserved', date:t, createdAt:Date.now(), statut:2, mode:'manuel', canal:'email',     prisPar:'Manager', note:'Réception mariage — menu dégustation 7 services', tel:'+41 79 111 22 33', email:'marc@dupuis.ch', bebe:0, pmr:0, allergie:true },
@@ -295,5 +295,5 @@ export function loadDemoFallback() {
     web: 'www.comptoirdulac.ch'
   }
 
-  return { resas, tables, combos, services, salles, resto, roomItems, isDemo: true, activeDate: t, _demoVersion: 13 }
+  return { resas, tables, combos, services, salles, resto, roomItems, isDemo: true, activeDate: t, _demoVersion: 14 }
 }

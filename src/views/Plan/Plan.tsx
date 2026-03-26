@@ -39,7 +39,7 @@ function planTableSvg(
   t: Table,
   status: 'free' | 'reserved' | 'arrived' | 'blocked' | 'combo_partial' | 'held',
   isSelected: boolean,
-  resaInfo?: { name: string; covers: number; time: string; statusIcon: string; vip: boolean; allergie: boolean; bebe: number; pmr: number; isCombo: boolean; isNew: boolean; isIA: boolean },
+  resaInfo?: { name: string; covers: number; time: string; statusIcon: string; vip: boolean; allergie: boolean; bebe: number; pmr: number; isCombo: boolean; isNew: boolean; isIA: boolean; canal?: string },
 ): string {
   const tRef = Math.min(t.w, t.h)
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2
@@ -123,7 +123,7 @@ function planTableSvg(
     s += `<text x="${cx}" y="${(cy + tRef*0.08).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsName}" font-family="DM Mono,monospace" font-weight="600" fill="${tcol}" opacity=".85" style="pointer-events:none">${shortName}</text>`
     // Couverts + heure
     s += `<text x="${cx}" y="${(cy + tRef*0.30).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsCov}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${resaInfo.covers}p · ${resaInfo.time}</text>`
-    // Badges top-right : VIP ⭐ Allergie ⚠ Bébé 👶 PMR ♿ Combo 🔗
+    // Badges top-right : VIP ⭐ Allergie ⚠ Bébé 👶 PMR ♿ Combo 🔗 Canal
     const badges: string[] = []
     if (resaInfo.isNew) badges.push('🆕')
     if (resaInfo.isIA) badges.push('🤖')
@@ -132,11 +132,27 @@ function planTableSvg(
     if (resaInfo.bebe > 0) badges.push('👶')
     if (resaInfo.pmr > 0) badges.push('♿')
     if (resaInfo.isCombo) badges.push('🔗')
+    // Canal icon
+    const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
+    if (resaInfo.canal && canalIcons[resaInfo.canal]) badges.push(canalIcons[resaInfo.canal])
     if (badges.length > 0) {
-      s += `<text x="${(t.x + t.w - tRef*0.08).toFixed(2)}" y="${(t.y + tRef*0.15).toFixed(2)}" text-anchor="end" font-size="${(tRef*0.16).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
+      // Place badges ABOVE the table for better visibility
+      s += `<text x="${cx}" y="${(t.y - tRef*0.08).toFixed(2)}" text-anchor="middle" font-size="${(tRef*0.14).toFixed(1)}" style="pointer-events:none">${badges.join('')}</text>`
     }
     // Status icon top-left
     s += `<text x="${(t.x + tRef*0.1).toFixed(2)}" y="${(t.y + tRef*0.15).toFixed(2)}" font-size="${(tRef*0.18).toFixed(1)}" style="pointer-events:none">${resaInfo.statusIcon}</text>`
+
+    // Personnes autour de la table (petits cercles)
+    const nPers = Math.min(resaInfo.covers, 12) // max 12 affichés
+    const pR = tRef * 0.08 // rayon d'une personne
+    const tblR = Math.max(t.w, t.h) / 2 + tRef * 0.18 // distance du centre
+    for (let i = 0; i < nPers; i++) {
+      const angle = (2 * Math.PI * i / nPers) - Math.PI / 2
+      const px = cx + tblR * Math.cos(angle)
+      const py = cy + tblR * Math.sin(angle)
+      const pCol = status === 'arrived' ? 'rgba(60,200,112,.55)' : 'rgba(68,128,216,.45)'
+      s += `<circle cx="${px.toFixed(2)}" cy="${py.toFixed(2)}" r="${pR.toFixed(2)}" fill="${pCol}" style="pointer-events:none"/>`
+    }
   } else {
     // Table libre — numéro + capacité
     s += `<text x="${cx}" y="${(cy - tRef*0.1).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsN}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
@@ -389,6 +405,7 @@ export function Plan() {
           isCombo: !!(resa.tbl && resa.tbl.includes('+')),
           isNew: (Date.now() - resa.createdAt) < 15 * 60 * 1000,
           isIA: resa.mode === 'ia',
+          canal: resa.canal,
         }
       }
 
@@ -533,6 +550,13 @@ export function Plan() {
               </div>
               {/* Actions */}
               <button onClick={() => { setPopup(null); navigate(`/reservations?edit=${r.id}&from=plan`) }} style={btnStyle('#7bb8ff')}>✏️ Modifier</button>
+              {(r.s === 'reserved' || r.s === 'arrived') && (
+                <button onClick={() => {
+                  setPopup(null)
+                  const newTbl = prompt(`Réassigner ${r.nom || r.n} (${r.c}p) → nouvelle table :`)
+                  if (newTbl && newTbl.trim()) { updateResa(r.id, { tbl: newTbl.trim() }); toast(`Réassigné → ${newTbl.trim()} ✓`, 'success') }
+                }} style={btnStyle('#e8a530')}>↔ Réassigner</button>
+              )}
               {r.s === 'reserved' && (
                 <>
                   <button onClick={() => { setPopup(null); setResaStatus(r.id, 'arrived') }} style={btnStyle('var(--gn)')}>✓ Arrivé</button>
