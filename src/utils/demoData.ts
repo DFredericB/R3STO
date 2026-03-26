@@ -295,5 +295,5 @@ export function loadDemoFallback() {
     web: 'www.comptoirdulac.ch'
   }
 
-  return { resas, tables, combos, services, salles, resto, roomItems, isDemo: true, activeDate: t, _demoVersion: 12 }
+  return { resas, tables, combos, services, salles, resto, roomItems, isDemo: true, activeDate: t, _demoVersion: 13 }
 }

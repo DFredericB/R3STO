@@ -12,6 +12,7 @@
 // ══════════════════════════════════════════════════
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
@@ -38,7 +39,7 @@ function planTableSvg(
   t: Table,
   status: 'free' | 'reserved' | 'arrived' | 'blocked' | 'combo_partial' | 'held',
   isSelected: boolean,
-  resaInfo?: { name: string; covers: number; time: string; statusIcon: string; vip: boolean; allergie: boolean; bebe: number; pmr: number; isCombo: boolean; isNew: boolean },
+  resaInfo?: { name: string; covers: number; time: string; statusIcon: string; vip: boolean; allergie: boolean; bebe: number; pmr: number; isCombo: boolean; isNew: boolean; isIA: boolean },
 ): string {
   const tRef = Math.min(t.w, t.h)
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2
@@ -125,6 +126,7 @@ function planTableSvg(
     // Badges top-right : VIP ⭐ Allergie ⚠ Bébé 👶 PMR ♿ Combo 🔗
     const badges: string[] = []
     if (resaInfo.isNew) badges.push('🆕')
+    if (resaInfo.isIA) badges.push('🤖')
     if (resaInfo.vip) badges.push('⭐')
     if (resaInfo.allergie) badges.push('⚠')
     if (resaInfo.bebe > 0) badges.push('👶')
@@ -250,6 +252,7 @@ export function Plan() {
   const [svcFilter, setSvcFilter] = useState('')
   const [search, setSearch] = useState('')
   const [showOrphans, setShowOrphans] = useState(false)
+  const [popup, setPopup] = useState<{ resa: any; x: number; y: number; flip: boolean } | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
   // Init salle
@@ -385,6 +388,7 @@ export function Plan() {
           pmr: resa.pmr || 0,
           isCombo: !!(resa.tbl && resa.tbl.includes('+')),
           isNew: (Date.now() - resa.createdAt) < 15 * 60 * 1000,
+          isIA: resa.mode === 'ia',
         }
       }
 
@@ -406,6 +410,9 @@ export function Plan() {
   // Clic sur table occupée → ouvre modale résa dans /reservations
   // Clic sur table libre → ouvre nouvelle résa pré-remplie
   const handleSvgClick = useCallback((e: React.MouseEvent) => {
+    // Fermer le popup si on clique ailleurs
+    if (popup) { setPopup(null); return }
+
     const target = e.target as Element
     const tblEl = target.closest('[data-table]')
     if (!tblEl) return
@@ -416,13 +423,15 @@ export function Plan() {
 
     const resa = occupiedMap[tbl.n]
     if (resa) {
-      // Table occupée → ouvrir la modale d'édition dans Journal
-      navigate(`/reservations?edit=${resa.id}&from=plan`)
+      // Table occupée → popup actions rapides
+      const rect = (tblEl as SVGElement).getBoundingClientRect()
+      const flip = rect.bottom + 220 > window.innerHeight
+      setPopup({ resa, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
     } else if (!tbl.blocked) {
       // Table libre → nouvelle résa pré-remplie
       navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel&from=plan`)
     }
-  }, [tables, occupiedMap, navigate])
+  }, [tables, occupiedMap, navigate, popup])
 
   // ── Auto-réassignation ─────────────────────────
   const handleAutoReassign = () => {
@@ -487,6 +496,64 @@ export function Plan() {
           <span><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: 'rgba(232,165,48,.12)', border: '1px solid rgba(232,165,48,.4)', marginRight: 3 }} />Réserve</span>
         </div>
       </div>
+
+      {/* ── Popup actions rapides (clic table occupée) ── */}
+      {popup && (() => {
+        const r = popup.resa
+        const st = STATUS[r.s as keyof typeof STATUS]
+        const btnStyle = (col: string): React.CSSProperties => ({
+          width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+          padding: '10px 12px', border: 'none', borderBottom: '1px solid rgba(255,255,255,.04)',
+          background: 'transparent', cursor: 'pointer', textAlign: 'left',
+          fontSize: 13, fontWeight: 700, color: col,
+        })
+        return createPortal(
+          <>
+            <div onClick={() => setPopup(null)} style={{ position: 'fixed', inset: 0, zIndex: 9998 }} />
+            <div onClick={e => e.stopPropagation()} style={{
+              position: 'fixed',
+              left: Math.min(popup.x - 100, window.innerWidth - 220),
+              ...(popup.flip
+                ? { bottom: window.innerHeight - popup.y + 8 }
+                : { top: popup.y + 8 }),
+              zIndex: 9999, minWidth: 200, maxWidth: 260,
+              background: 'var(--surf2)', border: `1px solid ${st?.border || 'var(--border)'}`,
+              borderRadius: 10, overflow: 'hidden',
+              boxShadow: '0 8px 24px rgba(0,0,0,.4)',
+            }}>
+              {/* En-tête résa */}
+              <div style={{ padding: '8px 12px', background: 'rgba(0,0,0,.08)', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {st && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 6, background: st.bg, color: st.hex, border: `1px solid ${st.border}` }}>{st.icon}</span>}
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{r.nom || r.n}</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--t2)', fontFamily: 'var(--fm)' }}>{r.c}p</span>
+                  <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{r.t}</span>
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 2 }}>{r.tbl}</div>
+              </div>
+              {/* Actions */}
+              <button onClick={() => { setPopup(null); navigate(`/reservations?edit=${r.id}&from=plan`) }} style={btnStyle('#7bb8ff')}>✏️ Modifier</button>
+              {r.s === 'reserved' && (
+                <>
+                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'arrived') }} style={btnStyle('var(--gn)')}>✓ Arrivé</button>
+                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'noshow') }} style={btnStyle('var(--am)')}>👻 No-show</button>
+                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'cancelled') }} style={btnStyle('var(--rd)')}>🚫 Annuler</button>
+                </>
+              )}
+              {r.s === 'arrived' && (
+                <>
+                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'done') }} style={btnStyle('var(--gn)')}>🪑 Libérer</button>
+                  <button onClick={() => { setPopup(null); setResaStatus(r.id, 'noshow') }} style={btnStyle('var(--am)')}>👻 No-show</button>
+                </>
+              )}
+              {(r.s === 'noshow' || r.s === 'done' || r.s === 'cancelled') && (
+                <button onClick={() => { setPopup(null); setResaStatus(r.id, 'reserved') }} style={btnStyle('#7bb8ff')}>↩ Remettre</button>
+              )}
+            </div>
+          </>,
+          document.body
+        )
+      })()}
 
       {/* ── Modal réassignation ── */}
       {showOrphans && (

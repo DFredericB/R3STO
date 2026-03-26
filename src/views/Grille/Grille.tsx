@@ -66,18 +66,29 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
   const comboRef = useRef<HTMLButtonElement>(null)
   const [badgeRect, setBadgeRect] = useState<DOMRect | null>(null)
   const [comboRect, setComboRect] = useState<DOMRect | null>(null)
+  const [ddFlip, setDdFlip] = useState(false)
+  const [comboDdFlip, setComboDdFlip] = useState(false)
 
-  // Recalculer la position du badge quand expanded change
+  // Recalculer la position du badge + décider flip une seule fois à l'ouverture
   useEffect(() => {
     if (expanded && badgeRef.current) {
-      setBadgeRect(badgeRef.current.getBoundingClientRect())
+      const rect = badgeRef.current.getBoundingClientRect()
+      setBadgeRect(rect)
+      // Estimer ~250px de hauteur dropdown, flip si ça dépasse le viewport
+      setDdFlip(rect.bottom + 250 > window.innerHeight)
+    } else {
+      setDdFlip(false)
     }
   }, [expanded])
 
-  // Recalculer la position du bouton combo quand showComboMenu change
+  // Recalculer la position du bouton combo + décider flip
   useEffect(() => {
     if (showComboMenu && comboRef.current) {
-      setComboRect(comboRef.current.getBoundingClientRect())
+      const rect = comboRef.current.getBoundingClientRect()
+      setComboRect(rect)
+      setComboDdFlip(rect.bottom + 150 > window.innerHeight)
+    } else {
+      setComboDdFlip(false)
     }
   }, [showComboMenu])
 
@@ -233,7 +244,13 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
       }}
     >
       {/* ── Ligne compacte ── */}
-      <div style={{ display: 'flex', minHeight: 44 }}>
+      {(() => {
+        const comboNames = table.n.includes('+') ? table.n.split('+') : null
+        const comboCount = comboNames ? comboNames.length : 0
+        const lineHeight = comboCount >= 3 ? 76 : comboCount === 2 ? 60 : 44
+        const badgeW = comboCount ? 58 : 52
+        return (
+      <div style={{ display: 'flex', minHeight: lineHeight }}>
         {/* Bande combo dorée */}
         {isInCombo && (
           <div style={{ width: 3, flexShrink: 0, background: 'linear-gradient(180deg, #ffd666, #e8a530)', borderRadius: '9px 0 0 9px' }} />
@@ -245,28 +262,43 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           onClick={(e) => {
             e.stopPropagation()
             if (moveMode) return
-            // Pas de dropdown sur table libre — le badge ne fait rien
             if (isFree) return
             setShowComboMenu(false)
             onToggleExpand()
           }}
           style={{
-            width: 52, flexShrink: 0,
+            width: badgeW, flexShrink: 0,
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center',
             background: isValidMoveTarget ? 'rgba(60,200,112,.35)' : isValidSwapTarget ? 'rgba(232,165,48,.35)' : statusColor,
-            gap: 1, padding: '3px 0',
+            gap: comboNames ? 0 : 1, padding: '3px 0',
             cursor: moveMode || isFree ? 'default' : 'pointer',
             borderRadius: isInCombo ? 0 : '9px 0 0 9px',
           }}
           title={isFree ? table.n : expanded ? 'Fermer' : 'Actions…'}
         >
-          <div style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.3)' }}>
-            {table.n}
-          </div>
-          <div style={{ fontSize: 8, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>
-            {table.capMax}p
-          </div>
+          {comboNames ? (
+            <>
+              {comboNames.map((tn, i) => (
+                <div key={i} style={{
+                  fontSize: 11, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
+                  textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3,
+                  borderBottom: i < comboNames.length - 1 ? '1px solid rgba(255,255,255,.2)' : 'none',
+                  padding: '1px 0', width: '100%', textAlign: 'center',
+                }}>{tn}</div>
+              ))}
+              <div style={{ fontSize: 7, color: 'rgba(255,255,255,.6)', fontWeight: 600, marginTop: 1 }}>{table.capMax}p</div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.3)' }}>
+                {table.n}
+              </div>
+              <div style={{ fontSize: 8, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>
+                {table.capMax}p
+              </div>
+            </>
+          )}
           {/* Chevron — seulement sur tables occupées */}
           {!moveMode && !isFree && (
             <div style={{ fontSize: 7, color: 'rgba(255,255,255,.5)', lineHeight: 1, marginTop: -1 }}>
@@ -303,6 +335,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                   }}
                 >
                   🔗 {availableCombos.length > 1 ? `${availableCombos.length} combos` : availableCombos[0].label}
+                  <span style={{ fontSize: 9, color: 'rgba(255,214,102,.7)' }}>{availableCombos.length === 1 ? `${availableCombos[0].capOverride || availableCombos[0].cap}p` : ''}</span>
                   <span style={{ fontSize: 8, marginLeft: 2 }}>{showComboMenu ? '▲' : '▼'}</span>
                 </button>
               )}
@@ -343,6 +376,10 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                 {isInCombo && idx === 0 && (
                   <span style={{ fontSize: 9, color: '#ffd666', fontWeight: 600, flexShrink: 0 }}>🔗</span>
                 )}
+                {/* Mode IA/Manuel */}
+                <span style={{ fontSize: 8, flexShrink: 0, opacity: .7 }} title={r.mode === 'ia' ? 'Placé par IA' : 'Placement manuel'}>
+                  {r.mode === 'ia' ? '🤖' : '✋'}
+                </span>
                 {/* NEW badge — résa créée il y a moins de 15 min */}
                 {(Date.now() - r.createdAt) < 15 * 60 * 1000 && (
                   <span style={{ fontSize: 7, fontWeight: 900, color: '#a78bfa', background: 'rgba(167,139,250,.15)', padding: '1px 4px', borderRadius: 4, flexShrink: 0, letterSpacing: .5 }}>NEW</span>
@@ -352,6 +389,8 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           )}
         </div>
       </div>
+        )
+      })()}
 
       {/* ── Dropdown actions (depuis badge) — portal pour éviter clipping overflow ── */}
       {expanded && !moveMode && badgeRect && createPortal(
@@ -363,11 +402,14 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
             style={{
               position: 'fixed',
               left: badgeRect.left,
-              top: badgeRect.bottom + 4,
+              ...(ddFlip
+                ? { bottom: window.innerHeight - badgeRect.top + 4 }
+                : { top: badgeRect.bottom + 4 }),
               zIndex: 9999,
               background: 'var(--surf2)', border: `1px solid ${sm ? sm.border : 'var(--border)'}`,
               borderRadius: 10, overflow: 'hidden', minWidth: 200, maxWidth: 280,
               boxShadow: '0 8px 24px rgba(0,0,0,.35)',
+              maxHeight: '70vh', overflowY: 'auto',
             }}>
           {/* ── Actions table occupée uniquement ── */}
           <>
@@ -394,12 +436,12 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                     </div>
                     {/* ── 1. Modifier (toujours visible) ── */}
                     <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onClick(r.id) }} style={ddItem('✏️', 'Modifier', '#7bb8ff')}>✏️ Modifier</button>
-                    {/* ── 2. Déplacer (reserved / arrived) ── */}
-                    {(r.s === 'reserved' || r.s === 'arrived') && (
+                    {/* ── 2. Déplacer (reserved / arrived) — pas sur ligne combo fusionnée ── */}
+                    {!table.id.startsWith('combo__') && (r.s === 'reserved' || r.s === 'arrived') && (
                       <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onStartMove(r) }} style={ddItem('↔', 'Déplacer', '#7bb8ff')}>↔ Déplacer</button>
                     )}
-                    {/* ── 3. Délier combo (si en combo) ── */}
-                    {isInCombo && (r.s === 'reserved' || r.s === 'arrived') && (
+                    {/* ── 3. Délier combo — seulement sur table individuelle faisant partie d'un combo ── */}
+                    {!table.id.startsWith('combo__') && isInCombo && (r.s === 'reserved' || r.s === 'arrived') && (
                       <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onUncombine(table.id, r.id) }} style={ddItem('✂', 'Délier combo', '#e8a530')}>✂ Délier combo</button>
                     )}
                     {/* ── 4. Actions statut ── */}
@@ -444,11 +486,14 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
             style={{
               position: 'fixed',
               right: window.innerWidth - comboRect.right,
-              top: comboRect.bottom + 4,
+              ...(comboDdFlip
+                ? { bottom: window.innerHeight - comboRect.top + 4 }
+                : { top: comboRect.bottom + 4 }),
               zIndex: 9999,
               background: 'var(--surf2)', border: '1px solid rgba(255,214,102,.4)',
               borderRadius: 10, overflow: 'hidden', minWidth: 160,
               boxShadow: '0 8px 24px rgba(0,0,0,.3)',
+              maxHeight: '70vh', overflowY: 'auto',
             }}
           >
           <div style={{ padding: '6px 10px', fontSize: 10, color: 'var(--t4)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>
@@ -571,10 +616,70 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: 6, display: 'flex', flexDirection: 'column', gap: 4, WebkitOverflowScrolling: 'touch' as any }}>
         {tables.length === 0 ? (
           <div style={{ padding: 16, textAlign: 'center', fontSize: 12, color: 'var(--t3)' }}>{t('grid.noTable')}</div>
-        ) : (
-          tables.map(table => {
-            const tblResas = svcResas.filter(r => tblMatchesTable(r.tbl, table.n))
-            return (
+        ) : (() => {
+          // ── Détecter les combos actifs : résa placée sur un combo label (ex: "T10+T11") ──
+          const activeComboResa = new Map<string, Resa>() // comboId → resa
+          const hiddenByCombo = new Set<string>() // tableIds masquées car fusionnées
+          svcResas.forEach(r => {
+            if (!r.tbl?.includes('+') || !isOccupying(r)) return
+            const combo = combos.find(c => c.label === r.tbl)
+            if (combo) {
+              activeComboResa.set(combo.id, r)
+              combo.tables.forEach(tid => hiddenByCombo.add(tid))
+            }
+          })
+
+          const renderedCombo = new Set<string>()
+          const elements: React.ReactNode[] = []
+
+          for (const table of tables) {
+            // ── Table absorbée par un combo actif → rendre la ligne combo fusionnée ──
+            if (hiddenByCombo.has(table.id)) {
+              // Trouver le combo actif pour cette table
+              const combo = combos.find(c => c.tables.includes(table.id) && activeComboResa.has(c.id))
+              if (combo && !renderedCombo.has(combo.id)) {
+                renderedCombo.add(combo.id)
+                const comboResa = activeComboResa.get(combo.id)!
+                // Créer une "table virtuelle" combo pour le TableRow
+                const comboTable: Table = {
+                  ...table,
+                  id: `combo__${combo.id}`,
+                  n: combo.label, // "T10+T11"
+                  capMax: combo.capOverride || combo.cap,
+                  capMin: combo.cap,
+                }
+                // Ne passer que la résa combo (pas les individuelles)
+                const comboResas = [comboResa]
+                elements.push(
+                  <TableRow
+                    key={`combo-${combo.id}`}
+                    table={comboTable}
+                    resas={comboResas}
+                    combos={combos}
+                    svcResas={svcResas}
+                    moveMode={isMoveService ? moveMode : null}
+                    expanded={expandedId === comboTable.id}
+                    onToggleExpand={() => setExpandedId(expandedId === comboTable.id ? null : comboTable.id)}
+                    onMarkArrived={onMarkArrived}
+                    onMarkNoshow={onMarkNoshow}
+                    onMarkDone={onMarkDone}
+                    onCancel={onCancel}
+                    onRestore={onRestore}
+                    onClick={onClickResa}
+                    onPlaceResa={onPlaceResa}
+                    onPlaceCombo={onPlaceCombo}
+                    onUncombine={onUncombine}
+                    onStartMove={onStartMove}
+                    onMoveTarget={onMoveTarget}
+                  />
+                )
+              }
+              continue // skip les tables individuelles du combo actif
+            }
+
+            // ── Table normale (pas dans un combo actif) ──
+            const tblResas = svcResas.filter(r => r.tbl === table.n) // match exact seulement
+            elements.push(
               <TableRow
                 key={table.id}
                 table={table}
@@ -597,8 +702,9 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                 onMoveTarget={onMoveTarget}
               />
             )
-          })
-        )}
+          }
+          return elements
+        })()}
       </div>
     </div>
   )

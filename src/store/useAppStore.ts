@@ -133,7 +133,20 @@ export const useAppStore = create<AppStore>()(
       sidebarCollapsed: false,
 
       // Réservations
-      addResa: (resa) => set((s) => ({ resas: [...s.resas, resa] })),
+      addResa: (resa) => set((s) => {
+        // ── Garde-fou double-booking : empêcher 2 résas actives sur la même table/date/service ──
+        if (resa.tbl && resa.date && resa.svc) {
+          const occupied = s.resas.some(r =>
+            r.date === resa.date && r.svc === resa.svc && r.tbl === resa.tbl &&
+            (r.s === 'reserved' || r.s === 'arrived')
+          )
+          if (occupied) {
+            console.warn(`[R3STO] Double-booking bloqué : ${resa.tbl} déjà occupée (${resa.date} ${resa.svc})`)
+            return s // ne pas ajouter
+          }
+        }
+        return { resas: [...s.resas, resa] }
+      }),
       updateResa: (id, patch) => set((s) => ({
         resas: s.resas.map((r) => r.id === id ? { ...r, ...patch } : r)
       })),

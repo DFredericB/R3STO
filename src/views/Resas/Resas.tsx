@@ -471,6 +471,7 @@ export function Resas() {
                       {r.statut === 2 && <span title="VIP">⭐</span>}
                       {r.statut === 3 && <span title="Surveillé">👁</span>}
                       {r.allergie && <span title="Allergie">⚠️</span>}
+                      <span title={r.mode === 'ia' ? 'Placé par IA' : 'Placement manuel'} style={{ fontSize: 9, opacity: .7 }}>{r.mode === 'ia' ? '🤖' : '✋'}</span>
                       {(Date.now() - r.createdAt) < 15 * 60 * 1000 && <span title="Nouvelle réservation" style={{ fontSize: 8, fontWeight: 900, color: '#a78bfa', background: 'rgba(167,139,250,.15)', padding: '1px 4px', borderRadius: 4, letterSpacing: .5 }}>NEW</span>}
                     </div>
                     {r.tel && <div style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{displayPhone(r.tel, pays)}</div>}
