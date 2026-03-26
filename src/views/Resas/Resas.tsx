@@ -136,7 +136,6 @@ export function Resas() {
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<'heure' | 'table' | 'client' | 'couverts' | 'statut'>('heure')
   const [sortAsc, setSortAsc] = useState(true)
-  const [viewMode, setViewMode] = useState<'table' | 'agenda'>('table')
   const [showModal, setShowModal] = useState(false)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const dateRefModal = useRef<HTMLInputElement>(null)
@@ -424,122 +423,11 @@ export function Resas() {
         onPrint={handlePrint}
       />
 
-      {/* View toggle: Table vs Agenda */}
-      <div style={{ display: 'flex', gap: 4, padding: '4px 14px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-        <button onClick={() => setViewMode('table')} style={{
-          fontSize: 10, padding: '3px 10px', borderRadius: 4, fontWeight: 700, cursor: 'pointer',
-          border: `1px solid ${viewMode === 'table' ? 'var(--bl)' : 'var(--border)'}`,
-          background: viewMode === 'table' ? 'var(--bp)' : 'transparent',
-          color: viewMode === 'table' ? 'var(--bl)' : 'var(--t3)',
-        }}>📋 Tableau</button>
-        <button onClick={() => setViewMode('agenda')} style={{
-          fontSize: 10, padding: '3px 10px', borderRadius: 4, fontWeight: 700, cursor: 'pointer',
-          border: `1px solid ${viewMode === 'agenda' ? 'var(--bl)' : 'var(--border)'}`,
-          background: viewMode === 'agenda' ? 'var(--bp)' : 'transparent',
-          color: viewMode === 'agenda' ? 'var(--bl)' : 'var(--t3)',
-        }}>📅 Agenda</button>
-      </div>
-
       {/* Liste — minHeight:0 force le flex child à respecter overflow */}
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-        {/* ── AGENDA VIEW ── */}
-        {viewMode === 'agenda' && (() => {
-          const nowM = new Date().getHours() * 60 + new Date().getMinutes()
-          const activeSvcs = services.filter(s => s.active)
-          // Build 30min slots
-          const agendaSlots: number[] = []
-          activeSvcs.forEach(svc => {
-            const openM = parseInt(svc.open.split(':')[0]) * 60 + parseInt(svc.open.split(':')[1] || '0')
-            const closeM = parseInt(svc.close.split(':')[0]) * 60 + parseInt(svc.close.split(':')[1] || '0')
-            for (let m = openM; m < closeM; m += 30) {
-              if (!agendaSlots.includes(m)) agendaSlots.push(m)
-            }
-          })
-          agendaSlots.sort((a, b) => a - b)
-
-          // Group resas by slot
-          const resaMap: Record<number, typeof dayResas> = {}
-          dayResas.forEach(r => {
-            const parts = r.t.split(/[h:]/)
-            const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-            const slotKey = Math.floor(m / 30) * 30
-            if (!resaMap[slotKey]) resaMap[slotKey] = []
-            resaMap[slotKey].push(r)
-          })
-
-          const statusBg: Record<string, string> = {
-            arrived: 'rgba(60,200,112,.12)', reserved: 'rgba(68,128,216,.1)',
-            done: 'rgba(128,128,128,.08)', noshow: 'rgba(220,80,80,.1)', waitlist: 'rgba(232,165,48,.1)',
-          }
-          const statusTxt: Record<string, string> = {
-            arrived: 'var(--gn)', reserved: 'var(--bl)',
-            done: 'var(--t4)', noshow: 'var(--rd)', waitlist: 'var(--am)',
-          }
-
-          return (
-            <div style={{ padding: '8px 14px 20px' }}>
-              {agendaSlots.map(slotMin => {
-                const hr = Math.floor(slotMin / 60)
-                const mn = slotMin % 60
-                const label = `${hr}h${String(mn).padStart(2, '0')}`
-                const isNow = nowM >= slotMin && nowM < slotMin + 30
-                const slotResas = resaMap[slotMin] || []
-                const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
-
-                return (
-                  <div key={slotMin} style={{
-                    display: 'flex', gap: 10, borderBottom: '1px solid var(--border)',
-                    background: isNow ? 'rgba(220,80,80,.04)' : 'transparent',
-                    minHeight: 40,
-                  }}>
-                    {/* Time column */}
-                    <div style={{
-                      width: 54, flexShrink: 0, padding: '8px 6px', textAlign: 'right',
-                      fontSize: 12, fontWeight: 800, fontFamily: 'var(--fm)',
-                      color: isNow ? 'var(--rd)' : 'var(--t3)',
-                      borderRight: isNow ? '3px solid var(--rd)' : '3px solid var(--border)',
-                    }}>
-                      {label}
-                      {slotCvt > 0 && <div style={{ fontSize: 9, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
-                    </div>
-                    {/* Resas */}
-                    <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 4, padding: '4px 0', alignItems: 'flex-start' }}>
-                      {slotResas.length === 0 && (
-                        <span style={{ fontSize: 10, color: 'var(--t4)', padding: '6px 0' }}>—</span>
-                      )}
-                      {slotResas.map(r => (
-                        <div key={r.id}
-                          onClick={() => openEdit(r)}
-                          style={{
-                            padding: '4px 8px', borderRadius: 6, cursor: 'pointer',
-                            background: statusBg[r.s] || 'var(--surf2)',
-                            border: `1px solid ${(statusTxt[r.s] || 'var(--bl)')}25`,
-                            display: 'flex', alignItems: 'center', gap: 5,
-                          }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: statusTxt[r.s] || 'var(--bl)' }}>
-                            {r.n}
-                          </span>
-                          <span style={{ fontSize: 10, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>
-                            {r.c}p
-                          </span>
-                          <span style={{ fontSize: 10, color: 'var(--t4)' }}>{r.tbl || '—'}</span>
-                          {r.canal && CANAUX[r.canal] && (
-                            <span style={{ fontSize: 9, opacity: .7 }}>{CANAUX[r.canal].icon}</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )
-        })()}
-
-        {/* ── TABLE VIEW ── */}
-        {viewMode === 'table' && dayResas.length === 0 ? (
+        {dayResas.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)', fontSize: 14 }}>{t('resa.noResa')}</div>
-        ) : viewMode === 'table' ? (
+        ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--surf)' }}><tr style={{ borderBottom: '1px solid var(--border)' }}>
               {([
@@ -650,7 +538,7 @@ export function Resas() {
               )})}
             </tbody>
           </table>
-        ) : null}
+        )}
       </div>
 
       {/* ═══════ MODALE COMPACTE ═══════ */}
