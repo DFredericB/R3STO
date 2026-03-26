@@ -462,8 +462,8 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                     </div>
                     {/* ── 1. Modifier (toujours visible) ── */}
                     <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onClick(r.id) }} style={ddItem('✏️', 'Modifier', '#7bb8ff')}>✏️ Modifier</button>
-                    {/* ── 2. Déplacer (reserved / arrived) — pas sur ligne combo fusionnée ── */}
-                    {!table.id.startsWith('combo__') && (r.s === 'reserved' || r.s === 'arrived') && (
+                    {/* ── 2. Déplacer (reserved / arrived) ── */}
+                    {(r.s === 'reserved' || r.s === 'arrived') && (
                       <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onStartMove(r) }} style={ddItem('↔', 'Déplacer', '#7bb8ff')}>↔ Déplacer</button>
                     )}
                     {/* ── 3. Délier combo — seulement sur table individuelle faisant partie d'un combo ── */}
@@ -564,7 +564,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
   onUncombine: (tableId: string, resaId: string) => void
   onStartMove: (resa: Resa) => void
   onMoveTarget: (table: Table, targetSvc: string) => void
-  onMoveIA: () => void
+  onMoveIA: (targetSvc?: string) => void
 }) {
   const { t } = useT()
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -609,13 +609,18 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
         </div>
         {/* ── Bouton IA move / indicateur service cible ── */}
         {moveMode && isMoveOtherService ? (
-          <div style={{
-            padding: '4px 10px', borderRadius: 8,
-            background: 'rgba(232,165,48,.1)', border: '1px dashed rgba(232,165,48,.4)',
-            fontSize: 10, fontWeight: 700, color: 'var(--am)', flexShrink: 0,
-          }}>
-            ↪ Déplacer ici ({service.name})
-          </div>
+          <button
+            onClick={() => onMoveIA(svcName)}
+            style={{
+              padding: '6px 12px', borderRadius: 8,
+              background: 'rgba(232,165,48,.12)', border: '1.5px dashed rgba(232,165,48,.5)',
+              fontSize: 11, fontWeight: 700, color: 'var(--am)', flexShrink: 0,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+            }}
+            title={`Placer avec IA dans ${service.name}`}
+          >
+            🤖 IA → {service.name}
+          </button>
         ) : moveMode && isMoveService ? (
           <button
             onClick={onMoveIA}
@@ -807,12 +812,13 @@ export function Grille() {
   function handleCancelMove() { setMoveMode(null); setMoveMsg(null) }
 
   // ── Déplacer avec IA : placement automatique optimal ──
-  function handleMoveIA() {
+  function handleMoveIA(targetSvc?: string) {
     if (!moveMode) return
     const sourceResa = resas.find(r => r.id === moveMode.resaId)
     if (!sourceResa) return
+    const effectiveSvc = targetSvc || moveMode.svc
     const bestTbl = iaPlacement(
-      sourceResa.c, activeDate, moveMode.svc, tables, combos, dayResas,
+      sourceResa.c, activeDate, effectiveSvc, tables, combos, dayResas,
       undefined, sourceResa.id, selectedSalle !== 'toutes' ? selectedSalle : undefined
     )
     if (!bestTbl) {
@@ -820,8 +826,11 @@ export function Grille() {
       setTimeout(() => setMoveMsg(null), 3000)
       return
     }
-    updateResa(sourceResa.id, { tbl: bestTbl })
-    setMoveMsg(`✅ IA → ${sourceResa.nom || sourceResa.n} placé sur ${bestTbl}`)
+    const patch: Record<string, any> = { tbl: bestTbl }
+    if (effectiveSvc !== moveMode.svc) patch.svc = effectiveSvc
+    updateResa(sourceResa.id, patch)
+    const svcLabel = effectiveSvc !== moveMode.svc ? ` (→ ${effectiveSvc})` : ''
+    setMoveMsg(`✅ IA → ${sourceResa.nom || sourceResa.n} placé sur ${bestTbl}${svcLabel}`)
     setMoveMode(null); setTimeout(() => setMoveMsg(null), 2500)
   }
 

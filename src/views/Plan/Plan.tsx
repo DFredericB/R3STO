@@ -22,7 +22,8 @@ import { STATUS } from '../../utils/design'
 import { todayISO, timeToMins, nowMins, shiftISO } from '../../utils/date'
 import {
   isOccupying, tblMatchesTable, getOccupiedTableIds,
-  iaPlacement, getFreeTables, getFreeCombos
+  iaPlacement, getFreeTables, getFreeCombos,
+  canMoveResa, canSwapResas
 } from '../../utils/placementRules'
 import { spRoomBodySvg, spChairsSvg } from '../../utils/roomItemSvg'
 import type { Table, Combo, Resa, Service, RoomItem } from '../../types'
@@ -467,7 +468,7 @@ export function Plan() {
   const {
     resas, tables, combos, services, salles, roomItems,
     activeDate, setActiveDate,
-    updateResa, setResaStatus, setTables,
+    updateResa, setResaStatus, setTables, swapTables,
   } = useAppStore()
   const { toast } = useToast()
   const { t } = useT()
@@ -479,9 +480,11 @@ export function Plan() {
   const [showOrphans, setShowOrphans] = useState(false)
   const orphansAutoShownRef = useRef(false)
   const [popup, setPopup] = useState<{ resa: any; table?: Table; x: number; y: number; flip: boolean } | null>(null)
-  const [moveMode, setMoveMode] = useState(false)
+  // ── Move mode : déplacement visuel (cliquer table cible sur SVG) ──
+  const [moveResa, setMoveResa] = useState<{ id: string; name: string; covers: number; fromTbl: string; svc: string } | null>(null)
   const [moveDate, setMoveDate] = useState('')
   const [moveSvc, setMoveSvc] = useState('')
+  const [moveMsg, setMoveMsg] = useState<string | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
   // Init salle
@@ -689,19 +692,132 @@ export function Plan() {
     if (orphans.length === 0) orphansAutoShownRef.current = false
   }, [orphans])
 
+  // ── Démarrer le mode déplacement visuel ──
+  function startMoveMode(r: Resa) {
+    setPopup(null)
+    setMoveResa({ id: r.id, name: r.nom || r.n, covers: r.c, fromTbl: r.tbl, svc: r.svc })
+    setMoveDate(r.date || activeDate)
+    setMoveSvc(r.svc || '')
+    setMoveMsg(null)
+  }
+  function cancelMoveMode() { setMoveResa(null); setMoveMsg(null) }
+
+  // ── Exécuter le déplacement vers une table cible ──
+  function executeMoveToTable(targetTbl: Table) {
+    if (!moveResa) return
+    const sourceResa = resas.find(r => r.id === moveResa.id)
+    if (!sourceResa) return
+    const dayR = resas.filter(r => r.date === activeDate)
+    const targetOccupying = dayR.filter(r =>
+      r.svc === sourceResa.svc && tblMatchesTable(r.tbl, targetTbl.n) && isOccupying(r)
+    )
+    if (targetOccupying.length === 0) {
+      // Table libre → déplacer
+      const check = canMoveResa(sourceResa, { type: 'table', table: targetTbl }, tables, combos, resas)
+      if (!check.valid) { setMoveMsg(`❌ ${check.reason}`); setTimeout(() => setMoveMsg(null), 3000); return }
+      updateResa(sourceResa.id, { tbl: check.newTbl! })
+      toast(`${sourceResa.nom || sourceResa.n} → ${targetTbl.n} ✓`, 'success')
+      setMoveResa(null); setMoveMsg(null)
+    } else {
+      // Table occupée → swap
+      const targetResa = targetOccupying[0]
+      const check = canSwapResas(sourceResa, targetResa, tables, combos)
+      if (!check.valid) { setMoveMsg(`❌ ${check.reason}`); setTimeout(() => setMoveMsg(null), 3000); return }
+      swapTables(sourceResa.id, targetResa.id)
+      toast(`${sourceResa.nom || sourceResa.n} ↔ ${targetResa.nom || targetResa.n} ✓`, 'success')
+      setMoveResa(null); setMoveMsg(null)
+    }
+  }
+
+  // ── Déplacer avec IA ──
+  function executeMoveIA() {
+    if (!moveResa) return
+    const sourceResa = resas.find(r => r.id === moveResa.id)
+    if (!sourceResa) return
+    const dayR = resas.filter(r => r.date === (moveDate || activeDate))
+    const targetSvc = moveSvc || sourceResa.svc
+    const bestTbl = iaPlacement(
+      sourceResa.c, moveDate || activeDate, targetSvc, tables, combos, dayR,
+      undefined, sourceResa.id
+    )
+    if (!bestTbl) { setMoveMsg('❌ Aucune table disponible'); setTimeout(() => setMoveMsg(null), 3000); return }
+    const patch: Record<string, any> = { tbl: bestTbl }
+    if (moveDate && moveDate !== sourceResa.date) patch.date = moveDate
+    if (targetSvc !== sourceResa.svc) patch.svc = targetSvc
+    updateResa(sourceResa.id, patch)
+    toast(`IA → ${sourceResa.nom || sourceResa.n} sur ${bestTbl} ✓`, 'success')
+    setMoveResa(null); setMoveMsg(null)
+  }
+
+  // ── Confirmer déplacement date/service ──
+  function executeMoveDateTime() {
+    if (!moveResa) return
+    const sourceResa = resas.find(r => r.id === moveResa.id)
+    if (!sourceResa) return
+    const targetSvc = moveSvc || sourceResa.svc
+    const targetDate = moveDate || sourceResa.date
+    const svcObj = activeServices.find(s => s.name.toLowerCase() === targetSvc)
+    const patch: Record<string, any> = {
+      date: targetDate, svc: targetSvc, s: 'reserved',
+      t: svcObj ? svcObj.open.replace(':', 'h') : sourceResa.t,
+    }
+    updateResa(sourceResa.id, patch)
+    toast(`Déplacé → ${targetDate} ${targetSvc} ✓`, 'success')
+    setMoveResa(null); setMoveMsg(null)
+  }
+
   // ── Click handling ─────────────────────────────
-  // Clic sur table occupée → ouvre modale résa dans /reservations
-  // Clic sur table libre → ouvre nouvelle résa pré-remplie
   const handleSvgClick = useCallback((e: React.MouseEvent) => {
+    // ── Mode déplacement : clic sur table cible ──
+    if (moveResa) {
+      const target = e.target as Element
+      const tblEl = target.closest('[data-table]')
+      if (tblEl) {
+        const id = tblEl.getAttribute('data-table')!
+        const tbl = tables.find(t => t.id === id)
+        if (tbl) { executeMoveToTable(tbl); return }
+      }
+      // Clic sur combo libre → déplacer vers combo
+      const comboEl = target.closest('[data-combo-click]')
+      if (comboEl) {
+        const comboLabel = comboEl.getAttribute('data-combo-click')!
+        const comboTableNames = comboLabel.split('+').map((s: string) => s.trim())
+        const firstTbl = tables.find(t => comboTableNames.includes(t.n))
+        if (firstTbl) {
+          // Trouver le combo et traiter comme déplacement vers combo
+          const combo = combos.find(c => c.label === comboLabel)
+          if (combo) {
+            const sourceResa = resas.find(r => r.id === moveResa.id)
+            if (sourceResa) {
+              updateResa(sourceResa.id, { tbl: comboLabel })
+              toast(`${sourceResa.nom || sourceResa.n} → ${comboLabel} ✓`, 'success')
+              setMoveResa(null); setMoveMsg(null)
+              return
+            }
+          }
+        }
+      }
+      return // Ignorer les clics sur zones vides en mode déplacement
+    }
+
     // Fermer le popup si on clique ailleurs
-    if (popup) { setPopup(null); setMoveMode(false); return }
+    if (popup) { setPopup(null); return }
 
     const target = e.target as Element
 
-    // ── Clic sur tirets combo libre → nouvelle résa combo ──
+    // ── Clic sur combo (libre → nouvelle résa, occupée → popup actions) ──
     const comboEl = target.closest('[data-combo-click]')
     if (comboEl) {
       const comboLabel = comboEl.getAttribute('data-combo-click')!
+      const comboTableNames = comboLabel.split('+').map((s: string) => s.trim())
+      const comboResa = comboTableNames.map((tn: string) => occupiedMap[tn]).find(Boolean)
+      if (comboResa) {
+        const rect = (comboEl as SVGElement).getBoundingClientRect()
+        const flip = rect.bottom + 220 > window.innerHeight
+        const firstTable = tables.find(t => comboTableNames.includes(t.n))
+        setPopup({ resa: comboResa, table: firstTable || null, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
+        return
+      }
       navigate(`/reservations?new=1&table=${encodeURIComponent(comboLabel)}&mode=manuel&from=plan`)
       return
     }
@@ -718,13 +834,11 @@ export function Plan() {
 
     const resa = occupiedMap[tbl.n]
     if (resa) {
-      // Table occupée → popup actions rapides résa
       setPopup({ resa, table: tbl, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
     } else {
-      // Table libre / bloquée / réserve → popup actions table
       setPopup({ resa: null, table: tbl, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
     }
-  }, [tables, occupiedMap, popup, navigate])
+  }, [tables, occupiedMap, popup, navigate, moveResa, resas, combos])
 
   // ── Auto-réassignation ─────────────────────────
   const handleAutoReassign = () => {
@@ -787,8 +901,71 @@ export function Plan() {
         </div>
       )}
 
+      {/* ── Bannière de déplacement ── */}
+      {moveResa && (
+        <div style={{
+          padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+          background: 'rgba(159,122,234,.12)', borderBottom: '2px solid rgba(159,122,234,.4)', flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 16 }}>↔</span>
+          <div style={{ flex: 1, minWidth: 160 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#9f7aea' }}>
+              Déplacer {moveResa.name} ({moveResa.covers}p)
+            </span>
+            <span style={{ fontSize: 12, color: 'var(--t3)', marginLeft: 8 }}>
+              depuis {moveResa.fromTbl} — toucher une table cible
+            </span>
+          </div>
+          {/* Date picker */}
+          <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+            <button onClick={() => setMoveDate(shiftISO(moveDate, -1))} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(159,122,234,.3)', background: 'rgba(159,122,234,.1)', color: '#9f7aea', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>◀</button>
+            <input type="date" value={moveDate} onChange={e => setMoveDate(e.target.value)}
+              style={{ fontSize: 11, fontWeight: 700, padding: '3px 6px', borderRadius: 5, border: '1.5px solid rgba(159,122,234,.3)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }} />
+            <button onClick={() => setMoveDate(shiftISO(moveDate, 1))} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(159,122,234,.3)', background: 'rgba(159,122,234,.1)', color: '#9f7aea', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>▶</button>
+          </div>
+          {/* Service selector */}
+          <div style={{ display: 'flex', gap: 3 }}>
+            {activeServices.map(s => (
+              <button key={s.id} onClick={() => setMoveSvc(s.name.toLowerCase())}
+                style={{
+                  fontSize: 11, fontWeight: moveSvc === s.name.toLowerCase() ? 800 : 600,
+                  padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
+                  border: `1.5px solid ${moveSvc === s.name.toLowerCase() ? s.color : 'var(--border)'}`,
+                  background: moveSvc === s.name.toLowerCase() ? `${s.color}20` : 'transparent',
+                  color: moveSvc === s.name.toLowerCase() ? s.color : 'var(--t3)',
+                }}>
+                {s.icon} {s.name}
+              </button>
+            ))}
+          </div>
+          {/* IA + Date/Svc confirm */}
+          <button onClick={executeMoveIA} style={{
+            padding: '6px 14px', borderRadius: 8, border: '2px solid rgba(91,156,246,.5)',
+            background: 'rgba(91,156,246,.15)', color: '#7bb8ff', cursor: 'pointer',
+            fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap',
+          }}>🤖 IA</button>
+          {(moveDate !== (resas.find(r => r.id === moveResa.id)?.date || activeDate) || moveSvc !== moveResa.svc) && (
+            <button onClick={executeMoveDateTime} style={{
+              padding: '6px 14px', borderRadius: 8, border: '2px solid rgba(159,122,234,.5)',
+              background: 'rgba(159,122,234,.2)', color: '#9f7aea', cursor: 'pointer',
+              fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap',
+            }}>✓ Confirmer {moveDate !== (resas.find(r => r.id === moveResa.id)?.date || activeDate) ? 'date' : 'service'}</button>
+          )}
+          <button onClick={cancelMoveMode} style={{
+            padding: '6px 14px', borderRadius: 8,
+            border: '1px solid rgba(220,80,80,.4)', background: 'rgba(220,80,80,.1)',
+            color: 'var(--rd)', cursor: 'pointer', fontSize: 12, fontWeight: 700,
+          }}>✕ Annuler</button>
+        </div>
+      )}
+      {moveMsg && (
+        <div style={{ padding: '6px 16px', fontSize: 13, fontWeight: 600, background: moveMsg.startsWith('❌') ? 'rgba(220,80,80,.12)' : 'rgba(60,200,112,.12)', color: moveMsg.startsWith('❌') ? 'var(--rd)' : 'var(--gn)', borderBottom: '1px solid var(--border)' }}>
+          {moveMsg}
+        </div>
+      )}
+
       {/* SVG Plan — pleine largeur, pas de colonne droite */}
-      <div style={{ flex: 1, minWidth: 0, background: 'var(--surf2)', overflow: 'auto', position: 'relative' }}>
+      <div style={{ flex: 1, minWidth: 0, background: 'var(--surf2)', overflow: 'auto', position: 'relative', cursor: moveResa ? 'crosshair' : 'default' }}>
         <svg ref={svgRef}
           viewBox={`0 0 ${canvasW} ${canvasH}`}
           style={{ width: '100%', height: '100%' }}
@@ -829,7 +1006,7 @@ export function Plan() {
 
         return createPortal(
           <>
-            <div onClick={() => { setPopup(null); setMoveMode(false) }} style={{ position: 'fixed', inset: 0, zIndex: 9998 }} />
+            <div onClick={() => { setPopup(null) }} style={{ position: 'fixed', inset: 0, zIndex: 9998 }} />
             <div onClick={e => e.stopPropagation()} style={{
               position: 'fixed',
               left: Math.min(popup.x - 100, window.innerWidth - 220),
@@ -855,52 +1032,7 @@ export function Plan() {
                 </div>
                 <button onClick={() => { setPopup(null); navigate(`/reservations?edit=${r.id}&from=plan`) }} style={btnStyle('#7bb8ff')}>✏️ Modifier</button>
                 {(r.s === 'reserved' || r.s === 'arrived') && (<>
-                  <button onClick={() => {
-                    setPopup(null)
-                    const newTbl = prompt(`Réassigner ${r.nom || r.n} (${r.c}p) → nouvelle table :`)
-                    if (newTbl && newTbl.trim()) { updateResa(r.id, { tbl: newTbl.trim() }); toast(`Réassigné → ${newTbl.trim()} ✓`, 'success') }
-                  }} style={btnStyle('#e8a530')}>↔ Réassigner</button>
-                  {/* Déplacer — panneau date/service */}
-                  {!moveMode ? (
-                    <button onClick={() => { setMoveMode(true); setMoveDate(r.date || activeDate); setMoveSvc(r.svc || '') }}
-                      style={btnStyle('#9f7aea')}>📅 Déplacer</button>
-                  ) : (
-                    <div style={{ padding: '8px 10px', background: 'rgba(159,122,234,.08)', borderRadius: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: '#9f7aea', textTransform: 'uppercase', letterSpacing: .5 }}>Déplacer vers</div>
-                      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                        <button onClick={() => setMoveDate(shiftISO(moveDate, -1))} style={{ ...btnStyle('#9f7aea'), padding: '2px 6px', fontSize: 12 }}>◀</button>
-                        <input type="date" value={moveDate} onChange={e => setMoveDate(e.target.value)}
-                          style={{ flex: 1, fontSize: 11, fontWeight: 700, padding: '3px 6px', borderRadius: 5, border: '1.5px solid rgba(159,122,234,.3)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }} />
-                        <button onClick={() => setMoveDate(shiftISO(moveDate, 1))} style={{ ...btnStyle('#9f7aea'), padding: '2px 6px', fontSize: 12 }}>▶</button>
-                      </div>
-                      <div style={{ display: 'flex', gap: 3 }}>
-                        {activeServices.map(s => (
-                          <button key={s.id} onClick={() => setMoveSvc(s.name.toLowerCase())}
-                            style={{
-                              fontSize: 10, fontWeight: moveSvc === s.name.toLowerCase() ? 800 : 600,
-                              padding: '3px 8px', borderRadius: 5, cursor: 'pointer',
-                              border: `1.5px solid ${moveSvc === s.name.toLowerCase() ? s.color : 'var(--border)'}`,
-                              background: moveSvc === s.name.toLowerCase() ? `${s.color}20` : 'transparent',
-                              color: moveSvc === s.name.toLowerCase() ? s.color : 'var(--t3)',
-                            }}>
-                            {s.icon} {s.name}
-                          </button>
-                        ))}
-                      </div>
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        <button onClick={() => {
-                          const targetSvc = activeServices.find(s => s.name.toLowerCase() === moveSvc)
-                          setPopup(null); setMoveMode(false)
-                          updateResa(r.id, {
-                            date: moveDate, svc: moveSvc, s: 'reserved',
-                            t: targetSvc ? targetSvc.open.replace(':', 'h') : r.t,
-                          })
-                          toast(`Déplacé → ${moveDate} ${moveSvc} ✓`, 'success')
-                        }} style={{ ...btnStyle('#9f7aea'), flex: 1, fontWeight: 800 }}>✓ Déplacer</button>
-                        <button onClick={() => setMoveMode(false)} style={{ ...btnStyle('var(--t3)'), padding: '2px 8px' }}>✕</button>
-                      </div>
-                    </div>
-                  )}
+                  <button onClick={() => startMoveMode(r)} style={btnStyle('#9f7aea')}>↔ Déplacer</button>
                 </>)}
                 {r.s === 'reserved' && (
                   <>
