@@ -8,7 +8,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
   Resa, Table, Combo, Service, Salle, Resto,
-  OptionsData, User, Fermeture, UserRole, RoomItem
+  OptionsData, User, Fermeture, UserRole, RoomItem, Client
 } from '../types'
 
 // ── Données par défaut ─────────────────────────────
@@ -66,6 +66,7 @@ interface AppStore {
   users: User[]
   fermetures: Fermeture[]
   roomItems: RoomItem[]
+  clients: Client[]
 
   // Navigation
   curView: string
@@ -97,6 +98,11 @@ interface AppStore {
   setSalles: (salles: Salle[]) => void
   setRoomItems: (items: RoomItem[]) => void
 
+  // Actions — Clients
+  addClient: (client: Client) => void
+  updateClient: (id: string, patch: Partial<Client>) => void
+  deleteClient: (id: string) => void
+
   // Actions — Auth & UI
   setUserRole: (role: UserRole) => void
   setLang: (lang: 'fr' | 'en' | 'de' | 'it') => void
@@ -123,6 +129,7 @@ export const useAppStore = create<AppStore>()(
       users: [],
       fermetures: [],
       roomItems: [],
+      clients: [],
       curView: 'dashboard',
       activeDate: today(),
       isDemo: false,
@@ -179,6 +186,13 @@ export const useAppStore = create<AppStore>()(
       setSalles: (salles) => set({ salles }),
       setRoomItems: (items) => set({ roomItems: items }),
 
+      // Clients
+      addClient: (client) => set((s) => ({ clients: [...s.clients, client] })),
+      updateClient: (id, patch) => set((s) => ({
+        clients: s.clients.map((c) => c.id === id ? { ...c, ...patch } : c)
+      })),
+      deleteClient: (id) => set((s) => ({ clients: s.clients.filter((c) => c.id !== id) })),
+
       // Auth & UI
       setUserRole: (role) => set({ userRole: role }),
       setLang: (lang) => set({ lang }),
@@ -193,7 +207,7 @@ export const useAppStore = create<AppStore>()(
       resetData: () => set({
         resas: [], tables: [], combos: [],
         services: DEFAULT_SERVICES, salles: DEFAULT_SALLES,
-        options: DEFAULT_OPTIONS, users: [], fermetures: [], roomItems: [],
+        options: DEFAULT_OPTIONS, users: [], fermetures: [], roomItems: [], clients: [],
         activeDate: today()
       })
     }),
@@ -210,6 +224,7 @@ export const useAppStore = create<AppStore>()(
         users: state.users,
         fermetures: state.fermetures,
         roomItems: state.roomItems,
+        clients: state.clients,
         lang: state.lang,
         theme: state.theme,
         sidebarCollapsed: state.sidebarCollapsed,

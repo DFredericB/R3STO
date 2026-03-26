@@ -17,6 +17,7 @@ import { Waitlist } from './views/Waitlist/Waitlist'
 import { Groupes } from './views/Groupes/Groupes'
 import { Marketing } from './views/Marketing/Marketing'
 import { Blacklist } from './views/Blacklist/Blacklist'
+import { Clients } from './views/Clients/Clients'
 import { Widget } from './views/Widget/Widget'
 import { QRCode } from './views/QRCode/QRCode'
 import { Prepaiement } from './views/Prepaiement/Prepaiement'
@@ -79,6 +80,7 @@ export default function App() {
                 <Route path="/waitlist" element={<Waitlist />} />
                 <Route path="/groupes" element={<Groupes />} />
                 {/* CLIENTS & MARKETING */}
+                <Route path="/clients" element={<Clients />} />
                 <Route path="/marketing" element={<Marketing />} />
                 <Route path="/blacklist" element={<Blacklist />} />
                 {/* CANAUX & REVENUS */}

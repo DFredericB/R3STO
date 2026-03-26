@@ -25,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/waitlist',      icon: '⏳', labelKey: 'nav.waitlist', badge: 'waitlist', groupKey: 'operations' },
   { path: '/groupes',       icon: '👥', labelKey: 'nav.groups', badge: 'pending', groupKey: 'operations' },
   // CLIENTS & MARKETING
+  { path: '/clients',       icon: '👥', labelKey: 'nav.clients', groupKey: 'clients' },
   { path: '/marketing',     icon: '📣', labelKey: 'nav.campaigns', groupKey: 'clients' },
   { path: '/blacklist',     icon: '🚫', labelKey: 'nav.blacklist', groupKey: 'clients' },
   // CANAUX & REVENUS

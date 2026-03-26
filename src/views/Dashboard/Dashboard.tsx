@@ -1,10 +1,8 @@
 // ══════════════════════════════════════════════════
 //  R3STO — Vue Dashboard
-//  KPIs enrichis, résa rapide, briefing services
-//  Plus de ViewToolbar ici — QuickResa gère tout
+//  Résa rapide, agenda, KPIs, stats
 // ══════════════════════════════════════════════════
 
-import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useNavigate } from 'react-router-dom'
 import { QuickResa } from '../../components/ui/QuickResa'
@@ -18,50 +16,9 @@ function StatCard({ label, value, sub, color = 'var(--bl)' }: {
 }) {
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <div style={{ ...sectionTitle }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 28, fontWeight: 900, color, fontFamily: 'var(--fm)', letterSpacing: '-.02em' }}>
-        {value}
-      </div>
+      <div style={{ ...sectionTitle }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 900, color, fontFamily: 'var(--fm)', letterSpacing: '-.02em' }}>{value}</div>
       {sub && <div style={{ fontSize: 11, color: 'var(--t3)' }}>{sub}</div>}
-    </div>
-  )
-}
-
-// ── Barre de capacité ────────────────────────────
-function CapacityBar({ current, max, color }: { current: number; max: number; color: string }) {
-  const pct = max > 0 ? Math.min(100, Math.round(current / max * 100)) : 0
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-      <div style={{
-        flex: 1, height: 6, borderRadius: 3,
-        background: 'var(--surf3)', overflow: 'hidden',
-      }}>
-        <div style={{
-          width: `${pct}%`, height: '100%', borderRadius: 3,
-          background: pct > 85 ? 'var(--rd)' : pct > 60 ? 'var(--am)' : color,
-          transition: 'width .3s ease',
-        }} />
-      </div>
-      <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--t3)', minWidth: 30, textAlign: 'right' }}>
-        {pct}%
-      </span>
-    </div>
-  )
-}
-
-// ── Canal badge ──────────────────────────────────
-function CanalBadge({ label, count, icon }: { label: string; count: number; icon: string }) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 4,
-      padding: '3px 8px', borderRadius: 5,
-      background: 'var(--surf3)', fontSize: 11, color: 'var(--t2)',
-    }}>
-      <span>{icon}</span>
-      <span style={{ fontWeight: 700, fontFamily: 'var(--fm)' }}>{count}</span>
-      <span style={{ color: 'var(--t4)' }}>{label}</span>
     </div>
   )
 }
@@ -82,79 +39,17 @@ function BadgePill({ icon, label, color, bg, border }: {
   )
 }
 
-// ── Widget météo (simulation — à brancher sur API météo) ──
-function WeatherWidget({ t, terraceCvt, hasExterior }: {
-  t: (k: string) => string; terraceCvt: number; hasExterior: boolean
-}) {
-  // Simulation météo — en prod, brancher sur OpenWeatherMap / MeteoSwiss
-  const [weather] = useState(() => {
-    const conditions = [
-      { icon: '☀️', label: '24°C', ok: true },
-      { icon: '⛅', label: '18°C', ok: true },
-      { icon: '🌧️', label: '14°C', ok: false },
-      { icon: '🌦️', label: '16°C', ok: false },
-      { icon: '❄️', label: '2°C', ok: false },
-    ]
-    // Déterministe par date pour la démo
-    const idx = new Date().getDate() % conditions.length
-    return conditions[idx]
-  })
-
-  if (!hasExterior) return null
-
-  const terraceOk = weather.ok
-
+// ── Canal badge ──────────────────────────────────
+function CanalBadge({ label, count, icon }: { label: string; count: number; icon: string }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      padding: '10px 14px', borderRadius: 10,
-      background: terraceOk ? 'rgba(80,183,122,.06)' : 'rgba(220,80,80,.06)',
-      border: `1px solid ${terraceOk ? 'rgba(80,183,122,.2)' : 'rgba(220,80,80,.2)'}`,
+      display: 'flex', alignItems: 'center', gap: 4,
+      padding: '3px 8px', borderRadius: 5,
+      background: 'var(--surf3)', fontSize: 11, color: 'var(--t2)',
     }}>
-      {/* Météo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 22 }}>{weather.icon}</span>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>{weather.label}</div>
-          <div style={{ fontSize: 10, color: 'var(--t3)' }}>{t('dash.weather')}</div>
-        </div>
-      </div>
-
-      <div style={{ width: 1, height: 28, background: 'var(--border)', flexShrink: 0 }} />
-
-      {/* Statut terrasse */}
-      <div style={{ flex: 1 }}>
-        <div style={{
-          fontSize: 12, fontWeight: 700,
-          color: terraceOk ? 'var(--gn)' : 'var(--rd)',
-          display: 'flex', alignItems: 'center', gap: 4,
-        }}>
-          <span style={{
-            width: 7, height: 7, borderRadius: '50%',
-            background: terraceOk ? 'var(--gn)' : 'var(--rd)',
-            display: 'inline-block',
-          }} />
-          {terraceOk ? t('dash.terraceOpen') : t('dash.terraceClosed')}
-        </div>
-        {terraceCvt > 0 && (
-          <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 2 }}>
-            {terraceCvt} {t('dash.terraceCvt')}
-          </div>
-        )}
-      </div>
-
-      {/* Alerte rapatriement */}
-      {!terraceOk && terraceCvt > 0 && (
-        <div style={{
-          padding: '4px 10px', borderRadius: 6,
-          background: 'var(--rd)', color: '#fff',
-          fontSize: 11, fontWeight: 700,
-          animation: 'pulse 1.5s infinite',
-          display: 'flex', alignItems: 'center', gap: 4,
-        }}>
-          🚨 {t('dash.terraceAlert')}
-        </div>
-      )}
+      <span>{icon}</span>
+      <span style={{ fontWeight: 700, fontFamily: 'var(--fm)' }}>{count}</span>
+      <span style={{ color: 'var(--t4)' }}>{label}</span>
     </div>
   )
 }
@@ -181,7 +76,7 @@ export function Dashboard() {
     return nowM >= timeToMins(s.open) && nowM <= timeToMins(s.close)
   })
 
-  // ── Analytique enrichie ────────────────────────
+  // ── Analytique ────────────────────────────
   const activeTables = tables.filter(tb => tb.active)
   const maxCapacity = activeTables.reduce((s, tb) => s + tb.capMax, 0)
   const occupancyPct = maxCapacity > 0 ? Math.round(totalCvt / maxCapacity * 100) : 0
@@ -196,7 +91,7 @@ export function Dashboard() {
     email: dayResas.filter(r => r.canal === 'email').length,
   }
 
-  // Tables libres/occupées/bloquées/réserve
+  // Tables
   const occupiedTbls = new Set(dayResas.filter(r => r.s === 'arrived' || r.s === 'reserved').map(r => r.tbl))
   const blockedTables = tables.filter(tb => tb.blocked).length
   const heldTables = activeTables.filter(tb => tb.held && !occupiedTbls.has(tb.n)).length
@@ -210,21 +105,6 @@ export function Dashboard() {
   const allergies = dayResas.filter(r => r.allergie)
   const babies = dayResas.reduce((s, r) => s + r.bebe, 0)
   const pmrs = dayResas.reduce((s, r) => s + r.pmr, 0)
-
-  // Terrasse — résas sur tables extérieures
-  const exteriorSalles = salles.filter(s => s.exterior && s.active)
-  const exteriorTableNames = tables
-    .filter(tb => tb.active && exteriorSalles.some(s => s.id === tb.salle))
-    .map(tb => tb.n)
-  const terraceCvt = dayResas
-    .filter(r => exteriorTableNames.includes(r.tbl) && (r.s === 'arrived' || r.s === 'reserved'))
-    .reduce((s, r) => s + r.c, 0)
-
-  // Prochaines résas
-  const nextResas = dayResas
-    .filter(r => r.s === 'reserved')
-    .sort((a, b) => a.t < b.t ? -1 : 1)
-    .slice(0, 6)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - var(--hh))', overflow: 'hidden' }}>
@@ -240,7 +120,6 @@ export function Dashboard() {
         <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>
           {t('dash.title')}
         </div>
-
         {currentService && (
           <span style={{
             fontSize: 11, fontWeight: 700, color: currentService.color,
@@ -250,19 +129,17 @@ export function Dashboard() {
             ● {currentService.icon} {currentService.name} {t('dash.inProgress')}
           </span>
         )}
-
         {!isToday && (
           <span style={{
             fontSize: 11, fontWeight: 700, color: 'var(--am)',
-            padding: '2px 8px', borderRadius: 5,
-            background: 'var(--ap)',
+            padding: '2px 8px', borderRadius: 5, background: 'var(--ap)',
           }}>
             📅 {fmtDate(activeDate)}
           </span>
         )}
       </div>
 
-      {/* ── Résa rapide — toujours visible, jamais scrollé ── */}
+      {/* ── Résa rapide — toujours visible ── */}
       <div style={{ padding: '12px 18px', borderBottom: '1px solid var(--border)', background: 'var(--surf)', flexShrink: 0 }}>
         <QuickResa onOpenFullModal={() => navigate('/reservations?new=1')} />
       </div>
@@ -270,37 +147,16 @@ export function Dashboard() {
       {/* ── Corps scrollable ── */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
 
-        {/* KPIs — 2 rangées */}
+        {/* KPIs */}
         <div style={{ padding: '16px 18px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-          <StatCard
-            label={t('dash.reservations')}
-            value={dayResas.length}
-            sub={`${totalCvt} ${t('dash.covers')}`}
-            color="var(--bl)"
-          />
-          <StatCard
-            label={t('dash.arrived')}
-            value={`${arrived.length + done.length}`}
-            sub={`${Math.round((arrived.length + done.length) / Math.max(dayResas.length, 1) * 100)}% ${t('dash.ofDay')}`}
-            color="var(--gn)"
-          />
-          <StatCard
-            label={t('dash.occupancy')}
-            value={`${occupancyPct}%`}
-            sub={`${totalCvt}/${maxCapacity} ${t('dash.capacity')}`}
-            color={occupancyPct > 85 ? 'var(--rd)' : occupancyPct > 60 ? 'var(--am)' : 'var(--bl)'}
-          />
-          <StatCard
-            label={t('dash.revenue')}
-            value={`${estRevenue.toLocaleString()}`}
-            sub={`${avgTicket} CHF ${t('dash.avgTicket')}`}
-            color="var(--gn)"
-          />
+          <StatCard label={t('dash.reservations')} value={dayResas.length} sub={`${totalCvt} ${t('dash.covers')}`} color="var(--bl)" />
+          <StatCard label={t('dash.arrived')} value={`${arrived.length + done.length}`} sub={`${Math.round((arrived.length + done.length) / Math.max(dayResas.length, 1) * 100)}% ${t('dash.ofDay')}`} color="var(--gn)" />
+          <StatCard label={t('dash.occupancy')} value={`${occupancyPct}%`} sub={`${totalCvt}/${maxCapacity} ${t('dash.capacity')}`} color={occupancyPct > 85 ? 'var(--rd)' : occupancyPct > 60 ? 'var(--am)' : 'var(--bl)'} />
+          <StatCard label={t('dash.revenue')} value={`${estRevenue.toLocaleString()}`} sub={`${avgTicket} CHF ${t('dash.avgTicket')}`} color="var(--gn)" />
         </div>
 
-        {/* Indicateurs opérationnels — badges compacts */}
+        {/* Badges opérationnels */}
         <div style={{ padding: '0 18px 14px', display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          {/* Tables */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 5,
             padding: '5px 10px', borderRadius: 7,
@@ -323,31 +179,14 @@ export function Dashboard() {
               <span style={{ fontSize: 10, color: 'var(--t4)' }}>🚫 bloquées</span>
             </>)}
           </div>
-
-          {/* No-shows */}
           <BadgePill icon="🚫" label={`${noshows.length} ${t('dash.noshows')}`} color="var(--rd)" bg="rgba(220,80,80,.08)" border="rgba(220,80,80,.2)" />
-
-          {/* Groupes (6+) */}
           <BadgePill icon="👥" label={`${groups.length} ${t('dash.groups')}`} color="var(--bl)" bg="var(--bp)" border="var(--bl)" />
-
-          {/* Waitlist */}
           <BadgePill icon="⏳" label={`${waitlist.length} ${t('dash.waitlist')}`} color="var(--am)" bg="var(--ap)" border="var(--ab)" />
-
-          {/* VIPs */}
           <BadgePill icon="⭐" label={`${vips.length} ${t('dash.vips')}`} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" />
-
-          {/* Allergies */}
           <BadgePill icon="⚠️" label={`${allergies.length} ${t('dash.allergies')}`} color="var(--am)" bg="var(--ap)" border="var(--ab)" />
-
-          {/* Bébés */}
           <BadgePill icon="👶" label={`${babies} ${t('dash.babies')}`} color="var(--t2)" bg="var(--surf3)" border="var(--border)" />
-
-          {/* PMR */}
           <BadgePill icon="♿" label={`${pmrs} ${t('dash.pmr')}`} color="var(--t2)" bg="var(--surf3)" border="var(--border)" />
-
           <div style={{ flex: 1 }} />
-
-          {/* Canaux */}
           <div style={{ display: 'flex', gap: 4 }}>
             <CanalBadge label={t('canal.telephone')} count={canalCounts.telephone} icon="📞" />
             <CanalBadge label={t('canal.walkin')} count={canalCounts.walkin} icon="🚶" />
@@ -356,14 +195,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Météo + Terrasse */}
-        {exteriorSalles.length > 0 && (
-          <div style={{ padding: '0 18px 14px' }}>
-            <WeatherWidget t={t} terraceCvt={terraceCvt} hasExterior={exteriorSalles.length > 0} />
-          </div>
-        )}
-
-        {/* ── AGENDA COMPACT — prochains créneaux ── */}
+        {/* ── AGENDA — créneaux du jour ── */}
         <div style={{ padding: '0 18px 14px' }}>
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             <div style={{ ...sectionTitle, padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -439,14 +271,15 @@ export function Dashboard() {
                             {slotResas.map(r => {
                               const st = STATUS[r.s as keyof typeof STATUS]
                               return (
-                                <div key={r.id}
+                                <button key={r.id} type="button"
                                   onClick={() => navigate(`/reservations?edit=${r.id}`)}
                                   style={{
                                     padding: '6px 10px', borderRadius: 7, cursor: 'pointer',
                                     background: st?.bg || 'var(--surf2)',
                                     border: `1.5px solid ${st?.border || 'var(--border)'}`,
-                                    display: 'flex', alignItems: 'center', gap: 5, fontSize: 13,
-                                    minHeight: 36, touchAction: 'manipulation',
+                                    display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13,
+                                    minHeight: 40, touchAction: 'manipulation',
+                                    fontFamily: 'inherit', textAlign: 'left',
                                   }}>
                                   <span style={{ fontSize: 10 }}>{st?.icon}</span>
                                   <span style={{ fontWeight: 700, color: st?.hex || 'var(--text)' }}>
@@ -454,7 +287,7 @@ export function Dashboard() {
                                   </span>
                                   <span style={{ fontFamily: 'var(--fm)', color: 'var(--t2)', fontWeight: 700 }}>{r.c}p</span>
                                   {r.tbl && <span style={{ fontSize: 10, fontFamily: 'var(--fm)', color: 'var(--t3)', padding: '0 4px', background: 'rgba(68,128,216,.08)', borderRadius: 3 }}>{r.tbl}</span>}
-                                </div>
+                                </button>
                               )
                             })}
                           </div>
@@ -468,14 +301,12 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* ── ANALYTIQUES ── */}
+        {/* ── STATS — 2x2 grille ── */}
         <div style={{ padding: '0 18px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
 
           {/* Distribution horaire */}
           <div className="card">
-            <div style={{ ...sectionTitle, marginBottom: 10 }}>
-              {t('dash.hourlyDistribution')}
-            </div>
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.hourlyDistribution')}</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 80 }}>
               {(() => {
                 const hours: Record<string, number> = {}
@@ -487,16 +318,13 @@ export function Dashboard() {
                 const maxH = Math.max(...Object.values(hours), 1)
                 return Object.entries(hours).map(([h, cnt]) => (
                   <div key={h} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                    <div
-                      title={`${h}h: ${cnt} résa${cnt > 1 ? 's' : ''}`}
-                      style={{
-                        width: '100%', minHeight: 3,
-                        height: `${Math.round(cnt / maxH * 64)}px`,
-                        borderRadius: '3px 3px 0 0',
-                        background: cnt > 0 ? 'var(--bl)' : 'var(--surf3)',
-                        transition: 'height .3s ease',
-                      }}
-                    />
+                    <div title={`${h}h: ${cnt} résa${cnt > 1 ? 's' : ''}`} style={{
+                      width: '100%', minHeight: 3,
+                      height: `${Math.round(cnt / maxH * 64)}px`,
+                      borderRadius: '3px 3px 0 0',
+                      background: cnt > 0 ? 'var(--bl)' : 'var(--surf3)',
+                      transition: 'height .3s ease',
+                    }} />
                     <span style={{ fontSize: 8, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>{h}</span>
                   </div>
                 ))
@@ -506,9 +334,7 @@ export function Dashboard() {
 
           {/* Répartition par salle */}
           <div className="card">
-            <div style={{ ...sectionTitle, marginBottom: 10 }}>
-              {t('dash.roomBreakdown')}
-            </div>
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.roomBreakdown')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {salles.filter(s => s.active).map(salle => {
                 const salleTableNames = tables.filter(tb => tb.salle === salle.id && tb.active).map(tb => tb.n)
@@ -520,9 +346,7 @@ export function Dashboard() {
                   <div key={salle.id}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
                       <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>{salle.name}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>
-                        {salleCvt}/{salleMax}p · {pct}%
-                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>{salleCvt}/{salleMax}p · {pct}%</span>
                     </div>
                     <div style={{ height: 5, borderRadius: 3, background: 'var(--surf3)', overflow: 'hidden' }}>
                       <div style={{
@@ -539,9 +363,7 @@ export function Dashboard() {
 
           {/* Tendance 7 jours */}
           <div className="card">
-            <div style={{ ...sectionTitle, marginBottom: 10 }}>
-              {t('dash.weekTrend')}
-            </div>
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.weekTrend')}</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 70 }}>
               {(() => {
                 const days: { label: string; date: string; count: number; cvt: number }[] = []
@@ -559,21 +381,17 @@ export function Dashboard() {
                   return (
                     <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                       <span style={{ fontSize: 9, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>{d.count}</span>
-                      <div
-                        title={`${d.date}: ${d.count} résas, ${d.cvt} couverts`}
-                        style={{
-                          width: '100%', minHeight: 4,
-                          height: `${Math.round(d.count / maxC * 48)}px`,
-                          borderRadius: 3,
-                          background: isActive ? 'var(--bl)' : d.count > 0 ? 'var(--bp)' : 'var(--surf3)',
-                          border: isActive ? '1px solid var(--bl)' : 'none',
-                          transition: 'height .3s ease',
-                        }}
-                      />
+                      <div title={`${d.date}: ${d.count} résas, ${d.cvt} couverts`} style={{
+                        width: '100%', minHeight: 4,
+                        height: `${Math.round(d.count / maxC * 48)}px`,
+                        borderRadius: 3,
+                        background: isActive ? 'var(--bl)' : d.count > 0 ? 'var(--bp)' : 'var(--surf3)',
+                        border: isActive ? '1px solid var(--bl)' : 'none',
+                        transition: 'height .3s ease',
+                      }} />
                       <span style={{
                         fontSize: 9, fontWeight: isActive ? 800 : 500,
-                        color: isActive ? 'var(--bl)' : 'var(--t4)',
-                        fontFamily: 'var(--fm)',
+                        color: isActive ? 'var(--bl)' : 'var(--t4)', fontFamily: 'var(--fm)',
                       }}>{d.label}</span>
                     </div>
                   )
@@ -584,9 +402,7 @@ export function Dashboard() {
 
           {/* Canaux — version visuelle */}
           <div className="card">
-            <div style={{ ...sectionTitle, marginBottom: 10 }}>
-              {t('dash.channels')}
-            </div>
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.channels')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {([
                 { key: 'telephone' as const, icon: CANAUX.telephone.icon, label: t(CANAUX.telephone.label), color: CANAUX.telephone.hex },
@@ -617,236 +433,6 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Services du jour — avec barre de capacité */}
-        <div style={{ padding: '0 18px 16px' }}>
-          <div style={{ ...sectionTitle, fontSize: 12, marginBottom: 10 }}>
-            {t('dash.services')}
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            {activeServices.map(svc => {
-              const svcResas = dayResas.filter(r => r.svc === svc.name.toLowerCase())
-              const svcCvt = svcResas.reduce((s, r) => s + r.c, 0)
-              const openM = timeToMins(svc.open)
-              const closeM = timeToMins(svc.close)
-              const isActive = nowM >= openM && nowM <= closeM
-              const isDone = nowM > closeM
-
-              return (
-                <div
-                  key={svc.id}
-                  className="card"
-                  style={{
-                    flex: 1, cursor: 'pointer',
-                    border: isActive ? `1.5px solid ${svc.color}` : '1px solid var(--border)',
-                    background: isActive ? `${svc.color}15` : 'var(--surf2)',
-                  }}
-                  onClick={() => navigate('/grille')}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 18 }}>{svc.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{svc.name}</span>
-                    {isActive && (
-                      <span style={{ fontSize: 9, fontWeight: 700, color: svc.color, background: `${svc.color}20`, padding: '1px 5px', borderRadius: 4 }}>
-                        ● LIVE
-                      </span>
-                    )}
-                    <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)', marginLeft: 'auto' }}>
-                      {svc.open} – {svc.close}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', gap: 16 }}>
-                    <div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: isDone ? 'var(--t3)' : 'var(--text)', fontFamily: 'var(--fm)' }}>
-                        {svcResas.length}
-                      </div>
-                      <div style={{ fontSize: 10, color: 'var(--t3)' }}>{t('dash.reservationsLabel')}</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: isDone ? 'var(--t3)' : 'var(--text)', fontFamily: 'var(--fm)' }}>
-                        {svcCvt}p
-                      </div>
-                      <div style={{ fontSize: 10, color: 'var(--t3)' }}>{t('dash.coversLabel')}</div>
-                    </div>
-                    <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                      <div style={{ fontSize: 11, color: 'var(--t4)' }}>{t('dash.lastOrder')}</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: isDone ? 'var(--t3)' : 'var(--text)', fontFamily: 'var(--fm)' }}>
-                        {svc.lastOrder}
-                      </div>
-                    </div>
-                  </div>
-                  <CapacityBar current={svcCvt} max={svc.maxCouverts || maxCapacity} color={svc.color} />
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* ══ AGENDA — vue verticale par créneau ══ */}
-        <div style={{ padding: '0 18px 16px' }}>
-          <div style={{ ...sectionTitle, fontSize: 12, marginBottom: 8 }}>📅 Agenda du jour</div>
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            {(() => {
-              const now = nowMins()
-              const svcSlots = activeServices.map(s => ({
-                label: s.name,
-                open: timeToMins(s.open),
-                close: timeToMins(s.close),
-                color: s.color || 'var(--bl)',
-              }))
-
-              // Generate 30min slots
-              const allSlots: number[] = []
-              svcSlots.forEach(svc => {
-                for (let m = svc.open; m < svc.close; m += 30) {
-                  if (!allSlots.includes(m)) allSlots.push(m)
-                }
-              })
-              allSlots.sort((a, b) => a - b)
-
-              // Group resas by slot
-              const resaBySlot: Record<number, typeof dayResas> = {}
-              dayResas.forEach(r => {
-                const parts = r.t.split(/[h:]/)
-                const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-                const slotKey = Math.floor(m / 30) * 30
-                if (!resaBySlot[slotKey]) resaBySlot[slotKey] = []
-                resaBySlot[slotKey].push(r)
-              })
-
-              const statusBg: Record<string, string> = {
-                arrived: 'rgba(60,200,112,.12)', reserved: 'rgba(68,128,216,.1)',
-                done: 'rgba(128,128,128,.08)', noshow: 'rgba(220,80,80,.1)', waitlist: 'rgba(232,165,48,.1)',
-              }
-              const statusTxt: Record<string, string> = {
-                arrived: 'var(--gn)', reserved: 'var(--bl)',
-                done: 'var(--t4)', noshow: 'var(--rd)', waitlist: 'var(--am)',
-              }
-
-              return (
-                <div style={{ maxHeight: 320, overflowY: 'auto' }}>
-                  {allSlots.map(slotMin => {
-                    const hr = Math.floor(slotMin / 60)
-                    const mn = slotMin % 60
-                    const label = `${hr}h${String(mn).padStart(2, '0')}`
-                    const isNow = now >= slotMin && now < slotMin + 30
-                    const slotResas = resaBySlot[slotMin] || []
-                    const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
-                    // Service header
-                    const svc = svcSlots.find(s => slotMin >= s.open && slotMin < s.close)
-                    const isFirstSlot = svc && slotMin === svc.open
-
-                    return (
-                      <div key={slotMin}>
-                        {isFirstSlot && svc && (
-                          <div style={{
-                            padding: '5px 10px', background: svc.color + '15',
-                            borderBottom: '1px solid var(--border)',
-                            fontSize: 10, fontWeight: 800, color: svc.color,
-                            textTransform: 'uppercase', letterSpacing: .5,
-                          }}>
-                            {svc.label}
-                          </div>
-                        )}
-                        <div style={{
-                          display: 'flex', gap: 10, borderBottom: '1px solid var(--border)',
-                          background: isNow ? 'rgba(220,80,80,.05)' : 'transparent',
-                          minHeight: 34,
-                        }}>
-                          {/* Time column */}
-                          <div style={{
-                            width: 52, flexShrink: 0, padding: '6px 6px', textAlign: 'right',
-                            fontSize: 11, fontWeight: 800, fontFamily: 'var(--fm)',
-                            color: isNow ? 'var(--rd)' : 'var(--t3)',
-                            borderRight: isNow ? '3px solid var(--rd)' : '3px solid var(--border)',
-                          }}>
-                            {label}
-                            {slotCvt > 0 && <div style={{ fontSize: 9, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
-                          </div>
-                          {/* Resas */}
-                          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 4, padding: '4px 6px 4px 0', alignItems: 'center' }}>
-                            {slotResas.length === 0 && (
-                              <span style={{ fontSize: 10, color: 'var(--t4)' }}>—</span>
-                            )}
-                            {slotResas.map(r => (
-                              <div key={r.id}
-                                onClick={() => navigate(`/reservations?edit=${r.id}`)}
-                                style={{
-                                  padding: '3px 8px', borderRadius: 6, cursor: 'pointer',
-                                  background: statusBg[r.s] || 'var(--surf2)',
-                                  border: `1px solid ${(statusTxt[r.s] || 'var(--bl)')}25`,
-                                  display: 'flex', alignItems: 'center', gap: 4,
-                                }}>
-                                <span style={{ fontSize: 10, fontWeight: 700, color: statusTxt[r.s] || 'var(--bl)' }}>
-                                  {r.n?.split(' ')[0]}
-                                </span>
-                                <span style={{ fontSize: 9, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>
-                                  {r.c}p
-                                </span>
-                                {r.tbl && <span style={{ fontSize: 9, color: 'var(--t4)' }}>{r.tbl}</span>}
-                                {r.canal && CANAUX[r.canal] && (
-                                  <span style={{ fontSize: 8, opacity: .7 }}>{CANAUX[r.canal].icon}</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })()}
-          </div>
-        </div>
-
-        {/* Prochaines réservations */}
-        <div style={{ padding: '0 18px 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ ...sectionTitle, fontSize: 12 }}>
-              {t('dash.nextResas')}
-            </div>
-            <button
-              className="btn btn-secondary"
-              style={{ fontSize: 11 }}
-              onClick={() => navigate('/reservations')}
-            >
-              {t('dash.viewAll')}
-            </button>
-          </div>
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            {nextResas.length === 0 ? (
-              <div style={{ padding: 24, textAlign: 'center', color: 'var(--t3)', fontSize: 13 }}>
-                {t('dash.noResa')}
-              </div>
-            ) : (
-              nextResas.map((r, i) => (
-                <div
-                  key={r.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '10px 14px',
-                    borderBottom: i < nextResas.length - 1 ? '1px solid var(--border)' : 'none',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => navigate(`/reservations?edit=${r.id}`)}
-                >
-                  <div style={{ fontFamily: 'var(--fm)', fontSize: 14, fontWeight: 900, color: 'var(--text)', width: 44, flexShrink: 0 }}>
-                    {r.t.replace('h',':')}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {r.statut === 2 && '⭐ '}{r.n}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--t3)' }}>
-                      {r.c}p{r.bebe > 0 ? ` 👶${r.bebe}` : ''}{r.pmr > 0 ? ` ♿${r.pmr}` : ''}{r.allergie ? ' ⚠️' : ''} · {r.tbl || '—'} · {r.svc}
-                    </div>
-                  </div>
-                  <span className={`pill pill-${r.s}`}>{t(`status.${r.s}`)}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
       </div>
     </div>
   )

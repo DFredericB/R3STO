@@ -19,7 +19,7 @@ import { useToast } from '../../components/ui/Toast'
 import { ViewToolbar } from '../../components/ui/ViewToolbar'
 import { useT } from '../../i18n/useTranslation'
 import { STATUS } from '../../utils/design'
-import { todayISO, timeToMins, nowMins } from '../../utils/date'
+import { todayISO, timeToMins, nowMins, shiftISO } from '../../utils/date'
 import {
   isOccupying, tblMatchesTable, getOccupiedTableIds,
   iaPlacement, getFreeTables, getFreeCombos
@@ -479,6 +479,9 @@ export function Plan() {
   const [showOrphans, setShowOrphans] = useState(false)
   const orphansAutoShownRef = useRef(false)
   const [popup, setPopup] = useState<{ resa: any; table?: Table; x: number; y: number; flip: boolean } | null>(null)
+  const [moveMode, setMoveMode] = useState(false)
+  const [moveDate, setMoveDate] = useState('')
+  const [moveSvc, setMoveSvc] = useState('')
   const svgRef = useRef<SVGSVGElement>(null)
 
   // Init salle
@@ -691,7 +694,7 @@ export function Plan() {
   // Clic sur table libre → ouvre nouvelle résa pré-remplie
   const handleSvgClick = useCallback((e: React.MouseEvent) => {
     // Fermer le popup si on clique ailleurs
-    if (popup) { setPopup(null); return }
+    if (popup) { setPopup(null); setMoveMode(false); return }
 
     const target = e.target as Element
 
@@ -826,7 +829,7 @@ export function Plan() {
 
         return createPortal(
           <>
-            <div onClick={() => setPopup(null)} style={{ position: 'fixed', inset: 0, zIndex: 9998 }} />
+            <div onClick={() => { setPopup(null); setMoveMode(false) }} style={{ position: 'fixed', inset: 0, zIndex: 9998 }} />
             <div onClick={e => e.stopPropagation()} style={{
               position: 'fixed',
               left: Math.min(popup.x - 100, window.innerWidth - 220),
@@ -851,13 +854,54 @@ export function Plan() {
                   <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 2 }}>{r.tbl}</div>
                 </div>
                 <button onClick={() => { setPopup(null); navigate(`/reservations?edit=${r.id}&from=plan`) }} style={btnStyle('#7bb8ff')}>✏️ Modifier</button>
-                {(r.s === 'reserved' || r.s === 'arrived') && (
+                {(r.s === 'reserved' || r.s === 'arrived') && (<>
                   <button onClick={() => {
                     setPopup(null)
                     const newTbl = prompt(`Réassigner ${r.nom || r.n} (${r.c}p) → nouvelle table :`)
                     if (newTbl && newTbl.trim()) { updateResa(r.id, { tbl: newTbl.trim() }); toast(`Réassigné → ${newTbl.trim()} ✓`, 'success') }
                   }} style={btnStyle('#e8a530')}>↔ Réassigner</button>
-                )}
+                  {/* Déplacer — panneau date/service */}
+                  {!moveMode ? (
+                    <button onClick={() => { setMoveMode(true); setMoveDate(r.date || activeDate); setMoveSvc(r.svc || '') }}
+                      style={btnStyle('#9f7aea')}>📅 Déplacer</button>
+                  ) : (
+                    <div style={{ padding: '8px 10px', background: 'rgba(159,122,234,.08)', borderRadius: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: '#9f7aea', textTransform: 'uppercase', letterSpacing: .5 }}>Déplacer vers</div>
+                      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                        <button onClick={() => setMoveDate(shiftISO(moveDate, -1))} style={{ ...btnStyle('#9f7aea'), padding: '2px 6px', fontSize: 12 }}>◀</button>
+                        <input type="date" value={moveDate} onChange={e => setMoveDate(e.target.value)}
+                          style={{ flex: 1, fontSize: 11, fontWeight: 700, padding: '3px 6px', borderRadius: 5, border: '1.5px solid rgba(159,122,234,.3)', background: 'var(--surf2)', color: 'var(--text)', fontFamily: 'var(--fm)' }} />
+                        <button onClick={() => setMoveDate(shiftISO(moveDate, 1))} style={{ ...btnStyle('#9f7aea'), padding: '2px 6px', fontSize: 12 }}>▶</button>
+                      </div>
+                      <div style={{ display: 'flex', gap: 3 }}>
+                        {activeServices.map(s => (
+                          <button key={s.id} onClick={() => setMoveSvc(s.name.toLowerCase())}
+                            style={{
+                              fontSize: 10, fontWeight: moveSvc === s.name.toLowerCase() ? 800 : 600,
+                              padding: '3px 8px', borderRadius: 5, cursor: 'pointer',
+                              border: `1.5px solid ${moveSvc === s.name.toLowerCase() ? s.color : 'var(--border)'}`,
+                              background: moveSvc === s.name.toLowerCase() ? `${s.color}20` : 'transparent',
+                              color: moveSvc === s.name.toLowerCase() ? s.color : 'var(--t3)',
+                            }}>
+                            {s.icon} {s.name}
+                          </button>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <button onClick={() => {
+                          const targetSvc = activeServices.find(s => s.name.toLowerCase() === moveSvc)
+                          setPopup(null); setMoveMode(false)
+                          updateResa(r.id, {
+                            date: moveDate, svc: moveSvc, s: 'reserved',
+                            t: targetSvc ? targetSvc.open.replace(':', 'h') : r.t,
+                          })
+                          toast(`Déplacé → ${moveDate} ${moveSvc} ✓`, 'success')
+                        }} style={{ ...btnStyle('#9f7aea'), flex: 1, fontWeight: 800 }}>✓ Déplacer</button>
+                        <button onClick={() => setMoveMode(false)} style={{ ...btnStyle('var(--t3)'), padding: '2px 8px' }}>✕</button>
+                      </div>
+                    </div>
+                  )}
+                </>)}
                 {r.s === 'reserved' && (
                   <>
                     <button onClick={() => { setPopup(null); setResaStatus(r.id, 'arrived') }} style={btnStyle('var(--gn)')}>✓ Arrivé</button>

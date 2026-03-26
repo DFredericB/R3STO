@@ -50,6 +50,7 @@ const translations: Record<string, Record<Lang, string>> = {
   'nav.waitlist': { FR: "Liste d'attente", DE: 'Warteliste', IT: 'Lista d\'attesa', EN: 'Waitlist' },
   'nav.groups': { FR: 'Groupes', DE: 'Gruppen', IT: 'Gruppi', EN: 'Groups' },
   'nav.clientsMarketing': { FR: 'CLIENTS & MARKETING', DE: 'KUNDEN & MARKETING', IT: 'CLIENTI & MARKETING', EN: 'CLIENTS & MARKETING' },
+  'nav.clients': { FR: 'Fichier Clients', DE: 'Kundendatei', IT: 'Clienti', EN: 'Clients' },
   'nav.campaigns': { FR: 'Campagnes', DE: 'Kampagnen', IT: 'Campagne', EN: 'Campaigns' },
   'nav.blacklist': { FR: 'Clients bloqués', DE: 'Gesperrte Kunden', IT: 'Clienti bloccati', EN: 'Blocked clients' },
   'nav.channelsRevenue': { FR: 'CANAUX & REVENUS', DE: 'KANÄLE & UMSATZ', IT: 'CANALI & ENTRATE', EN: 'CHANNELS & REVENUE' },

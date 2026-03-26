@@ -195,6 +195,29 @@ export interface OptionsData {
   places_pmr: number
 }
 
+// ── Client (fiche CRM) ──────────────────────────────
+export interface Client {
+  id: string
+  nom: string
+  prenom: string
+  tel: string
+  email: string
+  statut: 0 | 1 | 2 | 3     // 0=standard, 1=régulier, 2=VIP, 3=surveiller
+  allergies: string           // texte libre
+  notes: string               // préférences, commentaires
+  langue: string              // 'fr', 'en', 'de', 'it'
+  entreprise: string
+  tags: string[]              // ex: ['terrasse', 'vin-rouge', 'anniversaire']
+  tablePref: string           // table préférée
+  createdAt: number           // timestamp
+  lastVisit: string           // date ISO dernière visite
+  totalVisits: number
+  totalCouverts: number
+  totalNoshows: number
+  blacklisted: boolean
+  blacklistReason: string
+}
+
 // ── État global de l'app ───────────────────────────
 export interface AppState {
   resas: Resa[]
@@ -206,6 +229,7 @@ export interface AppState {
   options: OptionsData
   users: User[]
   fermetures: Fermeture[]
+  clients: Client[]
   // Navigation
   curView: string
   activeDate: string  // ISO YYYY-MM-DD
