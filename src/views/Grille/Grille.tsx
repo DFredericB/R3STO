@@ -39,7 +39,7 @@ const actionBtn = (border: string, bg: string, color: string): React.CSSProperti
 // ── Ligne de table ───────────────────────────────
 function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggleExpand,
   onMarkArrived, onMarkNoshow, onMarkDone, onCancel, onRestore,
-  onClick, onPlaceResa, onPlaceCombo, onUncombine, onStartMove, onMoveTarget,
+  onClick, onPlaceResa, onPlaceCombo, onUncombine, onStartMove, onMoveTarget, salleColor,
 }: {
   table: Table
   resas: Resa[]
@@ -59,6 +59,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
   onUncombine: (tableId: string, resaId: string) => void
   onStartMove: (resa: Resa) => void
   onMoveTarget: (table: Table) => void
+  salleColor?: string
 }) {
   const { t } = useT()
   const [showComboMenu, setShowComboMenu] = useState(false)
@@ -251,10 +252,12 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
         const badgeW = 64 // largeur uniforme pour aligner toutes les lignes
         return (
       <div style={{ display: 'flex', minHeight: lineHeight }}>
-        {/* Bande combo dorée */}
-        {isInCombo && (
+        {/* Bande salle colorée (ou combo dorée) */}
+        {isInCombo ? (
           <div style={{ width: 3, flexShrink: 0, background: 'linear-gradient(180deg, #ffd666, #e8a530)', borderRadius: '9px 0 0 9px' }} />
-        )}
+        ) : salleColor ? (
+          <div style={{ width: 3, flexShrink: 0, background: salleColor, borderRadius: '9px 0 0 9px', opacity: .6 }} />
+        ) : null}
 
         {/* ── Badge table (cliquable → dropdown actions seulement si occupée) ── */}
         <div
@@ -545,7 +548,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
 // ── Colonne service ─────────────────────────────
 function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
   onMarkArrived, onMarkNoshow, onMarkDone, onCancel, onRestore,
-  onClickResa, onPlaceResa, onPlaceCombo, onUncombine, onStartMove, onMoveTarget, onMoveIA,
+  onClickResa, onPlaceResa, onPlaceCombo, onUncombine, onStartMove, onMoveTarget, onMoveIA, salleColorMap,
 }: {
   service: Service
   tables: Table[]
@@ -565,6 +568,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
   onStartMove: (resa: Resa) => void
   onMoveTarget: (table: Table, targetSvc: string) => void
   onMoveIA: (targetSvc?: string) => void
+  salleColorMap: Record<string, string>
 }) {
   const { t } = useT()
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -711,6 +715,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                     onUncombine={onUncombine}
                     onStartMove={onStartMove}
                     onMoveTarget={(tbl) => onMoveTarget(tbl, svcName)}
+                    salleColor={salleColorMap[comboTable.salle] || undefined}
                   />
                 )
               }
@@ -746,6 +751,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                 onUncombine={onUncombine}
                 onStartMove={onStartMove}
                 onMoveTarget={onMoveTarget}
+                salleColor={salleColorMap[table.salle] || undefined}
               />
             )
           }
@@ -770,6 +776,13 @@ export function Grille() {
 
   const activeServices = services.filter(s => s.active)
   const dayResas = resas.filter(r => r.date === activeDate)
+
+  // Map salle name → color pour bandes colorées
+  const salleColorMap = useMemo(() => {
+    const m: Record<string, string> = {}
+    salles.forEach(s => { if (s.active && s.color) m[s.name] = s.color })
+    return m
+  }, [salles])
 
   const displayServices = svcFilter === 'tous'
     ? activeServices
@@ -1032,6 +1045,10 @@ export function Grille() {
                           )}
                           {slotResas.map(r => {
                             const st = STATUS[r.s as keyof typeof STATUS]
+                            // Couleur de salle via la table assignée
+                            const rTbl = r.tbl ? tables.find(tb => tb.n === r.tbl || r.tbl?.split('+').some(tn => tn.trim() === tb.n)) : undefined
+                            const rSalle = rTbl ? salles.find(sl => sl.name === rTbl.salle) : undefined
+                            const salleCol = rSalle?.color || '#4480d8'
                             return (
                               <div key={r.id}
                                 onClick={() => navigate(`/reservations?edit=${r.id}&from=grille`)}
@@ -1039,6 +1056,7 @@ export function Grille() {
                                   padding: '5px 10px', borderRadius: 7, cursor: 'pointer',
                                   background: st?.bg || 'var(--surf2)',
                                   border: `1px solid ${st?.border || 'var(--border)'}`,
+                                  borderLeft: `3px solid ${salleCol}`,
                                   display: 'flex', alignItems: 'center', gap: 5,
                                 }}>
                                 <span style={{ fontSize: 11 }}>{st?.icon}</span>
@@ -1046,7 +1064,7 @@ export function Grille() {
                                   {r.nom || r.n?.split(' ')[0] || '?'}
                                 </span>
                                 <span style={{ fontSize: 12, fontFamily: 'var(--fm)', color: 'var(--t2)', fontWeight: 700 }}>{r.c}p</span>
-                                {r.tbl && <span style={{ fontSize: 11, fontFamily: 'var(--fm)', color: 'var(--t3)', fontWeight: 600, padding: '1px 5px', background: 'rgba(68,128,216,.1)', borderRadius: 4 }}>{r.tbl}</span>}
+                                {r.tbl && <span style={{ fontSize: 11, fontFamily: 'var(--fm)', color: salleCol, fontWeight: 600, padding: '1px 5px', background: `${salleCol}18`, borderRadius: 4 }}>{r.tbl}</span>}
                                 {r.statut === 2 && <span>⭐</span>}
                                 {r.allergie && <span>⚠️</span>}
                                 {r.bebe > 0 && <span style={{ fontSize: 11 }}>👶</span>}
@@ -1094,6 +1112,7 @@ export function Grille() {
               onStartMove={handleStartMove}
               onMoveTarget={(tbl, svc) => handleMoveTarget(tbl, svc)}
               onMoveIA={handleMoveIA}
+              salleColorMap={salleColorMap}
             />
           ))}
         </div>

@@ -205,67 +205,84 @@ function planTableSvg(
   const fsC = (tRef * 0.167).toFixed(1)
 
   if (resaInfo) {
-    // Table occupée (solo) — layout optimisé :
-    // INTÉRIEUR : N° table (gros) + Nom client + couverts
-    // AU-DESSUS (hors cadre) : 🤖/✋  📞/🚶/🌐  HHhMM  🆕⭐⚠👶♿
+    // Table occupée (solo) — layout adaptatif selon taille
+    // GRANDES TABLES : tout à l'intérieur (N° + nom + heure·cvt + mode/canal + badges)
+    // PETITES RONDES : N°+nom+cvt intérieur, reste au-dessus
 
-    const isSmallRound = t.shape === 'round_sm'
-    const fsNum = (tRef * 0.30).toFixed(1)
-    const fsNom = (tRef * 0.20).toFixed(1)
-    const fsInf = (tRef * 0.16).toFixed(1)
-    const fsBdg = (tRef * 0.14).toFixed(1)
+    const isSmall = t.shape === 'round_sm' || tRef < 11
+    const isMedium = !isSmall && (t.shape === 'round' || tRef < 16)
 
-    // ── INTÉRIEUR TABLE ──
-
-    // N° table — gros, centré haut
-    s += `<text x="${cx}" y="${(cy - tRef*0.15).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNum}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
-
-    // Nom client — centre
-    const maxChars = Math.max(4, Math.floor(t.w / 1.6))
-    const shortName = resaInfo.name.length > maxChars ? resaInfo.name.slice(0, maxChars - 1) + '…' : resaInfo.name
-    s += `<text x="${cx}" y="${(cy + tRef*0.12).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNom}" font-family="DM Mono,monospace" font-weight="700" fill="${tcol}" opacity=".9" style="pointer-events:none">${shortName}</text>`
-
-    // Couverts — bas (sans heure, le service est visible dans la toolbar)
-    s += `<text x="${cx}" y="${(cy + tRef*0.32).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsInf}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".55" style="pointer-events:none">${resaInfo.covers}p</text>`
-
-    // ── AU-DESSUS DE LA TABLE (hors cadre, uniforme toutes formes) ──
-    const aboveSymbols: string[] = []
-
-    // IA/Manuel
-    const modeIcon = resaInfo.isIA ? '🤖' : '✋'
-    aboveSymbols.push(modeIcon)
-
-    // Canal
     const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
-    if (resaInfo.canal && canalIcons[resaInfo.canal]) {
-      aboveSymbols.push(canalIcons[resaInfo.canal])
-    }
+    const modeIcon = resaInfo.isIA ? '🤖' : '✋'
+    const canalIcon = (resaInfo.canal && canalIcons[resaInfo.canal]) || ''
 
-    // Heure — sauf petites rondes (service déjà visible)
-    if (!isSmallRound) {
-      aboveSymbols.push(resaInfo.time)
-    }
+    // Badges
+    const badges: string[] = []
+    if (resaInfo.isNew) badges.push('🆕')
+    if (resaInfo.vip) badges.push('⭐')
+    if (resaInfo.allergie) badges.push('⚠')
+    if (resaInfo.bebe > 0) badges.push('👶')
+    if (resaInfo.pmr > 0) badges.push('♿')
 
-    // Badges spéciaux
-    if (resaInfo.isNew) aboveSymbols.push('🆕')
-    if (resaInfo.vip) aboveSymbols.push('⭐')
-    if (resaInfo.allergie) aboveSymbols.push('⚠')
-    if (resaInfo.bebe > 0) aboveSymbols.push('👶')
-    if (resaInfo.pmr > 0) aboveSymbols.push('♿')
+    if (isSmall) {
+      // ── PETITE TABLE (round_sm, 2p) — minimal intérieur ──
+      const fsNum = (tRef * 0.28).toFixed(1)
+      const fsNom = (tRef * 0.19).toFixed(1)
+      const fsInf = (tRef * 0.15).toFixed(1)
+      const fsBdg = (tRef * 0.14).toFixed(1)
 
-    // Rendu au-dessus — collé à la table, juste au-dessus des chaises
-    // Chaises: CH=tRef*0.104, GAP=tRef*0.046 → bord sup chaise = bord table + tRef*0.15
-    // On place les symboles à tRef*0.02 au-dessus des chaises (ou du bord si pas de chaises en haut)
-    if (aboveSymbols.length > 0) {
-      const hasTopChairs = ['round', 'round_sm', 'round_lg', 'oval'].includes(t.shape)
-        || (t.shape === 'bar' && t.barSide === 'top')
-        || (!['banquette', 'bar'].includes(t.shape) && t.orient !== 'H')
-      const chairClearance = hasTopChairs ? tRef * 0.17 : tRef * 0.06
-      const tableTop = ['round', 'round_sm', 'round_lg'].includes(t.shape) ? (cy - t.h/2)
-        : t.shape === 'oval' ? (cy - t.h/2)
-        : t.y
-      const aboveY = tableTop - chairClearance
-      s += `<text x="${cx}" y="${aboveY.toFixed(2)}" text-anchor="middle" dominant-baseline="auto" font-size="${fsBdg}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".7" style="pointer-events:none">${aboveSymbols.join(' ')}</text>`
+      // Intérieur : N° + nom + couverts
+      s += `<text x="${cx}" y="${(cy - tRef*0.16).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNum}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
+      const maxC = Math.max(3, Math.floor(t.w / 1.8))
+      const sName = resaInfo.name.length > maxC ? resaInfo.name.slice(0, maxC - 1) + '…' : resaInfo.name
+      s += `<text x="${cx}" y="${(cy + tRef*0.10).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNom}" font-family="DM Mono,monospace" font-weight="700" fill="${tcol}" opacity=".9" style="pointer-events:none">${sName}</text>`
+      s += `<text x="${cx}" y="${(cy + tRef*0.30).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsInf}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".55" style="pointer-events:none">${resaInfo.covers}p</text>`
+
+      // Au-dessus : mode + canal + heure + badges
+      const above = [modeIcon, canalIcon, resaInfo.time, ...badges].filter(Boolean)
+      if (above.length > 0) {
+        const hasTopChairs = ['round', 'round_sm', 'round_lg', 'oval'].includes(t.shape)
+        const chairCl = hasTopChairs ? tRef * 0.17 : tRef * 0.06
+        const tableTop = ['round', 'round_sm', 'round_lg', 'oval'].includes(t.shape) ? (cy - t.h/2) : t.y
+        s += `<text x="${cx}" y="${(tableTop - chairCl).toFixed(2)}" text-anchor="middle" dominant-baseline="auto" font-size="${fsBdg}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".7" style="pointer-events:none">${above.join(' ')}</text>`
+      }
+    } else {
+      // ── TABLE MOYENNE/GRANDE — tout à l'intérieur ──
+      const fsNum = (tRef * 0.27).toFixed(1)
+      const fsNom = (tRef * 0.18).toFixed(1)
+      const fsInf = (tRef * 0.14).toFixed(1)
+      const fsMod = (tRef * 0.12).toFixed(1)
+      const fsBdg = (tRef * 0.12).toFixed(1)
+
+      // Layout vertical centré dans la table :
+      // -0.25  N° table (gros, bold)
+      // -0.05  Nom client
+      // +0.12  Heure · couverts
+      // +0.26  Mode + canal
+      // coin bas-droit : badges
+
+      // N° table
+      s += `<text x="${cx}" y="${(cy - tRef*0.25).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNum}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
+
+      // Nom client
+      const maxChars = Math.max(4, Math.floor(t.w / 1.5))
+      const shortName = resaInfo.name.length > maxChars ? resaInfo.name.slice(0, maxChars - 1) + '…' : resaInfo.name
+      s += `<text x="${cx}" y="${(cy - tRef*0.05).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNom}" font-family="DM Mono,monospace" font-weight="700" fill="${tcol}" opacity=".9" style="pointer-events:none">${shortName}</text>`
+
+      // Heure · couverts
+      s += `<text x="${cx}" y="${(cy + tRef*0.12).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsInf}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".55" style="pointer-events:none">${resaInfo.time} · ${resaInfo.covers}p</text>`
+
+      // Mode + canal (petit, sous l'heure)
+      const modeLine = [modeIcon, canalIcon].filter(Boolean).join('')
+      s += `<text x="${cx}" y="${(cy + tRef*0.26).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsMod}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".45" style="pointer-events:none">${modeLine}</text>`
+
+      // Badges — coin bas-droit intérieur (si présents)
+      if (badges.length > 0) {
+        const bx = isMedium ? cx : t.x + t.w - tRef * 0.10
+        const by = isMedium ? cy + tRef * 0.38 : t.y + t.h - tRef * 0.10
+        const anchor = isMedium ? 'middle' : 'end'
+        s += `<text x="${bx.toFixed(2)}" y="${by.toFixed(2)}" text-anchor="${anchor}" dominant-baseline="central" font-size="${fsBdg}" fill="${tcol}" opacity=".7" style="pointer-events:none">${badges.join('')}</text>`
+      }
     }
   } else if (ghostInfo) {
     // Table libre avec historique fantôme (done/noshow) — en transparence
@@ -340,35 +357,25 @@ function planComboSvg(
 
     // Couverts + heure
     const fsCov = (cRef * 0.15).toFixed(1)
-    s += `<text x="${lcx.toFixed(1)}" y="${(lcy + cRef*0.28).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsCov}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${comboResa.c}p · ${comboResa.t}</text>`
+    s += `<text x="${lcx.toFixed(1)}" y="${(lcy + cRef*0.28).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsCov}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".6" style="pointer-events:none">${comboResa.t} · ${comboResa.c}p</text>`
 
-    const fsBdg = (cRef * 0.15).toFixed(1)
-
-    // ── Symboles AU-DESSUS du groupe combo (hors cadre) ──
-    const aboveSymbols: string[] = []
-
-    // IA/Manuel
+    // Mode + canal — à l'intérieur, sous heure/cvt
+    const fsMod = (cRef * 0.12).toFixed(1)
     const modeIcon = comboResa.mode === 'ia' ? '🤖' : '✋'
-    aboveSymbols.push(modeIcon)
-
-    // Canal
     const canalIcons: Record<string, string> = { telephone:'📞', walkin:'🚶', widget:'🌐', google:'🔍', email:'✉️' }
-    if (comboResa.canal && canalIcons[comboResa.canal]) {
-      aboveSymbols.push(canalIcons[comboResa.canal])
-    }
+    const canalIcon = (comboResa.canal && canalIcons[comboResa.canal]) || ''
+    s += `<text x="${lcx.toFixed(1)}" y="${(lcy + cRef*0.44).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsMod}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".45" style="pointer-events:none">${modeIcon}${canalIcon}</text>`
 
-    // Heure
-    aboveSymbols.push(comboResa.t)
-
-    // Badges
-    if ((Date.now() - comboResa.createdAt) < 15 * 60 * 1000) aboveSymbols.push('🆕')
-    if (comboResa.statut === 2) aboveSymbols.push('⭐')
-    if (comboResa.allergie) aboveSymbols.push('⚠')
-    if (comboResa.bebe > 0) aboveSymbols.push('👶')
-    if (comboResa.pmr > 0) aboveSymbols.push('♿')
-
-    if (aboveSymbols.length > 0) {
-      s += `<text x="${lcx.toFixed(1)}" y="${(ly - cRef*0.22).toFixed(1)}" text-anchor="middle" font-size="${fsBdg}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".7" style="pointer-events:none">${aboveSymbols.join(' ')}</text>`
+    // Badges — à l'intérieur, coin bas
+    const fsBdg = (cRef * 0.13).toFixed(1)
+    const badges: string[] = []
+    if ((Date.now() - comboResa.createdAt) < 15 * 60 * 1000) badges.push('🆕')
+    if (comboResa.statut === 2) badges.push('⭐')
+    if (comboResa.allergie) badges.push('⚠')
+    if (comboResa.bebe > 0) badges.push('👶')
+    if (comboResa.pmr > 0) badges.push('♿')
+    if (badges.length > 0) {
+      s += `<text x="${lcx.toFixed(1)}" y="${(lcy + cRef*0.58).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fsBdg}" fill="${tcol}" opacity=".7" style="pointer-events:none">${badges.join('')}</text>`
     }
   } else {
     // ── Combo libre — contour pointillé cliquable ──
