@@ -1,0 +1,2382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R3STO Admin Console</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Fraunces:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --surf:   #0d1829;
+      --surf2:  #111e33;
+      --surf3:  #162440;
+      --surf4:  #1c2d4d;
+      --text:   #e8edf5;
+      --t2:     #a8b8d0;
+      --t3:     #6b82a0;
+      --t4:     #3d526e;
+      --muted:  #4a607a;
+      --border: rgba(100,130,180,.18);
+      --bl:     #4480d8;
+      --bp:     rgba(68,128,216,.12);
+      --b2:     rgba(68,128,216,.3);
+      --ac:     #5b9cf6;
+      --gn:     #3cc870;
+      --gp:     rgba(60,200,112,.12);
+      --gb:     rgba(60,200,112,.3);
+      --rd:     #dc5050;
+      --rp:     rgba(220,80,80,.12);
+      --rb:     rgba(220,80,80,.3);
+      --am:     #e8a530;
+      --ap:     rgba(232,165,48,.12);
+      --ab:     rgba(232,165,48,.3);
+      --pu:     #9060e0;
+      --shadow: rgba(0,0,0,.4);
+      --ff:     'DM Sans', sans-serif;
+      --fm:     'DM Mono', monospace;
+      --hh:     56px;
+      --sb:     230px;
+      --br:     10px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--surf);
+      color: var(--text);
+      font-family: var(--ff);
+      font-size: 13px;
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .header {
+      height: var(--hh);
+      background: var(--surf);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-menu-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 20px;
+      padding: 4px 8px;
+    }
+
+    .header-logo-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-logo-section img {
+      width: 34px;
+      height: 34px;
+      box-shadow: 0 2px 10px rgba(45,92,184,.4);
+    }
+
+    .header-divider {
+      color: var(--t4);
+      margin: 0 8px;
+    }
+
+    .header-time {
+      color: var(--t2);
+      font-size: 12px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      color: var(--t2);
+      font-size: 12px;
+      margin-right: 20px;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:hover {
+      color: var(--ac);
+    }
+
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: var(--sb);
+      background: var(--surf);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--surf4);
+      border-radius: 3px;
+    }
+
+    .sidebar-header {
+      padding: 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-header img {
+      width: 28px;
+      height: 28px;
+      box-shadow: 0 2px 8px rgba(45,92,184,.3);
+    }
+
+    .sidebar-header span {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+
+    .sidebar-group {
+      padding: 12px 0;
+    }
+
+    .sidebar-group-title {
+      padding: 8px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--t3);
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-item {
+      padding: 8px 12px;
+      margin: 0 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--t2);
+      font-size: 13px;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .sidebar-item:hover {
+      background: var(--surf3);
+      color: var(--ac);
+    }
+
+    .sidebar-item.active {
+      background: var(--bp);
+      border: 1px solid var(--b2);
+      color: var(--bl);
+    }
+
+    .sidebar-footer {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bp);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--bl);
+      font-size: 12px;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .user-role {
+      font-size: 10px;
+      color: var(--t3);
+    }
+
+    .logout-btn {
+      width: 100%;
+      background: var(--surf3);
+      color: var(--t2);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .logout-btn:hover {
+      background: var(--surf4);
+      color: var(--text);
+    }
+
+    .main-content {
+      flex: 1;
+      background: var(--surf);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .page-header {
+      padding: 16px 24px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surf);
+      flex-shrink: 0;
+    }
+
+    .page-title {
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .page-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .page-body::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .page-body::-webkit-scrollbar-thumb {
+      background: var(--surf4);
+      border-radius: 3px;
+    }
+
+    .card {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--br);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--br);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ac);
+      font-family: var(--fm);
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--surf3);
+      color: var(--t2);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--bp);
+      border-color: var(--b2);
+      color: var(--bl);
+    }
+
+    .btn-primary {
+      background: var(--bl);
+      color: #fff;
+      border: 1.5px solid var(--bl);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: #5590e0;
+      border-color: #5590e0;
+    }
+
+    .btn-secondary {
+      background: var(--surf3);
+      color: var(--t2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--surf4);
+      color: var(--text);
+    }
+
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 6px;
+    }
+
+    .btn-shadow {
+      background: var(--surf2);
+      color: var(--t2);
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+
+    .btn-shadow:hover {
+      color: var(--text);
+      box-shadow: 0 2px 6px rgba(0,0,0,.5);
+    }
+
+    .input-field {
+      background: var(--surf3);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--ff);
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--bl);
+      background: var(--surf4);
+    }
+
+    .input-field::placeholder {
+      color: var(--t4);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: var(--surf3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      padding: 10px 12px;
+      text-align: left;
+      color: var(--t3);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    tbody tr:hover {
+      background: var(--surf3);
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill-green {
+      background: var(--gp);
+      color: var(--gn);
+    }
+
+    .pill-yellow {
+      background: var(--ap);
+      color: var(--am);
+    }
+
+    .pill-red {
+      background: var(--rp);
+      color: var(--rd);
+    }
+
+    .pill-blue {
+      background: var(--bp);
+      color: var(--bl);
+    }
+
+    .fleet-bar {
+      display: flex;
+      height: 24px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 8px 0;
+      border: 1px solid var(--border);
+    }
+
+    .fleet-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .fleet-segment.actif {
+      background: var(--gn);
+    }
+
+    .fleet-segment.pause {
+      background: var(--am);
+    }
+
+    .fleet-segment.alerte {
+      background: var(--rd);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--br);
+      padding: 24px;
+      max-width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      min-width: 500px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .modal-title {
+      font-family: 'Fraunces', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--t2);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    .login-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--surf) 0%, var(--surf2) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .login-card {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--br);
+      padding: 40px;
+      min-width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+
+    .login-logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .login-logo img {
+      width: 48px;
+      height: 48px;
+      box-shadow: 0 2px 10px rgba(45,92,184,.4);
+    }
+
+    .login-title {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+      font-size: 11px;
+      color: var(--t3);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .login-form label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--t2);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .login-form input {
+      width: 100%;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: var(--bl);
+      color: #fff;
+      border: 1.5px solid var(--bl);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+
+    .login-btn:hover {
+      background: #5590e0;
+      border-color: #5590e0;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-size: 12px;
+      z-index: 1001;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .toast.success {
+      border-color: var(--gn);
+      background: var(--gp);
+      color: var(--gn);
+    }
+
+    .toast.error {
+      border-color: var(--rd);
+      background: var(--rp);
+      color: var(--rd);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 4px;
+      background: var(--ac);
+      flex-shrink: 0;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-title {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    .activity-desc {
+      color: var(--t3);
+      font-size: 11px;
+    }
+
+    .activity-time {
+      color: var(--t4);
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    .status-card {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--br);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .status-name {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gn);
+    }
+
+    .status-badge.offline {
+      background: var(--rd);
+    }
+
+    .status-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--t2);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--t2);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+    }
+
+    .form-control.textarea {
+      min-height: 100px;
+      resize: vertical;
+      font-family: var(--ff);
+    }
+
+    .select-field {
+      background: var(--surf3);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--ff);
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .select-field:focus {
+      outline: none;
+      border-color: var(--bl);
+      background: var(--surf4);
+    }
+
+    .client-card {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: var(--br);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .client-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .client-card-title {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .client-card-progress {
+      width: 100%;
+      height: 6px;
+      background: var(--surf3);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .client-card-progress-bar {
+      height: 100%;
+      background: var(--gn);
+    }
+
+    .client-card-steps {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      font-size: 9px;
+      color: var(--t3);
+    }
+
+    .client-card-step {
+      text-align: center;
+      padding: 4px;
+      background: var(--surf3);
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    .client-card-step.done {
+      background: var(--gp);
+      color: var(--gn);
+      border-color: var(--gn);
+    }
+
+    .message {
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      background: var(--surf3);
+      border: 1px solid var(--border);
+    }
+
+    .message-author {
+      font-weight: 600;
+      color: var(--ac);
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .message-text {
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .message-time {
+      font-size: 10px;
+      color: var(--t4);
+      margin-top: 6px;
+    }
+
+    .two-column {
+      display: flex;
+      gap: 20px;
+      height: 100%;
+    }
+
+    .column-left {
+      width: 35%;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      padding-right: 12px;
+    }
+
+    .column-right {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .ticket-item {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      background: var(--surf3);
+      transition: all 0.2s ease;
+    }
+
+    .ticket-item:hover {
+      border-color: var(--bl);
+      background: var(--surf4);
+    }
+
+    .ticket-item.active {
+      border-color: var(--bl);
+      background: var(--bp);
+    }
+
+    .ticket-item-title {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    .ticket-item-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--t3);
+    }
+
+    .permission-matrix {
+      overflow-x: auto;
+    }
+
+    .permission-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .permission-table td, .permission-table th {
+      padding: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .permission-table thead {
+      background: var(--surf3);
+    }
+
+    .permission-checkbox {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--bl);
+    }
+
+    .dunning-flow {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+      font-size: 10px;
+      overflow-x: auto;
+      padding: 8px 0;
+    }
+
+    .dunning-step {
+      flex: 0 0 auto;
+      padding: 8px;
+      background: var(--surf3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-align: center;
+      color: var(--t2);
+      white-space: nowrap;
+    }
+
+    .dunning-step.active {
+      background: var(--bp);
+      border-color: var(--b2);
+      color: var(--bl);
+    }
+
+    .dunning-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--t4);
+      flex: 0 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="login-container" id="loginContainer">
+      <div class="login-card">
+        <div class="login-logo">
+          <img src="https://app.r3sto.ch/logo-r3sto.jpg" width="48" height="48">
+        </div>
+        <h2 class="login-title">Admin Console</h2>
+        <p class="login-subtitle">R3STO Restaurant Management Platform</p>
+        <form class="login-form" id="loginForm">
+          <div>
+            <label>Email Address</label>
+            <input type="email" class="input-field" id="emailInput" value="didier@r3sto.com" required>
+          </div>
+          <div>
+            <label>Password</label>
+            <input type="password" class="input-field" id="passwordInput" value="admin2026" required>
+          </div>
+          <button type="submit" class="login-btn">Sign In</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="mainApp" style="display: none; height: 100%; flex-direction: column;">
+      <div class="header">
+        <button class="header-menu-btn" id="menuBtn" title="Toggle Sidebar">☰</button>
+        <div class="header-logo-section">
+          <img src="https://app.r3sto.ch/logo-r3sto.jpg" width="34" height="34" alt="R3STO Logo">
+          <span class="header-divider">|</span>
+          <span id="restaurantName">Les Trois Couronnes</span>
+        </div>
+        <div class="header-time" id="headerTime">Mon, 27 Mar · 09:27</div>
+        <div class="header-stats">
+          <span>Clients: <span id="headerClients">36</span></span>
+          <span>MRR: CHF <span id="headerMRR">2847</span></span>
+          <span>Uptime: <span id="headerUptime">99.8%</span></span>
+        </div>
+        <div class="header-icons">
+          <button class="icon-btn" id="quickLinksBtn" title="Quick Links to all R3STO services">🔗</button>
+          <button class="icon-btn" id="shadowModeBtn" title="Shadow Mode - View as customer">👁️</button>
+          <button class="icon-btn" id="settingsBtn" title="Account Settings">⚙️</button>
+        </div>
+      </div>
+
+      <div class="main-container">
+        <div class="sidebar" id="sidebar">
+          <div class="sidebar-header">
+            <img src="https://app.r3sto.ch/logo-r3sto.jpg" width="28" height="28" alt="R3STO Logo">
+            <span>Admin Console</span>
+          </div>
+
+          <div class="sidebar-content">
+            <div class="sidebar-group">
+              <div class="sidebar-group-title">OPÉRATIONS</div>
+              <div class="sidebar-item active" data-page="dashboard">📊 Dashboard</div>
+              <div class="sidebar-item" data-page="clients">🏪 Clients</div>
+              <div class="sidebar-item" data-page="facturation">💳 Facturation</div>
+              <div class="sidebar-item" data-page="onboarding">🎓 Onboarding</div>
+              <div class="sidebar-item" data-page="activite">📡 Activité</div>
+            </div>
+
+            <div class="sidebar-group">
+              <div class="sidebar-group-title">SUPPORT</div>
+              <div class="sidebar-item" data-page="tickets">🎫 Tickets</div>
+              <div class="sidebar-item" data-page="alertes">🔔 Alertes</div>
+              <div class="sidebar-item" data-page="avis">⭐ Avis & Idées</div>
+            </div>
+
+            <div class="sidebar-group">
+              <div class="sidebar-group-title">COMMUNICATION</div>
+              <div class="sidebar-item" data-page="broadcast">📢 Broadcast</div>
+              <div class="sidebar-item" data-page="notifications">🔊 Notifications</div>
+              <div class="sidebar-item" data-page="kb">📚 Base de connaissances</div>
+            </div>
+
+            <div class="sidebar-group">
+              <div class="sidebar-group-title">CROISSANCE</div>
+              <div class="sidebar-item" data-page="marche">🔭 Marché</div>
+              <div class="sidebar-item" data-page="analytics">📈 Analytics</div>
+            </div>
+
+            <div class="sidebar-group">
+              <div class="sidebar-group-title">PLATEFORME</div>
+              <div class="sidebar-item" data-page="monitoring">🟢 Monitoring</div>
+              <div class="sidebar-item" data-page="deployments">🛠 Déploiements</div>
+              <div class="sidebar-item" data-page="securite">🔐 Sécurité</div>
+            </div>
+
+            <div class="sidebar-group">
+              <div class="sidebar-group-title">PARAMÈTRES</div>
+              <div class="sidebar-item" data-page="roles">👑 Rôles & Accès</div>
+            </div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="user-card">
+              <div class="user-avatar">DG</div>
+              <div class="user-info">
+                <div class="user-name">Didier G.</div>
+                <div class="user-role">Super Admin</div>
+              </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">Déconnexion</button>
+          </div>
+        </div>
+
+        <div class="main-content">
+          <div class="page-header">
+            <h1 class="page-title" id="pageTitle">Dashboard</h1>
+          </div>
+          <div class="page-body fade-in" id="pageBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="quickLinksModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Quick Links</h2>
+        <button class="modal-close" onclick="document.getElementById('quickLinksModal').classList.remove('show')">✕</button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <a href="https://app.r3sto.ch" target="_blank" style="color: var(--ac); text-decoration: none; padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: center;">📱 App</a>
+        <a href="https://api.r3sto.ch" target="_blank" style="color: var(--ac); text-decoration: none; padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: center;">🔌 API</a>
+        <a href="https://auth.r3sto.ch" target="_blank" style="color: var(--ac); text-decoration: none; padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: center;">🔐 Auth</a>
+        <a href="https://bill.r3sto.ch" target="_blank" style="color: var(--ac); text-decoration: none; padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: center;">💳 Billing</a>
+        <a href="https://booking.r3sto.ch" target="_blank" style="color: var(--ac); text-decoration: none; padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: center;">📅 Booking</a>
+        <a href="https://demo.r3sto.ch" target="_blank" style="color: var(--ac); text-decoration: none; padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: center;">🎯 Demo</a>
+        <a href="https://menu.r3sto.ch" target="_blank" style="color: var(--ac); text-decoration: none; padding: 10px; border: 1px solid var(--border); border-radius: 6px; text-align: center;">📋 Menu</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="shadowModeModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Shadow Mode</h2>
+        <button class="modal-close" onclick="document.getElementById('shadowModeModal').classList.remove('show')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Select Client Restaurant</label>
+        <select class="select-field" id="shadowClientSelect">
+          <option value="">Select a restaurant...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">PIN Code (optional)</label>
+        <input type="password" class="input-field form-control" placeholder="4-digit PIN for admin verification">
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-primary" onclick="enableShadowMode()">Enable Shadow Mode</button>
+        <button class="btn-secondary" onclick="document.getElementById('shadowModeModal').classList.remove('show')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DATA = {
+      clients: [
+        { id: 1, name: 'Les Trois Couronnes', plan: 'Gastro', city: 'Genève', tables: 48, res7d: 127, status: 'active', mrr: 599, logo: '👑' },
+        { id: 2, name: 'Pizzeria Napoli', plan: 'Resto', city: 'Lausanne', tables: 28, res7d: 89, status: 'active', mrr: 399, logo: '🍕' },
+        { id: 3, name: 'Bistro du Coin', plan: 'Bistro', city: 'Bern', tables: 12, res7d: 34, status: 'active', mrr: 149, logo: '🍷' },
+        { id: 4, name: 'Le Petit Lyon', plan: 'Bistro', city: 'Lyon', tables: 10, res7d: 28, status: 'active', mrr: 149, logo: '🧀' },
+        { id: 5, name: 'Casa Blanca', plan: 'Resto', city: 'Zurich', tables: 32, res7d: 95, status: 'alert', mrr: 399, logo: '🏠' },
+        { id: 6, name: 'Le Gourmet', plan: 'Gastro', city: 'Montreux', tables: 52, res7d: 156, status: 'active', mrr: 599, logo: '⭐' },
+        { id: 7, name: 'Sushi Zen', plan: 'Resto', city: 'Nyon', tables: 24, res7d: 72, status: 'active', mrr: 399, logo: '🍣' },
+        { id: 8, name: 'The Irish Pub', plan: 'Bistro', city: 'Vevey', tables: 16, res7d: 41, status: 'active', mrr: 149, logo: '🍺' },
+        { id: 9, name: 'Trattoria Roma', plan: 'Resto', city: 'Lugano', tables: 36, res7d: 102, status: 'active', mrr: 399, logo: '🍝' },
+        { id: 10, name: 'Taverne Suisse', plan: 'Gastro', city: 'Interlaken', tables: 44, res7d: 134, status: 'paused', mrr: 599, logo: '🏔' },
+      ],
+      invoices: [
+        { id: 'FAC-2026-001', client: 'Les Trois Couronnes', amount: 599, date: '2026-03-01', status: 'paid', dueDate: '2026-03-15' },
+        { id: 'FAC-2026-002', client: 'Pizzeria Napoli', amount: 399, date: '2026-03-02', status: 'paid', dueDate: '2026-03-16' },
+        { id: 'FAC-2026-003', client: 'Bistro du Coin', amount: 149, date: '2026-03-03', status: 'pending', dueDate: '2026-03-17' },
+        { id: 'FAC-2026-004', client: 'Le Petit Lyon', amount: 149, date: '2026-03-04', status: 'paid', dueDate: '2026-03-18' },
+        { id: 'FAC-2026-005', client: 'Casa Blanca', amount: 399, date: '2026-03-05', status: 'overdue', dueDate: '2026-02-20' },
+        { id: 'FAC-2026-006', client: 'Le Gourmet', amount: 599, date: '2026-03-06', status: 'paid', dueDate: '2026-03-20' },
+        { id: 'FAC-2026-007', client: 'Sushi Zen', amount: 399, date: '2026-03-07', status: 'pending', dueDate: '2026-03-21' },
+      ],
+      tickets: [
+        { id: 1, title: 'Réservations not syncing', client: 'Pizzeria Napoli', status: 'open', priority: 'high', created: '2026-03-25 14:30', messages: [
+          { author: 'Client', text: 'Reservations from last 2 days are missing from system', time: '2026-03-25 14:30' },
+          { author: 'Support', text: 'Investigating the sync issue. Can you check your integration settings?', time: '2026-03-25 15:00' },
+          { author: 'Client', text: 'Settings look correct. Using Stripe API key from email.', time: '2026-03-25 15:15' },
+          { author: 'Support', text: 'Found it - API key expired. Regenerating new key now.', time: '2026-03-25 15:45' },
+        ] },
+        { id: 2, title: 'Admin panel slow performance', client: 'Le Gourmet', status: 'open', priority: 'medium', created: '2026-03-26 09:00', messages: [
+          { author: 'Client', text: 'Dashboard takes 5+ seconds to load', time: '2026-03-26 09:00' },
+          { author: 'Support', text: 'Checking server performance metrics and database queries', time: '2026-03-26 10:30' },
+        ] },
+        { id: 3, title: 'Custom menu categories needed', client: 'Casa Blanca', status: 'closed', priority: 'low', created: '2026-03-20 11:00', messages: [
+          { author: 'Client', text: 'We need ability to add custom menu categories', time: '2026-03-20 11:00' },
+          { author: 'Support', text: 'This feature is on our roadmap for Q2 2026', time: '2026-03-20 13:00' },
+        ] },
+        { id: 4, title: 'Export reservations to CSV', client: 'Bistro du Coin', status: 'open', priority: 'low', created: '2026-03-22 16:00', messages: [
+          { author: 'Client', text: 'Can we export reservation data for our records?', time: '2026-03-22 16:00' },
+        ] },
+        { id: 5, title: 'Payment webhook failure', client: 'Taverne Suisse', status: 'open', priority: 'critical', created: '2026-03-27 08:15', messages: [
+          { author: 'Client', text: 'Payment confirmations not being sent to customers', time: '2026-03-27 08:15' },
+          { author: 'Support', text: 'Critical - investigating webhook logs immediately', time: '2026-03-27 08:20' },
+        ] },
+      ],
+      suggestions: [
+        { id: 1, theme: 'Interface', title: 'Dark mode toggle', votes: 42, status: 'planned' },
+        { id: 2, theme: 'Fonctionnalités', title: 'Multi-language support', votes: 28, status: 'in-progress' },
+        { id: 3, theme: 'Intégrations', title: 'Slack notifications', votes: 35, status: 'planned' },
+        { id: 4, theme: 'Performance', title: 'Faster page loads', votes: 19, status: 'in-progress' },
+        { id: 5, theme: 'Interface', title: 'Mobile app', votes: 56, status: 'planned' },
+        { id: 6, theme: 'Fonctionnalités', title: 'Group reservations', votes: 23, status: 'completed' },
+        { id: 7, theme: 'Intégrations', title: 'Google Calendar sync', votes: 31, status: 'planned' },
+        { id: 8, theme: 'Performance', title: 'API rate limiting', votes: 12, status: 'completed' },
+      ],
+      alertes: [
+        { id: 1, title: 'High error rate detected', severity: 'critical', timestamp: '2026-03-27 09:15', description: 'Auth service returning 5xx errors' },
+        { id: 2, title: 'Memory usage spike', severity: 'warning', timestamp: '2026-03-27 08:45', description: 'API server memory at 85%' },
+        { id: 3, title: 'Payment processing delayed', severity: 'warning', timestamp: '2026-03-27 07:30', description: 'Stripe webhook latency increased' },
+        { id: 4, title: 'SSL certificate expiring soon', severity: 'critical', timestamp: '2026-03-25 14:00', description: 'cert-app.r3sto.ch expires in 14 days' },
+        { id: 5, title: 'Database backup incomplete', severity: 'critical', timestamp: '2026-03-26 23:45', description: 'Last backup failed - check Infomaniak storage' },
+      ],
+      versions: [
+        { subdomain: 'app', current: '2.14.3', previous: '2.14.2', deployed: '2026-03-26 11:30', status: 'stable' },
+        { subdomain: 'api', current: '3.2.1', previous: '3.2.0', deployed: '2026-03-26 11:15', status: 'stable' },
+        { subdomain: 'auth', current: '1.8.5', previous: '1.8.4', deployed: '2026-03-25 16:45', status: 'stable' },
+        { subdomain: 'admin', current: '1.2.0', previous: '1.1.9', deployed: '2026-03-27 09:00', status: 'stable' },
+      ],
+      users: [
+        { id: 1, name: 'Didier G.', role: 'Super Admin', email: 'didier@r3sto.com', avatar: 'DG' },
+        { id: 2, name: 'Sarah M.', role: 'Admin', email: 'sarah@r3sto.com', avatar: 'SM' },
+        { id: 3, name: 'Marc L.', role: 'Support', email: 'marc@r3sto.com', avatar: 'ML' },
+      ],
+      prospects: [
+        { id: 1, name: 'Restaurant XYZ', city: 'Basel', contact: 'john@xyz.ch', status: 'qualified', value: 'CHF 399/mo' },
+        { id: 2, name: 'Bistro Alliance', city: 'Neuchâtel', contact: 'info@bistro.ch', status: 'contacted', value: 'CHF 599/mo' },
+        { id: 3, name: 'Fine Dining Co', city: 'Zermatt', contact: 'owner@finedining.ch', status: 'proposal', value: 'CHF 799/mo' },
+        { id: 4, name: 'Casual Eats', city: 'Fribourg', contact: 'manager@casual.ch', status: 'negotiation', value: 'CHF 149/mo' },
+      ],
+      onboarding: [
+        { clientId: 1, name: 'Les Trois Couronnes', steps: [{ name: 'Info', done: true }, { name: 'Intégrations', done: true }, { name: 'Équipe', done: true }, { name: 'Menus', done: true }, { name: 'Tests', done: true }, { name: 'Mise en ligne', done: true }], health: 100 },
+        { clientId: 2, name: 'Pizzeria Napoli', steps: [{ name: 'Info', done: true }, { name: 'Intégrations', done: true }, { name: 'Équipe', done: true }, { name: 'Menus', done: true }, { name: 'Tests', done: false }, { name: 'Mise en ligne', done: false }], health: 67 },
+        { clientId: 3, name: 'Bistro du Coin', steps: [{ name: 'Info', done: true }, { name: 'Intégrations', done: true }, { name: 'Équipe', done: false }, { name: 'Menus', done: false }, { name: 'Tests', done: false }, { name: 'Mise en ligne', done: false }], health: 33 },
+        { clientId: 4, name: 'Le Petit Lyon', steps: [{ name: 'Info', done: true }, { name: 'Intégrations', done: false }, { name: 'Équipe', done: false }, { name: 'Menus', done: false }, { name: 'Tests', done: false }, { name: 'Mise en ligne', done: false }], health: 17 },
+        { clientId: 5, name: 'Casa Blanca', steps: [{ name: 'Info', done: true }, { name: 'Intégrations', done: true }, { name: 'Équipe', done: true }, { name: 'Menus', done: true }, { name: 'Tests', done: true }, { name: 'Mise en ligne', done: false }], health: 83 },
+      ],
+      activities: [
+        { type: 'login', user: 'Didier G.', description: 'Logged in from Safari', time: '2026-03-27 09:15' },
+        { type: 'reservation', client: 'Pizzeria Napoli', description: '3 new reservations received', time: '2026-03-27 09:08' },
+        { type: 'error', service: 'API', description: 'High error rate spike (2.3%)', time: '2026-03-27 08:45' },
+        { type: 'deploy', subdomain: 'app', description: 'Version 2.14.3 deployed', time: '2026-03-26 11:30' },
+        { type: 'payment', client: 'Le Gourmet', description: 'Monthly invoice paid CHF 599', time: '2026-03-26 10:20' },
+        { type: 'signup', client: 'New restaurant', description: 'Casa Blanca joined platform', time: '2026-03-25 14:30' },
+        { type: 'alert', severity: 'warning', description: 'Database backup failed', time: '2026-03-25 11:00' },
+        { type: 'feature', description: 'Group reservations feature released', time: '2026-03-24 16:45' },
+        { type: 'login', user: 'Sarah M.', description: 'Logged in from Chrome', time: '2026-03-24 08:30' },
+        { type: 'support', ticket: 'TKT-2045', description: 'Ticket closed: Menu export', time: '2026-03-23 15:20' },
+      ],
+      kbArticles: [
+        { id: 1, title: 'Getting Started with R3STO', category: 'Onboarding', views: 234, updated: '2026-03-15' },
+        { id: 2, title: 'Integration Guide: POS Systems', category: 'Technical', views: 156, updated: '2026-03-10' },
+        { id: 3, title: 'Managing Restaurant Users', category: 'Administration', views: 189, updated: '2026-03-12' },
+        { id: 4, title: 'Reservation Analytics Explained', category: 'Features', views: 102, updated: '2026-03-08' },
+        { id: 5, title: 'Payment Processing Setup', category: 'Technical', views: 267, updated: '2026-03-20' },
+        { id: 6, title: 'Mobile App Installation', category: 'Technical', views: 134, updated: '2026-03-18' },
+        { id: 7, title: 'API Reference Documentation', category: 'Technical', views: 412, updated: '2026-03-25' },
+        { id: 8, title: 'Support Center FAQs', category: 'Support', views: 89, updated: '2026-03-01' },
+      ],
+      monitoring: [
+        { subdomain: 'app', status: 'online', uptime: '99.87%', responseTime: '145ms', lastCheck: '2026-03-27 09:18' },
+        { subdomain: 'api', status: 'online', uptime: '99.92%', responseTime: '87ms', lastCheck: '2026-03-27 09:19' },
+        { subdomain: 'auth', status: 'online', uptime: '99.95%', responseTime: '52ms', lastCheck: '2026-03-27 09:17' },
+        { subdomain: 'admin', status: 'online', uptime: '99.81%', responseTime: '168ms', lastCheck: '2026-03-27 09:20' },
+        { subdomain: 'bill', status: 'online', uptime: '99.88%', responseTime: '234ms', lastCheck: '2026-03-27 09:16' },
+        { subdomain: 'booking', status: 'online', uptime: '99.79%', responseTime: '198ms', lastCheck: '2026-03-27 09:18' },
+        { subdomain: 'demo', status: 'online', uptime: '99.71%', responseTime: '267ms', lastCheck: '2026-03-27 09:15' },
+        { subdomain: 'menu', status: 'online', uptime: '99.84%', responseTime: '121ms', lastCheck: '2026-03-27 09:19' },
+      ],
+      auditLog: [
+        { user: 'Didier G.', action: 'Viewed client: Pizzeria Napoli', timestamp: '2026-03-27 09:16', ipAddress: '192.168.1.100' },
+        { user: 'Sarah M.', action: 'Created support ticket', timestamp: '2026-03-27 08:52', ipAddress: '192.168.1.101' },
+        { user: 'Marc L.', action: 'Updated user permissions', timestamp: '2026-03-27 08:30', ipAddress: '192.168.1.102' },
+        { user: 'Didier G.', action: 'Deployed version 2.14.3 to app', timestamp: '2026-03-26 11:30', ipAddress: '192.168.1.100' },
+        { user: 'Sarah M.', action: 'Generated invoice FAC-2026-007', timestamp: '2026-03-26 10:15', ipAddress: '192.168.1.101' },
+        { user: 'Marc L.', action: 'Closed ticket TKT-2045', timestamp: '2026-03-25 15:20', ipAddress: '192.168.1.102' },
+        { user: 'Didier G.', action: 'Modified onboarding checklist', timestamp: '2026-03-25 14:45', ipAddress: '192.168.1.100' },
+        { user: 'Sarah M.', action: 'Enabled shadow mode for Casa Blanca', timestamp: '2026-03-25 13:10', ipAddress: '192.168.1.101' },
+        { user: 'Marc L.', action: 'Sent broadcast notification', timestamp: '2026-03-24 16:30', ipAddress: '192.168.1.102' },
+        { user: 'Didier G.', action: 'Reviewed security alerts', timestamp: '2026-03-24 09:00', ipAddress: '192.168.1.100' },
+      ],
+    };
+
+    let currentPage = 'dashboard';
+    let currentFilter = 'Tous';
+
+    function initApp() {
+      document.getElementById('loginForm').addEventListener('submit', doLogin);
+      document.getElementById('quickLinksBtn').addEventListener('click', () => {
+        document.getElementById('quickLinksModal').classList.add('show');
+      });
+      document.getElementById('shadowModeBtn').addEventListener('click', () => {
+        const select = document.getElementById('shadowClientSelect');
+        select.innerHTML = '<option value="">Select a restaurant...</option>';
+        DATA.clients.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          select.appendChild(opt);
+        });
+        document.getElementById('shadowModeModal').classList.add('show');
+      });
+      document.getElementById('menuBtn').addEventListener('click', toggleSidebar);
+      document.getElementById('logoutBtn').addEventListener('click', doLogout);
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+          document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+          currentPage = item.dataset.page;
+          setPage(currentPage);
+        });
+      });
+      updateTime();
+      setInterval(updateTime, 1000);
+      setPage('dashboard');
+    }
+
+    function doLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('emailInput').value;
+      const password = document.getElementById('passwordInput').value;
+      if (email && password) {
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'flex';
+        initApp();
+      }
+    }
+
+    function doLogout() {
+      document.getElementById('mainApp').style.display = 'none';
+      document.getElementById('loginContainer').style.display = 'flex';
+      document.getElementById('emailInput').value = 'didier@r3sto.com';
+      document.getElementById('passwordInput').value = 'admin2026';
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function updateTime() {
+      const now = new Date();
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const day = dayNames[now.getDay()];
+      const date = now.getDate();
+      const month = monthNames[now.getMonth()];
+      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+      document.getElementById('headerTime').textContent = `${day}, ${date} ${month} · ${time}`;
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function enableShadowMode() {
+      const client = document.getElementById('shadowClientSelect').value;
+      if (client) {
+        showToast(`Shadow mode activated for selected client`, 'success');
+        document.getElementById('shadowModeModal').classList.remove('show');
+      }
+    }
+
+    function setPage(page) {
+      const titles = {
+        dashboard: 'Dashboard',
+        clients: 'Clients',
+        facturation: 'Facturation',
+        onboarding: 'Onboarding',
+        activite: 'Activité',
+        tickets: 'Tickets',
+        alertes: 'Alertes',
+        avis: 'Avis & Idées',
+        broadcast: 'Broadcast',
+        notifications: 'Notifications',
+        kb: 'Base de connaissances',
+        marche: 'Marché',
+        analytics: 'Analytics',
+        monitoring: 'Monitoring',
+        deployments: 'Déploiements',
+        securite: 'Sécurité',
+        roles: 'Rôles & Accès',
+      };
+      document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
+      const body = document.getElementById('pageBody');
+      body.innerHTML = '';
+      body.classList.add('fade-in');
+      switch(page) {
+        case 'dashboard': renderDashboard(); break;
+        case 'clients': renderClients(); break;
+        case 'facturation': renderFacturation(); break;
+        case 'onboarding': renderOnboarding(); break;
+        case 'activite': renderActivite(); break;
+        case 'tickets': renderTickets(); break;
+        case 'alertes': renderAlertes(); break;
+        case 'avis': renderAvis(); break;
+        case 'broadcast': renderBroadcast(); break;
+        case 'notifications': renderNotifications(); break;
+        case 'kb': renderKB(); break;
+        case 'marche': renderMarche(); break;
+        case 'analytics': renderAnalytics(); break;
+        case 'monitoring': renderMonitoring(); break;
+        case 'deployments': renderDeployments(); break;
+        case 'securite': renderSecurite(); break;
+        case 'roles': renderRoles(); break;
+      }
+    }
+
+    function renderDashboard() {
+      const totalClients = DATA.clients.length;
+      const totalMRR = DATA.clients.reduce((sum, c) => sum + c.mrr, 0);
+      const openTickets = DATA.tickets.filter(t => t.status === 'open').length;
+      const retention = 87;
+      const uptime = 99.8;
+      const activeCount = 36;
+      const pausedCount = 2;
+      const alertCount = 2;
+      const bistroCount = DATA.clients.filter(c => c.plan === 'Bistro').length;
+      const restoCount = DATA.clients.filter(c => c.plan === 'Resto').length;
+      const gastroCount = DATA.clients.filter(c => c.plan === 'Gastro').length;
+      const bistroMRR = DATA.clients.filter(c => c.plan === 'Bistro').reduce((s, c) => s + c.mrr, 0);
+      const restoMRR = DATA.clients.filter(c => c.plan === 'Resto').reduce((s, c) => s + c.mrr, 0);
+      const gastroMRR = DATA.clients.filter(c => c.plan === 'Gastro').reduce((s, c) => s + c.mrr, 0);
+
+      let html = `
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Clients Actifs</div>
+            <div class="kpi-value">${totalClients}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">MRR (CHF)</div>
+            <div class="kpi-value">${(totalMRR).toLocaleString('de-CH')}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Tickets Ouverts</div>
+            <div class="kpi-value">${openTickets}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Rétention 12m</div>
+            <div class="kpi-value">${retention}%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Uptime</div>
+            <div class="kpi-value">${uptime}%</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Fleet Health</h3>
+          <div style="margin-bottom: 8px; font-size: 11px; color: var(--t3);">Actifs: ${activeCount} | En pause: ${pausedCount} | En alerte: ${alertCount}</div>
+          <div class="fleet-bar">
+            <div class="fleet-segment actif" style="width: ${(activeCount/50)*100}%;">Actif</div>
+            <div class="fleet-segment pause" style="width: ${(pausedCount/50)*100}%;"><span style="display:none;">Pause</span></div>
+            <div class="fleet-segment alerte" style="width: ${(alertCount/50)*100}%;"><span style="display:none;">Alerte</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Plan Distribution</h3>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+              <div style="font-size: 11px; color: var(--t3); margin-bottom: 6px;">Bistro</div>
+              <div style="font-size: 18px; color: var(--ac); font-weight: 700; font-family: var(--fm); margin-bottom: 4px;">${bistroCount}</div>
+              <div style="font-size: 11px; color: var(--t2);">CHF ${bistroMRR}</div>
+            </div>
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+              <div style="font-size: 11px; color: var(--t3); margin-bottom: 6px;">Resto</div>
+              <div style="font-size: 18px; color: var(--ac); font-weight: 700; font-family: var(--fm); margin-bottom: 4px;">${restoCount}</div>
+              <div style="font-size: 11px; color: var(--t2);">CHF ${restoMRR}</div>
+            </div>
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+              <div style="font-size: 11px; color: var(--t3); margin-bottom: 6px;">Gastro</div>
+              <div style="font-size: 18px; color: var(--ac); font-weight: 700; font-family: var(--fm); margin-bottom: 4px;">${gastroCount}</div>
+              <div style="font-size: 11px; color: var(--t2);">CHF ${gastroMRR}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Quick Actions</h3>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-primary btn-sm" onclick="document.getElementById('shadowModeModal').classList.add('show')">👁️ Shadow Mode</button>
+            <button class="btn-primary btn-sm" onclick="showToast('Broadcast modal opened')">📢 Send Broadcast</button>
+            <button class="btn-primary btn-sm" onclick="showToast('New invoice generated')">💳 Generate Invoices</button>
+            <button class="btn-primary btn-sm" onclick="showToast('Tickets list opened')">🎫 View Open Tickets</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Recent Activity</h3>
+          ${DATA.activities.slice(0, 5).map(a => `
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div class="activity-content">
+                <div class="activity-title">${a.description}</div>
+                <div class="activity-time">${a.time}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('pageBody').innerHTML = html;
+    }
+
+    function renderClients() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="filter-bar">
+          ${['Tous', 'Bistro', 'Resto', 'Gastro', 'Alerte'].map(f => `
+            <button class="filter-btn ${currentFilter === f ? 'active' : ''}" onclick="currentFilter='${f}'; setPage('clients')">${f}</button>
+          `).join('')}
+        </div>
+
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Restaurant</th>
+                  <th>Plan</th>
+                  <th>Ville</th>
+                  <th>Tables</th>
+                  <th>Résas 7j</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${DATA.clients.filter(c =>
+                  currentFilter === 'Tous' ||
+                  c.plan === currentFilter ||
+                  (currentFilter === 'Alerte' && c.status === 'alert')
+                ).map(c => `
+                  <tr>
+                    <td><span style="margin-right: 6px;">${c.logo}</span>${c.name}</td>
+                    <td><span class="pill pill-blue">${c.plan}</span></td>
+                    <td>${c.city}</td>
+                    <td>${c.tables}</td>
+                    <td>${c.res7d}</td>
+                    <td>
+                      <span class="pill ${c.status === 'active' ? 'pill-green' : c.status === 'paused' ? 'pill-yellow' : 'pill-red'}">
+                        ${c.status === 'active' ? '🟢 Actif' : c.status === 'paused' ? '⏸️ Pause' : '🔴 Alerte'}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn-shadow btn-sm" onclick="showToast('Shadow mode for ${c.name}', 'success')">🔭</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderFacturation() {
+      const body = document.getElementById('pageBody');
+      const mrr = DATA.clients.reduce((s, c) => s + c.mrr, 0);
+      const arr = mrr * 12;
+      const paidCount = DATA.invoices.filter(f => f.status === 'paid').length;
+      const recoveryRate = ((paidCount / DATA.invoices.length) * 100).toFixed(1);
+      const unpaidAmount = DATA.invoices.filter(f => f.status !== 'paid').reduce((s, f) => s + f.amount, 0);
+
+      let html = `
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <button class="filter-btn active" onclick="">Factures</button>
+          <button class="filter-btn" onclick="showToast('Automatisations view')">Automatisations</button>
+          <button class="filter-btn" onclick="showToast('Coupons view')">Coupons</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="kpi-card">
+            <div class="kpi-label">MRR (CHF)</div>
+            <div class="kpi-value">${mrr.toLocaleString('de-CH')}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">ARR (CHF)</div>
+            <div class="kpi-value">${arr.toLocaleString('de-CH')}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Taux Recouvrement</div>
+            <div class="kpi-value">${recoveryRate}%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Impayés (CHF)</div>
+            <div class="kpi-value" style="color: var(--rd);">${unpaidAmount.toLocaleString('de-CH')}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Factures</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Numéro</th><th>Client</th><th>Montant</th><th>Date</th><th>Statut</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                ${DATA.invoices.map(f => `
+                  <tr>
+                    <td><span style="font-family: var(--fm);">${f.id}</span></td>
+                    <td>${f.client}</td>
+                    <td>CHF ${f.amount.toLocaleString('de-CH')}</td>
+                    <td>${f.date}</td>
+                    <td>
+                      <span class="pill ${f.status === 'paid' ? 'pill-green' : f.status === 'pending' ? 'pill-yellow' : 'pill-red'}">
+                        ${f.status === 'paid' ? '✓ Payée' : f.status === 'pending' ? '⏳ En attente' : '✕ Impayée'}
+                      </span>
+                    </td>
+                    <td><button class="btn-secondary btn-sm" onclick="showToast('Invoice opened')">→</button></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Dunning Workflow</h3>
+          <div class="dunning-flow">
+            <div class="dunning-step active">Facture</div>
+            <div class="dunning-arrow">→</div>
+            <div class="dunning-step">Relance 1</div>
+            <div class="dunning-arrow">→</div>
+            <div class="dunning-step">Relance 2</div>
+            <div class="dunning-arrow">→</div>
+            <div class="dunning-step">Relance 3</div>
+            <div class="dunning-arrow">→</div>
+            <div class="dunning-step">Suspension</div>
+            <div class="dunning-arrow">→</div>
+            <div class="dunning-step">Archivage</div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderOnboarding() {
+      const body = document.getElementById('pageBody');
+      let html = `<div style="display: grid; gap: 12px;">`;
+      DATA.onboarding.forEach(client => {
+        const doneCount = client.steps.filter(s => s.done).length;
+        const progress = (doneCount / client.steps.length) * 100;
+        html += `
+          <div class="client-card">
+            <div class="client-card-header">
+              <div>
+                <div class="client-card-title">${client.name}</div>
+                <div style="font-size: 11px; color: var(--t3); margin-top: 2px;">${doneCount}/${client.steps.length} steps completed</div>
+              </div>
+              <span class="pill pill-green">${client.health}%</span>
+            </div>
+            <div class="client-card-progress">
+              <div class="client-card-progress-bar" style="width: ${progress}%"></div>
+            </div>
+            <div class="client-card-steps">
+              ${client.steps.map(step => `
+                <div class="client-card-step ${step.done ? 'done' : ''}">${step.name}</div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      body.innerHTML = html;
+    }
+
+    function renderActivite() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Activity Stream</h3>
+          ${DATA.activities.map(a => `
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div class="activity-content">
+                <div class="activity-title">${a.description}</div>
+                <div class="activity-desc">${a.user || a.client || a.service || a.subdomain || ''}</div>
+                <div class="activity-time">${a.time}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderTickets() {
+      const body = document.getElementById('pageBody');
+      currentFilter = currentFilter || 'Tous';
+
+      const filtered = DATA.tickets.filter(t =>
+        currentFilter === 'Tous' ||
+        (currentFilter === 'Ouverts' && t.status === 'open') ||
+        (currentFilter === 'Fermés' && t.status === 'closed')
+      );
+
+      const selected = filtered[0] || DATA.tickets[0];
+
+      let html = `
+        <div class="filter-bar" style="margin-bottom: 16px;">
+          ${['Tous', 'Ouverts', 'Fermés'].map(f => `
+            <button class="filter-btn ${currentFilter === f ? 'active' : ''}" onclick="currentFilter='${f}'; setPage('tickets')">${f}</button>
+          `).join('')}
+        </div>
+
+        <div class="two-column">
+          <div class="column-left">
+            ${filtered.map(t => `
+              <div class="ticket-item ${t.id === selected.id ? 'active' : ''}" onclick="renderTicketDetail(${t.id})">
+                <div class="ticket-item-title">${t.title}</div>
+                <div class="ticket-item-meta">
+                  <span>${t.client}</span>
+                  <span class="pill pill-blue" style="padding: 1px 6px; font-size: 9px;">${t.priority}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="column-right" id="ticketDetail">
+            <div style="padding: 16px;">
+              <h3 style="color: var(--text); margin-bottom: 12px; font-size: 14px; font-weight: 600;">${selected.title}</h3>
+              <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <span class="pill pill-blue">${selected.priority}</span>
+                <span class="pill ${selected.status === 'open' ? 'pill-yellow' : 'pill-green'}">${selected.status === 'open' ? 'Open' : 'Closed'}</span>
+              </div>
+              <div style="margin-bottom: 16px;">
+                <h4 style="color: var(--t2); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Messages</h4>
+                ${selected.messages.map(m => `
+                  <div class="message">
+                    <div class="message-author">${m.author}</div>
+                    <div class="message-text">${m.text}</div>
+                    <div class="message-time">${m.time}</div>
+                  </div>
+                `).join('')}
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="showToast('AI draft generated')">✨ AI Draft Response</button>
+                <button class="btn-secondary" onclick="showToast('Reply form opened')">Reply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderTicketDetail(ticketId) {
+      const ticket = DATA.tickets.find(t => t.id === ticketId);
+      if (!ticket) return;
+
+      const detail = document.getElementById('ticketDetail');
+      detail.innerHTML = `
+        <div style="padding: 16px;">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 14px; font-weight: 600;">${ticket.title}</h3>
+          <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+            <span class="pill pill-blue">${ticket.priority}</span>
+            <span class="pill ${ticket.status === 'open' ? 'pill-yellow' : 'pill-green'}">${ticket.status === 'open' ? 'Open' : 'Closed'}</span>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <h4 style="color: var(--t2); font-size: 11px; margin-bottom: 8px; text-transform: uppercase;">Messages</h4>
+            ${ticket.messages.map(m => `
+              <div class="message">
+                <div class="message-author">${m.author}</div>
+                <div class="message-text">${m.text}</div>
+                <div class="message-time">${m.time}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-primary" onclick="showToast('AI draft generated')">✨ AI Draft Response</button>
+            <button class="btn-secondary" onclick="showToast('Reply form opened')">Reply</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAlertes() {
+      const body = document.getElementById('pageBody');
+      let html = `<div style="display: grid; gap: 12px;">`;
+      DATA.alertes.forEach(a => {
+        html += `
+          <div class="status-card">
+            <div class="status-header">
+              <div style="flex: 1;">
+                <div class="status-name">${a.title}</div>
+                <div style="font-size: 10px; color: var(--t3); margin-top: 4px;">${a.timestamp}</div>
+              </div>
+              <span class="pill ${a.severity === 'critical' ? 'pill-red' : 'pill-yellow'}">${a.severity.toUpperCase()}</span>
+            </div>
+            <div style="font-size: 12px; color: var(--t2); margin-top: 8px;">${a.description}</div>
+            <div style="display: flex; gap: 10px; margin-top: 12px;">
+              <button class="btn-primary btn-sm" onclick="showToast('Alert acknowledged')">Acknowledge</button>
+              <button class="btn-secondary btn-sm" onclick="showToast('Alert dismissed')">Dismiss</button>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      body.innerHTML = html;
+    }
+
+    function renderAvis() {
+      const body = document.getElementById('pageBody');
+      const themes = ['Interface', 'Fonctionnalités', 'Intégrations', 'Performance'];
+
+      let html = `<div style="display: grid; gap: 12px;">`;
+      themes.forEach(theme => {
+        const suggestions = DATA.suggestions.filter(s => s.theme === theme);
+        html += `
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">${theme}</h3>
+            ${suggestions.map(s => `
+              <div style="padding: 12px; background: var(--surf3); border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="color: var(--text); font-size: 12px; font-weight: 500;">${s.title}</div>
+                  <span class="pill ${s.status === 'planned' ? 'pill-blue' : s.status === 'in-progress' ? 'pill-yellow' : 'pill-green'}" style="margin-top: 4px; font-size: 9px;">${s.status}</span>
+                </div>
+                <div style="color: var(--ac); font-weight: 700;">👍 ${s.votes}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      });
+
+      html += `
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Roadmap</h3>
+          <div style="font-size: 12px; color: var(--t2); line-height: 1.6;">
+            <strong>Q2 2026:</strong> Mobile app, Dark mode, Enhanced analytics<br>
+            <strong>Q3 2026:</strong> Slack integration, Multi-language, Custom workflows<br>
+            <strong>Q4 2026:</strong> AI-powered insights, Advanced reporting, Custom branding
+          </div>
+        </div>
+      `;
+
+      html += `</div>`;
+      body.innerHTML = html;
+    }
+
+    function renderBroadcast() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 16px; font-size: 13px; font-weight: 600;">Compose Broadcast</h3>
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input type="text" class="input-field form-control" placeholder="Broadcast subject...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Content</label>
+            <textarea class="input-field form-control textarea" placeholder="Message content..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Audience</label>
+            <select class="select-field">
+              <option>All Clients</option>
+              <option>Bistro Plan</option>
+              <option>Resto Plan</option>
+              <option>Gastro Plan</option>
+              <option>Active Only</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-primary" onclick="showToast('Broadcast scheduled for 10:00 AM', 'success')">Schedule Broadcast</button>
+            <button class="btn-secondary" onclick="showToast('Preview opened')">Preview</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Recent Broadcasts</h3>
+          <table>
+            <thead><tr><th>Subject</th><th>Sent</th><th>Audience</th><th>Delivered</th></tr></thead>
+            <tbody>
+              <tr><td>Platform maintenance schedule</td><td>2026-03-26</td><td>All Clients</td><td>36/36</td></tr>
+              <tr><td>New feature: Group reservations</td><td>2026-03-24</td><td>All Clients</td><td>36/36</td></tr>
+              <tr><td>Security update notification</td><td>2026-03-20</td><td>Active Only</td><td>34/34</td></tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderNotifications() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="filter-bar" style="margin-bottom: 16px;">
+          <button class="filter-btn active" onclick="">All</button>
+          <button class="filter-btn" onclick="">Email</button>
+          <button class="filter-btn" onclick="">Push</button>
+          <button class="filter-btn" onclick="">SMS</button>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 16px; font-size: 13px; font-weight: 600;">Notification Templates</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+              <div style="color: var(--text); font-size: 12px; font-weight: 600; margin-bottom: 4px;">Reservation Confirmation</div>
+              <div style="color: var(--t3); font-size: 11px;">Sent to customers 15min after booking</div>
+            </div>
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+              <div style="color: var(--text); font-size: 12px; font-weight: 600; margin-bottom: 4px;">Invoice Ready</div>
+              <div style="color: var(--t3); font-size: 11px;">Sent to restaurants on invoice generation</div>
+            </div>
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+              <div style="color: var(--text); font-size: 12px; font-weight: 600; margin-bottom: 4px;">Onboarding Step Complete</div>
+              <div style="color: var(--t3); font-size: 11px;">Sent when client completes setup step</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Delivery Statistics</h3>
+          <div class="grid-3">
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px; text-align: center;">
+              <div style="font-size: 10px; color: var(--t3); margin-bottom: 4px;">SENT</div>
+              <div style="font-size: 18px; color: var(--ac); font-weight: 700;">1,247</div>
+            </div>
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px; text-align: center;">
+              <div style="font-size: 10px; color: var(--t3); margin-bottom: 4px;">DELIVERED</div>
+              <div style="font-size: 18px; color: var(--gn); font-weight: 700;">1,198</div>
+            </div>
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px; text-align: center;">
+              <div style="font-size: 10px; color: var(--t3); margin-bottom: 4px;">FAILED</div>
+              <div style="font-size: 18px; color: var(--rd); font-weight: 700;">49</div>
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderKB() {
+      const body = document.getElementById('pageBody');
+      const categories = ['Onboarding', 'Technical', 'Administration', 'Features', 'Support'];
+
+      let html = `
+        <input type="text" class="input-field" placeholder="Search articles..." style="margin-bottom: 16px; width: 100%; max-width: 400px;">
+
+        <div style="display: grid; gap: 12px;">
+      `;
+      categories.forEach(cat => {
+        const articles = DATA.kbArticles.filter(a => a.category === cat);
+        html += `
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">${cat}</h3>
+            ${articles.map(a => `
+              <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);">
+                <div>
+                  <div style="color: var(--text); font-size: 12px; font-weight: 500;">${a.title}</div>
+                  <div style="color: var(--t3); font-size: 10px; margin-top: 2px;">👁️ ${a.views} views · Updated ${a.updated}</div>
+                </div>
+                <button class="btn-secondary btn-sm" onclick="showToast('Article: ${a.title}')">→</button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      });
+      html += `</div>`;
+      body.innerHTML = html;
+    }
+
+    function renderMarche() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="grid-2">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Market</div>
+            <div class="kpi-value" style="font-size: 20px;">5.2K</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Market Share</div>
+            <div class="kpi-value" style="font-size: 20px;">0.7%</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Prospects</h3>
+          <table>
+            <thead><tr><th>Restaurant</th><th>City</th><th>Contact</th><th>Status</th><th>Value</th></tr></thead>
+            <tbody>
+              ${DATA.prospects.map(p => `
+                <tr>
+                  <td>${p.name}</td>
+                  <td>${p.city}</td>
+                  <td>${p.contact}</td>
+                  <td><span class="pill pill-blue">${p.status}</span></td>
+                  <td>${p.value}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Competitor Analysis</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+              <div style="color: var(--t2); font-size: 11px; margin-bottom: 8px;">RESERVATION.IO</div>
+              <div style="color: var(--am); font-size: 13px; font-weight: 600;">~1.2K restaurants</div>
+            </div>
+            <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+              <div style="color: var(--t2); font-size: 11px; margin-bottom: 8px;">BOOKATABLE</div>
+              <div style="color: var(--am); font-size: 13px; font-weight: 600;">~3.8K restaurants</div>
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderAnalytics() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="grid-3">
+          <div class="kpi-card">
+            <div class="kpi-label">Weekly Reservations</div>
+            <div class="kpi-value" style="font-size: 20px;">247</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Active Users</div>
+            <div class="kpi-value" style="font-size: 20px;">1,453</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Feature Adoption</div>
+            <div class="kpi-value" style="font-size: 20px;">72%</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Reservations by Week</h3>
+          <div style="height: 200px; display: flex; align-items: flex-end; gap: 8px; padding: 16px 0;">
+            ${[42, 58, 51, 63, 57, 64, 56, 62, 51, 59, 67, 72, 68, 71].map(val => `
+              <div style="flex: 1; background: var(--bl); border-radius: 4px 4px 0 0; height: ${(val/80)*100}%; opacity: 0.7; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'"></div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Top Features</h3>
+          <div style="display: grid; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--text); font-size: 12px;">Reservation booking</span>
+              <div style="display: flex; gap: 4px; align-items: center;">
+                <div style="width: 100px; height: 6px; background: var(--surf3); border-radius: 3px; overflow: hidden;">
+                  <div style="width: 95%; height: 100%; background: var(--gn);"></div>
+                </div>
+                <span style="color: var(--ac); font-size: 11px; font-weight: 600;">95%</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--text); font-size: 12px;">Analytics dashboard</span>
+              <div style="display: flex; gap: 4px; align-items: center;">
+                <div style="width: 100px; height: 6px; background: var(--surf3); border-radius: 3px; overflow: hidden;">
+                  <div style="width: 82%; height: 100%; background: var(--gn);"></div>
+                </div>
+                <span style="color: var(--ac); font-size: 11px; font-weight: 600;">82%</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--text); font-size: 12px;">Menu management</span>
+              <div style="display: flex; gap: 4px; align-items: center;">
+                <div style="width: 100px; height: 6px; background: var(--surf3); border-radius: 3px; overflow: hidden;">
+                  <div style="width: 68%; height: 100%; background: var(--gn);"></div>
+                </div>
+                <span style="color: var(--ac); font-size: 11px; font-weight: 600;">68%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderMonitoring() {
+      const body = document.getElementById('pageBody');
+      let html = `<div style="display: grid; gap: 12px;">`;
+      DATA.monitoring.forEach(m => {
+        html += `
+          <div class="status-card">
+            <div class="status-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="status-badge ${m.status === 'offline' ? 'offline' : ''}"></span>
+                <div class="status-name">${m.subdomain}.r3sto.ch</div>
+              </div>
+              <span class="pill ${m.status === 'online' ? 'pill-green' : 'pill-red'}">${m.status === 'online' ? '🟢 Online' : '🔴 Offline'}</span>
+            </div>
+            <div class="status-rows">
+              <div class="status-row"><span>Uptime (30d):</span><span>${m.uptime}</span></div>
+              <div class="status-row"><span>Response Time:</span><span>${m.responseTime}</span></div>
+              <div class="status-row"><span>Last Check:</span><span>${m.lastCheck}</span></div>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      body.innerHTML = html;
+    }
+
+    function renderDeployments() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Active Versions</h3>
+          <table>
+            <thead><tr><th>Subdomain</th><th>Current</th><th>Previous</th><th>Deployed</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${DATA.versions.map(v => `
+                <tr>
+                  <td><strong>${v.subdomain}.r3sto.ch</strong></td>
+                  <td><span style="font-family: var(--fm);">${v.current}</span></td>
+                  <td><span style="font-family: var(--fm);">${v.previous}</span></td>
+                  <td>${v.deployed}</td>
+                  <td>
+                    <button class="btn-secondary btn-sm" onclick="showToast('Rollback initiated for ${v.subdomain}')">↶ Rollback</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Deployment Log</h3>
+          ${[
+            { version: '2.14.3', subdomain: 'app', timestamp: '2026-03-26 11:30', status: 'success' },
+            { version: '3.2.1', subdomain: 'api', timestamp: '2026-03-26 11:15', status: 'success' },
+            { version: '1.8.5', subdomain: 'auth', timestamp: '2026-03-25 16:45', status: 'success' },
+          ].map(d => `
+            <div style="padding: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="color: var(--text); font-size: 12px; font-weight: 500;">Deployed ${d.subdomain} v${d.version}</div>
+                <div style="color: var(--t3); font-size: 10px; margin-top: 2px;">${d.timestamp}</div>
+              </div>
+              <span class="pill pill-green">✓ Success</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderSecurite() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Audit Log</h3>
+          <table>
+            <thead><tr><th>User</th><th>Action</th><th>Timestamp</th><th>IP Address</th></tr></thead>
+            <tbody>
+              ${DATA.auditLog.map(log => `
+                <tr>
+                  <td>${log.user}</td>
+                  <td><span style="color: var(--t2); font-size: 11px;">${log.action}</span></td>
+                  <td><span style="font-size: 11px;">${log.timestamp}</span></td>
+                  <td><span style="font-family: var(--fm); font-size: 10px;">${log.ipAddress}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Login History</h3>
+          <table>
+            <thead><tr><th>User</th><th>Time</th><th>Device</th><th>Location</th></tr></thead>
+            <tbody>
+              <tr><td>Didier G.</td><td>2026-03-27 09:15</td><td>Safari on macOS</td><td>Genève, CH</td></tr>
+              <tr><td>Sarah M.</td><td>2026-03-27 08:45</td><td>Chrome on Windows</td><td>Lausanne, CH</td></tr>
+              <tr><td>Marc L.</td><td>2026-03-27 07:30</td><td>Chrome on macOS</td><td>Bern, CH</td></tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderRoles() {
+      const body = document.getElementById('pageBody');
+      let html = `
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Team Members</h3>
+          <div style="display: grid; gap: 12px; margin-bottom: 16px;">
+            ${DATA.users.map(u => `
+              <div style="padding: 12px; background: var(--surf3); border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div class="user-avatar" style="width: 36px; height: 36px;">${u.avatar}</div>
+                  <div>
+                    <div style="color: var(--text); font-size: 12px; font-weight: 600;">${u.name}</div>
+                    <div style="color: var(--t3); font-size: 10px;">${u.email}</div>
+                  </div>
+                </div>
+                <span class="pill pill-blue">${u.role}</span>
+              </div>
+            `).join('')}
+          </div>
+          <button class="btn-primary" onclick="showToast('Add user form opened')">+ Add Team Member</button>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Permission Matrix</h3>
+          <div class="permission-matrix">
+            <table class="permission-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 120px;">Permission</th>
+                  <th style="text-align: center; width: 100px;">Super Admin</th>
+                  <th style="text-align: center; width: 100px;">Admin</th>
+                  <th style="text-align: center; width: 100px;">Support</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>View Dashboard</td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                </tr>
+                <tr>
+                  <td>Manage Clients</td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox"></td>
+                </tr>
+                <tr>
+                  <td>View Billing</td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox"></td>
+                </tr>
+                <tr>
+                  <td>Handle Support</td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                </tr>
+                <tr>
+                  <td>Manage Users</td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox"></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox"></td>
+                </tr>
+                <tr>
+                  <td>Deploy Code</td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox"></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox"></td>
+                </tr>
+                <tr>
+                  <td>View Audit Log</td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox" checked></td>
+                  <td style="text-align: center;"><input type="checkbox" class="permission-checkbox"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('loginContainer').style.display = 'flex';
+    });
+  </script>
+</body>
+</html>
