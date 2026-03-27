@@ -13,8 +13,8 @@ import { ViewToolbar } from '../../components/ui/ViewToolbar'
 import { useT } from '../../i18n/useTranslation'
 import type { Service, Resa, Table, Combo } from '../../types'
 import { STATUS, CANAUX } from '../../utils/design'
-import { timeToMins, nowMins } from '../../utils/date'
-import { canMoveResa, canSwapResas, isOccupying, tblMatchesTable, iaPlacement } from '../../utils/placementRules'
+import { timeToMins, nowMins, todayISO } from '../../utils/date'
+import { canMoveResa, canSwapResas, isOccupying, tblMatchesTable, iaPlacement, smartPlacement } from '../../utils/placementRules'
 
 // Taille boutons iPad 9" — minimum 40px pour confort tactile
 const BTN = 40
@@ -127,19 +127,42 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
 
   // ── ÉTAT BLOQUÉ ──
   if (table.blocked) {
+    const comboNames = table.n.includes('+') ? table.n.split('+') : null
+    const comboCount = comboNames ? comboNames.length : 0
+    const lineHeight = comboCount >= 4 ? 96 : comboCount >= 3 ? 82 : comboCount === 2 ? 66 : 48
     return (
       <div style={{
         display: 'flex', borderRadius: 9, overflow: 'hidden',
         border: '1px solid rgba(220,80,80,.3)', background: 'rgba(220,80,80,.06)',
-        minHeight: 48, opacity: moveMode ? .35 : .7,
+        minHeight: lineHeight, opacity: moveMode ? .35 : .7,
       }}>
+        {salleColor && (
+          <div style={{ width: 3, flexShrink: 0, background: salleColor, borderRadius: '9px 0 0 9px', opacity: .6 }} />
+        )}
         <div style={{
-          width: 56, flexShrink: 0, display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', background: 'rgba(220,80,80,.2)',
-          padding: '4px 0',
+          width: 64, flexShrink: 0, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', background: 'rgba(220,80,80,.55)',
+          gap: 1, padding: '3px 0', borderRadius: salleColor ? 0 : '9px 0 0 9px',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: 'var(--rd)' }}>{table.n}</div>
-          <div style={{ fontSize: 10, color: 'var(--rd)', fontWeight: 600 }}>{table.capMax}p</div>
+          {comboNames ? (
+            <>
+              {comboNames.map((tn, i) => (
+                <div key={i} style={{
+                  fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
+                  textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3,
+                  borderBottom: i < comboNames.length - 1 ? '1px solid rgba(255,255,255,.2)' : 'none',
+                  padding: '1px 0', width: '100%', textAlign: 'center',
+                }}>{tn}</div>
+              ))}
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,.6)', fontWeight: 600, marginTop: 1 }}>{table.capMax}p</div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.3)' }}>{table.n}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>{table.capMax}p</div>
+            </>
+          )}
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,.8)', lineHeight: 1, marginTop: -1 }}>🚫</div>
         </div>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 10px', gap: 6 }}>
           <span style={{ fontSize: 14 }}>🚫</span>
@@ -153,27 +176,54 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
   // ── ÉTAT RÉSERVE (held) ──
   if (table.held && isFree) {
     const canTarget = moveMode && !isSource && table.capMax >= moveMode.covers
+    const comboNames = table.n.includes('+') ? table.n.split('+') : null
+    const comboCount = comboNames ? comboNames.length : 0
+    const lineHeight = comboCount >= 4 ? 96 : comboCount >= 3 ? 82 : comboCount === 2 ? 66 : 48
     return (
       <div
         onClick={() => {
           if (canTarget) { onMoveTarget(table); return }
-          if (!moveMode) onPlaceResa(table.id)
+          if (!moveMode) {
+            if (table.id.startsWith('combo__')) { onPlaceCombo(table.n); return }
+            onPlaceResa(table.id)
+          }
         }}
         style={{
           display: 'flex', borderRadius: 9, overflow: 'hidden',
           border: canTarget ? '2px solid rgba(60,200,112,.6)' : '1px solid rgba(232,165,48,.4)',
           background: canTarget ? 'rgba(60,200,112,.08)' : 'rgba(232,165,48,.06)',
-          minHeight: 48, cursor: canTarget || !moveMode ? 'pointer' : 'default',
+          minHeight: lineHeight, cursor: canTarget || !moveMode ? 'pointer' : 'default',
           opacity: moveMode && !canTarget ? .35 : 1,
         }}
         title={canTarget ? `Déplacer ici → ${table.n}` : `Réserver ${table.n} (de réserve)`}
       >
+        {salleColor && (
+          <div style={{ width: 3, flexShrink: 0, background: salleColor, borderRadius: '9px 0 0 9px', opacity: .6 }} />
+        )}
         <div style={{
-          width: 56, flexShrink: 0, display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', background: 'rgba(232,165,48,.18)', padding: '4px 0',
+          width: 64, flexShrink: 0, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', background: 'rgba(232,165,48,.45)',
+          gap: 1, padding: '3px 0', borderRadius: salleColor ? 0 : '9px 0 0 9px',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: '#e8a530' }}>{table.n}</div>
-          <div style={{ fontSize: 10, color: '#e8a530', fontWeight: 600 }}>{table.capMax}p</div>
+          {comboNames ? (
+            <>
+              {comboNames.map((tn, i) => (
+                <div key={i} style={{
+                  fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
+                  textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3,
+                  borderBottom: i < comboNames.length - 1 ? '1px solid rgba(255,255,255,.2)' : 'none',
+                  padding: '1px 0', width: '100%', textAlign: 'center',
+                }}>{tn}</div>
+              ))}
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,.6)', fontWeight: 600, marginTop: 1 }}>{table.capMax}p</div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.3)' }}>{table.n}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>{table.capMax}p</div>
+            </>
+          )}
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,.8)', lineHeight: 1, marginTop: -1 }}>🔒</div>
         </div>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 10px', gap: 6 }}>
           <span style={{ fontSize: 14 }}>🔒</span>
@@ -189,10 +239,19 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
     )
   }
 
-  // ── Couleur selon statut ──
-  const statusColor = sm ? sm.hex : 'rgba(100,116,139,.22)'
-  const borderCol = sm ? sm.border : 'var(--border)'
-  const bgCol = sm ? sm.bg : 'var(--surf)'
+  // ── Couleur selon statut (ou blocked/held) ──
+  const statusColor = sm ? sm.hex
+    : table.blocked ? 'rgba(220,80,80,.55)'
+    : table.held ? 'rgba(232,165,48,.45)'
+    : 'rgba(100,116,139,.22)'
+  const borderCol = sm ? sm.border
+    : table.blocked ? 'rgba(220,80,80,.5)'
+    : table.held ? 'rgba(232,165,48,.4)'
+    : 'var(--border)'
+  const bgCol = sm ? sm.bg
+    : table.blocked ? 'rgba(220,80,80,.06)'
+    : table.held ? 'rgba(232,165,48,.06)'
+    : 'var(--surf)'
 
   // ── Move mode borders ──
   const moveBorder = isSource
@@ -231,9 +290,14 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
         // Fermer les menus ouverts
         if (showComboMenu) { setShowComboMenu(false); return }
         if (expanded) { onToggleExpand(); return }
-        // Clic sur la ligne = résa manuel (libre) ou édition (occupée)
-        if (!moveMode && isFree) { onPlaceResa(table.id); return }
-        if (!moveMode && mainResa) { onClick(mainResa.id); return }
+        // Clic sur la ligne = résa manuel (libre) ou actions (occupée)
+        if (!moveMode && isFree) {
+          // Combo row → placer via combo label ; table normale → placer via tableId
+          if (table.id.startsWith('combo__')) { onPlaceCombo(table.n); return }
+          onPlaceResa(table.id); return
+        }
+        // Table occupée → ouvrir le dropdown d'actions (comme le badge)
+        if (!moveMode && !isFree) { onToggleExpand(); return }
       }}
       style={{
         borderRadius: 9, overflow: 'visible', position: 'relative',
@@ -302,8 +366,15 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
               </div>
             </>
           )}
+          {/* Indicateur blocked/held dans le badge */}
+          {resas.length === 0 && table.blocked && (
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,.8)', lineHeight: 1, marginTop: -1 }}>🚫</div>
+          )}
+          {resas.length === 0 && table.held && !table.blocked && (
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,.8)', lineHeight: 1, marginTop: -1 }}>🔒</div>
+          )}
           {/* Chevron — seulement sur tables occupées */}
-          {!moveMode && !isFree && (
+          {!moveMode && !isFree && resas.length > 0 && (
             <div style={{ fontSize: 9, color: 'rgba(255,255,255,.5)', lineHeight: 1, marginTop: -1 }}>
               {expanded ? '▲' : '▼'}
             </div>
@@ -355,6 +426,19 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                   <span style={{ fontSize: 11, color: 'rgba(255,214,102,.7)' }}>{availableCombos.length === 1 ? `${availableCombos[0].capOverride || availableCombos[0].cap}p` : ''}</span>
                   <span style={{ fontSize: 10, marginLeft: 2 }}>{showComboMenu ? '▲' : '▼'}</span>
                 </button>
+              )}
+            </div>
+          ) : resas.length === 0 ? (
+            /* ════ TABLE BLOQUÉE / RÉSERVÉE SANS RÉSA ════ */
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {table.blocked && (
+                <span style={{ fontSize: 13, color: 'var(--rd)', fontWeight: 700 }}>🚫 Bloquée{table.blockedReason ? ` — ${table.blockedReason}` : ''}</span>
+              )}
+              {table.held && !table.blocked && (
+                <span style={{ fontSize: 13, color: '#e8a530', fontWeight: 700 }}>🔒 Réservée</span>
+              )}
+              {!table.blocked && !table.held && (
+                <span style={{ fontSize: 13, color: 'var(--t4)' }}>—</span>
               )}
             </div>
           ) : (
@@ -469,11 +553,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                     {(r.s === 'reserved' || r.s === 'arrived') && (
                       <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onStartMove(r) }} style={ddItem('↔', 'Déplacer', '#7bb8ff')}>↔ Déplacer</button>
                     )}
-                    {/* ── 3. Délier combo — seulement sur table individuelle faisant partie d'un combo ── */}
-                    {!table.id.startsWith('combo__') && isInCombo && (r.s === 'reserved' || r.s === 'arrived') && (
-                      <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onUncombine(table.id, r.id) }} style={ddItem('✂', 'Délier combo', '#e8a530')}>✂ Délier combo</button>
-                    )}
-                    {/* ── 4. Actions statut ── */}
+                    {/* ── 3. Actions statut ── */}
                     {r.s === 'waitlist' && (
                       <>
                         <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onRestore(r.id) }} style={ddItem('✓', 'Confirmer', 'var(--gn)')}>✓ Confirmer</button>
@@ -562,8 +642,8 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
   onCancel: (id: string) => void
   onRestore: (id: string) => void
   onClickResa: (id: string) => void
-  onPlaceResa: (tableId: string) => void
-  onPlaceCombo: (comboLabel: string) => void
+  onPlaceResa: (tableId: string, svc?: string) => void
+  onPlaceCombo: (comboLabel: string, svc?: string) => void
   onUncombine: (tableId: string, resaId: string) => void
   onStartMove: (resa: Resa) => void
   onMoveTarget: (table: Table, targetSvc: string) => void
@@ -587,8 +667,12 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
   const blockedCount = tables.filter(t => t.blocked).length
   const heldCount = tables.filter(t => t.held && !svcResas.some(r => tblMatchesTable(r.tbl, t.n) && (r.s === 'reserved' || r.s === 'arrived'))).length
 
+  const fillPct = activeTables.length > 0 ? Math.round(((activeTables.length - freeCount) / activeTables.length) * 100) : 0
   const isMoveService = moveMode ? moveMode.svc === svcName : true
   const isMoveOtherService = moveMode && !isMoveService
+  // Wrap place callbacks to include service name
+  const placeResa = (tableId: string) => onPlaceResa(tableId, svcName)
+  const placeCombo = (comboLabel: string) => onPlaceCombo(comboLabel, svcName)
 
   return (
     <div style={{ flex: 1, minWidth: 0, minHeight: 0, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', opacity: 1 }}>
@@ -645,7 +729,11 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
           </button>
         ) : (
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text)', fontFamily: 'var(--fm)' }}>{svcResas.length}</div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text)', fontFamily: 'var(--fm)', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
+              {svcResas.length}
+              {fillPct >= 85 && <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 4, background: 'rgba(220,80,80,.15)', color: 'var(--rd)', fontWeight: 700, border: '1px solid rgba(220,80,80,.3)' }}>🔥 {fillPct}%</span>}
+              {fillPct >= 70 && fillPct < 85 && <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 4, background: 'rgba(232,165,48,.12)', color: '#e8a530', fontWeight: 700, border: '1px solid rgba(232,165,48,.3)' }}>⚡ {fillPct}%</span>}
+            </div>
             <div style={{ fontSize: 10, color: 'var(--t3)', display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
               <span>{svcCvt}p</span>
               <span style={{ color: 'var(--gn)' }}>{freeCount} 🪑</span>
@@ -710,8 +798,8 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                     onCancel={onCancel}
                     onRestore={onRestore}
                     onClick={onClickResa}
-                    onPlaceResa={onPlaceResa}
-                    onPlaceCombo={onPlaceCombo}
+                    onPlaceResa={placeResa}
+                    onPlaceCombo={placeCombo}
                     onUncombine={onUncombine}
                     onStartMove={onStartMove}
                     onMoveTarget={(tbl) => onMoveTarget(tbl, svcName)}
@@ -746,8 +834,8 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                 onCancel={onCancel}
                 onRestore={onRestore}
                 onClick={onClickResa}
-                onPlaceResa={onPlaceResa}
-                onPlaceCombo={onPlaceCombo}
+                onPlaceResa={placeResa}
+                onPlaceCombo={placeCombo}
                 onUncombine={onUncombine}
                 onStartMove={onStartMove}
                 onMoveTarget={onMoveTarget}
@@ -765,7 +853,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
 // ── Vue principale ─────────────────────────────────
 export function Grille() {
   const { t } = useT()
-  const { resas, tables, services, salles, combos, activeDate, setResaStatus, updateResa, swapTables } = useAppStore()
+  const { resas, tables, services, salles, combos, activeDate, setActiveDate, setResaStatus, updateResa, swapTables } = useAppStore()
   const navigate = useNavigate()
   const [selectedSalle, setSelectedSalle] = useState('toutes')
   const [svcFilter, setSvcFilter] = useState('tous')
@@ -776,6 +864,35 @@ export function Grille() {
 
   const activeServices = services.filter(s => s.active)
   const dayResas = resas.filter(r => r.date === activeDate)
+
+  // ── Auto-sélection du service : actuel (si avant Last Order) ou prochain ──
+  useEffect(() => {
+    if (svcFilter !== 'tous') return // user a choisi manuellement
+    if (activeDate !== todayISO()) return // pas aujourd'hui → afficher tous
+    if (activeServices.length === 0) return
+
+    const now = nowMins()
+    // Service en cours = on est entre open et lastOrder
+    const current = activeServices.find(s => {
+      const open = timeToMins(s.open)
+      const lo = timeToMins(s.lastOrder)
+      return now >= open && now <= lo
+    })
+    if (current) {
+      setSvcFilter(current.name.toLowerCase())
+      return
+    }
+    // Prochain service = le premier dont open > now
+    const sorted = [...activeServices].sort((a, b) => timeToMins(a.open) - timeToMins(b.open))
+    const next = sorted.find(s => timeToMins(s.open) > now)
+    if (next) {
+      setSvcFilter(next.name.toLowerCase())
+      return
+    }
+    // Tous les services sont passés → afficher le dernier (soir)
+    const last = sorted[sorted.length - 1]
+    if (last) setSvcFilter(last.name.toLowerCase())
+  }, [activeDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Map salle name → color pour bandes colorées
   const salleColorMap = useMemo(() => {
@@ -799,13 +916,13 @@ export function Grille() {
     [tables, selectedSalle, search, dayResas]
   )
 
-  function handlePlaceResa(tableId: string) {
+  function handlePlaceResa(tableId: string, svc?: string) {
     const tbl = tables.find(t => t.id === tableId)
-    if (tbl) navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel&from=grille`)
+    if (tbl) navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel${svc ? `&svc=${svc}` : ''}&from=grille`)
   }
 
-  function handlePlaceCombo(comboLabel: string) {
-    navigate(`/reservations?new=1&table=${comboLabel}&mode=manuel&from=grille`)
+  function handlePlaceCombo(comboLabel: string, svc?: string) {
+    navigate(`/reservations?new=1&table=${comboLabel}&mode=manuel${svc ? `&svc=${svc}` : ''}&from=grille`)
   }
 
   function handleUncombine(tableId: string, resaId: string) {
@@ -840,9 +957,11 @@ export function Grille() {
       return
     }
     const patch: Record<string, any> = { tbl: bestTbl }
-    if (effectiveSvc !== moveMode.svc) patch.svc = effectiveSvc
+    const isServiceChange = effectiveSvc !== moveMode.svc
+    if (isServiceChange) patch.svc = effectiveSvc
     updateResa(sourceResa.id, patch)
-    const svcLabel = effectiveSvc !== moveMode.svc ? ` (→ ${effectiveSvc})` : ''
+    if (isServiceChange) setSvcFilter('tous')
+    const svcLabel = isServiceChange ? ` (→ ${effectiveSvc})` : ''
     setMoveMsg(`✅ IA → ${sourceResa.nom || sourceResa.n} placé sur ${bestTbl}${svcLabel}`)
     setMoveMode(null); setTimeout(() => setMoveMsg(null), 2500)
   }
@@ -865,6 +984,7 @@ export function Grille() {
       const patch: Record<string, any> = { tbl: check.newTbl! }
       if (isServiceChange) patch.svc = effectiveSvc
       updateResa(sourceResa.id, patch)
+      if (isServiceChange) setSvcFilter('tous')
       const svcLabel = isServiceChange ? ` (→ ${effectiveSvc})` : ''
       setMoveMsg(`✅ ${sourceResa.nom || sourceResa.n} → ${targetTable.n}${svcLabel}`)
       setMoveMode(null); setTimeout(() => setMoveMsg(null), 2500)

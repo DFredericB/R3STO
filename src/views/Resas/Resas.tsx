@@ -7,7 +7,7 @@ import PhoneInput, { toE164, displayPhone } from '../../components/ui/PhoneInput
 import { useT } from '../../i18n/useTranslation'
 import { STATUS, CANAUX } from '../../utils/design'
 import { todayISO, timeToMins, shiftISO, nowMins } from '../../utils/date'
-import { getFreeTables, getFreeCombos, getMaxCapacity, detectTablePref as detectTablePrefCentral } from '../../utils/placementRules'
+import { getFreeTables, getFreeCombos, getMaxCapacity, detectTablePref as detectTablePrefCentral, smartPlacement } from '../../utils/placementRules'
 
 // ── Helpers ────────────────────────────────────────
 const toMin = timeToMins
@@ -66,12 +66,15 @@ function Stepper({ value, onChange, min = 0, max = 10, label, icon }: {
   )
 }
 
-function CoverChips({ selected, onSelect, maxCap = 50 }: { selected: number; onSelect: (n: number) => void; maxCap?: number }) {
+function CoverChips({ selected, onSelect, maxCap = 50, softCap }: { selected: number; onSelect: (n: number) => void; maxCap?: number; softCap?: number }) {
+  // softCap = capacité de la table actuelle (au-delà → orange, suggestion combo)
+  // maxCap = capacité max absolue (au-delà → désactivé)
   const [big, setBig] = useState(selected > 8)
   useEffect(() => { if (selected > 8) setBig(true) }, [selected])
   if (big) return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <Stepper value={selected} onChange={onSelect} min={1} max={Math.max(maxCap, 1)} label="" icon="🍽" />
+      {softCap && selected > softCap && <span style={{ fontSize: 10, color: '#e8a530', fontWeight: 600 }}>table max {softCap}p</span>}
       {maxCap < 50 && <span style={{ fontSize: 10, color: 'var(--am)', fontWeight: 600 }}>max {maxCap}p</span>}
       <button type="button" onClick={() => { onSelect(Math.min(2, maxCap)); setBig(false) }}
         style={{ fontSize: 10, color: 'var(--t3)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>← 1-8</button>
@@ -82,15 +85,16 @@ function CoverChips({ selected, onSelect, maxCap = 50 }: { selected: number; onS
       {[1,2,3,4,5,6,7,8].map(n => {
         const on = selected === n
         const over = n > maxCap
+        const overSoft = !over && softCap != null && n > softCap // au-delà de la table mais pas du max → orange
         return (
           <button key={n} type="button" onClick={() => !over && onSelect(n)} style={{
             width: T, height: T, borderRadius: 8, border: '2px solid', fontSize: 15, fontWeight: 700, transition: '.12s',
             cursor: over ? 'not-allowed' : 'pointer',
             opacity: over ? .3 : 1,
-            background: on ? (over ? 'rgba(220,80,80,.15)' : SEL.bg) : UNSEL.bg,
-            borderColor: on ? (over ? 'rgba(220,80,80,.5)' : SEL.border) : over ? 'rgba(220,80,80,.2)' : UNSEL.border,
-            color: on ? (over ? 'var(--rd)' : SEL.color) : over ? 'var(--rd)' : UNSEL.color,
-            boxShadow: on && !over ? `0 0 8px ${SEL.bg}` : 'none',
+            background: on ? (over ? 'rgba(220,80,80,.15)' : overSoft ? 'rgba(232,165,48,.2)' : SEL.bg) : UNSEL.bg,
+            borderColor: on ? (over ? 'rgba(220,80,80,.5)' : overSoft ? 'rgba(232,165,48,.6)' : SEL.border) : over ? 'rgba(220,80,80,.2)' : overSoft ? 'rgba(232,165,48,.3)' : UNSEL.border,
+            color: on ? (over ? 'var(--rd)' : overSoft ? '#e8a530' : SEL.color) : over ? 'var(--rd)' : overSoft ? '#e8a530' : UNSEL.color,
+            boxShadow: on && !over && !overSoft ? `0 0 8px ${SEL.bg}` : 'none',
           }}>{n}</button>
         )
       })}
@@ -165,6 +169,7 @@ export function Resas() {
   })
   const [matchedProfile, setMatchedProfile] = useState<Resa | null>(null)
   const [showProfil, setShowProfil] = useState(false)
+  const [smartWarn, setSmartWarn] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [lastEditedId, setLastEditedId] = useState<string | null>(null)
 
@@ -236,6 +241,7 @@ export function Resas() {
     const newFlag = searchParams.get('new')
     const preTable = searchParams.get('table')
     const preMode = searchParams.get('mode')
+    const preSvc = searchParams.get('svc')
     if (editId) {
       const r = resas.find(res => res.id === editId)
       if (r) {
@@ -259,6 +265,7 @@ export function Resas() {
         }
       }
       if (preMode === 'manuel') setModeIA(false)
+      if (preSvc) setSvcId(preSvc)
       setSearchParams({}, { replace: true })
     }
   }, [searchParams, resas])
@@ -316,13 +323,27 @@ export function Resas() {
   function handleSubmit() {
     if (!svcId || !heure || !couverts) return
 
-    // ── RÈGLE B4/C5 : validation capacité avant sauvegarde ──
+    // ── RÈGLE B4/C5 : validation capacité — proposer combo si dépasse ──
     if (!modeIA && tbl) {
       const isCombo = tbl.includes('+')
       const cap = isCombo
         ? combos.find(c => c.label === tbl)?.cap ?? 0
         : tables.find(tb => tb.n === tbl || tb.id === tbl)?.capMax ?? 0
       if (cap > 0 && couverts > cap) {
+        // Chercher un combo contenant cette table
+        const currentTbl = tables.find(tb => tb.n === tbl || tb.id === tbl)
+        if (currentTbl && !isCombo) {
+          const fittingCombo = combos
+            .filter(c => c.tables.includes(currentTbl.id) && (c.capOverride || c.cap) >= couverts)
+            .sort((a, b) => (a.capOverride || a.cap) - (b.capOverride || b.cap))[0]
+          if (fittingCombo) {
+            if (confirm(`${couverts}p dépasse ${tbl} (max ${cap}p).\n\nPasser au combo ${fittingCombo.label} (${fittingCombo.capOverride || fittingCombo.cap}p) ?`)) {
+              setTbl(fittingCombo.label)
+              return // re-submit sera fait par l'utilisateur
+            }
+            return
+          }
+        }
         alert(`Impossible : ${couverts}p dépasse la capacité de ${tbl} (max ${cap}p)`)
         return
       }
@@ -337,9 +358,24 @@ export function Resas() {
     const dn = nom ? (prenom ? `${prenom} ${nom}` : nom) : 'Anonyme'
     // Si restaurant complet et nouvelle résa → statut waitlist auto
     const isServiceFull = remainingCvt <= 0 && !editingId
+
+    // ── Smart Placement IA : éviter gaspillage dernières grandes tables ──
+    let assignedTbl = isServiceFull ? '' : (modeIA ? tablePref : tbl)
+    if (modeIA && !isServiceFull) {
+      const sp = smartPlacement(couverts, activeDate, svcId, tables, combos, resas, tablePref || undefined, editingId || undefined)
+      if (sp.table) assignedTbl = sp.table
+      if (sp.warning) setSmartWarn(sp.warning)
+      if (sp.shouldWaitlist && !editingId) {
+        // Recommander waitlist — mais laisser le choix
+        if (!confirm(`${sp.suggestion}\n\nPlacer quand même sur ${sp.table} ?`)) {
+          return
+        }
+      }
+    }
+
     const resaData = {
       n: dn, nom: nom || 'Anonyme', prenom,
-      c: couverts, bebe, pmr, tbl: isServiceFull ? '' : (modeIA ? tablePref : tbl),
+      c: couverts, bebe, pmr, tbl: assignedTbl || '',
       t: heure.replace(':', 'h'), svc: svcId, s: (isServiceFull ? 'waitlist' : 'reserved') as any, note: fullNote,
       date: activeDate, statut: statutClient,
       mode: (modeIA ? 'ia' : 'manuel') as any, tel: toE164(tel, pays), email, canal,
@@ -699,8 +735,6 @@ export function Resas() {
                         <button title="Annuler" onClick={() => { if (confirm('Annuler cette réservation ?')) setResaStatus(r.id, 'cancelled') }}
                           style={{ width: 34, height: 34, borderRadius: 7, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t4)', cursor: 'pointer', fontSize: 13 }}>✕</button>
                       )}
-                      <button title="Supprimer" onClick={() => { if (confirm(`Supprimer la résa de ${r.n} ?`)) deleteResa(r.id) }}
-                        style={{ width: 34, height: 34, borderRadius: 7, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t3)', cursor: 'pointer', fontSize: 14 }}>🗑</button>
                     </div>
                   </td>
                 </tr>
@@ -846,19 +880,64 @@ export function Resas() {
               {/* L2 : Couverts + Bébé/PMR — tout aligné à gauche */}
               {/* RÈGLE: en mode manuel, couverts limités par table/combo sélectionnée ; sinon par max libre */}
               <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-                <CoverChips selected={couverts} onSelect={setCouverts} maxCap={
-                  !modeIA && tbl
+                {(() => {
+                  // softCap = cap de la table actuellement sélectionnée (on peut dépasser → suggestion combo)
+                  // maxCap = cap max possible (table + combos de cette table)
+                  const currentTbl = !modeIA && tbl ? tables.find(tb => tb.n === tbl || tb.id === tbl) : null
+                  const currentComboCap = !modeIA && tbl && tbl.includes('+') ? (combos.find(c => c.label === tbl)?.cap ?? 0) : 0
+                  const tableSoftCap = currentTbl && !tbl.includes('+') ? currentTbl.capMax : undefined
+                  // Max = plus grand combo contenant cette table, ou maxCapFree
+                  const tableCombos = currentTbl ? combos.filter(c => c.tables.includes(currentTbl.id)) : []
+                  const maxCombo = tableCombos.length > 0 ? Math.max(...tableCombos.map(c => c.capOverride || c.cap)) : 0
+                  const effectiveMax = !modeIA && tbl
                     ? tbl.includes('+')
-                      ? (combos.find(c => c.label === tbl)?.cap ?? maxCapFree)
-                      : (tables.find(tb => tb.n === tbl || tb.id === tbl)?.capMax ?? maxCapFree)
+                      ? currentComboCap || maxCapFree
+                      : Math.max(currentTbl?.capMax ?? 0, maxCombo, maxCapFree)
                     : maxCapFree
-                } />
+                  return <CoverChips selected={couverts} onSelect={setCouverts} maxCap={effectiveMax} softCap={tableSoftCap} />
+                })()}
                 <div style={{ width: 1, height: 24, background: 'var(--border)', flexShrink: 0 }} />
                 <div style={{ display: 'flex', gap: 12 }}>
                   <Stepper value={bebe} onChange={setBebe} max={6} label="Bébé" icon="👶" />
                   <Stepper value={pmr} onChange={setPmr} max={4} label="PMR" icon="♿" />
                 </div>
               </div>
+
+              {/* ── Suggestion combo quand couverts > capTable ── */}
+              {(() => {
+                if (modeIA || !tbl || tbl.includes('+')) return null
+                const currentTbl = tables.find(tb => tb.n === tbl || tb.id === tbl)
+                if (!currentTbl || couverts <= currentTbl.capMax) return null
+                // Chercher les combos contenant cette table qui peuvent accueillir les couverts
+                const fitting = combos.filter(c =>
+                  c.tables.includes(currentTbl.id) && (c.capOverride || c.cap) >= couverts
+                )
+                if (fitting.length === 0) return null
+                // Trier par capacité croissante (le plus petit combo suffisant d'abord)
+                const sorted = [...fitting].sort((a, b) => (a.capOverride || a.cap) - (b.capOverride || b.cap))
+                return (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8, marginTop: 6,
+                    padding: '8px 12px', borderRadius: 8,
+                    background: 'rgba(232,165,48,.1)', border: '1.5px solid rgba(232,165,48,.35)',
+                  }}>
+                    <span style={{ fontSize: 16 }}>🔗</span>
+                    <span style={{ fontSize: 12, color: '#e8a530', fontWeight: 600, flex: 1 }}>
+                      {couverts}p dépasse {tbl} ({currentTbl.capMax}p) — passer au combo :
+                    </span>
+                    {sorted.map(c => (
+                      <button key={c.id} type="button" onClick={() => setTbl(c.label)}
+                        style={{
+                          fontSize: 12, padding: '5px 12px', borderRadius: 7, fontWeight: 700,
+                          border: '1.5px solid rgba(232,165,48,.5)', background: 'rgba(232,165,48,.15)',
+                          color: '#e8a530', cursor: 'pointer', minHeight: 32,
+                        }}>
+                        {c.label} ({c.capOverride || c.cap}p)
+                      </button>
+                    ))}
+                  </div>
+                )
+              })()}
 
               <div style={sep} />
 
@@ -965,6 +1044,9 @@ export function Resas() {
                 // Filtrer les tables qui correspondent au nb couverts
                 const fittingTables = activeTables.filter(tb => tb.capMax >= couverts && !tb.blocked)
                 const fittingCombos = combos.filter(c => c.cap >= couverts)
+                // Set des tables libres pour marquer les occupées
+                const freeTableNames = new Set(freeTables.map(t => t.n))
+                const freeComboLabels = new Set(freeCombosList.map(c => c.label))
 
                 return (
                   <div>
@@ -984,24 +1066,31 @@ export function Resas() {
                         }}
                       >
                         <option value="">— {t('modal.toAssign')}</option>
-                        <optgroup label={`Tables (${fittingTables.length} pour ${couverts}p)`}>
+                        <optgroup label={`Tables (${fittingTables.length} libres pour ${couverts}p)`}>
                           {activeTables.map(tb => {
                             const isPref = tablePref === tb.id || tablePref === tb.n
                             const fits = tb.capMax >= couverts && !tb.blocked
+                            const isFree = freeTableNames.has(tb.n)
+                            const occupied = !isFree && !tb.blocked
                             return (
-                              <option key={tb.id} value={tb.n} disabled={!fits}>
-                                {tb.n} ({tb.capMin}-{tb.capMax}p){isPref ? ' ★ préf.' : ''}{tb.blocked ? ' 🚫' : ''}{!fits ? ' — trop petite' : ''}
+                              <option key={tb.id} value={tb.n} disabled={!fits || occupied}
+                                style={{ color: occupied ? '#888' : undefined, fontStyle: occupied ? 'italic' : undefined }}>
+                                {tb.n} ({tb.capMin}-{tb.capMax}p){isPref ? ' ★ préf.' : ''}{tb.blocked ? ' 🚫' : ''}{occupied ? ' — occupée' : ''}{!fits && !occupied ? ' — trop petite' : ''}
                               </option>
                             )
                           })}
                         </optgroup>
                         {combos.length > 0 && (
                           <optgroup label={`Combos (${fittingCombos.length} pour ${couverts}p)`}>
-                            {combos.map(c => (
-                              <option key={c.id} value={c.label}>
-                                🔗 {c.label} ({c.cap}p)
-                              </option>
-                            ))}
+                            {combos.map(c => {
+                              const comboFree = freeComboLabels.has(c.label)
+                              return (
+                                <option key={c.id} value={c.label} disabled={!comboFree && c.cap < couverts}
+                                  style={{ color: !comboFree ? '#888' : undefined, fontStyle: !comboFree ? 'italic' : undefined }}>
+                                  🔗 {c.label} ({c.cap}p){!comboFree ? ' — occupée' : ''}
+                                </option>
+                              )
+                            })}
                           </optgroup>
                         )}
                       </select>
@@ -1076,6 +1165,9 @@ export function Resas() {
                 }}>
                 <span>{showProfil ? '▾' : '▸'}</span>
                 <span style={{ fontWeight: 600 }}>📋 {t('modal.profile')}</span>
+                {statutClient === 1 && <span style={{ fontSize: 11, fontWeight: 700, color: '#6ba3e8' }}>🔄 Habitué</span>}
+                {statutClient === 2 && <span style={{ fontSize: 11, fontWeight: 700, color: '#e8a530' }}>⭐ VIP</span>}
+                {statutClient === 3 && <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--rd)' }}>👁 Surveillé</span>}
                 {allergieTags.length > 0 && <span style={{ fontSize: 11 }}>⚠️ {allergieTags.join(', ')}</span>}
                 {tablePref && <span style={{ fontSize: 11, color: 'var(--t3)' }}>🪑 {tablePref}</span>}
               </button>
@@ -1132,6 +1224,14 @@ export function Resas() {
 
             </div>
 
+            {/* Smart Placement Warning */}
+            {smartWarn && (
+              <div style={{ margin: '0 14px 4px', padding: '6px 10px', borderRadius: 8, background: 'rgba(232,165,48,.1)', border: '1px solid rgba(232,165,48,.3)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#e8a530', fontWeight: 600 }}>
+                <span style={{ fontSize: 14 }}>🧠</span> {smartWarn}
+                <button onClick={() => setSmartWarn(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#e8a530', cursor: 'pointer', fontSize: 14, padding: 0 }}>✕</button>
+              </div>
+            )}
+
             {/* Footer sticky */}
             <div style={{ borderTop: '1px solid var(--border)', background: 'rgba(0,0,0,.08)', flexShrink: 0, padding: '8px 14px' }}>
               <div style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)', marginBottom: 6 }}>
@@ -1144,8 +1244,6 @@ export function Resas() {
                   <div style={{ display: 'flex', gap: 4, marginRight: 'auto' }}>
                     <button className="btn btn-danger" onClick={() => { if (confirm('Annuler cette réservation ?')) { setResaStatus(editingId, 'cancelled'); closeModal() } }}
                       style={{ minHeight: T, padding: '0 16px', fontSize: 13 }}>🚫 Annuler</button>
-                    <button className="btn btn-danger" onClick={() => { if (confirm('Supprimer définitivement cette réservation ?')) { deleteResa(editingId); closeModal() } }}
-                      style={{ minHeight: T, padding: '0 14px', fontSize: 13, opacity: .7 }}>🗑</button>
                   </div>
                 )}
                 <button className="btn btn-secondary" onClick={() => closeModal()}

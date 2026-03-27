@@ -22,7 +22,7 @@ import { STATUS } from '../../utils/design'
 import { todayISO, timeToMins, nowMins, shiftISO } from '../../utils/date'
 import {
   isOccupying, tblMatchesTable, getOccupiedTableIds,
-  iaPlacement, getFreeTables, getFreeCombos,
+  iaPlacement, smartPlacement, getFreeTables, getFreeCombos,
   canMoveResa, canSwapResas
 } from '../../utils/placementRules'
 import { spRoomBodySvg, spChairsSvg } from '../../utils/roomItemSvg'
@@ -752,6 +752,9 @@ export function Plan() {
     if (moveDate && moveDate !== sourceResa.date) patch.date = moveDate
     if (targetSvc !== sourceResa.svc) patch.svc = targetSvc
     updateResa(sourceResa.id, patch)
+    // Post-move: switch view to see result
+    if (moveDate && moveDate !== activeDate) setActiveDate(moveDate)
+    if (targetSvc !== sourceResa.svc) setSvcFilter(targetSvc)
     toast(`IA → ${sourceResa.nom || sourceResa.n} sur ${bestTbl} ✓`, 'success')
     setMoveResa(null); setMoveMsg(null)
   }
@@ -769,6 +772,9 @@ export function Plan() {
       t: svcObj ? svcObj.open.replace(':', 'h') : sourceResa.t,
     }
     updateResa(sourceResa.id, patch)
+    // Post-move: switch view to see result
+    if (targetDate !== activeDate) setActiveDate(targetDate)
+    if (targetSvc !== sourceResa.svc) setSvcFilter(targetSvc)
     toast(`Déplacé → ${targetDate} ${targetSvc} ✓`, 'success')
     setMoveResa(null); setMoveMsg(null)
   }
@@ -825,7 +831,7 @@ export function Plan() {
         setPopup({ resa: comboResa, table: firstTable || null, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
         return
       }
-      navigate(`/reservations?new=1&table=${encodeURIComponent(comboLabel)}&mode=manuel&from=plan`)
+      navigate(`/reservations?new=1&table=${encodeURIComponent(comboLabel)}&mode=manuel&svc=${svcFilter}&from=plan`)
       return
     }
 
@@ -1041,6 +1047,12 @@ export function Plan() {
                 {(r.s === 'reserved' || r.s === 'arrived') && (<>
                   <button onClick={() => startMoveMode(r)} style={btnStyle('#9f7aea')}>↔ Déplacer</button>
                 </>)}
+                {r.s === 'waitlist' && (
+                  <>
+                    <button onClick={() => { setPopup(null); setResaStatus(r.id, 'reserved') }} style={btnStyle('var(--gn)')}>✅ Confirmer</button>
+                    <button onClick={() => { setPopup(null); setResaStatus(r.id, 'cancelled') }} style={btnStyle('var(--rd)')}>🚫 Refuser</button>
+                  </>
+                )}
                 {r.s === 'reserved' && (
                   <>
                     <button onClick={() => { setPopup(null); setResaStatus(r.id, 'arrived') }} style={btnStyle('var(--gn)')}>✓ Arrivé</button>
@@ -1071,7 +1083,7 @@ export function Plan() {
 
                 {/* Nouvelle résa */}
                 {!tbl.blocked && (
-                  <button onClick={() => { setPopup(null); navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel&from=plan`) }} style={btnStyle('#7bb8ff')}>➕ Nouvelle résa</button>
+                  <button onClick={() => { setPopup(null); navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel&svc=${svcFilter}&from=plan`) }} style={btnStyle('#7bb8ff')}>➕ Nouvelle résa</button>
                 )}
 
                 {/* Bloquer / Débloquer */}
