@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useAppStore } from '../../store/useAppStore';
+import { useState } from 'react';
 
 interface ServedOrder {
   id: string;

@@ -278,6 +278,11 @@ const translations: Record<string, Record<Lang, string>> = {
   'ferm.defaultWidgetValue': { FR: 'Nous sommes fermés. Consultez nos prochaines disponibilités.', DE: 'Wir sind geschlossen. Sehen Sie unsere nächsten Verfügbarkeiten.', IT: 'Siamo chiusi. Consulta le prossime disponibilità.', EN: 'We are closed. Check our next availability.' },
   'ferm.defaultWidgetHint': { FR: 'Utilisé si aucun message spécifique', DE: 'Verwendet wenn keine spezifische Nachricht', IT: 'Usato se nessun messaggio specifico', EN: 'Used when no specific message set' },
   'ferm.widgetSettings':   { FR: 'Réglages widget', DE: 'Widget-Einstellungen', IT: 'Impostazioni widget', EN: 'Widget settings' },
+  'ferm.upcoming':         { FR: 'À venir', DE: 'Bevorstehend', IT: 'In arrivo', EN: 'Upcoming' },
+  'ferm.past':             { FR: 'Passées', DE: 'Vergangen', IT: 'Passate', EN: 'Past' },
+  'ferm.cancel':           { FR: 'Annuler', DE: 'Abbrechen', IT: 'Annulla', EN: 'Cancel' },
+  'ferm.deleted':          { FR: 'Fermeture supprimée', DE: 'Schliessung gelöscht', IT: 'Chiusura eliminata', EN: 'Closure deleted' },
+  'ferm.fillRequired':     { FR: 'Veuillez remplir les champs obligatoires', DE: 'Bitte füllen Sie die Pflichtfelder aus', IT: 'Compilare i campi obbligatori', EN: 'Please fill in the required fields' },
 
   // ── Grille ──────────────────────────────────────
   'grille.moveHere':     { FR: 'Déplacer ici', DE: 'Hierhin verschieben', IT: 'Sposta qui', EN: 'Move here' },
@@ -544,6 +549,9 @@ const translations: Record<string, Record<Lang, string>> = {
   'multisite.howItWorksDesc': { FR: 'Chaque site a ses propres réservations, tables, salles et services. Le sélecteur dans la barre de navigation permet de basculer instantanément entre vos établissements. Les données clients sont partagées entre tous les sites.', DE: 'Jeder Standort hat eigene Reservierungen, Tische, Räume und Services. Mit dem Selektor in der Navigationsleiste wechseln Sie sofort zwischen Standorten. Kundendaten werden geteilt.', IT: 'Ogni sede ha proprie prenotazioni, tavoli, sale e servizi. Il selettore nella barra di navigazione permette di cambiare sede istantaneamente. I dati clienti sono condivisi.', EN: 'Each site has its own reservations, tables, rooms and services. The selector in the navigation bar lets you switch instantly between locations. Client data is shared across all sites.' },
   'multisite.gastroOnly': { FR: 'Fonctionnalité Plan Gastro', DE: 'Gastro-Plan Funktion', IT: 'Funzione Piano Gastro', EN: 'Gastro Plan feature' },
   'multisite.gastroDesc': { FR: 'La gestion multi-sites vous permet de gérer jusqu\'à 12 établissements depuis un seul compte. Passez au plan Gastro pour débloquer cette fonctionnalité.', DE: 'Die Multi-Standort-Verwaltung ermöglicht die Verwaltung von bis zu 12 Standorten aus einem Konto. Wechseln Sie zum Gastro-Plan, um diese Funktion freizuschalten.', IT: 'La gestione multi-sede permette di gestire fino a 12 sedi da un unico account. Passa al piano Gastro per sbloccare questa funzione.', EN: 'Multi-site management lets you manage up to 12 locations from one account. Upgrade to the Gastro plan to unlock this feature.' },
+  'multisite.redirectTitle': { FR: 'Redirection clients', DE: 'Kundenweiterleitung', IT: 'Reindirizzamento clienti', EN: 'Client redirect' },
+  'multisite.redirectDesc': { FR: 'Quand un restaurant est complet, proposer des alternatives via le widget', DE: 'Wenn ein Restaurant voll ist, Alternativen über das Widget vorschlagen', IT: 'Quando un ristorante è pieno, proporre alternative tramite il widget', EN: 'When a restaurant is full, suggest alternatives via widget' },
+  'multisite.redirectHint': { FR: "Les clients seront redirigés vers le premier site disponible dans l'ordre affiché.", DE: 'Kunden werden zum ersten verfügbaren Standort in der angezeigten Reihenfolge weitergeleitet.', IT: 'I clienti verranno reindirizzati al primo sito disponibile nell\'ordine mostrato.', EN: 'Clients will be redirected to the first available site in the displayed order.' },
 }
 
 // ── Helper arrays pour dates ─────────────────────

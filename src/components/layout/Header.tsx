@@ -9,7 +9,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
 import { Logo } from '../ui/Logo'
 import { SearchModal } from '../ui/SearchModal'
-import type { Resa, Site } from '../../types'
+import type { Resa } from '../../types'
 
 function formatTime(): string {
   const now = new Date()
@@ -142,7 +142,10 @@ function timeAgo(ts: number, t: (k: string) => string): string {
 }
 
 export function Header() {
-  const { activeDate, resas, resto, users, isDemo, theme, setTheme, toggleSidebar, sidebarCollapsed, lang, setLang, userRole, setUserRole, sites, activeSiteId, setActiveSite } = useAppStore()
+  const { activeDate, resas, resto, users, isDemo, theme, setTheme, toggleSidebar, sidebarCollapsed, lang, setLang, userRole, setUserRole } = useAppStore()
+  const sites = useAppStore(s => s.sites)
+  const activeSiteId = useAppStore(s => s.activeSiteId)
+  const setActiveSite = useAppStore(s => s.setActiveSite)
   const navigate = useNavigate()
   const { t, fmtDate } = useT()
   const [time, setTime] = useState(formatTime())
@@ -335,7 +338,7 @@ export function Header() {
             </button>
 
             {/* Sites additionnels */}
-            {sites.filter(s => s.active).map(site => (
+            {sites.map((site: any) => (
               <button
                 key={site.id}
                 onClick={() => { setActiveSite(site.id); setShowSiteSwitch(false) }}
@@ -585,10 +588,10 @@ export function Header() {
                 {t('profile.language')}
               </div>
               <div style={{ display: 'flex', gap: 4, padding: '0 4px' }}>
-                {LANGS.map(l => (
+                {LANGS.map((l: any) => (
                   <button
                     key={l}
-                    onClick={() => setLang(l.toLowerCase())}
+                    onClick={() => setLang(l.toLowerCase() as 'fr' | 'en' | 'de' | 'it')}
                     style={{
                       flex: 1, padding: '4px 0', borderRadius: 6,
                       border: `1px solid ${lang === l.toLowerCase() ? 'var(--bl)' : 'var(--border)'}`,

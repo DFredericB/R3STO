@@ -4,16 +4,9 @@ import { useT } from '../../i18n/useTranslation'
 import { useToast } from '../../components/ui/Toast'
 import type { Fermeture } from '../../types/index'
 
-// ══════════════════════════════════════════════════
-//  R3STO — Fermetures
-//  Vue agenda calendrier + formulaire + liste
-//  Calendrier mensuel affichant visuellement les
-//  fermetures, jours fériés et vacances.
-// ══════════════════════════════════════════════════
-
 // Swiss public holidays 2026
 const FERIES_CH = [
-  { date: '2026-01-01', label: 'Jour de l\'an' },
+  { date: '2026-01-01', label: "Jour de l'an" },
   { date: '2026-04-19', label: 'Dimanche de Pâques' },
   { date: '2026-04-20', label: 'Lundi de Pâques' },
   { date: '2026-05-01', label: 'Fête du Travail' },
@@ -39,273 +32,122 @@ const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> 
   travaux:    { bg: 'rgba(100,116,139,.12)', border: 'rgba(100,116,139,.35)', text: 'var(--t2)' },
 }
 
-// ── Helpers ────────────────────────────────────
-function toISO(d: Date): string {
-  return d.toISOString().slice(0, 10)
-}
-function getDaysInMonth(year: number, month: number): number {
-  return new Date(year, month + 1, 0).getDate()
-}
-function getFirstDayOfWeek(year: number, month: number): number {
-  // 0=Mon, 6=Sun (ISO week)
-  const d = new Date(year, month, 1).getDay()
-  return d === 0 ? 6 : d - 1
-}
-
 export function Fermetures() {
-  const { t, days, months } = useT()
+  const { t } = useT()
   const { fermetures, salles, services } = useAppStore()
   const { toast } = useToast()
 
-  const [calMonth, setCalMonth] = useState(() => {
-    const now = new Date()
-    return { year: now.getFullYear(), month: now.getMonth() }
-  })
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  // Form state
   const [fermType, setFermType] = useState('restaurant')
   const [selectedSalle, setSelectedSalle] = useState('')
   const [selectedService, setSelectedService] = useState('')
-  const [tab, setTab] = useState<'calendar' | 'list'>('calendar')
+  const [fermLabel, setFermLabel] = useState('')
+  const [fermStart, setFermStart] = useState('')
+  const [fermEnd, setFermEnd] = useState('')
+  const [fermNote, setFermNote] = useState('')
+  const [widgetMsg, setWidgetMsg] = useState('')
+  const [showForm, setShowForm] = useState(false)
+  const [filterType, setFilterType] = useState('all')
 
-  // Demo data
+  // Data
   const demoFermetures: Fermeture[] = [
     { id: 'f1', type: 'vacances', date: '2026-08-01', dateFin: '2026-08-16', label: 'Vacances été', note: 'Fermeture complète du restaurant', active: true },
     { id: 'f2', type: 'ferie', date: '2026-12-25', label: 'Noël', active: true },
     { id: 'f3', type: 'ferie', date: '2026-12-26', label: 'Deuxième jour de Noël', active: true },
     { id: 'f4', type: 'restaurant', date: '2026-04-20', label: 'Lundi de Pâques', active: true },
     { id: 'f5', type: 'travaux', date: '2026-06-15', dateFin: '2026-06-17', label: 'Travaux terrasse', note: 'Rénovation terrasse extérieure', active: true },
+    { id: 'f6', type: 'service', date: '2026-07-01', dateFin: '2026-07-15', label: 'Fermeture midi', service: 'midi', note: 'Service midi fermé pendant les vacances', active: true },
+    { id: 'f7', type: 'salle', date: '2026-09-10', dateFin: '2026-09-12', label: 'Terrasse fermée', salle: 'Terrasse', note: 'Nettoyage haute pression', active: true },
   ]
   const activeFermetures = fermetures.length === 0 ? demoFermetures : fermetures
   const activeSalles = salles.length > 0 ? salles : [{ id: 's1', name: 'Salle principale', color: '#4480d8', active: true }]
   const activeServices = services.length > 0 ? services : []
 
-  // ── Calendar data ────────────────────────────
-  const calData = useMemo(() => {
-    const { year, month } = calMonth
-    const daysInMonth = getDaysInMonth(year, month)
-    const firstDay = getFirstDayOfWeek(year, month)
-    const today = toISO(new Date())
+  // Filter closures
+  const filteredFermetures = useMemo(() => {
+    let list = [...activeFermetures]
+    if (filterType !== 'all') list = list.filter(f => f.type === filterType)
+    // Sort by date, upcoming first
+    list.sort((a, b) => a.date.localeCompare(b.date))
+    return list
+  }, [activeFermetures, filterType])
 
-    // Build closure map for this month
-    const closureMap: Record<string, Fermeture[]> = {}
-    for (const f of activeFermetures) {
-      if (!f.active) continue
-      const start = f.date
-      const end = f.dateFin || f.date
-      // Check each day in range that falls in this month
-      const d = new Date(start + 'T12:00:00')
-      const endD = new Date(end + 'T12:00:00')
-      while (d <= endD) {
-        if (d.getFullYear() === year && d.getMonth() === month) {
-          const iso = toISO(d)
-          if (!closureMap[iso]) closureMap[iso] = []
-          closureMap[iso].push(f)
-        }
-        d.setDate(d.getDate() + 1)
-      }
+  // Group by status: upcoming vs past
+  const today = new Date().toISOString().slice(0, 10)
+  const upcoming = filteredFermetures.filter(f => (f.dateFin || f.date) >= today)
+  const past = filteredFermetures.filter(f => (f.dateFin || f.date) < today)
+
+  // Handlers
+  const handleAddFermeture = () => {
+    if (!fermLabel || !fermStart) {
+      toast(t('ferm.fillRequired'), 'error')
+      return
     }
-
-    // Holiday map
-    const holidayMap: Record<string, string> = {}
-    for (const h of FERIES_CH) {
-      const hd = new Date(h.date + 'T12:00:00')
-      if (hd.getFullYear() === year && hd.getMonth() === month) {
-        holidayMap[h.date] = h.label
-      }
-    }
-
-    return { daysInMonth, firstDay, today, closureMap, holidayMap }
-  }, [calMonth, activeFermetures])
-
-  // ── Closures for selected date ───────────────
-  const selectedClosures = useMemo(() => {
-    if (!selectedDate) return []
-    return activeFermetures.filter(f => {
-      if (!f.active) return false
-      const end = f.dateFin || f.date
-      return selectedDate >= f.date && selectedDate <= end
-    })
-  }, [selectedDate, activeFermetures])
-
-  // ── Handlers ────────────────────────────────
-  const handleAddFermeture = () => { toast(t('ferm.added'), 'success') }
+    toast(t('ferm.added'), 'success')
+    // Reset form
+    setFermLabel(''); setFermStart(''); setFermEnd(''); setFermNote(''); setWidgetMsg('')
+    setShowForm(false)
+  }
   const handleToggleFermeture = (_id: string) => { toast(t('ferm.statusUpdated'), 'success') }
-  const handleAddHoliday = (date: string, label: string) => { toast(`${label} — ${t('ferm.markedClosed')}`, 'success') }
-
-  const prevMonth = () => setCalMonth(p => p.month === 0 ? { year: p.year - 1, month: 11 } : { ...p, month: p.month - 1 })
-  const nextMonth = () => setCalMonth(p => p.month === 11 ? { year: p.year + 1, month: 0 } : { ...p, month: p.month + 1 })
-  const goToday = () => {
-    const now = new Date()
-    setCalMonth({ year: now.getFullYear(), month: now.getMonth() })
-    setSelectedDate(toISO(now))
+  const handleDeleteFermeture = (_id: string) => { toast(t('ferm.deleted') || 'Fermeture supprimée', 'success') }
+  const handleAddHoliday = (_date: string, label: string) => {
+    toast(`${label} — ${t('ferm.markedClosed')}`, 'success')
   }
 
-  // ── Shared styles ───────────────────────────
-  const inputS: React.CSSProperties = { width: '100%', padding: '8px', fontSize: 11, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf)', color: 'var(--text)', fontFamily: 'var(--ff)', boxSizing: 'border-box' }
+  // Styles
+  const inputS: React.CSSProperties = { width: '100%', padding: '8px 10px', fontSize: 12, border: '1px solid var(--border)', borderRadius: 7, background: 'var(--surf)', color: 'var(--text)', fontFamily: 'var(--ff)', boxSizing: 'border-box' }
   const labelS: React.CSSProperties = { display: 'block', fontSize: 11, fontWeight: 700, marginBottom: 4, color: 'var(--text)' }
-  const navBtn: React.CSSProperties = { width: 32, height: 32, borderRadius: 7, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t2)', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }
+  const chipS = (on: boolean): React.CSSProperties => ({
+    padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: on ? 700 : 500, cursor: 'pointer',
+    border: `1.5px solid ${on ? 'rgba(91,156,246,.5)' : 'var(--border)'}`,
+    background: on ? 'rgba(91,156,246,.15)' : 'var(--surf3)',
+    color: on ? '#7bb8ff' : 'var(--t3)',
+    transition: 'all .12s',
+  })
 
-  // ── Day header (Lun, Mar, …) ────────────────
-  // days from useT() is [Dim, Lun, Mar, Mer, Jeu, Ven, Sam]
-  // We want ISO order: [Lun, Mar, Mer, Jeu, Ven, Sam, Dim]
-  const dayHeaders = [...days.slice(1), days[0]]
+  // Scope label helper
+  const scopeLabel = (f: Fermeture) => {
+    if (f.type === 'salle' && f.salle) return `🚪 ${f.salle}`
+    if (f.type === 'service' && f.service) return `⏰ ${f.service}`
+    return null
+  }
 
-  // ── Render ──────────────────────────────────
+  // Duration helper
+  const durationLabel = (f: Fermeture) => {
+    if (!f.dateFin || f.dateFin === f.date) return f.date.slice(5).replace('-', '/')
+    const d1 = new Date(f.date + 'T12:00:00')
+    const d2 = new Date(f.dateFin + 'T12:00:00')
+    const days = Math.round((d2.getTime() - d1.getTime()) / 86400000) + 1
+    return `${f.date.slice(5).replace('-', '/')} → ${f.dateFin.slice(5).replace('-', '/')} (${days}j)`
+  }
+
   return (
-    <div style={{ padding: '14px 18px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-      {/* ═══ Header : titre + tabs + nav mois ═══ */}
+    <div style={{ padding: '14px 18px 20px', display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 960 }}>
+      {/* ═══ Header ═══ */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)' }}>📅 {t('ferm.title')}</div>
-        <div style={{ display: 'flex', gap: 2, background: 'var(--surf2)', borderRadius: 7, padding: 2 }}>
-          {(['calendar', 'list'] as const).map(v => (
-            <button key={v} onClick={() => setTab(v)} style={{
-              padding: '5px 12px', fontSize: 11, fontWeight: tab === v ? 700 : 500, borderRadius: 6, border: 'none', cursor: 'pointer',
-              background: tab === v ? 'var(--bl)' : 'transparent', color: tab === v ? '#fff' : 'var(--t3)',
-            }}>
-              {v === 'calendar' ? t('ferm.tabCalendar') : t('ferm.tabList')}
-            </button>
-          ))}
-        </div>
         <div style={{ flex: 1 }} />
-        {/* Month nav */}
-        <button onClick={prevMonth} style={navBtn}>◀</button>
-        <button onClick={goToday} style={{ ...navBtn, width: 'auto', padding: '0 10px', fontSize: 12, fontWeight: 700, color: 'var(--bl)', border: '1px solid var(--b2)', background: 'var(--bp)' }}>
-          {t('ferm.today')}
+        <button onClick={() => setShowForm(!showForm)} style={{
+          padding: '7px 16px', fontSize: 12, fontWeight: 700, borderRadius: 7, cursor: 'pointer',
+          background: showForm ? 'var(--surf3)' : 'var(--bl)', color: showForm ? 'var(--t2)' : '#fff',
+          border: showForm ? '1px solid var(--border)' : 'none',
+        }}>
+          {showForm ? '✕ ' + t('ferm.cancel') : '➕ ' + t('ferm.new')}
         </button>
-        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', minWidth: 120, textAlign: 'center' }}>
-          {months[calMonth.month]} {calMonth.year}
-        </div>
-        <button onClick={nextMonth} style={navBtn}>▶</button>
       </div>
 
-      {tab === 'calendar' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 14, alignItems: 'start' }}>
-          {/* ═══ LEFT: Calendar grid ═══ */}
-          <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14 }}>
-            {/* Day headers */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
-              {dayHeaders.map((d, i) => (
-                <div key={i} style={{ fontSize: 10, fontWeight: 700, color: i === 6 ? 'var(--rd)' : 'var(--t4)', textAlign: 'center', padding: '4px 0', textTransform: 'uppercase', letterSpacing: '.06em' }}>
-                  {d.slice(0, 3)}
-                </div>
-              ))}
-            </div>
-
-            {/* Day cells */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
-              {/* Empty cells before first day */}
-              {Array.from({ length: calData.firstDay }).map((_, i) => (
-                <div key={`e-${i}`} style={{ minHeight: 64 }} />
-              ))}
-
-              {/* Days */}
-              {Array.from({ length: calData.daysInMonth }).map((_, i) => {
-                const day = i + 1
-                const iso = `${calMonth.year}-${String(calMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                const isToday = iso === calData.today
-                const isSelected = iso === selectedDate
-                const closures = calData.closureMap[iso] || []
-                const holiday = calData.holidayMap[iso]
-                const isClosed = closures.length > 0
-                const isSunday = (calData.firstDay + i) % 7 === 6
-
-                return (
-                  <div
-                    key={day}
-                    onClick={() => setSelectedDate(iso === selectedDate ? null : iso)}
-                    style={{
-                      minHeight: 64, padding: '3px 4px', borderRadius: 7, cursor: 'pointer',
-                      border: isSelected ? '2px solid var(--bl)' : isToday ? '2px solid var(--b2)' : '1px solid transparent',
-                      background: isClosed ? 'rgba(220,80,80,.08)' : holiday ? 'rgba(232,165,48,.06)' : isToday ? 'var(--bp)' : 'transparent',
-                      transition: 'all .1s',
-                    }}
-                  >
-                    {/* Day number */}
-                    <div style={{
-                      fontSize: 11, fontWeight: isToday ? 800 : 600,
-                      color: isClosed ? 'var(--rd)' : isSunday ? 'rgba(220,80,80,.6)' : isToday ? 'var(--bl)' : 'var(--text)',
-                      marginBottom: 2,
-                    }}>
-                      {day}
-                    </div>
-
-                    {/* Closure indicators */}
-                    {closures.slice(0, 2).map((f, ci) => {
-                      const colors = TYPE_COLORS[f.type] || TYPE_COLORS.restaurant
-                      return (
-                        <div key={ci} style={{
-                          fontSize: 8, fontWeight: 700, padding: '1px 3px', borderRadius: 3, marginBottom: 1,
-                          background: colors.bg, color: colors.text,
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        }}>
-                          {TYPE_ICONS[f.type] || '📅'} {f.label}
-                        </div>
-                      )
-                    })}
-                    {closures.length > 2 && (
-                      <div style={{ fontSize: 8, color: 'var(--t4)', fontWeight: 600 }}>+{closures.length - 2}</div>
-                    )}
-
-                    {/* Holiday badge (if no closure) */}
-                    {!isClosed && holiday && (
-                      <div style={{ fontSize: 8, fontWeight: 600, color: 'var(--am)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        🇨🇭 {holiday}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Legend */}
-            <div style={{ display: 'flex', gap: 10, marginTop: 10, padding: '6px 0', borderTop: '1px solid var(--border)', flexWrap: 'wrap' }}>
-              {Object.entries(TYPE_COLORS).map(([type, c]) => (
-                <span key={type} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: 'var(--t3)' }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 2, background: c.bg, border: `1px solid ${c.border}` }} />
-                  {TYPE_ICONS[type]} {t(`ferm.type.${type}`)}
-                </span>
-              ))}
-            </div>
+      {/* ═══ Add form (collapsible) ═══ */}
+      {showForm && (
+        <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 12, padding: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, color: 'var(--text)' }}>
+            {t('ferm.new')}
           </div>
 
-          {/* ═══ RIGHT: Selected date detail + form ═══ */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {/* Selected date detail */}
-            {selectedDate && (
-              <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>
-                  📆 {selectedDate.slice(8)}/{selectedDate.slice(5, 7)}/{selectedDate.slice(0, 4)}
-                </div>
-                {selectedClosures.length === 0 ? (
-                  <div style={{ fontSize: 11, color: 'var(--t3)', padding: '6px 0' }}>{t('ferm.noClosure')}</div>
-                ) : (
-                  selectedClosures.map(f => {
-                    const colors = TYPE_COLORS[f.type] || TYPE_COLORS.restaurant
-                    return (
-                      <div key={f.id} style={{ padding: '6px 8px', marginBottom: 4, borderRadius: 6, background: colors.bg, border: `1px solid ${colors.border}` }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: colors.text }}>
-                          {TYPE_ICONS[f.type]} {f.label}
-                        </div>
-                        {f.dateFin && f.dateFin !== f.date && (
-                          <div style={{ fontSize: 10, color: 'var(--t3)', fontFamily: 'DM Mono,monospace', marginTop: 2 }}>
-                            {f.date.slice(5).replace('-', '/')} → {f.dateFin.slice(5).replace('-', '/')}
-                          </div>
-                        )}
-                        {f.note && <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2 }}>{f.note}</div>}
-                      </div>
-                    )
-                  })
-                )}
-              </div>
-            )}
-
-            {/* Add closure form */}
-            <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: 'var(--text)' }}>
-                ➕ {t('ferm.new')}
-              </div>
-
-              <div style={{ marginBottom: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            {/* Left column */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* Scope */}
+              <div>
                 <label style={labelS}>{t('ferm.scope')}</label>
                 <select value={fermType} onChange={e => { setFermType(e.target.value); setSelectedSalle(''); setSelectedService('') }} style={inputS}>
                   <option value="restaurant">🏪 {t('ferm.type.restaurant')}</option>
@@ -318,8 +160,9 @@ export function Fermetures() {
                 </select>
               </div>
 
+              {/* Conditional salle/service selectors */}
               {(fermType === 'salle' || fermType === 'salle_service') && (
-                <div style={{ marginBottom: 8 }}>
+                <div>
                   <label style={labelS}>{t('ferm.roomLabel')}</label>
                   <select value={selectedSalle} onChange={e => setSelectedSalle(e.target.value)} style={inputS}>
                     <option value="">{t('ferm.allRooms')}</option>
@@ -329,7 +172,7 @@ export function Fermetures() {
               )}
 
               {(fermType === 'service' || fermType === 'salle_service') && (
-                <div style={{ marginBottom: 8 }}>
+                <div>
                   <label style={labelS}>{t('ferm.serviceLabel')}</label>
                   <select value={selectedService} onChange={e => setSelectedService(e.target.value)} style={inputS}>
                     <option value="">{t('ferm.allServices')}</option>
@@ -338,141 +181,191 @@ export function Fermetures() {
                 </div>
               )}
 
-              <div style={{ marginBottom: 8 }}>
+              {/* Label */}
+              <div>
                 <label style={labelS}>{t('ferm.label')} <span style={{ color: 'var(--rd)' }}>*</span></label>
-                <input type="text" placeholder={t('ferm.labelPlaceholder')} style={inputS} />
+                <input type="text" value={fermLabel} onChange={e => setFermLabel(e.target.value)} placeholder={t('ferm.labelPlaceholder')} style={inputS} />
+              </div>
+            </div>
+
+            {/* Right column */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* Date pickers — the core of the rework */}
+              <div>
+                <label style={labelS}>{t('ferm.start')} <span style={{ color: 'var(--rd)' }}>*</span></label>
+                <input type="date" value={fermStart} onChange={e => { setFermStart(e.target.value); if (!fermEnd || e.target.value > fermEnd) setFermEnd(e.target.value) }} style={{ ...inputS, fontSize: 13, fontWeight: 600, padding: '10px 12px' }} />
+              </div>
+              <div>
+                <label style={labelS}>{t('ferm.end')}</label>
+                <input type="date" value={fermEnd} min={fermStart} onChange={e => setFermEnd(e.target.value)} style={{ ...inputS, fontSize: 13, fontWeight: 600, padding: '10px 12px' }} />
+                <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 3 }}>
+                  {fermStart && fermEnd && fermStart !== fermEnd
+                    ? `${Math.round((new Date(fermEnd+'T12:00:00').getTime() - new Date(fermStart+'T12:00:00').getTime()) / 86400000) + 1} jours`
+                    : fermStart && !fermEnd ? '1 jour' : ''}
+                </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 8 }}>
-                <div>
-                  <label style={labelS}>{t('ferm.start')} <span style={{ color: 'var(--rd)' }}>*</span></label>
-                  <input type="date" defaultValue={selectedDate || ''} style={inputS} />
-                </div>
-                <div>
-                  <label style={labelS}>{t('ferm.end')}</label>
-                  <input type="date" style={inputS} />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 8 }}>
+              {/* Note */}
+              <div>
                 <label style={labelS}>{t('ferm.note')}</label>
-                <input type="text" placeholder={t('ferm.notePlaceholder')} style={inputS} />
+                <input type="text" value={fermNote} onChange={e => setFermNote(e.target.value)} placeholder={t('ferm.notePlaceholder')} style={inputS} />
               </div>
 
               {/* Widget message */}
-              <div style={{ margin: '6px 0', padding: '8px 10px', background: 'rgba(68,128,216,.06)', border: '1px solid rgba(68,128,216,.15)', borderRadius: 7 }}>
+              <div style={{ padding: '8px 10px', background: 'rgba(68,128,216,.06)', border: '1px solid rgba(68,128,216,.15)', borderRadius: 7 }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--bl)', marginBottom: 4 }}>
                   🔌 {t('ferm.widgetMsg')}
                 </div>
-                <input type="text" placeholder={t('ferm.widgetPlaceholder')} style={{ ...inputS, marginBottom: 2 }} />
+                <input type="text" value={widgetMsg} onChange={e => setWidgetMsg(e.target.value)} placeholder={t('ferm.widgetPlaceholder')} style={{ ...inputS, marginBottom: 2 }} />
                 <div style={{ fontSize: 10, color: 'var(--t3)' }}>{t('ferm.widgetHint')}</div>
               </div>
-
-              <button onClick={handleAddFermeture} style={{
-                width: '100%', marginTop: 6, padding: '9px', fontSize: 11, fontWeight: 700,
-                background: 'var(--bl)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer',
-              }}>
-                {t('ferm.add')}
-              </button>
-            </div>
-
-            {/* Swiss holidays quick-add */}
-            <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--bl)', marginBottom: 6 }}>
-                🇨🇭 {t('ferm.swissHolidays')}
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                {FERIES_CH.map(f => (
-                  <span key={f.date} onClick={() => handleAddHoliday(f.date, f.label)} style={{
-                    fontSize: 10, padding: '2px 7px', background: 'rgba(68,128,216,.08)', border: '1px solid rgba(68,128,216,.2)',
-                    borderRadius: 4, color: 'var(--bl)', cursor: 'pointer',
-                  }}>
-                    {f.date.slice(5).replace('-', '/')} {f.label}
-                  </span>
-                ))}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 4 }}>{t('ferm.clickToAdd')}</div>
             </div>
           </div>
-        </div>
-      ) : (
-        /* ═══ TAB LIST — vue liste classique ═══ */
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          {/* Closures list */}
-          <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 12, color: 'var(--text)' }}>
-              {t('ferm.planned')}
-            </div>
-            {activeFermetures.length === 0 ? (
-              <div style={{ fontSize: 11, color: 'var(--t3)', textAlign: 'center', padding: '20px 0' }}>
-                {t('ferm.noClosures')}
-              </div>
-            ) : (
-              activeFermetures.map(f => {
-                const colors = TYPE_COLORS[f.type] || TYPE_COLORS.restaurant
-                return (
-                  <div key={f.id} style={{
-                    marginBottom: 8, padding: '9px 14px', background: colors.bg, border: `1px solid ${colors.border}`,
-                    borderRadius: 9, display: 'flex', alignItems: 'center', gap: 10,
-                  }}>
-                    <span style={{ fontSize: 16 }}>{TYPE_ICONS[f.type] || '📅'}</span>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: colors.text }}>{f.label}</span>
-                      {f.dateFin && f.dateFin !== f.date && (
-                        <span style={{ fontSize: 11, color: 'var(--t3)', marginLeft: 8, fontFamily: 'DM Mono,monospace' }}>
-                          {f.date.slice(5).replace('-', '/')} → {f.dateFin.slice(5).replace('-', '/')}
-                        </span>
-                      )}
-                      {!f.dateFin && (
-                        <span style={{ fontSize: 11, color: 'var(--t3)', marginLeft: 8, fontFamily: 'DM Mono,monospace' }}>
-                          {f.date.slice(5).replace('-', '/')}
-                        </span>
-                      )}
-                      {f.note && <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 2 }}>{f.note}</div>}
-                    </div>
-                    <button onClick={() => handleToggleFermeture(f.id)} style={{
-                      fontSize: 11, padding: '3px 9px', background: colors.text, border: 'none',
-                      borderRadius: 6, color: '#fff', fontWeight: 700, cursor: 'pointer',
-                    }}>
-                      {t('ferm.manage')}
-                    </button>
-                  </div>
-                )
-              })
-            )}
-          </div>
 
-          {/* Right: Widget settings + Swiss holidays */}
-          <div>
-            <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, marginBottom: 12 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--bl)', marginBottom: 6 }}>
-                🔌 {t('ferm.defaultWidgetMsg')}
-              </div>
-              <input type="text" defaultValue={t('ferm.defaultWidgetValue')} style={{ ...inputS, marginBottom: 4 }} />
-              <div style={{ fontSize: 11, color: 'var(--t3)' }}>
-                {t('ferm.defaultWidgetHint')} · <span style={{ color: 'var(--bl)', cursor: 'pointer' }}>{t('ferm.widgetSettings')} →</span>
-              </div>
-            </div>
-
-            <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 12, padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--bl)', marginBottom: 8 }}>
-                🇨🇭 {t('ferm.swissHolidays')}
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                {FERIES_CH.map(f => (
-                  <span key={f.date} onClick={() => handleAddHoliday(f.date, f.label)} style={{
-                    fontSize: 11, padding: '3px 9px', background: 'rgba(68,128,216,.08)', border: '1px solid rgba(68,128,216,.2)',
-                    borderRadius: 5, color: 'var(--bl)', cursor: 'pointer',
-                  }}>
-                    {f.date.slice(5).replace('-', '/')} {f.label}
-                  </span>
-                ))}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 6 }}>{t('ferm.clickToAdd')}</div>
-            </div>
-          </div>
+          <button onClick={handleAddFermeture} style={{
+            marginTop: 12, padding: '10px 24px', fontSize: 12, fontWeight: 700,
+            background: 'var(--bl)', color: '#fff', border: 'none', borderRadius: 7, cursor: 'pointer',
+          }}>
+            {t('ferm.add')}
+          </button>
         </div>
       )}
+
+      {/* ═══ Filter chips ═══ */}
+      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
+        <button onClick={() => setFilterType('all')} style={chipS(filterType === 'all')}>
+          {t('toolbar.all')} ({activeFermetures.length})
+        </button>
+        {Object.entries(TYPE_ICONS).map(([type, icon]) => {
+          const cnt = activeFermetures.filter(f => f.type === type).length
+          if (cnt === 0) return null
+          return (
+            <button key={type} onClick={() => setFilterType(type)} style={chipS(filterType === type)}>
+              {icon} {t(`ferm.type.${type}`)} ({cnt})
+            </button>
+          )
+        })}
+      </div>
+
+      {/* ═══ Upcoming closures ═══ */}
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 8 }}>
+          {t('ferm.upcoming') || 'À venir'} ({upcoming.length})
+        </div>
+        {upcoming.length === 0 ? (
+          <div style={{ padding: '16px', textAlign: 'center', fontSize: 12, color: 'var(--t4)', background: 'var(--surf2)', borderRadius: 10, border: '1px solid var(--border)' }}>
+            {t('ferm.noClosures')}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {upcoming.map(f => {
+              const colors = TYPE_COLORS[f.type] || TYPE_COLORS.restaurant
+              const scope = scopeLabel(f)
+              const isActive = today >= f.date && today <= (f.dateFin || f.date)
+              return (
+                <div key={f.id} style={{
+                  padding: '10px 14px', background: colors.bg, border: `1.5px solid ${colors.border}`,
+                  borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10,
+                  boxShadow: isActive ? `0 0 12px ${colors.border}` : 'none',
+                }}>
+                  <span style={{ fontSize: 18, flexShrink: 0 }}>{TYPE_ICONS[f.type] || '📅'}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: colors.text }}>{f.label}</span>
+                      {isActive && (
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: colors.text, color: '#fff' }}>
+                          EN COURS
+                        </span>
+                      )}
+                      {scope && (
+                        <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--t3)', padding: '1px 6px', background: 'var(--surf3)', borderRadius: 4 }}>
+                          {scope}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'DM Mono,monospace', marginTop: 2 }}>
+                      {durationLabel(f)}
+                    </div>
+                    {f.note && <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 2 }}>{f.note}</div>}
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                    <button onClick={() => handleToggleFermeture(f.id)} title={t('ferm.manage')} style={{
+                      width: 30, height: 30, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf3)',
+                      color: 'var(--t2)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>✏️</button>
+                    <button onClick={() => handleDeleteFermeture(f.id)} title="Supprimer" style={{
+                      width: 30, height: 30, borderRadius: 6, border: '1px solid rgba(220,80,80,.3)', background: 'rgba(220,80,80,.08)',
+                      color: 'var(--rd)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>🗑</button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ═══ Past closures (collapsed) ═══ */}
+      {past.length > 0 && (
+        <details style={{ marginTop: 4 }}>
+          <summary style={{ fontSize: 11, fontWeight: 700, color: 'var(--t4)', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+            {t('ferm.past') || 'Passées'} ({past.length})
+          </summary>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8, opacity: 0.6 }}>
+            {past.map(f => {
+              const colors = TYPE_COLORS[f.type] || TYPE_COLORS.restaurant
+              return (
+                <div key={f.id} style={{
+                  padding: '8px 12px', background: colors.bg, border: `1px solid ${colors.border}`,
+                  borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <span style={{ fontSize: 14 }}>{TYPE_ICONS[f.type] || '📅'}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: colors.text }}>{f.label}</span>
+                  <span style={{ fontSize: 10, color: 'var(--t4)', fontFamily: 'DM Mono,monospace' }}>{durationLabel(f)}</span>
+                </div>
+              )
+            })}
+          </div>
+        </details>
+      )}
+
+      {/* ═══ Bottom: Swiss holidays + Widget defaults ═══ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 4 }}>
+        {/* Swiss holidays quick-add */}
+        <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--bl)', marginBottom: 8 }}>
+            🇨🇭 {t('ferm.swissHolidays')}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+            {FERIES_CH.map(f => {
+              const already = activeFermetures.some(af => af.date === f.date && af.type === 'ferie')
+              return (
+                <span key={f.date} onClick={() => !already && handleAddHoliday(f.date, f.label)} style={{
+                  fontSize: 11, padding: '3px 9px', borderRadius: 5, cursor: already ? 'default' : 'pointer',
+                  background: already ? 'rgba(60,200,112,.12)' : 'rgba(68,128,216,.08)',
+                  border: `1px solid ${already ? 'rgba(60,200,112,.3)' : 'rgba(68,128,216,.2)'}`,
+                  color: already ? 'var(--gn)' : 'var(--bl)',
+                  opacity: already ? 0.7 : 1,
+                }}>
+                  {already ? '✓ ' : ''}{f.date.slice(5).replace('-', '/')} {f.label}
+                </span>
+              )
+            })}
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 6 }}>{t('ferm.clickToAdd')}</div>
+        </div>
+
+        {/* Widget default message */}
+        <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--bl)', marginBottom: 6 }}>
+            🔌 {t('ferm.defaultWidgetMsg')}
+          </div>
+          <input type="text" defaultValue={t('ferm.defaultWidgetValue')} style={{ ...inputS, marginBottom: 4 }} />
+          <div style={{ fontSize: 10, color: 'var(--t3)' }}>
+            {t('ferm.defaultWidgetHint')} · <span style={{ color: 'var(--bl)', cursor: 'pointer' }}>{t('ferm.widgetSettings')} →</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

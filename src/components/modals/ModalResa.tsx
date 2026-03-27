@@ -18,11 +18,6 @@ interface ModalResaProps {
   preselectedDate?: string
 }
 
-function todayISO(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-}
-
 function timeToMins(t: string): number {
   const [h, m] = t.replace('h',':').split(':').map(Number)
   return h * 60 + (m || 0)
@@ -79,7 +74,7 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
     setTbl(preselectedTable || '')
     // Reset form
     setNom(''); setPrenom(''); setTel(''); setEmail('')
-    setCvt(2); setSlot(''); setNote(''); setStatut(0)
+    setCvt(2); setSlot(''); setNote(''); setStatut(0 as 0 | 1 | 2 | 3)
     setBebe(0); setPmr(0); setAllergie(false); setModeIA(true)
   }, [isOpen])
 
@@ -200,7 +195,7 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
       note: note.trim(),
       date,
       createdAt: Date.now(),
-      statut,
+      statut: statut as 0 | 1 | 2 | 3,
       mode: modeIA ? 'ia' : 'manuel',
       tel: toE164(tel.trim(), pays),
       email: email.trim(),
@@ -552,20 +547,12 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
                 {/* Chaise bébé */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 12 }}>👶 {t('modal.babyChair')}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <button onClick={() => setBebe(Math.max(0, bebe-1))} style={{ width:24, height:24, borderRadius:'50%', border:'1px solid var(--border)', background:'var(--surf3)', color:'var(--text)', cursor:'pointer', fontSize:14 }}>−</button>
-                    <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'var(--fm)', width: 16, textAlign: 'center' }}>{bebe}</span>
-                    <button onClick={() => setBebe(Math.min(5, bebe+1))} style={{ width:24, height:24, borderRadius:'50%', border:'1px solid var(--border)', background:'var(--surf3)', color:'var(--text)', cursor:'pointer', fontSize:14 }}>+</button>
-                  </div>
+                  <input type="number" min={0} max={5} value={bebe} onChange={e => setBebe(Math.max(0, Math.min(5, Number(e.target.value) || 0)))} style={{ width: 48, height: 24, textAlign: 'center', fontSize: 12, fontWeight: 700, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf)', color: 'var(--text)', fontFamily: 'DM Mono,monospace', outline: 'none' }} />
                 </div>
                 {/* PMR */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 12 }}>♿ {t('modal.pmrSeat')}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <button onClick={() => setPmr(Math.max(0, pmr-1))} style={{ width:24, height:24, borderRadius:'50%', border:'1px solid var(--border)', background:'var(--surf3)', color:'var(--text)', cursor:'pointer', fontSize:14 }}>−</button>
-                    <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'var(--fm)', width: 16, textAlign: 'center' }}>{pmr}</span>
-                    <button onClick={() => setPmr(Math.min(5, pmr+1))} style={{ width:24, height:24, borderRadius:'50%', border:'1px solid var(--border)', background:'var(--surf3)', color:'var(--text)', cursor:'pointer', fontSize:14 }}>+</button>
-                  </div>
+                  <input type="number" min={0} max={5} value={pmr} onChange={e => setPmr(Math.max(0, Math.min(5, Number(e.target.value) || 0)))} style={{ width: 48, height: 24, textAlign: 'center', fontSize: 12, fontWeight: 700, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf)', color: 'var(--text)', fontFamily: 'DM Mono,monospace', outline: 'none' }} />
                 </div>
                 {/* Allergie */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -93,8 +93,8 @@ export function ViewToolbar({
 
   // Vérifier s'il y a une fermeture active pour la date sélectionnée
   const activeClosure = (fermetures || []).find(f => {
-    if (!f.dateDebut || !f.dateFin) return false
-    return activeDate >= f.dateDebut && activeDate <= f.dateFin
+    if (!f.date || !f.dateFin) return false
+    return activeDate >= f.date && activeDate <= f.dateFin
   })
 
   return (

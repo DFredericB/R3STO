@@ -135,7 +135,7 @@ export interface Resto {
 // ── Fermeture ──────────────────────────────────────
 export interface Fermeture {
   id: string
-  type: 'restaurant' | 'salle' | 'service' | 'vacances' | 'ferie' | 'exception'
+  type: 'restaurant' | 'salle' | 'service' | 'vacances' | 'ferie' | 'exception' | 'travaux'
   date: string        // ISO
   dateFin?: string    // ISO si période
   label: string
@@ -326,6 +326,9 @@ export interface Site {
   plan: Plan                // plan individuel du site
   maxCvt: number
   createdAt: number
+  acceptRedirect?: boolean    // Accept incoming redirected clients
+  redirectPriority?: number   // Priority in redirect order (1 = first proposed)
+  redirectMsg?: string        // Custom message shown to redirected clients
 }
 
 // ── État global de l'app ───────────────────────────

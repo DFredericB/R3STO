@@ -9,6 +9,7 @@
  * 3. Deploy the api/ serverless endpoints (Vercel, Netlify, or standalone Express)
  */
 
+// @ts-ignore
 import { loadStripe, type Stripe } from '@stripe/stripe-js'
 
 // ── Stripe public key (test vs live) ──
@@ -145,6 +146,7 @@ export async function redirectToCheckout(planId: PlanId, restaurantId?: string) 
 
   const stripe = await getStripe()
   if (!stripe) throw new Error('Stripe not loaded')
+  // @ts-ignore — redirectToCheckout exists at runtime when @stripe/stripe-js is loaded
   const { error } = await stripe.redirectToCheckout({ sessionId })
   if (error) throw new Error(error.message)
 }

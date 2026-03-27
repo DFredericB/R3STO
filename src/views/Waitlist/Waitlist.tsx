@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
-import { iaPlacement, getFreeTables, getFreeCombos } from '../../utils/placementRules'
+import { iaPlacement } from '../../utils/placementRules'
 
 interface WaitlistItem {
   id: string
@@ -88,18 +88,29 @@ export function Waitlist() {
 
     let placed = 0
     opt.assignments.forEach((a: any) => {
+      const fullName = a.client.n || ''
       addResa({
         id: `r${Date.now()}_${placed}`,
-        n: a.client.n,
+        n: fullName,
+        nom: fullName.split(' ')[0] || '',
+        prenom: fullName.split(' ').slice(1).join(' ') || '',
         c: a.client.c,
         tbl: a.table.n,
         t: a.client.t,
         svc: a.client.svc,
         s: 'reserved',
+        statut: 0,
+        mode: 'ia',
+        tel: '',
+        email: '',
+        canal: 'telephone',
+        prisPar: '',
         note: a.client.note || '',
         date: activeDate,
         createdAt: Date.now(),
-        mode: 'ia',
+        bebe: 0,
+        pmr: 0,
+        allergie: false,
       })
       placed++
     })
@@ -116,23 +127,33 @@ export function Waitlist() {
     addResa({
       id: `r${Date.now()}`,
       n: w.n,
+      nom: w.n.split(' ')[0] || '',
+      prenom: w.n.split(' ').slice(1).join(' ') || '',
       c: w.c,
       tbl,
       t: w.t,
       svc: w.svc,
       s: 'reserved',
+      statut: 0,
+      mode: 'ia',
+      tel: '',
+      email: '',
+      canal: 'telephone',
+      prisPar: '',
       note: w.note || '',
       date: activeDate,
       createdAt: Date.now(),
-      mode: 'ia',
       src: 'waitlist',
+      bebe: 0,
+      pmr: 0,
+      allergie: false,
     })
     setWaitlist((list) => list.filter((x) => x.id !== id))
     toast(`✓ ${w.n} placé${tbl !== 'À assigner' ? ` sur ${tbl}` : ''}`, 'success')
   }
 
   const handleRemove = (id: string) => {
-    const w = waitlist.find((x) => x.id === id)
+    waitlist.find((x) => x.id === id)
     setWaitlist((list) => list.filter((x) => x.id !== id))
     toast('Retiré de la liste', 'info')
   }

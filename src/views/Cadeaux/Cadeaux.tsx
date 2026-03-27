@@ -8,7 +8,7 @@ import { useState, useMemo } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import { useT } from '../../i18n/useTranslation'
-import { RADIUS, GAP, labelStyle, inputStyle, sectionTitle } from '../../utils/design'
+import { RADIUS, labelStyle, inputStyle, sectionTitle } from '../../utils/design'
 import type { GiftCard, GiftCardStatus } from '../../types'
 
 // ── Constantes ─────────────────────────────────────
@@ -76,11 +76,10 @@ const chipS = (on: boolean): React.CSSProperties => ({
 // ── Composant principal ────────────────────────────
 export function Cadeaux() {
   const { toast } = useToast()
-  const { t } = useT()
+  useT()
   const giftCards = useAppStore(s => s.giftCards)
   const addGiftCard = useAppStore(s => s.addGiftCard)
   const updateGiftCard = useAppStore(s => s.updateGiftCard)
-  const deleteGiftCard = useAppStore(s => s.deleteGiftCard)
   const useGiftCardAction = useAppStore(s => s.useGiftCard)
   const resto = useAppStore(s => s.resto)
 

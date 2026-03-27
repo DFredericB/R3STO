@@ -27,7 +27,7 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 export function Clients() {
   const { clients, addClient, updateClient, deleteClient, resas } = useAppStore()
   const navigate = useNavigate()
-  const { t } = useT()
+  useT()
 
   const [search, setSearch] = useState('')
   const [filterStatut, setFilterStatut] = useState<number | null>(null)

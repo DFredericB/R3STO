@@ -114,15 +114,26 @@ export function Groupes() {
       addResa({
         id: `r${Date.now()}`,
         n: g.n,
+        nom: g.n.split(' ')[0] || '',
+        prenom: g.n.split(' ').slice(1).join(' ') || '',
         c: g.c,
         tbl,
         t: g.t,
         svc: g.svc,
         s: 'reserved',
+        statut: 0,
+        mode: 'ia',
+        tel: g.tel || '',
+        email: '',
+        canal: 'telephone',
+        prisPar: '',
         note: (g.note || '') + '[Groupe]',
         date: g.date,
         createdAt: Date.now(),
         src: 'groupe',
+        bebe: 0,
+        pmr: 0,
+        allergie: false,
       })
 
       toast(`✓ Groupe accepté · Réservation créée · ${tbl}`, 'success')

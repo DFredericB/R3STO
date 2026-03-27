@@ -61,7 +61,7 @@ const MODE_LABELS: Record<LoyaltyMode, { fr: string; icon: string; unit: string 
 export function Fidelite() {
   const {
     loyaltyConfig, loyaltyCards, clients,
-    updateLoyaltyConfig, addLoyaltyCard, updateLoyaltyCard, deleteLoyaltyCard, addLoyaltyEvent
+    updateLoyaltyConfig, addLoyaltyCard, deleteLoyaltyCard, addLoyaltyEvent
   } = useAppStore()
 
   type Tab = 'dashboard' | 'members' | 'config'

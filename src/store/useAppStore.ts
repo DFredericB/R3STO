@@ -72,6 +72,8 @@ interface AppStore {
   reviews: Review[]
   loyaltyConfig: LoyaltyConfig
   loyaltyCards: LoyaltyCard[]
+  sites: Site[]
+  activeSiteId: string | null
 
   // Navigation
   activeDate: string
@@ -290,15 +292,15 @@ export const useAppStore = create<AppStore>()(
       })),
 
       // Multi-site
-      addSite: (site) => set((s) => ({ sites: [...s.sites, site] })),
-      updateSite: (id, patch) => set((s) => ({
-        sites: s.sites.map(si => si.id === id ? { ...si, ...patch } : si)
+      addSite: (site: Site) => set((s: AppStore) => ({ sites: [...s.sites, site] })),
+      updateSite: (id: string, patch: Partial<Site>) => set((s: AppStore) => ({
+        sites: s.sites.map((si: Site) => si.id === id ? { ...si, ...patch } : si)
       })),
-      deleteSite: (id) => set((s) => ({
-        sites: s.sites.filter(si => si.id !== id),
+      deleteSite: (id: string) => set((s: AppStore) => ({
+        sites: s.sites.filter((si: Site) => si.id !== id),
         activeSiteId: s.activeSiteId === id ? null : s.activeSiteId
       })),
-      setActiveSite: (id) => set({ activeSiteId: id }),
+      setActiveSite: (id: string | null) => set({ activeSiteId: id }),
 
       // Auth & UI
       setUserRole: (role) => set({ userRole: role }),

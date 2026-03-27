@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import PhoneInput from '../../components/ui/PhoneInput'
 import { PLANS, type PlanId, redirectToCheckout, redirectToPortal } from '../../utils/stripe'

@@ -8,7 +8,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
   Resa, Table, Combo, Service, Salle, Resto,
-  OptionsData, User, Fermeture, UserRole
+  OptionsData, User, Fermeture, UserRole, RoomItem, Client, GiftCard, Review,
+  LoyaltyConfig, LoyaltyCard, Site
 } from '../types'
 
 // ── Données par défaut ─────────────────────────────
@@ -65,6 +66,14 @@ interface AppStore {
   options: OptionsData
   users: User[]
   fermetures: Fermeture[]
+  roomItems: RoomItem[]
+  clients: Client[]
+  giftCards: GiftCard[]
+  reviews: Review[]
+  loyaltyConfig: LoyaltyConfig
+  loyaltyCards: LoyaltyCard[]
+  sites: Site[]
+  activeSiteId: string | null
 
   // Navigation
   activeDate: string
@@ -88,6 +97,12 @@ interface AppStore {
   setServices: (services: Service[]) => void
   setSalles: (salles: Salle[]) => void
 
+  // Actions — Sites
+  addSite: (site: Site) => void
+  updateSite: (id: string, patch: Partial<Site>) => void
+  deleteSite: (id: string) => void
+  setActiveSite: (id: string | null) => void
+
   // Actions — Auth
   setUserRole: (role: UserRole) => void
   setLang: (lang: 'fr' | 'en' | 'de' | 'it') => void
@@ -107,10 +122,25 @@ export const useAppStore = create<AppStore>()(
       combos: [],
       services: DEFAULT_SERVICES,
       salles: DEFAULT_SALLES,
-      resto: { name: '', ville: '', plan: 'bistro', maxCvt: 30, tel: '', email: '', web: '' },
+      resto: { name: '', ville: '', pays: 'CH', plan: 'bistro', maxCvt: 30, tel: '', email: '', web: '' },
       options: DEFAULT_OPTIONS,
       users: [],
       fermetures: [],
+      roomItems: [],
+      clients: [],
+      giftCards: [],
+      reviews: [],
+      loyaltyConfig: {
+        active: false, mode: 'stamps',
+        pointsPerChf: 1, stampsGoal: 10,
+        cashbackPercent: 5,
+        rewardName: 'Dessert offert', rewardValue: 15, rewardThreshold: 10,
+        welcomeBonus: 1, birthdayBonus: 2, expirationMonths: 12,
+        doublePointsDays: []
+      },
+      loyaltyCards: [],
+      sites: [],
+      activeSiteId: null,
       activeDate: today(),
       isDemo: false,
       userRole: 'proprietaire',
@@ -149,6 +179,17 @@ export const useAppStore = create<AppStore>()(
       setServices: (services) => set({ services }),
       setSalles: (salles) => set({ salles }),
 
+      // Sites
+      addSite: (site) => set((s) => ({ sites: [...s.sites, site] })),
+      updateSite: (id, patch) => set((s) => ({
+        sites: s.sites.map(si => si.id === id ? { ...si, ...patch } : si)
+      })),
+      deleteSite: (id) => set((s) => ({
+        sites: s.sites.filter(si => si.id !== id),
+        activeSiteId: s.activeSiteId === id ? null : s.activeSiteId
+      })),
+      setActiveSite: (id) => set({ activeSiteId: id }),
+
       // Auth
       setUserRole: (role) => set({ userRole: role }),
       setLang: (lang) => set({ lang }),
@@ -158,7 +199,8 @@ export const useAppStore = create<AppStore>()(
       resetData: () => set({
         resas: [], tables: [], combos: [],
         services: DEFAULT_SERVICES, salles: DEFAULT_SALLES,
-        options: DEFAULT_OPTIONS, users: [], fermetures: [],
+        options: DEFAULT_OPTIONS, users: [], fermetures: [], roomItems: [], clients: [], giftCards: [], reviews: [], loyaltyCards: [],
+        sites: [], activeSiteId: null,
         activeDate: today()
       })
     }),

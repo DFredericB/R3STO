@@ -133,7 +133,7 @@ export function canMoveResa(
   resa: Resa,
   target: MoveTarget,
   tables: Table[],
-  combos: Combo[],
+  _combos: Combo[],
   resas: Resa[],
 ): MoveResult {
   const covers = resa.c
@@ -272,7 +272,6 @@ export function smartPlacement(
   const totalTables = activeTables.length
   const free = getFreeTables(tables, resas, date, svc, excludeResaId)
     .filter(t => !salleFilter || salleFilter === 'toutes' || t.salle === salleFilter)
-  const freeCombos = getFreeCombos(combos, tables, resas, date, svc, excludeResaId)
   const freeCount = free.length
   const fillPercent = totalTables > 0 ? Math.round(((totalTables - freeCount) / totalTables) * 100) : 0
 

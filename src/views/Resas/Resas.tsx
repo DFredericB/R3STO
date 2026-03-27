@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { ViewToolbar } from '../../components/ui/ViewToolbar'
@@ -57,11 +57,7 @@ function Stepper({ value, onChange, min = 0, max = 10, label, icon }: {
     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       <span style={{ fontSize: 13 }}>{icon}</span>
       <span style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', minWidth: 28 }}>{label}</span>
-      <button type="button" onClick={() => onChange(Math.max(min, value - 1))}
-        style={{ width: 32, height: 32, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t2)', cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: value <= min ? .3 : 1 }}>−</button>
-      <span style={{ minWidth: 22, textAlign: 'center', fontSize: 14, fontWeight: 700, fontFamily: 'var(--fm)', color: value > 0 ? SEL.color : 'var(--t3)' }}>{value}</span>
-      <button type="button" onClick={() => onChange(Math.min(max, value + 1))}
-        style={{ width: 32, height: 32, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t2)', cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: value >= max ? .3 : 1 }}>+</button>
+      <input type="number" min={min} max={max} value={value} onChange={e => onChange(Math.max(min, Math.min(max, Number(e.target.value) || min)))} style={{ width: 56, height: 32, textAlign: 'center', fontSize: 13, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf)', outline: 'none' }} />
     </div>
   )
 }
@@ -128,7 +124,7 @@ function StatusPill({ status, onClick }: { status: string; onClick: () => void }
 
 export function Resas() {
   const { t, fmtDate } = useT()
-  const { resas, services, tables, combos, users, activeDate, setActiveDate, setResaStatus, deleteResa, addResa, updateResa, salles, resto } = useAppStore()
+  const { resas, services, tables, combos, users, activeDate, setActiveDate, setResaStatus, addResa, updateResa, resto } = useAppStore()
   const pays = resto.pays || 'CH'
   const [searchParams, setSearchParams] = useSearchParams()
   const navigateTo = useNavigate()
@@ -176,7 +172,6 @@ export function Resas() {
   const today = todayISO()
   const isToday = activeDate === today
   const activeServices = services.filter(s => s.active)
-  const activeSalles = salles.filter(s => s.active)
 
   const dayResas = resas
     .filter(r => r.date === activeDate)
@@ -1035,8 +1030,6 @@ export function Resas() {
               {!modeIA && (() => {
                 const isCombo = tbl.includes('+')
                 const selectedCombo = isCombo ? combos.find(c => c.label === tbl) : null
-                const selectedCap = selectedCombo ? selectedCombo.cap
-                  : tables.find(tb => tb.n === tbl || tb.id === tbl)?.capMax || maxCapFree
                 const comboTables = selectedCombo ? selectedCombo.tables.map(tid => tables.find(tb => tb.id === tid)).filter(Boolean) : []
                 const smallestComboTable = comboTables.length > 0 ? Math.min(...comboTables.map(tb => tb!.capMax)) : 0
                 const couldFitOnSingle = isCombo && couverts <= smallestComboTable

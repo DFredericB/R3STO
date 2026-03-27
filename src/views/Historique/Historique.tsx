@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
 import { useToast } from '../../components/ui/Toast'
 
@@ -27,7 +26,7 @@ const DEMO_HISTORIQUE = [
 ]
 
 export function Historique() {
-  const { t } = useT()
+  useT()
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<TabType>('resas')
   const [filterStatus, setFilterStatus] = useState<string>('all')

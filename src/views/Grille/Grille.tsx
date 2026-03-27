@@ -14,7 +14,7 @@ import { useT } from '../../i18n/useTranslation'
 import type { Service, Resa, Table, Combo } from '../../types'
 import { STATUS, CANAUX } from '../../utils/design'
 import { timeToMins, nowMins, todayISO } from '../../utils/date'
-import { canMoveResa, canSwapResas, isOccupying, tblMatchesTable, iaPlacement, smartPlacement } from '../../utils/placementRules'
+import { canMoveResa, canSwapResas, isOccupying, tblMatchesTable, iaPlacement } from '../../utils/placementRules'
 
 // Taille boutons iPad 9" — minimum 40px pour confort tactile
 const BTN = 40
@@ -28,18 +28,10 @@ interface MoveMode {
   svc: string
 }
 
-// Style bouton action uniforme — flex:1 pour remplir la grille
-const actionBtn = (border: string, bg: string, color: string): React.CSSProperties => ({
-  height: BTN, padding: '0 10px', borderRadius: 8, border: `1px solid ${border}`,
-  background: bg, color, cursor: 'pointer', fontSize: 12, fontWeight: 700,
-  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-  whiteSpace: 'nowrap', flex: 1, minWidth: 0,
-})
-
 // ── Ligne de table ───────────────────────────────
 function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggleExpand,
   onMarkArrived, onMarkNoshow, onMarkDone, onCancel, onRestore,
-  onClick, onPlaceResa, onPlaceCombo, onUncombine, onStartMove, onMoveTarget, salleColor,
+  onClick, onPlaceResa, onPlaceCombo, onStartMove, onMoveTarget, salleColor,
 }: {
   table: Table
   resas: Resa[]
@@ -273,7 +265,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
   const moveOpacity = moveMode && !isSource && !isValidMoveTarget && !isValidSwapTarget ? .35 : 1
 
   // Style item dropdown action
-  const ddItem = (icon: string, label: string, col: string): React.CSSProperties => ({
+  const ddItem = (_icon: string, _label: string, col: string): React.CSSProperties => ({
     width: '100%', display: 'flex', alignItems: 'center', gap: 8,
     padding: '10px 12px', border: 'none', borderBottom: '1px solid rgba(255,255,255,.04)',
     background: 'transparent', cursor: 'pointer', textAlign: 'left' as const,
@@ -626,7 +618,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
 }
 
 // ── Colonne service ─────────────────────────────
-function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
+function ServiceColumn({ service, tables, resas, combos, moveMode,
   onMarkArrived, onMarkNoshow, onMarkDone, onCancel, onRestore,
   onClickResa, onPlaceResa, onPlaceCombo, onUncombine, onStartMove, onMoveTarget, onMoveIA, salleColorMap,
 }: {
@@ -711,7 +703,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
           </button>
         ) : moveMode && isMoveService ? (
           <button
-            onClick={onMoveIA}
+            onClick={() => onMoveIA(svcName)}
             style={{
               padding: '6px 14px', borderRadius: 10,
               border: '2px solid rgba(91,156,246,.5)',
@@ -838,7 +830,7 @@ function ServiceColumn({ service, tables, resas, combos, allTables, moveMode,
                 onPlaceCombo={placeCombo}
                 onUncombine={onUncombine}
                 onStartMove={onStartMove}
-                onMoveTarget={onMoveTarget}
+                onMoveTarget={(tbl) => onMoveTarget(tbl, svcName)}
                 salleColor={salleColorMap[table.salle] || undefined}
               />
             )

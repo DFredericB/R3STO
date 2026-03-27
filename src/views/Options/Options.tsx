@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { useT } from '../../i18n/useTranslation'
 
 export function Options() {
-  const { t } = useT()
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [options, setOptions] = useState({
     // Équipements

@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useAppStore } from '../../store/useAppStore';
+import { useState } from 'react';
 
 interface OrderItem {
   id: string;
@@ -226,8 +225,8 @@ export function ServiceView() {
   const planSalles = rooms.filter(s => s.active);
 
   const renderFloorPlan = () => {
-    const items = [];
-    planSalles.forEach(salle => {
+    const items: React.ReactNode[] = [];
+    planSalles.forEach((salle: any) => {
       const salleTableList = tables.filter(t => t.salle === salle.name);
       if (salleTableList.length === 0) return;
 

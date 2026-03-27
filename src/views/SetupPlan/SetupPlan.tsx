@@ -277,7 +277,6 @@ function spTableSvg(t: Table, ctx: SvgCtx): string {
   const hlObj    = comboHL ? combos.find(c => c.id === comboHL) : null
   const inHL     = hlObj ? hlObj.tables.includes(t.id) : false
 
-  const inCombo = inCombos.length > 0
   const tRef   = Math.min(t.w, t.h)
   // Violet quand le combo est actif (HL) — sinon bleu normal
   const fill   = isSel ? 'rgba(250,204,21,.08)' : multiSel ? 'rgba(60,200,112,.12)' : inHL ? 'rgba(144,96,224,.12)' : 'rgba(68,128,216,.11)'
@@ -398,8 +397,6 @@ function renderComboFusion(combo: Combo, tables: Table[], isHL: boolean): string
   const lcx = (lx + lx2) / 2, lcy = (ly + ly2) / 2
 
   const capTxt   = `${combo.capOverride ?? combo.cap}p`
-  const labelTxt = `${combo.label} · ${capTxt}`
-  const lblW     = labelTxt.length * 1.5 + 3  // largeur estimée du label
 
   // Non-HL : juste un liseré pointillé discret — les tables gardent leurs labels bleus
   if (!isHL) {
@@ -410,14 +407,14 @@ function renderComboFusion(combo: Combo, tables: Table[], isHL: boolean): string
 
   // HL (actif) : contour violet + label combo au centre (même style que les tables, en violet)
   // Taille de référence = moyenne des tables du combo, identique au calcul des tables individuelles
-  const cRef = ctbls.reduce((sum, t) => sum + Math.min(t.w, t.h), 0) / ctbls.length
+  const cRef = Math.min(lw, lh)
   const fsN  = (cRef * 0.25).toFixed(1)
   const fsC  = (cRef * 0.167).toFixed(1)
   let s = ''
   // Contour violet plein (pas de tirets) quand combo actif
   s += `<rect x="${(lx-1).toFixed(1)}" y="${(ly-1).toFixed(1)}" width="${(lw+2).toFixed(1)}" height="${(lh+2).toFixed(1)}" rx="3" fill="none" stroke="rgba(180,130,255,.7)" stroke-width="1.2"/>`
   // Fond semi-transparent derrière le label pour masquer la jonction des tables paires
-  const lblPadX = cRef * 0.6
+  const lblPadX = Math.min(cRef * 0.6, lw * 0.35)
   const lblPadY = cRef * 0.35
   s += `<rect x="${(lcx - lblPadX).toFixed(1)}" y="${(lcy - lblPadY).toFixed(1)}" width="${(lblPadX*2).toFixed(1)}" height="${(lblPadY*2).toFixed(1)}" rx="2" fill="rgba(30,30,42,.55)" style="pointer-events:none"/>`
   // Label combo — nom + capacité, dimensions identiques aux tables
@@ -470,7 +467,7 @@ export function SetupPlan() {
     : 200
   const cntRef          = useRef(_maxExistingId)
   const lastAddRef   = useRef(0)   // anti-double-add guard
-  const dragRef      = useRef({ dragging: false, resizing: false, id: null as string | null, ox: 0, oy: 0, startW: 0, startH: 0, groupIds: [] as string[], lastDx: 0, lastDy: 0 })
+  const dragRef      = useRef({ dragging: false, resizing: false, id: null as string | null, ox: 0, oy: 0, startW: 0, startH: 0, groupIds: [] as string[], lastDx: 0, lastDy: 0, startObjX: 0, startObjY: 0, startPtX: 0, startPtY: 0, dragStarted: false })
   const basePositionsRef = useRef<Record<string, {x: number; y: number}>>({})  // positions de repos avant activation combo
 
   // Refs miroir pour accès dans les handlers
@@ -733,7 +730,7 @@ export function SetupPlan() {
       const obj = isRoom(rid) ? roomsRef.current.find(r => r.id === rid) : tablesRef.current.find(t => t.id === rid)
       if (!obj) return
       const pt = getSvgPt(e.nativeEvent as MouseEvent | TouchEvent)
-      dragRef.current = { dragging: false, resizing: true, id: rid, ox: pt.x, oy: pt.y, startW: obj.w, startH: obj.h, groupIds: [], lastDx: 0, lastDy: 0 }
+      dragRef.current = { dragging: false, resizing: true, id: rid, ox: pt.x, oy: pt.y, startW: obj.w, startH: obj.h, groupIds: [], lastDx: 0, lastDy: 0, startObjX: obj.x, startObjY: obj.y, startPtX: pt.x, startPtY: pt.y, dragStarted: false }
       return
     }
 
@@ -762,7 +759,7 @@ export function SetupPlan() {
             if (t) startPos[id] = { x: t.x, y: t.y }
           })
           groupStartPosRef.current = startPos
-          dragRef.current = { dragging: true, resizing: false, id: null as any, ox: pt2.x, oy: pt2.y, startW: 0, startH: 0, groupIds: combo.tables, lastDx: 0, lastDy: 0 }
+          dragRef.current = { dragging: true, resizing: false, id: null as any, ox: pt2.x, oy: pt2.y, startW: 0, startH: 0, groupIds: combo.tables, lastDx: 0, lastDy: 0, startObjX: 0, startObjY: 0, startPtX: pt2.x, startPtY: pt2.y, dragStarted: false }
           return
         }
       }
@@ -809,7 +806,7 @@ export function SetupPlan() {
           if (t) startPos[tid] = { x: t.x, y: t.y }
         })
         groupStartPosRef.current = startPos
-        dragRef.current = { dragging: true, resizing: false, id: null as any, ox: pt.x, oy: pt.y, startW: 0, startH: 0, groupIds: activeCombo.tables, lastDx: 0, lastDy: 0 }
+        dragRef.current = { dragging: true, resizing: false, id: null as any, ox: pt.x, oy: pt.y, startW: 0, startH: 0, groupIds: activeCombo.tables, lastDx: 0, lastDy: 0, startObjX: 0, startObjY: 0, startPtX: pt.x, startPtY: pt.y, dragStarted: false }
         return
       } else {
         // Table dans combo NON actif → sélection individuelle normale
@@ -929,7 +926,7 @@ export function SetupPlan() {
   const clickStartRef  = useRef<{ id: string; x: number; y: number } | null>(null)
   const pendingComboRef = useRef<{ tableId: string; combos: Combo[] } | null>(null)
 
-  const handleMouseUp = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+  const handleMouseUp = useCallback((_e: React.MouseEvent | React.TouchEvent) => {
     const dr = dragRef.current
     clickStartRef.current   = null
     pendingComboRef.current = null
@@ -1026,7 +1023,6 @@ export function SetupPlan() {
     const spanH = span.y2 - span.y1
     const updates: Record<string, { x: number; y: number }> = {}
     const base = tbls[0]
-    const last = tbls[tbls.length - 1]
 
     // Orientation : forcée si définie, sinon défaut = Horizontal
     const isHorizontal = orient === 'V' ? false : true
@@ -1594,11 +1590,8 @@ export function SetupPlan() {
 
                   <label style={{ fontSize: 11, color: 'var(--t3)', display: 'block', marginBottom: 4 }}>Couverts max</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                    <button onClick={() => setLocalTables(prev => prev.map(t => t.id === selTable.id ? { ...t, capMax: Math.max(1, t.capMax - 1) } : t))}
-                      style={{ width: 28, height: 28, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf2)', color: 'var(--t2)', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
-                    <span style={{ flex: 1, textAlign: 'center', fontSize: 15, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: 'var(--text)' }}>{selTable.capMax}p</span>
-                    <button onClick={() => setLocalTables(prev => prev.map(t => t.id === selTable.id ? { ...t, capMax: Math.min(50, t.capMax + 1) } : t))}
-                      style={{ width: 28, height: 28, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf2)', color: 'var(--t2)', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
+                    <input type="number" min={1} max={50} value={selTable.capMax} onChange={e => setLocalTables(prev => prev.map(t => t.id === selTable.id ? { ...t, capMax: Math.max(1, Math.min(50, Number(e.target.value) || 1)) } : t))} style={{ width: 56, height: 28, textAlign: 'center', fontSize: 15, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf2)', outline: 'none' }} />
+                    <span style={{ fontSize: 13, color: 'var(--t3)' }}>p</span>
                   </div>
 
                   <label style={{ fontSize: 11, color: 'var(--t3)', display: 'block', marginBottom: 2 }}>Salle</label>
@@ -1791,13 +1784,8 @@ export function SetupPlan() {
                       {/* Capacité override +/- */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }} onClick={e => e.stopPropagation()}>
                         <span style={{ fontSize: 10, color: 'var(--t4)', flexShrink: 0 }}>Couverts :</span>
-                        <button onClick={() => { const next = combosRef.current.map(x => x.id !== c.id ? x : { ...x, capOverride: Math.max(1, (x.capOverride ?? x.cap) - 1) }); setLocalCombos(next); combosRef.current = next; setCombos(next) }}
-                          style={{ width: 22, height: 22, border: '1px solid var(--border)', borderRadius: 4, background: 'var(--surf)', color: 'var(--bl)', fontSize: 14, cursor: 'pointer' }}>−</button>
-                        <span style={{ minWidth: 28, textAlign: 'center', fontSize: 13, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: 'var(--text)' }}>
-                          {c.capOverride ?? c.cap}p
-                        </span>
-                        <button onClick={() => { const next = combosRef.current.map(x => x.id !== c.id ? x : { ...x, capOverride: Math.min(50, (x.capOverride ?? x.cap) + 1) }); setLocalCombos(next); combosRef.current = next; setCombos(next) }}
-                          style={{ width: 22, height: 22, border: '1px solid var(--border)', borderRadius: 4, background: 'var(--surf)', color: 'var(--bl)', fontSize: 14, cursor: 'pointer' }}>+</button>
+                        <input type="number" min={1} max={50} value={c.capOverride ?? c.cap} onChange={e => { const next = combosRef.current.map(x => x.id !== c.id ? x : { ...x, capOverride: Math.max(1, Math.min(50, Number(e.target.value) || c.cap)) }); setLocalCombos(next); combosRef.current = next; setCombos(next) }} style={{ width: 48, height: 22, textAlign: 'center', fontSize: 13, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 4, background: 'var(--surf)', outline: 'none' }} />
+                        <span style={{ fontSize: 12, color: 'var(--t3)' }}>p</span>
                         {c.capOverride !== undefined && c.capOverride !== c.cap && (
                           <button onClick={() => { const next = combosRef.current.map(x => x.id !== c.id ? x : { ...x, capOverride: undefined }); setLocalCombos(next); combosRef.current = next; setCombos(next) }}
                             style={{ fontSize: 9, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 3, background: 'none', color: 'var(--t4)', cursor: 'pointer' }}>↺ auto</button>

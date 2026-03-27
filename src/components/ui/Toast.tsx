@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback } from 'react'
+import type { ReactNode } from 'react'
 
 interface ToastItem { id: string; message: string; type?: 'success'|'error'|'warning'|'info' }
 interface ToastCtx { toast: (msg: string, type?: ToastItem['type']) => void }

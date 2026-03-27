@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
-import { useT } from '../../i18n/useTranslation'
 import { useToast } from '../../components/ui/Toast'
 import type { Table, Combo } from '../../types/index'
 
@@ -20,24 +19,23 @@ const DEMO_TABLES: Table[] = [
 ]
 
 const DEMO_COMBOS: Combo[] = [
-  { id: 'c1', label: 'T3+T4', tables: ['t3', 't4'], cap: 8, capOverride: null, salle: 'Salle principale' },
-  { id: 'c2', label: 'T1+T2', tables: ['t1', 't2'], cap: 4, capOverride: null, salle: 'Salle principale' },
+  { id: 'c1', label: 'T3+T4', tables: ['t3', 't4'], cap: 8, salle: 'Salle principale' },
+  { id: 'c2', label: 'T1+T2', tables: ['t1', 't2'], cap: 4, salle: 'Salle principale' },
 ]
 
 export function Tables() {
-  const { t } = useT()
   const { tables, salles, combos, setCombos, setTables } = useAppStore()
   const { toast } = useToast()
 
   const [comboMode, setComboMode] = useState(false)
   const [selectedForCombo, setSelectedForCombo] = useState<string[]>([])
   const [currentSalle, setCurrentSalle] = useState('Salle principale')
-  const [editingTableId, setEditingTableId] = useState<string | null>(null)
+  const [_editingTableId, _setEditingTableId] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<{ type: 'table' | 'combo'; id: string } | null>(null)
 
   const activeTables = tables.length === 0 ? DEMO_TABLES : tables
   const activeCombos = combos.length === 0 ? DEMO_COMBOS : combos
-  const activeSalles = salles.length > 0 ? salles : [{ id: 's1', name: 'Salle principale', color: '#4480d8', active: true }]
+  const activeSalles = salles.length > 0 ? salles : [{ id: 's1', name: 'Salle principale', type: 'intérieure', exterior: false, color: '#4480d8', active: true, openByDefault: true, priority: 1 }]
 
   // Calculate stats
   const stats = activeTables.reduce(
@@ -52,7 +50,9 @@ export function Tables() {
     { total: 0, caps: 0, blocked: 0, held: 0, inCombo: 0 }
   )
 
-  const currentSalleTables = activeTables.filter(t => t.salle === currentSalle && t.active !== false)
+  const currentSalleTables = activeTables
+    .filter(t => t.salle === currentSalle && t.active !== false)
+    .sort((a, b) => (a.priority || 99) - (b.priority || 99))
   const currentCombos = activeCombos.filter(c => {
     return c.tables.some(tableId => {
       const table = activeTables.find(t => t.id === tableId)
@@ -60,11 +60,15 @@ export function Tables() {
     })
   })
 
+  const SALLE_TYPE_ICONS: Record<string, string> = {
+    'intérieure': '🏠', 'extérieure': '☀️', 'privée': '🔒', 'bar': '🍸',
+  }
+
   const getSalleTabs = () => {
     return activeSalles
       .filter(s => s.active)
       .sort((a, b) => (a.priority || 99) - (b.priority || 99))
-      .map(s => s.name)
+      .map(s => ({ name: s.name, icon: SALLE_TYPE_ICONS[s.type || ''] || '', cap: activeTables.filter(t => t.salle === s.name).reduce((sum, t) => sum + t.capMax, 0) }))
   }
 
   const getShapeIcon = (table: Table, size: number = 64): string => {
@@ -100,9 +104,9 @@ export function Tables() {
       inner = `<rect x="${pad}" y="${pad}" width="${W - pad * 2}" height="${H - pad * 2}" rx="5" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`
     }
 
-    const hasName = table.nm && table.nm.length > 0
+    const hasName = table.n && table.n.length > 0
     const nyNum = hasName ? cy - 5 : cy - 2
-    const nm = hasName ? (table.nm.length > 8 ? table.nm.substring(0, 7) + '…' : table.nm) : `${table.capMax}p`
+    const nm = hasName ? (table.n.length > 8 ? table.n.substring(0, 7) + '…' : table.n) : `${table.capMax}p`
 
     const labels = `
       <text x="${cx}" y="${nyNum}" text-anchor="middle" dominant-baseline="middle" font-family="DM Mono,monospace" font-weight="800" font-size="13" fill="${stroke}">${table.n}</text>
@@ -146,7 +150,6 @@ export function Tables() {
       label: names,
       tables: [...selectedForCombo],
       cap,
-      capOverride: null,
       salle,
     }
     setCombos([...activeCombos, newCombo])
@@ -185,12 +188,12 @@ export function Tables() {
       {/* Salle tabs + controls */}
       <div style={{ padding: '5px 18px', display: 'flex', gap: 4, alignItems: 'center', borderBottom: '1px solid var(--border)', flexShrink: 0, overflowX: 'auto' }}>
         {getSalleTabs().map((salle) => {
-          const cnt = activeTables.filter(t => t.salle === salle).length
+          const cnt = activeTables.filter(t => t.salle === salle.name).length
           return (
             <button
-              key={salle}
+              key={salle.name}
               onClick={() => {
-                setCurrentSalle(salle)
+                setCurrentSalle(salle.name)
                 setComboMode(false)
                 setSelectedForCombo([])
               }}
@@ -198,15 +201,15 @@ export function Tables() {
                 fontSize: 11,
                 padding: '3px 9px',
                 borderRadius: 6,
-                border: currentSalle === salle ? '1px solid var(--bl)' : '1px solid var(--border)',
-                background: currentSalle === salle ? 'rgba(68,128,216,.1)' : 'transparent',
-                color: currentSalle === salle ? 'var(--bl)' : 'var(--text)',
+                border: currentSalle === salle.name ? '1px solid var(--bl)' : '1px solid var(--border)',
+                background: currentSalle === salle.name ? 'rgba(68,128,216,.1)' : 'transparent',
+                color: currentSalle === salle.name ? 'var(--bl)' : 'var(--text)',
                 cursor: 'pointer',
                 fontWeight: 700,
                 whiteSpace: 'nowrap',
               }}
             >
-              {salle} <span style={{ opacity: 0.6, fontSize: 11 }}>{cnt}</span>
+              {salle.icon} {salle.name} <span style={{ opacity: 0.5, fontSize: 10, fontFamily: 'DM Mono,monospace' }}>{cnt}t · {salle.cap}p</span>
             </button>
           )
         })}
@@ -342,6 +345,11 @@ export function Tables() {
                       }}
                     >
                       <div style={{ cursor: 'pointer', width: '100%', display: 'flex', justifyContent: 'center' }} dangerouslySetInnerHTML={{ __html: getShapeIcon(table, 64) }} />
+
+                      {/* Priority badge */}
+                      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--t4)', fontFamily: 'DM Mono,monospace', letterSpacing: '.04em' }}>
+                        P{table.priority || '—'} · {table.capMin}–{table.capMax}p
+                      </div>
 
                       {(inCombo || table.blocked || table.held) && (
                         <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -510,11 +518,9 @@ export function Tables() {
 
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
                             <div style={{ fontSize: 11, color: 'var(--t3)', textAlign: 'center', marginBottom: 1 }}>Couverts</div>
-                            <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid var(--border)', borderRadius: 9, overflow: 'hidden', background: 'var(--surf2)', height: 32 }}>
-                              <button style={{ width: 28, height: 32, border: 'none', background: 'transparent', color: 'var(--bl)', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, disabled: capDisplay <= 2 }}>−</button>
-                              <div style={{ padding: '0 6px', minWidth: 28, textAlign: 'center', fontSize: 13, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: 'var(--text)', userSelect: 'none' }}>{capDisplay}</div>
-                              <button style={{ width: 28, height: 32, border: 'none', background: 'transparent', color: 'var(--bl)', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, disabled: capDisplay >= 50 }}>+</button>
-                              <span style={{ fontSize: 11, color: 'var(--t3)', paddingRight: 8, fontFamily: 'DM Mono,monospace' }}>p</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <input type="number" min={2} max={50} value={capDisplay} readOnly style={{ width: 52, height: 32, textAlign: 'center', fontSize: 13, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: 'var(--text)', border: '1.5px solid var(--border)', borderRadius: 7, background: 'var(--surf2)', outline: 'none' }} />
+                              <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'DM Mono,monospace' }}>p</span>
                             </div>
                           </div>
 

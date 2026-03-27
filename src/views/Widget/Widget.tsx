@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react'
-import { useAppStore } from '../../store/useAppStore'
+import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { useToast } from '../../components/ui/Toast'
 
 interface WidgetConfig {
@@ -24,6 +24,7 @@ interface WidgetConfig {
   maxDaysAhead: number
   btnLabel: string
   successMsg: string
+  showRedirect: boolean
 }
 
 const RESTO = { name: 'Mon restaurant' }
@@ -35,6 +36,13 @@ const TABLES = [
   { n: '1', nm: 'Fenêtre', salle: 'Salle 1', capMin: 2, capMax: 4, active: true, blocked: false },
   { n: '2', nm: 'Bar', salle: 'Salle 1', capMin: 1, capMax: 2, active: true, blocked: false },
   { n: '3', nm: 'Coin', salle: 'Salle 1', capMin: 4, capMax: 6, active: true, blocked: false },
+]
+
+// Demo sibling restaurants for redirect when full
+const SIBLING_SITES = [
+  { id: 's1', name: 'Le Bistro de Sion', ville: 'Sion', distance: '2.1 km', color: '#38b090', available: true, slots: 3 },
+  { id: 's2', name: 'La Terrasse du Lac', ville: 'Montreux', distance: '12 km', color: '#e08030', available: true, slots: 1 },
+  { id: 's3', name: 'Chez Marcel', ville: 'Lausanne', distance: '25 km', color: '#7c3aed', available: false, slots: 0 },
 ]
 
 export function Widget() {
@@ -61,12 +69,14 @@ export function Widget() {
     maxDaysAhead: 60,
     btnLabel: 'Réserver une table',
     successMsg: 'Votre réservation est confirmée ! Un email de confirmation vous a été envoyé.',
+    showRedirect: true,
   })
 
   const [wgtStep, setWgtStep] = useState(1)
   const [wgtCvt, setWgtCvt] = useState(2)
   const [wgtSvc, setWgtSvc] = useState<string | null>(null)
   const [wgtTbl, setWgtTbl] = useState<string | null>(null)
+  const [isFull, setIsFull] = useState(false) // Simulate restaurant full
 
   const renderPreview = () => {
     const step = wgtStep
@@ -146,16 +156,71 @@ export function Widget() {
           </div>
           <div style={{ marginTop: 12 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: t2, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.05em' }}>Couverts</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: `1.5px solid ${bdr}`, borderRadius: 8, overflow: 'hidden' }}>
-              <button onClick={() => setWgtCvt(Math.max(wgtCfg.minCvt, cvt - 1))} style={{ width: 44, height: 44, border: 'none', background: surf, color: txt, fontSize: 18, cursor: 'pointer' }}>−</button>
-              <div style={{ flex: 1, textAlign: 'center', fontSize: 20, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: txt }}>
-                {cvt}<div style={{ fontSize: 11, fontWeight: 400, color: t2 }}>pers.</div>
-              </div>
-              <button onClick={() => setWgtCvt(Math.min(wgtCfg.maxCvt, cvt + 1))} style={{ width: 44, height: 44, border: 'none', background: surf, color: txt, fontSize: 18, cursor: 'pointer' }}>+</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input type="number" min={wgtCfg.minCvt} max={wgtCfg.maxCvt} value={cvt} onChange={e => setWgtCvt(Math.max(wgtCfg.minCvt, Math.min(wgtCfg.maxCvt, Number(e.target.value) || wgtCfg.minCvt)))} style={{ width: 56, height: 44, textAlign: 'center', fontSize: 18, fontWeight: 800, fontFamily: 'DM Mono,monospace', color: txt, border: `2px solid ${bdr}`, borderRadius: 10, background: surf, outline: 'none' }} />
+              <div style={{ fontSize: 11, fontWeight: 400, color: t2 }}>pers.</div>
             </div>
           </div>
         </div>
       )
+
+      // If restaurant is full, show redirect banner
+      if (isFull && wgtCfg.showRedirect) {
+        const availableSites = SIBLING_SITES.filter(s => s.available)
+        body = (
+          <div>
+            {/* Full banner */}
+            <div style={{ padding: '12px 14px', background: 'rgba(220,80,80,.08)', border: '1.5px solid rgba(220,80,80,.25)', borderRadius: 10, marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(220,80,80,.85)', marginBottom: 4 }}>
+                😔 Restaurant complet
+              </div>
+              <div style={{ fontSize: 11, color: t2 }}>
+                Aucune table disponible pour {cvt} personnes à cette date.
+              </div>
+            </div>
+
+            {availableSites.length > 0 && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: co, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.04em' }}>
+                  🔄 Nos autres établissements
+                </div>
+                {availableSites.map(site => (
+                  <div key={site.id} onClick={() => { setIsFull(false); toast(`Redirigé vers ${site.name}`, 'success') }} style={{
+                    padding: '10px 12px', marginBottom: 6, borderRadius: 8,
+                    border: `1.5px solid ${site.color}33`, background: `${site.color}08`,
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
+                    transition: 'all .12s',
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 8, background: site.color,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#fff', fontSize: 14, fontWeight: 900, flexShrink: 0,
+                    }}>
+                      {site.name.charAt(0)}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: txt }}>{site.name}</div>
+                      <div style={{ fontSize: 10, color: t2 }}>{site.ville} · {site.distance}</div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--gn)' }}>{site.slots} table{site.slots > 1 ? 's' : ''}</div>
+                      <div style={{ fontSize: 9, color: t2 }}>disponible{site.slots > 1 ? 's' : ''}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button onClick={() => setIsFull(false)} style={{
+              width: '100%', marginTop: 8, padding: '8px', borderRadius: 7,
+              border: `1px solid ${bdr}`, background: 'transparent', color: t2,
+              fontSize: 11, cursor: 'pointer',
+            }}>
+              ← Modifier ma recherche
+            </button>
+          </div>
+        )
+      }
     } else if (step === 2 && wgtCfg.showTable) {
       const freeT = TABLES.filter(t => !t.blocked && t.capMax >= cvt).slice(0, 6)
       body = (
@@ -423,6 +488,7 @@ export function Widget() {
                 { key: 'showTable', label: 'Choix de table', desc: 'Préférence table' },
                 { key: 'showNote', label: 'Demandes spéciales', desc: 'Texte libre' },
                 { key: 'showPrepay', label: 'Empreinte CB', desc: 'Anti no-show' },
+                { key: 'showRedirect', label: 'Redirection MultiSite', desc: 'Proposer alternatives si complet' },
               ].map(o => (
                 <div key={o.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
@@ -560,6 +626,16 @@ export function Widget() {
         <div style={{ position: 'sticky', top: 80 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 10, textAlign: 'center' }}>
             Prévisualisation live
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+            <button onClick={() => setIsFull(!isFull)} style={{
+              padding: '4px 12px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+              background: isFull ? 'rgba(220,80,80,.15)' : 'var(--surf3)',
+              border: `1px solid ${isFull ? 'rgba(220,80,80,.3)' : 'var(--border)'}`,
+              color: isFull ? 'var(--rd)' : 'var(--t3)',
+            }}>
+              {isFull ? '🔴 Complet (simulé)' : '🟢 Simuler complet'}
+            </button>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
             {renderPreview()}

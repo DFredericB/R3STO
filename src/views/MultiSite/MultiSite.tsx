@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import { useT } from '../../i18n/useTranslation'
-import { RADIUS, GAP, labelStyle, inputStyle, sectionTitle } from '../../utils/design'
+import { RADIUS, labelStyle, inputStyle, sectionTitle } from '../../utils/design'
 import type { Site } from '../../types'
 
 const MAX_SITES = 12
@@ -218,7 +218,7 @@ export function MultiSite() {
         </div>
         <div style={{ ...cardS, textAlign: 'center' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--t3)', marginBottom: 8 }}>{t('multisite.activeSites')}</div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: 'var(--gn)', fontFamily: 'var(--fm)' }}>{sites.filter(s => s.active).length + 1}</div>
+          <div style={{ fontSize: 32, fontWeight: 900, color: 'var(--gn)', fontFamily: 'var(--fm)' }}>{sites.filter((s: any) => s.active).length + 1}</div>
           <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4 }}>{t('multisite.operational')}</div>
         </div>
         <div style={{ ...cardS, textAlign: 'center' }}>
@@ -275,7 +275,7 @@ export function MultiSite() {
           </div>
 
           {/* Sites additionnels */}
-          {sites.map((site, idx) => (
+          {sites.map((site: Site, _idx: number) => (
             <div
               key={site.id}
               style={{
@@ -367,6 +367,86 @@ export function MultiSite() {
               {t('multisite.howItWorksDesc')}
             </div>
           </div>
+
+          {/* Redirection config */}
+          {sites.length > 0 && (
+            <div style={cardS}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>🔄</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>
+                    {t('multisite.redirectTitle') || 'Redirection clients'}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--t2)' }}>
+                    {t('multisite.redirectDesc') || 'Quand un restaurant est complet, proposer des alternatives via le widget'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Main site */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                background: 'var(--bp)', border: '1px solid rgba(68,128,216,.2)', borderRadius: 8, marginBottom: 6,
+              }}>
+                <span style={{ fontSize: 14 }}>🏠</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>
+                    {resto.name || t('multisite.mainSite')}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--t3)' }}>{resto.ville}</div>
+                </div>
+                <div style={{
+                  padding: '3px 10px', borderRadius: 12, fontSize: 10, fontWeight: 700,
+                  background: 'rgba(60,200,112,.12)', color: 'var(--gn)',
+                }}>
+                  Accepte les redirections
+                </div>
+              </div>
+
+              {/* Sibling sites with toggle */}
+              {sites.map((site: Site, idx: number) => (
+                <div key={site.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                  background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 8, marginBottom: 4,
+                  opacity: site.active ? 1 : 0.5,
+                }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: 6, background: site.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#fff', fontSize: 12, fontWeight: 900, flexShrink: 0,
+                  }}>
+                    {idx + 1}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{site.name}</div>
+                    <div style={{ fontSize: 10, color: 'var(--t3)' }}>{site.ville} · {site.maxCvt}p</div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      updateSite(site.id, { acceptRedirect: !site.acceptRedirect })
+                      toast(`${site.name} — ${!site.acceptRedirect ? 'accepte' : 'refuse'} les redirections`, 'success')
+                    }}
+                    style={{
+                      width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer',
+                      background: site.acceptRedirect ? 'var(--gn)' : 'var(--surf3)',
+                      position: 'relative' as const,
+                    }}
+                  >
+                    <div style={{
+                      width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                      position: 'absolute' as const, top: 3,
+                      left: site.acceptRedirect ? 21 : 3,
+                      transition: 'left .15s',
+                    }} />
+                  </button>
+                </div>
+              ))}
+
+              <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 8, padding: '0 4px' }}>
+                {t('multisite.redirectHint') || 'Les clients seront redirigés vers le premier site disponible dans l\'ordre affiché ci-dessus.'}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

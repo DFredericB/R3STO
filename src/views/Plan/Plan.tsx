@@ -17,23 +17,18 @@ import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import { ViewToolbar } from '../../components/ui/ViewToolbar'
-import { useT } from '../../i18n/useTranslation'
 import { STATUS } from '../../utils/design'
-import { todayISO, timeToMins, nowMins, shiftISO } from '../../utils/date'
+import { timeToMins, nowMins, shiftISO } from '../../utils/date'
 import {
-  isOccupying, tblMatchesTable, getOccupiedTableIds,
-  iaPlacement, smartPlacement, getFreeTables, getFreeCombos,
+  isOccupying, tblMatchesTable,
+  iaPlacement, getFreeTables, getFreeCombos,
   canMoveResa, canSwapResas
 } from '../../utils/placementRules'
 import { spRoomBodySvg, spChairsSvg } from '../../utils/roomItemSvg'
 import type { Table, Combo, Resa, Service, RoomItem } from '../../types'
 
 // ── Constantes ────────────────────────────────────
-const CANVAS_SIZES: Record<string, { w: number; h: number }> = {}
-
 // ── Helpers SVG (reprise simplifiée de SetupPlan) ─
-
-function spSnap(v: number) { return Math.round(v) }
 
 /**
  * Table SVG — REPRODUCTION IDENTIQUE AU STYLE ÉDITEUR (SetupPlan)
@@ -327,8 +322,7 @@ function planComboSvg(
   const lw  = lx2 - lx, lh = ly2 - ly
   const lcx = (lx + lx2) / 2, lcy = (ly + ly2) / 2
 
-  const capTxt = `${combo.capOverride ?? combo.cap}p`
-  const cRef = ctbls.reduce((sum, t) => sum + Math.min(t.w, t.h), 0) / ctbls.length
+  const cRef = Math.min(lw, lh)
 
   let s = ''
 
@@ -343,7 +337,7 @@ function planComboSvg(
     s += `<rect x="${(lx-1).toFixed(1)}" y="${(ly-1).toFixed(1)}" width="${(lw+2).toFixed(1)}" height="${(lh+2).toFixed(1)}" rx="3" fill="${fillCol}" stroke="${borderCol}" stroke-width="1.1"/>`
 
     // Fond opaque derrière le texte central (masque la jonction entre tables)
-    const txtPadX = lw * 0.4, txtPadY = cRef * 0.45
+    const txtPadX = Math.min(lw * 0.35, cRef * 1.2), txtPadY = cRef * 0.45
     s += `<rect x="${(lcx - txtPadX).toFixed(1)}" y="${(lcy - txtPadY).toFixed(1)}" width="${(txtPadX*2).toFixed(1)}" height="${(txtPadY*2).toFixed(1)}" rx="2.5" fill="rgba(30,30,42,.6)" style="pointer-events:none"/>`
 
     // Combo label (T10+T11)
@@ -480,7 +474,6 @@ export function Plan() {
     updateResa, setResaStatus, setTables, swapTables,
   } = useAppStore()
   const { toast } = useToast()
-  const { t } = useT()
   const navigate = useNavigate()
 
   const [salle, setSalle] = useState('')
@@ -830,7 +823,7 @@ export function Plan() {
         const rect = (comboEl as SVGElement).getBoundingClientRect()
         const flip = rect.bottom + 220 > window.innerHeight
         const firstTable = tables.find(t => comboTableNames.includes(t.n))
-        setPopup({ resa: comboResa, table: firstTable || null, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
+        setPopup({ resa: comboResa, table: firstTable || undefined, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
         return
       }
       navigate(`/reservations?new=1&table=${encodeURIComponent(comboLabel)}&mode=manuel&svc=${svcFilter}&from=plan`)

@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useAppStore } from '../../store/useAppStore';
+import { useState } from 'react';
 
 interface MenuItem {
   id: string;
@@ -54,7 +53,7 @@ export function Menu() {
     { id: 'm11', name: 'Pinot Noir Valais', cat: 'c5', desc: 'Rouge, 2022', price: 52, available: true, allergens: ['sulfites'] },
   ]);
 
-  const [categories, setCategories] = useState<MenuCategory[]>([
+  const [categories] = useState<MenuCategory[]>([
     { id: 'c1', name: 'Entrées', icon: '🥗', active: true },
     { id: 'c2', name: 'Plats', icon: '🍽️', active: true },
     { id: 'c3', name: 'Desserts', icon: '🍰', active: true },
@@ -128,13 +127,13 @@ export function Menu() {
     setSettings({ ...settings, [key]: value });
   };
 
-  const activeCategories = categories.filter(c => c.active);
+  const activeCategories = categories.filter((c: MenuCategory) => c.active);
   const content = tab === 'carte' ? renderCarte() : renderSettings();
 
   function renderCarte() {
     return (
       <div style={{ padding: '14px 18px 24px' }}>
-        {activeCategories.map(cat => {
+        {activeCategories.map((cat: MenuCategory) => {
           const catItems = items.filter(i => i.cat === cat.id);
           return (
             <div key={cat.id} style={{ marginBottom: '20px' }}>
@@ -622,7 +621,7 @@ export function Menu() {
                   color: 'var(--text)',
                 }}
               >
-                {categories.map(c => (
+                {categories.map((c: MenuCategory) => (
                   <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
                 ))}
               </select>

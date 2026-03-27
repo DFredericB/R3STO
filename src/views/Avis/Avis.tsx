@@ -8,7 +8,7 @@ import { useState, useMemo } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import { useT } from '../../i18n/useTranslation'
-import { RADIUS, GAP, labelStyle, inputStyle, sectionTitle } from '../../utils/design'
+import { RADIUS, labelStyle, inputStyle, sectionTitle } from '../../utils/design'
 import type { Review } from '../../types'
 
 // ── Constantes ─────────────────────────────────────
@@ -91,12 +91,11 @@ function RatingBar({ rating, count, total }: { rating: number; count: number; to
 // ══════════════════════════════════════════════════
 export function Avis() {
   const { toast } = useToast()
-  const { t } = useT()
+  useT()
   const reviews = useAppStore(s => s.reviews)
   const addReview = useAppStore(s => s.addReview)
   const updateReview = useAppStore(s => s.updateReview)
   const deleteReview = useAppStore(s => s.deleteReview)
-  const resas = useAppStore(s => s.resas)
   const options = useAppStore(s => s.options)
   const updateOptions = useAppStore(s => s.updateOptions)
 

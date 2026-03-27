@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { useAppStore } from '../../store/useAppStore'
-import { useT } from '../../i18n/useTranslation'
 import { useToast } from '../../components/ui/Toast'
 
 type TabType = 'salles' | 'services' | 'avance'
@@ -61,7 +59,6 @@ function minsToSlot(mins: number): string {
 }
 
 export function Salles() {
-  const { t } = useT()
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<TabType>('salles')
   const [salles, setSalles] = useState(DEMO_SALLES)
@@ -139,13 +136,6 @@ export function Salles() {
     const capOcc = Math.floor(capTot * (Math.random() * 0.8)) // Demo occupation
     const pct = capTot ? Math.round((capOcc / capTot) * 100) : 0
     return { capTot, capOcc, tblCount: salleTables.length, pct }
-  }
-
-  const typeIcon: Record<string, string> = {
-    intérieure: '🏠',
-    privée: '🔒',
-    extérieure: '🌿',
-    bar: '🍸',
   }
 
   const activeSalles = salles.filter(s => s.active).length
