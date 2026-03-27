@@ -720,6 +720,7 @@ export function SetupPlan() {
 
   // ── Mouse / Touch ──────────────────────────────────
   const handleMouseDown = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault()  // empêcher le drag natif du navigateur
     const target   = e.target as Element
     const actionEl = target.closest('[data-action]') as Element | null
     const groupEl  = target.closest('[data-id]') as Element | null
@@ -825,7 +826,7 @@ export function SetupPlan() {
     if (!obj) return
     const ne2 = e.nativeEvent as MouseEvent | TouchEvent
     clickStartRef.current = { id, x: 'clientX' in ne2 ? ne2.clientX : ne2.touches[0].clientX, y: 'clientY' in ne2 ? ne2.clientY : ne2.touches[0].clientY }
-    dragRef.current = { dragging: true, resizing: false, id, ox: pt.x - obj.x, oy: pt.y - obj.y, startW: obj.w, startH: obj.h, groupIds: [], lastDx: 0, lastDy: 0 }
+    dragRef.current = { dragging: true, resizing: false, id, ox: pt.x - obj.x, oy: pt.y - obj.y, startW: obj.w, startH: obj.h, groupIds: [], lastDx: 0, lastDy: 0, startObjX: obj.x, startObjY: obj.y, startPtX: pt.x, startPtY: pt.y, dragStarted: false }
   }, [handleDelete])
 
   const handleMouseMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -849,8 +850,18 @@ export function SetupPlan() {
       tablesRef.current = newTbls
       setLocalTables(newTbls)
     } else if (dr.dragging && dr.id) {
-      let nx = spSnap(Math.max(0, pt.x - dr.ox))
-      let ny = spSnap(Math.max(0, pt.y - dr.oy))
+      // Dead zone — ne pas bouger tant que le curseur n'a pas bougé de ≥1.5 unité SVG
+      if (!dr.dragStarted) {
+        const dx0 = Math.abs(pt.x - (dr.startPtX ?? pt.x))
+        const dy0 = Math.abs(pt.y - (dr.startPtY ?? pt.y))
+        if (dx0 < 1.5 && dy0 < 1.5) return
+        dr.dragStarted = true
+      }
+      // Position = position initiale + delta souris (robuste même si CTM change)
+      const deltaX = pt.x - (dr.startPtX ?? (pt.x - dr.ox + (dr.startObjX ?? 0)))
+      const deltaY = pt.y - (dr.startPtY ?? (pt.y - dr.oy + (dr.startObjY ?? 0)))
+      let nx = spSnap(Math.max(0, (dr.startObjX ?? 0) + deltaX))
+      let ny = spSnap(Math.max(0, (dr.startObjY ?? 0) + deltaY))
 
       // ── Snap d'alignement sur les autres tables ────────────────────────
       if (!dr.id.startsWith('ri')) {
@@ -900,7 +911,12 @@ export function SetupPlan() {
       }
 
       if (dr.id.startsWith('ri')) setRoomItems(prev => prev.map(r => r.id === dr.id ? { ...r, x: nx, y: ny } : r))
-      else setLocalTables(prev => prev.map(t => t.id === dr.id ? { ...t, x: nx, y: ny } : t))
+      else {
+        // MAJ ref directe (comme le drag groupe) pour éviter le décalage de rendu
+        const updated = tablesRef.current.map(t => t.id === dr.id ? { ...t, x: nx, y: ny } : t)
+        tablesRef.current = updated
+        setLocalTables(updated)
+      }
     } else if (dr.resizing && dr.id) {
       snapLinesRef.current = []
       const newW = Math.max(SP_MIN_SZ, spSnap(dr.startW + (pt.x - dr.ox)))
@@ -1514,6 +1530,7 @@ export function SetupPlan() {
             <svg
               ref={svgRef}
               viewBox={`0 0 ${canvasW} ${canvasH}`}
+              preserveAspectRatio="xMinYMin meet"
               style={{ width: '100%', minHeight: '100%', display: 'block', cursor: comboMode ? 'cell' : 'crosshair', userSelect: 'none', touchAction: 'none' }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}

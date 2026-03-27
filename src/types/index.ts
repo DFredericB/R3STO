@@ -218,6 +218,116 @@ export interface Client {
   blacklistReason: string
 }
 
+// ── Bon cadeau ────────────────────────────────────
+export type GiftCardStatus = 'active' | 'partial' | 'used' | 'expired' | 'cancelled'
+
+export interface GiftCard {
+  id: string
+  code: string              // code unique ex: 'GC-A7X2-K9M4'
+  amount: number            // montant initial en CHF
+  balance: number           // solde restant
+  currency: string          // 'CHF'
+  status: GiftCardStatus
+  // Acheteur
+  buyerName: string
+  buyerEmail: string
+  buyerTel: string
+  // Destinataire
+  recipientName: string
+  recipientEmail: string
+  message: string           // message personnalisé
+  // Suivi
+  createdAt: number         // timestamp
+  expiresAt: string         // date ISO expiration (1 an par défaut)
+  usedAt?: string           // date ISO dernière utilisation
+  usedResaId?: string       // résa liée si utilisé
+  // Paiement
+  stripePaymentId?: string  // Stripe payment intent ID
+  source: 'admin' | 'online'  // créé par le resto ou acheté en ligne
+}
+
+// ── Avis client ──────────────────────────────────
+export interface Review {
+  id: string
+  resaId?: string           // réservation liée
+  clientId?: string         // client CRM lié
+  clientName: string
+  clientEmail: string
+  date: string              // date ISO de la visite
+  createdAt: number         // timestamp de l'avis
+  rating: 1 | 2 | 3 | 4 | 5
+  comment: string
+  service: string           // midi, soir, etc.
+  source: 'internal' | 'google' | 'email'  // d'où vient l'avis
+  reply?: string            // réponse du restaurateur
+  repliedAt?: number
+  visible: boolean          // affiché publiquement ou pas
+  flagged: boolean          // signalé pour modération
+}
+
+// ── Programme fidélité ───────────────────────────────
+export type LoyaltyMode = 'points' | 'stamps' | 'cashback'
+
+export interface LoyaltyConfig {
+  active: boolean
+  mode: LoyaltyMode
+  // Points : combien par CHF dépensé
+  pointsPerChf: number
+  // Tampons : 1 tampon par visite
+  stampsGoal: number             // ex: 10 → 10e visite gratuite
+  // Cashback : % retourné
+  cashbackPercent: number
+  // Récompenses
+  rewardName: string             // ex: 'Repas offert', 'Dessert offert'
+  rewardValue: number            // valeur en CHF
+  rewardThreshold: number        // seuil pour débloquer (points ou stamps)
+  // Options
+  welcomeBonus: number           // bonus inscription (en points ou stamps)
+  birthdayBonus: number          // bonus anniversaire
+  expirationMonths: number       // 0 = jamais
+  doublePointsDays: number[]     // jours de la semaine (0=dim) pour x2
+}
+
+export interface LoyaltyCard {
+  id: string
+  clientId: string
+  clientName: string
+  clientEmail: string
+  points: number
+  stamps: number
+  cashbackBalance: number        // solde cashback accumulé en CHF
+  totalEarned: number            // total points/stamps gagnés depuis le début
+  rewardsUsed: number            // nombre de récompenses utilisées
+  joinedAt: number               // timestamp inscription
+  lastActivity: string           // date ISO
+  history: LoyaltyEvent[]
+}
+
+export interface LoyaltyEvent {
+  id: string
+  date: string                   // ISO
+  type: 'earn' | 'redeem' | 'bonus' | 'expire'
+  amount: number                 // +/- points/stamps
+  label: string                  // description lisible
+  resaId?: string
+}
+
+// ── Site (multi-site Gastro) ─────────────────────────
+export interface Site {
+  id: string
+  name: string              // ex: 'Le Bistro de Sion'
+  ville: string
+  adresse: string
+  tel: string
+  email: string
+  web: string
+  active: boolean
+  color: string             // couleur d'identification
+  plan: Plan                // plan individuel du site
+  maxCvt: number
+  createdAt: number
+}
+
 // ── État global de l'app ───────────────────────────
 export interface AppState {
   resas: Resa[]
@@ -230,6 +340,13 @@ export interface AppState {
   users: User[]
   fermetures: Fermeture[]
   clients: Client[]
+  giftCards: GiftCard[]
+  reviews: Review[]
+  loyaltyConfig: LoyaltyConfig
+  loyaltyCards: LoyaltyCard[]
+  // Multi-site (Gastro)
+  sites: Site[]
+  activeSiteId: string | null  // null = site principal (mono-site)
   // Navigation
   curView: string
   activeDate: string  // ISO YYYY-MM-DD

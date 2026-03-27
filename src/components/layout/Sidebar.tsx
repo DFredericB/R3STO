@@ -28,12 +28,15 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/clients',       icon: '👥', labelKey: 'nav.clients', groupKey: 'clients' },
   { path: '/marketing',     icon: '📣', labelKey: 'nav.campaigns', groupKey: 'clients' },
   { path: '/blacklist',     icon: '🚫', labelKey: 'nav.blacklist', groupKey: 'clients' },
+  { path: '/avis',          icon: '⭐', labelKey: 'nav.reviews', groupKey: 'clients' },
+  { path: '/fidelite',     icon: '🏆', labelKey: 'nav.loyalty', groupKey: 'clients' },
   // CANAUX & REVENUS
   { path: '/widget',        icon: '🔌', labelKey: 'nav.widget', groupKey: 'channels' },
   { path: '/qrcode',        icon: '📱', labelKey: 'nav.qrcode', groupKey: 'channels' },
   { path: '/menu',          icon: '📋', labelKey: 'nav.menu', groupKey: 'channels' },
   { path: '/commandes',     icon: '🔔', labelKey: 'nav.orders', groupKey: 'channels' },
   { path: '/prepaiement',   icon: '💳', labelKey: 'nav.prepayment', groupKey: 'channels' },
+  { path: '/cadeaux',       icon: '🎁', labelKey: 'nav.giftCards', groupKey: 'channels' },
   // R3STO ORDER (BÊTA) — flouté / bientôt disponible
   { path: '/kds-cuisine',   icon: '🍳', labelKey: 'nav.kdsCuisine', groupKey: 'r3sto-order', locked: true },
   { path: '/kds-bar',       icon: '🍸', labelKey: 'nav.kdsBar', groupKey: 'r3sto-order', locked: true },
@@ -45,6 +48,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/fermetures',    icon: '📅', labelKey: 'nav.closures', groupKey: 'config' },
   { path: '/setup-plan',    icon: '📐', labelKey: 'nav.planTables', groupKey: 'config' },
   { path: '/options',       icon: '⚙️', labelKey: 'nav.options', groupKey: 'config' },
+  { path: '/multisite',     icon: '🏢', labelKey: 'nav.multisite', groupKey: 'config' },
   // ADMINISTRATION
   { path: '/acces-roles',   icon: '🔐', labelKey: 'nav.teamAccess', groupKey: 'admin' },
   { path: '/historique',    icon: '📜', labelKey: 'nav.history', groupKey: 'admin' },

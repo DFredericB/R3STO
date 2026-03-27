@@ -1,9 +1,17 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { useT } from '../../i18n/useTranslation'
+import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
+import { RADIUS, GAP, labelStyle, inputStyle, sectionTitle } from '../../utils/design'
+
+// ══════════════════════════════════════════════════
+//  R3STO — Support
+//  Assistant IA · Vidéos tuto · FAQ · Tickets
+// ══════════════════════════════════════════════════
 
 interface Video {
   id: string
-  title: string
+  titleKey: string
   dur: string
   module: string
   tags: string[]
@@ -11,8 +19,8 @@ interface Video {
 }
 
 interface FAQ {
-  q: string
-  a: string
+  qKey: string
+  aKey: string
   module: string
 }
 
@@ -21,120 +29,157 @@ interface ChatMessage {
   content: string
 }
 
-const SUPPORT_VIDEOS: Video[] = [
-  { id: 'v1', title: 'Première configuration — salles, tables, services', dur: '4:32', module: 'salles', tags: ['setup', 'salles', 'services', 'démarrage'], thumb: '🏗️' },
-  { id: 'v2', title: 'Créer et gérer vos réservations', dur: '3:18', module: 'reservations', tags: ['réservation', 'book', 'créer', 'modifier'], thumb: '📖' },
-  { id: 'v3', title: 'Comprendre le placement IA', dur: '2:45', module: 'reservations', tags: ['ia', 'placement', 'table', 'algo'], thumb: '🤖' },
-  { id: 'v4', title: 'Configurer le widget de réservation en ligne', dur: '5:10', module: 'widget', tags: ['widget', 'site web', 'intégration', 'code'], thumb: '🔌' },
-  { id: 'v5', title: 'Gérer la liste d\'attente intelligemment', dur: '3:02', module: 'waitlist', tags: ['waitlist', 'attente', 'placer', 'optimisation'], thumb: '⏳' },
-  { id: 'v6', title: 'Règles de flux et rapatriement terrasse', dur: '4:15', module: 'salles', tags: ['flux', 'terrasse', 'rapatriement', 'météo'], thumb: '↩' },
+// ── Vidéos tutoriels ──
+const VIDEOS: Video[] = [
+  { id: 'v1', titleKey: 'support.vid.setup',       dur: '4:32', module: 'salles',       tags: ['setup', 'salles', 'services'],  thumb: '🏗️' },
+  { id: 'v2', titleKey: 'support.vid.resas',        dur: '3:18', module: 'reservations', tags: ['réservation', 'book'],          thumb: '📖' },
+  { id: 'v3', titleKey: 'support.vid.placement',    dur: '2:45', module: 'reservations', tags: ['ia', 'placement', 'table'],     thumb: '🤖' },
+  { id: 'v4', titleKey: 'support.vid.widget',       dur: '5:10', module: 'widget',       tags: ['widget', 'intégration'],        thumb: '🔌' },
+  { id: 'v5', titleKey: 'support.vid.waitlist',     dur: '3:02', module: 'waitlist',      tags: ['waitlist', 'attente'],          thumb: '⏳' },
+  { id: 'v6', titleKey: 'support.vid.terrasse',     dur: '4:15', module: 'salles',       tags: ['terrasse', 'rapatriement'],     thumb: '☀️' },
+  { id: 'v7', titleKey: 'support.vid.clients',      dur: '3:40', module: 'clients',      tags: ['crm', 'fiche', 'client'],       thumb: '👤' },
+  { id: 'v8', titleKey: 'support.vid.floorplan',    dur: '6:22', module: 'floorplan',    tags: ['plan', 'éditeur', 'combo'],     thumb: '🗺️' },
+  { id: 'v9', titleKey: 'support.vid.stats',        dur: '2:58', module: 'dashboard',    tags: ['tableau', 'stats', 'kpi'],      thumb: '📊' },
+  { id: 'v10', titleKey: 'support.vid.multisite',   dur: '4:05', module: 'multisite',    tags: ['multi', 'sites', 'gastro'],     thumb: '🏢' },
 ]
 
-const SUPPORT_FAQ: FAQ[] = [
-  { q: 'Comment modifier une réservation existante ?', a: 'Dans le Book, cliquez sur la ligne de la réservation pour ouvrir le panneau de modification. Vous pouvez changer l\'heure, la table, le nombre de couverts ou la date directement.', module: 'reservations' },
-  { q: 'Pourquoi le placement IA suggère une table trop grande ?', a: 'L\'IA entre en mode "relaxed" quand aucune table adaptée n\'est disponible. Elle vous l\'indique avec un badge orange. Dans ce cas, envisagez la liste d\'attente plutôt que de forcer le placement.', module: 'reservations' },
-  { q: 'Comment ajouter une salle à ma configuration ?', a: 'Allez dans Salles & Services → onglet Salles → bouton ➕ Salle. Choisissez le type (intérieure, extérieure, bar, privatisable), la couleur et le comportement par défaut.', module: 'salles' },
-  { q: 'Le widget ne s\'affiche pas sur mon site. Que faire ?', a: 'Vérifiez que le script est bien chargé avant le div#r3sto-widget. Assurez-vous que data-resto correspond bien à votre identifiant R3STO. Désactivez temporairement votre bloqueur de pub pour tester.', module: 'widget' },
-  { q: 'Comment créer un combo de tables ?', a: 'Dans Tables & Combos, activez le mode Combo (bouton en haut à droite), sélectionnez les tables à combiner, puis cliquez sur "Créer le combo". La capacité est calculée automatiquement +2 places d\'embout.', module: 'tables' },
+// ── FAQ ──
+const FAQS: FAQ[] = [
+  { qKey: 'support.faq.editResa.q',     aKey: 'support.faq.editResa.a',     module: 'reservations' },
+  { qKey: 'support.faq.iaRelaxed.q',    aKey: 'support.faq.iaRelaxed.a',    module: 'reservations' },
+  { qKey: 'support.faq.addSalle.q',     aKey: 'support.faq.addSalle.a',     module: 'salles' },
+  { qKey: 'support.faq.widgetBug.q',    aKey: 'support.faq.widgetBug.a',    module: 'widget' },
+  { qKey: 'support.faq.combo.q',        aKey: 'support.faq.combo.a',        module: 'tables' },
+  { qKey: 'support.faq.noshow.q',       aKey: 'support.faq.noshow.a',       module: 'clients' },
+  { qKey: 'support.faq.fermeture.q',    aKey: 'support.faq.fermeture.a',    module: 'salles' },
+  { qKey: 'support.faq.export.q',       aKey: 'support.faq.export.a',       module: 'dashboard' },
 ]
+
+// ── Quick questions pour le chat ──
+const QUICK_Q_KEYS = [
+  'support.quick.createResa',
+  'support.quick.iaNotWorking',
+  'support.quick.configWidget',
+  'support.quick.addTable',
+  'support.quick.manageNoshows',
+]
+
+type SupportTab = 'chat' | 'videos' | 'faq' | 'ticket'
 
 export function Support() {
+  const { t } = useT()
   const { toast } = useToast()
-  const [supportTab, setSupportTab] = useState<'chat' | 'videos' | 'faq' | 'ticket'>('chat')
+  const plan = useAppStore(s => s.resto.plan)
+  const [tab, setTab] = useState<SupportTab>('chat')
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
   const [chatLoading, setChatLoading] = useState(false)
   const [faqSearch, setFaqSearch] = useState('')
-  const [expandedFaqIdx, setExpandedFaqIdx] = useState<number | null>(null)
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+  const chatEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Auto-scroll chat
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chatHistory, chatLoading])
 
   const handleChatSend = (preset?: string) => {
-    const input = document.getElementById('support-input') as HTMLInputElement
-    const msg = preset || input?.value || ''
+    const msg = preset || inputRef.current?.value || ''
     if (!msg.trim()) return
+    if (inputRef.current) inputRef.current.value = ''
 
-    setChatHistory([...chatHistory, { role: 'user', content: msg }])
-    if (input) input.value = ''
+    setChatHistory(prev => [...prev, { role: 'user', content: msg }])
     setChatLoading(true)
 
+    // Placeholder AI response — à remplacer par un vrai appel API
     setTimeout(() => {
       setChatHistory(prev => [...prev, {
         role: 'assistant',
-        content: 'Je vous aide volontiers ! Vous pouvez aussi explorer nos vidéos tutoriels ou la FAQ pour plus de détails.',
+        content: t('support.chat.placeholder'),
       }])
       setChatLoading(false)
     }, 800)
   }
 
   const filteredFaq = faqSearch
-    ? SUPPORT_FAQ.filter(f => f.q.toLowerCase().includes(faqSearch.toLowerCase()) || f.a.toLowerCase().includes(faqSearch.toLowerCase()))
-    : SUPPORT_FAQ
+    ? FAQS.filter(f => {
+        const q = t(f.qKey).toLowerCase()
+        const a = t(f.aKey).toLowerCase()
+        const s = faqSearch.toLowerCase()
+        return q.includes(s) || a.includes(s)
+      })
+    : FAQS
 
-  const tabLabels: Record<string, string> = {
-    chat: '💬 Assistant IA',
-    videos: '🎥 Vidéos',
-    faq: '📚 FAQ',
-    ticket: '🎫 Ticket',
-  }
+  const tabs: { id: SupportTab; icon: string; labelKey: string }[] = [
+    { id: 'chat',   icon: '💬', labelKey: 'support.tab.chat' },
+    { id: 'videos', icon: '🎥', labelKey: 'support.tab.videos' },
+    { id: 'faq',    icon: '📚', labelKey: 'support.tab.faq' },
+    { id: 'ticket', icon: '🎫', labelKey: 'support.tab.ticket' },
+  ]
 
   return (
     <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 0, overflow: 'auto', height: 'calc(100vh - var(--hh))' }}>
       {/* Header */}
       <div style={{ paddingBottom: 14, marginBottom: 10 }}>
         <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--text)', margin: 0, display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
-          <span>Support</span>
-          <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--t2)' }}>Assistant IA · Vidéos · FAQ · Tickets</span>
+          <span>{t('support.title')}</span>
+          <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--t2)' }}>{t('support.subtitle')}</span>
         </h2>
       </div>
 
       {/* Tabs */}
-      <div style={{ padding: '5px 0', display: 'flex', gap: 4, alignItems: 'center', borderBottom: '1px solid var(--border)', marginBottom: 14, flexWrap: 'wrap' }}>
-        {(['chat', 'videos', 'faq', 'ticket'] as const).map(t => (
+      <div style={{ padding: '5px 0', display: 'flex', gap: GAP.xs, alignItems: 'center', borderBottom: '1px solid var(--border)', marginBottom: 14, flexWrap: 'wrap' }}>
+        {tabs.map(tb => (
           <button
-            key={t}
-            onClick={() => setSupportTab(t)}
+            key={tb.id}
+            onClick={() => setTab(tb.id)}
             style={{
               fontSize: 11,
-              padding: '3px 11px',
-              borderRadius: 4,
+              padding: '6px 14px',
+              minHeight: 44,
+              borderRadius: RADIUS.sm,
               border: 'none',
-              background: supportTab === t ? 'var(--bl)' : 'var(--surf2)',
-              color: supportTab === t ? 'white' : 'var(--text)',
+              background: tab === tb.id ? 'var(--bl)' : 'var(--surf2)',
+              color: tab === tb.id ? 'white' : 'var(--text)',
               cursor: 'pointer',
               fontWeight: 700,
+              fontFamily: 'var(--ff)',
             }}
           >
-            {tabLabels[t]}
+            {tb.icon} {t(tb.labelKey)}
           </button>
         ))}
       </div>
 
       {/* Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        {supportTab === 'chat' && (
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 0 }}>
-            {/* Messages */}
+
+        {/* ═══ CHAT ═══ */}
+        {tab === 'chat' && (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8, marginBottom: 10 }}>
               {chatHistory.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '32px 20px' }}>
                   <div style={{ fontSize: 32, marginBottom: 10 }}>🤖</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>Assistant R3STO</div>
-                  <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 18, lineHeight: 1.5 }}>Je connais toute la plateforme.<br />Posez-moi n'importe quelle question.</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
-                    {['Comment créer une réservation ?', 'Placement IA ne fonctionne pas', 'Configurer mon widget', 'Ajouter une table ou salle', 'Gérer les no-shows'].map(q => (
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>{t('support.chat.title')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 18, lineHeight: 1.5 }}>{t('support.chat.intro')}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: GAP.sm, justifyContent: 'center' }}>
+                    {QUICK_Q_KEYS.map(k => (
                       <button
-                        key={q}
-                        onClick={() => handleChatSend(q)}
+                        key={k}
+                        onClick={() => handleChatSend(t(k))}
                         style={{
                           background: 'var(--surf2)',
                           border: '1px solid var(--border)',
-                          borderRadius: 20,
-                          padding: '5px 12px',
+                          borderRadius: RADIUS.pill,
+                          padding: '8px 14px',
+                          minHeight: 44,
                           fontSize: 11,
                           cursor: 'pointer',
                           color: 'var(--t2)',
                           whiteSpace: 'nowrap',
+                          fontFamily: 'var(--ff)',
                         }}
                       >
-                        {q}
+                        {t(k)}
                       </button>
                     ))}
                   </div>
@@ -143,17 +188,11 @@ export function Support() {
                 chatHistory.map((m, i) => (
                   <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 12, flexDirection: m.role === 'user' ? 'row-reverse' : 'row' }}>
                     <div style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      flexShrink: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 14,
+                      width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
                       background: m.role === 'user' ? 'var(--bl)' : 'rgba(68,128,216,.15)',
                     }}>
-                      {m.role === 'user' ? <span style={{ color: '#fff', fontSize: 11, fontWeight: 800 }}>LG</span> : '🤖'}
+                      {m.role === 'user' ? <span style={{ color: '#fff', fontSize: 11, fontWeight: 800 }}>👤</span> : '🤖'}
                     </div>
                     <div style={{
                       maxWidth: '78%',
@@ -171,80 +210,50 @@ export function Support() {
               )}
               {chatLoading && (
                 <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                  <div style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: '50%',
-                    background: 'rgba(68,128,216,.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 14,
-                  }}>
-                    🤖
-                  </div>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(68,128,216,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🤖</div>
                   <div style={{ padding: '10px 14px', background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: '4px 12px 12px 12px' }}>
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                       {[0, 1, 2].map(i => (
-                        <span key={i} style={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: '50%',
-                          background: 'var(--bl)',
-                          animation: `pulse 1s ${i * 0.2}s infinite`,
-                        }} />
+                        <span key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--bl)', animation: `pulse 1s ${i * 0.2}s infinite` }} />
                       ))}
                     </div>
                   </div>
                 </div>
               )}
+              <div ref={chatEndRef} />
             </div>
 
             {/* Input */}
-            <div style={{ display: 'flex', gap: 8, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', gap: GAP.md, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
               <input
-                id="support-input"
-                placeholder="Posez votre question…"
+                ref={inputRef}
+                placeholder={t('support.chat.inputPlaceholder')}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend() } }}
-                style={{
-                  flex: 1,
-                  padding: '8px 12px',
-                  borderRadius: 4,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surf2)',
-                  color: 'var(--text)',
-                  fontSize: 12,
-                }}
+                style={{ ...inputStyle, flex: 1, minHeight: 44 }}
               />
               <button
                 onClick={() => handleChatSend()}
                 style={{
-                  padding: '6px 14px',
-                  borderRadius: 4,
-                  border: 'none',
-                  background: 'var(--bl)',
-                  color: 'white',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  flexShrink: 0,
+                  padding: '8px 16px', minHeight: 44,
+                  borderRadius: RADIUS.sm, border: 'none',
+                  background: 'var(--bl)', color: 'white',
+                  fontSize: 11, fontWeight: 700,
+                  cursor: 'pointer', flexShrink: 0,
+                  fontFamily: 'var(--ff)',
                 }}
               >
-                Envoyer →
+                {t('support.chat.send')} →
               </button>
               {chatHistory.length > 0 && (
                 <button
                   onClick={() => setChatHistory([])}
-                  title="Effacer la conversation"
+                  title={t('support.chat.clear')}
                   style={{
-                    fontSize: 11,
-                    padding: '6px 10px',
-                    borderRadius: 4,
+                    fontSize: 11, padding: '8px 12px', minHeight: 44,
+                    borderRadius: RADIUS.sm,
                     border: '1px solid var(--border)',
-                    background: 'var(--surf2)',
-                    color: 'var(--text)',
-                    cursor: 'pointer',
-                    flexShrink: 0,
+                    background: 'var(--surf2)', color: 'var(--text)',
+                    cursor: 'pointer', flexShrink: 0,
                   }}
                 >
                   ✕
@@ -254,20 +263,21 @@ export function Support() {
           </div>
         )}
 
-        {supportTab === 'videos' && (
+        {/* ═══ VIDEOS ═══ */}
+        {tab === 'videos' && (
           <div style={{ paddingRight: 8, overflowY: 'auto' }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--bl)', textTransform: 'uppercase', letterSpacing: '.09em', fontFamily: 'var(--fm)', marginBottom: 10 }}>
-              📍 Recommandées pour votre vue actuelle
+            <div style={{ ...sectionTitle, color: 'var(--bl)', marginBottom: GAP.lg }}>
+              {t('support.vid.recommended')}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
-              {SUPPORT_VIDEOS.map(v => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: GAP.lg }}>
+              {VIDEOS.map(v => (
                 <div
                   key={v.id}
-                  onClick={() => toast('▶ ' + v.title, 'success')}
+                  onClick={() => toast('▶ ' + t(v.titleKey), 'success')}
                   style={{
                     background: 'var(--surf2)',
                     border: '1.5px solid var(--border)',
-                    borderRadius: 11,
+                    borderRadius: RADIUS.lg,
                     overflow: 'hidden',
                     cursor: 'pointer',
                     transition: '.15s',
@@ -277,13 +287,13 @@ export function Support() {
                 >
                   <div style={{ height: 80, background: 'linear-gradient(135deg,rgba(68,128,216,.2),rgba(68,128,216,.08))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, position: 'relative' }}>
                     {v.thumb}
-                    <div style={{ position: 'absolute', bottom: 6, right: 8, fontSize: 11, fontFamily: 'var(--fm)', fontWeight: 700, background: 'rgba(0,0,0,.5)', color: '#fff', padding: '1px 6px', borderRadius: 4 }}>
+                    <div style={{ position: 'absolute', bottom: 6, right: 8, fontSize: 11, fontFamily: 'var(--fm)', fontWeight: 700, background: 'rgba(0,0,0,.5)', color: '#fff', padding: '1px 6px', borderRadius: RADIUS.xs }}>
                       {v.dur}
                     </div>
                   </div>
                   <div style={{ padding: '8px 10px' }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.35 }}>
-                      {v.title}
+                      {t(v.titleKey)}
                     </div>
                   </div>
                 </div>
@@ -292,22 +302,15 @@ export function Support() {
           </div>
         )}
 
-        {supportTab === 'faq' && (
+        {/* ═══ FAQ ═══ */}
+        {tab === 'faq' && (
           <div style={{ paddingRight: 8, overflowY: 'auto' }}>
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: GAP.lg }}>
               <input
-                placeholder="🔍 Rechercher dans la FAQ…"
+                placeholder={t('support.faq.search')}
                 value={faqSearch}
                 onChange={(e) => setFaqSearch(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: 4,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surf2)',
-                  color: 'var(--text)',
-                  fontSize: 12,
-                }}
+                style={{ ...inputStyle, minHeight: 44 }}
               />
             </div>
             <div>
@@ -318,45 +321,37 @@ export function Support() {
                     style={{
                       background: 'var(--surf2)',
                       border: '1px solid var(--border)',
-                      borderRadius: 9,
-                      marginBottom: 6,
+                      borderRadius: RADIUS.md,
+                      marginBottom: GAP.sm,
                       overflow: 'hidden',
                     }}
                   >
                     <div
-                      onClick={() => setExpandedFaqIdx(expandedFaqIdx === i ? null : i)}
+                      onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
                       style={{
-                        padding: '11px 14px',
+                        padding: '12px 14px', minHeight: 44,
                         cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
+                        display: 'flex', alignItems: 'center', gap: 10,
                       }}
                     >
                       <span style={{ fontSize: 13, flexShrink: 0 }}>❓</span>
                       <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', flex: 1 }}>
-                        {f.q}
+                        {t(f.qKey)}
                       </span>
-                      <span style={{ fontSize: 12, color: 'var(--t3)' }}>›</span>
+                      <span style={{ fontSize: 12, color: 'var(--t3)', transform: expandedFaq === i ? 'rotate(90deg)' : 'none', transition: '.15s' }}>›</span>
                     </div>
-                    {expandedFaqIdx === i && (
+                    {expandedFaq === i && (
                       <div style={{ padding: '0 14px 12px', fontSize: 11, color: 'var(--t2)', lineHeight: 1.6, borderTop: '1px solid var(--border)' }}>
-                        <br />
-                        {f.a}
-                        <br />
+                        <div style={{ paddingTop: 10 }}>{t(f.aKey)}</div>
                         <button
-                          onClick={() => { setSupportTab('chat'); setExpandedFaqIdx(null) }}
+                          onClick={() => { setTab('chat'); setExpandedFaq(null) }}
                           style={{
-                            marginTop: 8,
-                            background: 'transparent',
-                            border: 'none',
-                            fontSize: 11,
-                            color: 'var(--bl)',
-                            cursor: 'pointer',
-                            padding: 0,
+                            marginTop: 8, background: 'transparent', border: 'none',
+                            fontSize: 11, color: 'var(--bl)', cursor: 'pointer', padding: 0,
+                            fontFamily: 'var(--ff)',
                           }}
                         >
-                          💬 Approfondir avec l'assistant →
+                          💬 {t('support.faq.askAssistant')} →
                         </button>
                       </div>
                     )}
@@ -364,18 +359,12 @@ export function Support() {
                 ))
               ) : (
                 <div style={{ fontSize: 11, color: 'var(--t3)', padding: '12px 0' }}>
-                  Aucun résultat —{' '}
+                  {t('support.faq.noResult')}{' '}
                   <button
-                    onClick={() => setSupportTab('chat')}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--bl)',
-                      cursor: 'pointer',
-                      fontSize: 11,
-                    }}
+                    onClick={() => setTab('chat')}
+                    style={{ background: 'none', border: 'none', color: 'var(--bl)', cursor: 'pointer', fontSize: 11, fontFamily: 'var(--ff)' }}
                   >
-                    demandez à l'assistant →
+                    {t('support.faq.askAssistant')} →
                   </button>
                 </div>
               )}
@@ -383,106 +372,107 @@ export function Support() {
           </div>
         )}
 
-        {supportTab === 'ticket' && (
+        {/* ═══ TICKET ═══ */}
+        {tab === 'ticket' && (
           <div style={{ paddingRight: 8, overflowY: 'auto' }}>
-            <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🎫 Nouveau ticket</div>
-              <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 14 }}>L'IA a analysé votre contexte pour pré-remplir le formulaire</div>
+            {/* Formulaire */}
+            <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: RADIUS.md, padding: 14 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🎫 {t('support.ticket.new')}</div>
+              <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 14 }}>{t('support.ticket.autoContext')}</div>
 
-              <div style={{ marginBottom: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ marginBottom: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: GAP.md }}>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', marginBottom: 4, display: 'block' }}>Type</label>
-                  <select style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontSize: 11 }}>
-                    <option>Problème technique</option>
-                    <option>Question d'utilisation</option>
-                    <option>Demande de modification</option>
-                    <option>Facturation</option>
+                  <label style={labelStyle}>{t('support.ticket.type')}</label>
+                  <select style={{ ...inputStyle, minHeight: 44 }}>
+                    <option>{t('support.ticket.typeTech')}</option>
+                    <option>{t('support.ticket.typeUsage')}</option>
+                    <option>{t('support.ticket.typeChange')}</option>
+                    <option>{t('support.ticket.typeBilling')}</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', marginBottom: 4, display: 'block' }}>Priorité</label>
-                  <select style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontSize: 11 }}>
-                    <option>Normale</option>
-                    <option>Urgente</option>
+                  <label style={labelStyle}>{t('support.ticket.priority')}</label>
+                  <select style={{ ...inputStyle, minHeight: 44 }}>
+                    <option>{t('support.ticket.prioNormal')}</option>
+                    <option>{t('support.ticket.prioUrgent')}</option>
                   </select>
                 </div>
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', marginBottom: 4, display: 'block' }}>Module concerné</label>
-                <select style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontSize: 11 }}>
+                <label style={labelStyle}>{t('support.ticket.module')}</label>
+                <select style={{ ...inputStyle, minHeight: 44 }}>
                   <option>Dashboard</option>
-                  <option>Book</option>
+                  <option>Book / Journal</option>
                   <option>Grille</option>
                   <option>Plan de salle</option>
                   <option>Salles & Services</option>
                   <option>Tables & Combos</option>
-                  <option>Autre</option>
+                  <option>Clients / CRM</option>
+                  <option>Widget</option>
+                  <option>Fidélité</option>
+                  <option>Bons cadeaux</option>
+                  <option>{t('support.ticket.other')}</option>
                 </select>
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', marginBottom: 4, display: 'block' }}>Sujet</label>
-                <input placeholder="Décrivez brièvement votre demande…" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontSize: 11 }} />
+                <label style={labelStyle}>{t('support.ticket.subject')}</label>
+                <input placeholder={t('support.ticket.subjectPlaceholder')} style={{ ...inputStyle, minHeight: 44 }} />
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', marginBottom: 4, display: 'block' }}>Description</label>
-                <textarea rows={4} placeholder="Comportement observé vs. attendu…" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)', fontSize: 11, resize: 'vertical' }} />
+                <label style={labelStyle}>{t('support.ticket.desc')}</label>
+                <textarea rows={4} placeholder={t('support.ticket.descPlaceholder')} style={{ ...inputStyle, resize: 'vertical' as const }} />
               </div>
 
-              <div style={{ background: 'rgba(68,128,216,.06)', border: '1px solid rgba(68,128,216,.2)', borderRadius: 8, padding: '9px 12px', marginBottom: 12, fontSize: 11, color: 'var(--t3)' }}>
-                ℹ️ Contexte joint automatiquement : vue active · 100 réservations · 42 tables · 3 services actifs
+              <div style={{ background: 'rgba(68,128,216,.06)', border: '1px solid rgba(68,128,216,.2)', borderRadius: RADIUS.md, padding: '9px 12px', marginBottom: 12, fontSize: 11, color: 'var(--t3)' }}>
+                ℹ️ {t('support.ticket.contextInfo')}
               </div>
 
-              <div style={{ display: 'flex', gap: 8 }}>
+              {/* SLA info */}
+              <div style={{ background: 'rgba(60,200,112,.06)', border: '1px solid rgba(60,200,112,.2)', borderRadius: RADIUS.md, padding: '9px 12px', marginBottom: 12, fontSize: 11, color: 'var(--t2)', display: 'flex', gap: GAP.md, flexWrap: 'wrap' }}>
+                <span>⏱ {t('support.ticket.sla.' + plan)}</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: GAP.md }}>
                 <button
-                  onClick={() => setSupportTab('chat')}
+                  onClick={() => setTab('chat')}
                   style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    borderRadius: 4,
+                    flex: 1, padding: '8px 12px', minHeight: 44,
+                    borderRadius: RADIUS.sm,
                     border: '1px solid var(--border)',
-                    background: 'var(--surf2)',
-                    color: 'var(--text)',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: 'pointer',
+                    background: 'var(--surf2)', color: 'var(--text)',
+                    fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    fontFamily: 'var(--ff)',
                   }}
                 >
-                  💬 Essayer l'assistant IA d'abord
+                  💬 {t('support.ticket.tryChat')}
                 </button>
                 <button
-                  onClick={() => toast('Ticket envoyé — réponse sous 4h en semaine', 'success')}
+                  onClick={() => toast(t('support.ticket.sent'), 'success')}
                   style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    borderRadius: 4,
-                    border: 'none',
-                    background: 'var(--bl)',
-                    color: 'white',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: 'pointer',
+                    flex: 1, padding: '8px 12px', minHeight: 44,
+                    borderRadius: RADIUS.sm, border: 'none',
+                    background: 'var(--bl)', color: 'white',
+                    fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    fontFamily: 'var(--ff)',
                   }}
                 >
-                  Envoyer le ticket ✓
+                  {t('support.ticket.submit')} ✓
                 </button>
               </div>
             </div>
 
-            <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14, marginTop: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>📋 Mes tickets</div>
+            {/* Tickets existants */}
+            <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: RADIUS.md, padding: 14, marginTop: GAP.lg }}>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>📋 {t('support.ticket.myTickets')}</div>
               <div style={{
-                padding: '10px 12px',
-                borderRadius: 6,
-                background: 'var(--gn)20',
-                border: '1px solid var(--gn)',
-                color: 'var(--gn)',
-                fontSize: 11,
-                fontWeight: 700,
+                padding: '10px 12px', borderRadius: RADIUS.sm,
+                background: 'var(--gn)20', border: '1px solid var(--gn)',
+                color: 'var(--gn)', fontSize: 11, fontWeight: 700,
               }}>
-                Aucun ticket ouvert — tout va bien ✅
+                {t('support.ticket.noTickets')} ✅
               </div>
             </div>
           </div>

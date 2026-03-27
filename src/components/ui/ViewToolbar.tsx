@@ -194,10 +194,13 @@ export function ViewToolbar({
               const dotColor = svcActive ? 'var(--gn)' : svcNext ? '#e8a530' : null
               const dotShadow = svcActive ? '0 0 6px rgba(60,200,112,.5)' : svcNext ? '0 0 6px rgba(232,165,48,.5)' : 'none'
               return (
-                <button key={f.id} style={{ ...chipS(serviceFilter === f.id), opacity: svcDone ? .5 : 1 }} onClick={() => onServiceFilter(f.id)}>
+                <button key={f.id} style={{ ...chipS(serviceFilter === f.id), opacity: svcDone ? .45 : 1, position: 'relative' as const }} onClick={() => onServiceFilter(f.id)}>
                   {dotColor && <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, display: 'inline-block', boxShadow: dotShadow, flexShrink: 0 }} />}
-                  {f.label}{cnt > 0 ? ` (${cnt})` : ''}
-                  {f.sub && <span style={{ fontSize: 9, opacity: .55, fontWeight: 500, marginLeft: 2 }}>{f.sub}</span>}
+                  <span style={svcDone ? { filter: 'blur(1.5px)', WebkitFilter: 'blur(1.5px)' } : undefined}>
+                    {f.label}{cnt > 0 ? ` (${cnt})` : ''}
+                  </span>
+                  {f.sub && <span style={{ fontSize: 9, opacity: .55, fontWeight: 500, marginLeft: 2, ...(svcDone ? { filter: 'blur(1px)' } : {}) }}>{f.sub}</span>}
+                  {svcDone && <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--t4)', marginLeft: 3, textTransform: 'uppercase' as const, letterSpacing: '.04em', flexShrink: 0 }}>✓</span>}
                 </button>
               )
             })}

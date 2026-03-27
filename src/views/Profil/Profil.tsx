@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
+import PhoneInput from '../../components/ui/PhoneInput'
+import { PLANS, type PlanId, redirectToCheckout, redirectToPortal } from '../../utils/stripe'
 
 interface HoraireDay {
   d: string
@@ -91,16 +93,37 @@ export function Profil() {
     '🌊 Vue panorama',
   ]
 
+  // Plan data from centralized Stripe config
   const planFeatures = {
-    bistro: ['Widget de réservation en ligne', 'Confirmations & rappels email auto', 'Plan de salle interactif', 'Salles illimitées', 'Services multiples (midi, soir…)', 'Fermeture exceptionnelle', 'Taux de remplissage', 'Export CSV', '2 utilisateurs', 'Support email'],
-    resto: ['Tout Bistro +', 'QR code de réservation', 'Rappels SMS automatiques', 'Gestion no-shows & blacklist', 'Fiche client & préférences', 'Score fidélité client', 'SMS rappel J-1', 'SmartScan (IA photo)', 'Utilisateurs illimités', 'Chat support & onboarding'],
-    gastro: ['Tout Resto +', 'Prépaiement en ligne (Stripe)', 'Caution & remboursement auto', 'Gestion terrasse', 'Liste d\'attente + rapatriement', 'Multi-sites (jusqu\'à 12)', 'Prédictions IA', 'Optimisation créneaux IA', 'API REST publique', 'Support prioritaire + SLA'],
+    bistro: PLANS.bistro.features,
+    resto: PLANS.resto.features,
+    gastro: PLANS.gastro.features,
   }
 
   const planData = {
-    bistro: { price: 'CHF 39/mois', annual: 'CHF 468/an', label: 'moins de 500 CHF/an', color: 'var(--gn)' },
-    resto: { price: 'CHF 59/mois', annual: 'CHF 708/an', label: 'moins de 1\'000 CHF/an', color: 'var(--bl)' },
-    gastro: { price: 'CHF 79/mois', annual: 'CHF 948/an', label: 'moins de 1\'000 CHF/an', color: 'var(--am)' },
+    bistro: { price: `CHF ${PLANS.bistro.priceMonthly}/mois`, annual: `CHF ${PLANS.bistro.priceAnnual}/an`, label: 'moins de 500 CHF/an', color: PLANS.bistro.color },
+    resto: { price: `CHF ${PLANS.resto.priceMonthly}/mois`, annual: `CHF ${PLANS.resto.priceAnnual}/an`, label: 'moins de 1\'000 CHF/an', color: PLANS.resto.color },
+    gastro: { price: `CHF ${PLANS.gastro.priceMonthly}/mois`, annual: `CHF ${PLANS.gastro.priceAnnual}/an`, label: 'moins de 1\'000 CHF/an', color: PLANS.gastro.color },
+  }
+
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+
+  const handleCheckout = async (targetPlan: PlanId) => {
+    setCheckoutLoading(true)
+    try {
+      await redirectToCheckout(targetPlan)
+    } catch (err: any) {
+      toast(`Erreur Stripe : ${err.message}`, 'error')
+      setCheckoutLoading(false)
+    }
+  }
+
+  const handlePortal = async () => {
+    try {
+      await redirectToPortal()
+    } catch (err: any) {
+      toast(`Erreur portail : ${err.message}`, 'error')
+    }
   }
 
   const handleGplSearch = () => {
@@ -350,40 +373,8 @@ export function Profil() {
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>
               Téléphone <span style={{ color: 'var(--rd)' }}>*</span>
             </label>
-            <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-              <select
-                value={formData.telInd}
-                onChange={(e) => setFormData((p) => ({ ...p, telInd: e.target.value }))}
-                style={{
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surf2)',
-                  color: 'var(--text)',
-                  fontSize: 12,
-                  flexShrink: 0,
-                  minWidth: 70,
-                }}
-              >
-                <option value="+41">+41 CH</option>
-                <option value="+33">+33 FR</option>
-                <option value="+43">+43 AT</option>
-              </select>
-              <input
-                type="tel"
-                value={formData.tel}
-                onChange={(e) => setFormData((p) => ({ ...p, tel: e.target.value }))}
-                placeholder="21 612 34 56"
-                style={{
-                  flex: 1,
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surf2)',
-                  color: 'var(--text)',
-                  fontSize: 12,
-                }}
-              />
+            <div style={{ marginTop: 4 }}>
+              <PhoneInput value={formData.tel} onChange={v => setFormData(p => ({ ...p, tel: v }))} compact />
             </div>
             <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 3, fontFamily: 'DM Mono, monospace' }}>
               {formData.telInd} {formData.tel.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4')}
@@ -628,9 +619,31 @@ export function Profil() {
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {/* Upgrade/downgrade → Stripe Checkout for different plan */}
+          {(['bistro', 'resto', 'gastro'] as PlanId[]).filter(p => p !== plan).map(p => (
+            <button
+              key={p}
+              onClick={() => handleCheckout(p)}
+              disabled={checkoutLoading}
+              style={{
+                fontSize: 11,
+                padding: '6px 12px',
+                borderRadius: 6,
+                border: `1px solid ${planData[p].color}`,
+                background: 'var(--surf2)',
+                color: planData[p].color,
+                fontWeight: 700,
+                cursor: checkoutLoading ? 'wait' : 'pointer',
+                opacity: checkoutLoading ? .5 : 1,
+              }}
+            >
+              {(['bistro', 'resto', 'gastro'] as PlanId[]).indexOf(p) > (['bistro', 'resto', 'gastro'] as PlanId[]).indexOf(plan) ? '⬆' : '⬇'} {PLANS[p].name} — CHF {PLANS[p].priceMonthly}/mo
+            </button>
+          ))}
+          {/* Manage subscription via Stripe Customer Portal */}
           <button
-            onClick={() => toast('Contactez support@r3sto.ch', 'info')}
+            onClick={handlePortal}
             style={{
               fontSize: 11,
               padding: '6px 12px',
@@ -642,22 +655,7 @@ export function Profil() {
               cursor: 'pointer',
             }}
           >
-            Changer de plan →
-          </button>
-          <button
-            onClick={() => toast('Votre facture a été envoyée par email ✓', 'info')}
-            style={{
-              fontSize: 11,
-              padding: '6px 12px',
-              borderRadius: 6,
-              border: '1px solid var(--border)',
-              background: 'var(--surf2)',
-              color: 'var(--text)',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            📄 Facture
+            📄 Factures & Paiement
           </button>
         </div>
       </div>

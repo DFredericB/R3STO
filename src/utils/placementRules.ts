@@ -230,6 +230,116 @@ export function canSwapResas(
 //
 //  4. null si rien ne convient → "À assigner"
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+//  RÈGLE 6a — SMART LAST PLACEMENTS (anti-gaspillage)
+//  Quand le service se remplit, éviter de placer N couverts
+//  sur une table de capacité >> N si c'est l'une des dernières
+//  grandes tables disponibles.
+//
+//  Score de gaspillage = (capMax - covers) / capMax
+//  Seuil d'alerte : >50% de gaspillage ET <30% de tables libres
+//
+//  Retourne un objet avec :
+//  - table: la table recommandée (ou null)
+//  - warning: message d'alerte si gaspillage détecté
+//  - wastePercent: pourcentage de gaspillage
+//  - fillPercent: taux de remplissage du service
+//  - suggestion: texte pour le restaurateur
+// ─────────────────────────────────────────────────────────────
+export interface SmartPlacementResult {
+  table: string | null
+  warning: string | null
+  wastePercent: number       // 0-100, gaspillage de la table choisie
+  fillPercent: number        // 0-100, remplissage du service
+  suggestion: string | null  // conseil actionnable
+  shouldWaitlist: boolean    // recommander waitlist plutôt que placer
+  alternativeTable: string | null  // meilleure alternative si gaspillage
+}
+
+export function smartPlacement(
+  covers: number,
+  date: string,
+  svc: string,
+  tables: Table[],
+  combos: Combo[],
+  resas: Resa[],
+  tablePref?: string,
+  excludeResaId?: string,
+  salleFilter?: string,
+): SmartPlacementResult {
+  const activeTables = tables.filter(t => t.active && !t.blocked)
+    .filter(t => !salleFilter || salleFilter === 'toutes' || t.salle === salleFilter)
+  const totalTables = activeTables.length
+  const free = getFreeTables(tables, resas, date, svc, excludeResaId)
+    .filter(t => !salleFilter || salleFilter === 'toutes' || t.salle === salleFilter)
+  const freeCombos = getFreeCombos(combos, tables, resas, date, svc, excludeResaId)
+  const freeCount = free.length
+  const fillPercent = totalTables > 0 ? Math.round(((totalTables - freeCount) / totalTables) * 100) : 0
+
+  // Placement standard (Règle 6)
+  const chosenTable = iaPlacement(covers, date, svc, tables, combos, resas, tablePref, excludeResaId, salleFilter)
+  if (!chosenTable) {
+    return { table: null, warning: null, wastePercent: 0, fillPercent, suggestion: null, shouldWaitlist: false, alternativeTable: null }
+  }
+
+  // Calculer la capacité de la table choisie
+  let chosenCap = 0
+  if (chosenTable.includes('+')) {
+    const combo = combos.find(c => c.label === chosenTable)
+    chosenCap = combo?.cap ?? 0
+  } else {
+    const t = tables.find(t => t.n === chosenTable)
+    chosenCap = t?.capMax ?? 0
+  }
+
+  const wastePercent = chosenCap > 0 ? Math.round(((chosenCap - covers) / chosenCap) * 100) : 0
+
+  // Seuils : gaspillage significatif quand service presque plein
+  const isHighFill = fillPercent >= 70
+  const isHighWaste = wastePercent >= 50 && (chosenCap - covers) >= 2
+  const isLastLargeTable = free.filter(t => t.capMax >= 4).length <= 2
+
+  let warning: string | null = null
+  let suggestion: string | null = null
+  let shouldWaitlist = false
+  let alternativeTable: string | null = null
+
+  if (isHighFill && isHighWaste && isLastLargeTable) {
+    // Chercher une alternative avec moins de gaspillage
+    // Tables libres capables mais avec capMax plus proche de covers
+    const betterFit = free
+      .filter(t => t.capMax >= covers && t.n !== chosenTable)
+      .sort((a, b) => a.capMax - b.capMax)
+    const bestAlt = betterFit.find(t => ((t.capMax - covers) / t.capMax) < 0.5)
+
+    if (bestAlt) {
+      alternativeTable = bestAlt.n
+      warning = `⚠️ ${chosenTable} (${chosenCap}p) gaspille ${wastePercent}% avec ${covers}p — ${bestAlt.n} (${bestAlt.capMax}p) serait plus adapté`
+      suggestion = `Préférer ${bestAlt.n} pour préserver ${chosenTable} pour un groupe plus grand`
+    } else {
+      // Pas d'alternative → recommander waitlist si remplissage très élevé
+      if (fillPercent >= 85) {
+        shouldWaitlist = true
+        warning = `⚠️ Service rempli à ${fillPercent}% — placer ${covers}p sur ${chosenTable} (${chosenCap}p) gaspille ${wastePercent}% de capacité`
+        suggestion = `Envisager la liste d'attente pour préserver ${chosenTable} pour un groupe de ${chosenCap}p`
+      } else {
+        warning = `⚠️ ${chosenTable} (${chosenCap}p) est une des dernières grandes tables — ${covers}p = ${wastePercent}% de gaspillage`
+        suggestion = `Dernières grandes tables disponibles — placement optimisé recommandé`
+      }
+    }
+  }
+
+  return {
+    table: alternativeTable || chosenTable,
+    warning,
+    wastePercent,
+    fillPercent,
+    suggestion,
+    shouldWaitlist,
+    alternativeTable,
+  }
+}
+
 export function iaPlacement(
   covers: number,
   date: string,
@@ -256,10 +366,10 @@ export function iaPlacement(
     if (prefCombo) return prefCombo.label
   }
 
-  // 2. Plus petite table simple suffisante
+  // 2. Plus petite table simple suffisante (tri par priority croissant en second)
   const candidates = free
     .filter(t => t.capMax >= covers)
-    .sort((a, b) => a.capMax - b.capMax)
+    .sort((a, b) => a.capMax - b.capMax || a.priority - b.priority)
   if (candidates.length > 0) return candidates[0].n
 
   // 3. Plus petit combo suffisant

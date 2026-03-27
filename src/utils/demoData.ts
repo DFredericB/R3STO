@@ -288,12 +288,61 @@ export function loadDemoFallback() {
     name: "Le Comptoir du Lac",
     ville: 'Montpreveyres',
     pays: 'CH',
-    plan: 'bistro',
+    plan: 'gastro',
     maxCvt: 120,
     tel: '+41 21 903 45 67',
     email: 'info@comptoirdulac.ch',
     web: 'www.comptoirdulac.ch'
   }
 
-  return { resas, tables, combos, services, salles, resto, roomItems, isDemo: true, activeDate: t, _demoVersion: 14 }
+  // ══════════════════════════════════════════════════
+  //  SITES DÉMO — Multi-site Gastro (3 établissements)
+  // ══════════════════════════════════════════════════
+
+  const sites = [
+    {
+      id: 'site_demo_1',
+      name: 'Le Comptoir — Sion',
+      ville: 'Sion',
+      adresse: 'Rue du Grand-Pont 18',
+      tel: '+41 27 322 45 67',
+      email: 'sion@comptoirdulac.ch',
+      web: 'www.comptoirdulac.ch/sion',
+      active: true,
+      color: '#38b090',
+      plan: 'gastro' as const,
+      maxCvt: 80,
+      createdAt: Date.now() - 30 * 86400000,
+    },
+    {
+      id: 'site_demo_2',
+      name: 'Le Comptoir — Sierre',
+      ville: 'Sierre',
+      adresse: 'Avenue Général-Guisan 5',
+      tel: '+41 27 455 12 34',
+      email: 'sierre@comptoirdulac.ch',
+      web: 'www.comptoirdulac.ch/sierre',
+      active: true,
+      color: '#7c3aed',
+      plan: 'gastro' as const,
+      maxCvt: 60,
+      createdAt: Date.now() - 15 * 86400000,
+    },
+    {
+      id: 'site_demo_3',
+      name: 'Le Comptoir — Martigny',
+      ville: 'Martigny',
+      adresse: 'Place Centrale 3',
+      tel: '+41 27 722 88 90',
+      email: 'martigny@comptoirdulac.ch',
+      web: 'www.comptoirdulac.ch/martigny',
+      active: true,
+      color: '#e08030',
+      plan: 'gastro' as const,
+      maxCvt: 45,
+      createdAt: Date.now() - 5 * 86400000,
+    },
+  ]
+
+  return { resas, tables, combos, services, salles, resto, roomItems, sites, activeSiteId: null, isDemo: true, activeDate: t, _demoVersion: 15 }
 }

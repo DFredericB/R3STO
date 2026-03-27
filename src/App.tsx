@@ -37,6 +37,10 @@ import { ServiceView } from './views/Service/ServiceView'
 import { CaisseView } from './views/Caisse/CaisseView'
 import { SetupPlan } from './views/SetupPlan/SetupPlan'
 import { Plan } from './views/Plan/Plan'
+import { Cadeaux } from './views/Cadeaux/Cadeaux'
+import { Avis } from './views/Avis/Avis'
+import { Fidelite } from './views/Fidelite/Fidelite'
+import { MultiSite } from './views/MultiSite/MultiSite'
 import { loadDemoFallback } from './utils/demoData'
 import './styles/global.css'
 
@@ -83,12 +87,15 @@ export default function App() {
                 <Route path="/clients" element={<Clients />} />
                 <Route path="/marketing" element={<Marketing />} />
                 <Route path="/blacklist" element={<Blacklist />} />
+                <Route path="/avis" element={<Avis />} />
+                <Route path="/fidelite" element={<Fidelite />} />
                 {/* CANAUX & REVENUS */}
                 <Route path="/widget" element={<Widget />} />
                 <Route path="/qrcode" element={<QRCode />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/commandes" element={<Commandes />} />
                 <Route path="/prepaiement" element={<Prepaiement />} />
+                <Route path="/cadeaux" element={<Cadeaux />} />
                 {/* R3STO ORDER (BÊTA) */}
                 <Route path="/kds-cuisine" element={<KDSCuisine />} />
                 <Route path="/kds-bar" element={<KDSBar />} />
@@ -101,6 +108,7 @@ export default function App() {
                 <Route path="/setup-plan" element={<SetupPlan />} />
                 <Route path="/tables" element={<Tables />} />
                 <Route path="/options" element={<Options />} />
+                <Route path="/multisite" element={<MultiSite />} />
                 {/* ADMINISTRATION */}
                 <Route path="/acces-roles" element={<AccesRoles />} />
                 <Route path="/historique" element={<Historique />} />

@@ -3,12 +3,13 @@
 //  Barre supérieure : logo, date/heure, actions
 // ══════════════════════════════════════════════════
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
 import { Logo } from '../ui/Logo'
-import type { Resa } from '../../types'
+import { SearchModal } from '../ui/SearchModal'
+import type { Resa, Site } from '../../types'
 
 function formatTime(): string {
   const now = new Date()
@@ -141,13 +142,32 @@ function timeAgo(ts: number, t: (k: string) => string): string {
 }
 
 export function Header() {
-  const { activeDate, resas, resto, users, isDemo, theme, setTheme, toggleSidebar, sidebarCollapsed, lang, setLang, userRole, setUserRole } = useAppStore()
+  const { activeDate, resas, resto, users, isDemo, theme, setTheme, toggleSidebar, sidebarCollapsed, lang, setLang, userRole, setUserRole, sites, activeSiteId, setActiveSite } = useAppStore()
   const navigate = useNavigate()
   const { t, fmtDate } = useT()
   const [time, setTime] = useState(formatTime())
   const todayDate = todayISO()
   const [showNotif, setShowNotif] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [showSiteSwitch, setShowSiteSwitch] = useState(false)
+  const [showSearch, setShowSearch] = useState(false)
+
+  // ⌘K / Ctrl+K raccourci recherche globale
+  const handleSearchKey = useCallback((e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault()
+      setShowSearch(prev => !prev)
+    }
+  }, [])
+  useEffect(() => {
+    window.addEventListener('keydown', handleSearchKey)
+    return () => window.removeEventListener('keydown', handleSearchKey)
+  }, [handleSearchKey])
+
+  // Multi-site : site actif
+  const activeSite = activeSiteId ? sites.find(s => s.id === activeSiteId) : null
+  const displayName = activeSite ? activeSite.name : (resto.name || t('general.myRestaurant'))
+  const hasMultiSites = sites.length > 0 && resto.plan === 'gastro'
   const [readIds, setReadIds] = useState<Set<string>>(new Set())
 
   // Utilisateur courant (premier actif ou fallback)
@@ -167,15 +187,16 @@ export function Header() {
 
   // Fermer dropdowns au clic dehors
   useEffect(() => {
-    if (!showNotif && !showProfile) return
+    if (!showNotif && !showProfile && !showSiteSwitch) return
     const close = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       if (showNotif && !target.closest('[data-notif-panel]')) setShowNotif(false)
       if (showProfile && !target.closest('[data-profile-panel]')) setShowProfile(false)
+      if (showSiteSwitch && !target.closest('[data-site-panel]')) setShowSiteSwitch(false)
     }
     document.addEventListener('click', close, true)
     return () => document.removeEventListener('click', close, true)
-  }, [showNotif, showProfile])
+  }, [showNotif, showProfile, showSiteSwitch])
 
   const markAllRead = () => setReadIds(new Set(notifs.map(n => n.id)))
 
@@ -236,14 +257,24 @@ export function Header() {
       {/* Séparateur */}
       <div style={{ width: 1, height: 20, background: 'var(--border)', flexShrink: 0 }} />
 
-      {/* Nom restaurant + indicateur connexion */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontSize: 13, fontWeight: 700, color: 'var(--text)',
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          display: 'flex', alignItems: 'center', gap: 6,
-        }}>
-          {resto.name || t('general.myRestaurant')}
+      {/* Nom restaurant + site selector + indicateur connexion */}
+      <div style={{ flex: 1, minWidth: 0, position: 'relative' }} data-site-panel>
+        <div
+          style={{
+            fontSize: 13, fontWeight: 700, color: 'var(--text)',
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            display: 'flex', alignItems: 'center', gap: 6,
+            cursor: hasMultiSites ? 'pointer' : 'default',
+          }}
+          onClick={() => hasMultiSites && setShowSiteSwitch(!showSiteSwitch)}
+        >
+          {activeSite && (
+            <span style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: activeSite.color, flexShrink: 0,
+            }} />
+          )}
+          {displayName}
           <span
             title={t('header.connection')}
             style={{
@@ -252,10 +283,104 @@ export function Header() {
               display: 'inline-block', flexShrink: 0,
             }}
           />
+          {hasMultiSites && (
+            <span style={{ fontSize: 10, color: 'var(--t3)', flexShrink: 0 }}>▾</span>
+          )}
         </div>
         <div style={{ fontSize: 11, color: 'var(--t2)' }}>
           {`${t('header.today')} · ${fmtDate(todayDate)} · ${time}`}
         </div>
+
+        {/* Site switcher dropdown */}
+        {showSiteSwitch && (
+          <div style={{
+            position: 'absolute', top: 42, left: 0, width: 280,
+            background: 'var(--surf2)', border: '1px solid var(--border)',
+            borderRadius: 10, boxShadow: '0 8px 24px var(--shadow)',
+            zIndex: 200, overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '8px 12px', borderBottom: '1px solid var(--border)',
+              fontSize: 10, fontWeight: 700, color: 'var(--t4)',
+              textTransform: 'uppercase', letterSpacing: '.06em',
+            }}>
+              🏢 {t('multisite.switchSite')}
+            </div>
+
+            {/* Site principal */}
+            <button
+              onClick={() => { setActiveSite(null); setShowSiteSwitch(false) }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                width: '100%', padding: '8px 12px',
+                border: 'none', cursor: 'pointer', fontFamily: 'var(--ff)',
+                background: !activeSiteId ? 'var(--bp)' : 'transparent',
+                color: 'var(--text)', transition: 'background .12s',
+                fontSize: 12, textAlign: 'left',
+              }}
+            >
+              <span style={{
+                width: 28, height: 28, borderRadius: 6,
+                background: 'var(--bl)', color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13, flexShrink: 0,
+              }}>🏠</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: !activeSiteId ? 700 : 500, fontSize: 12 }}>
+                  {resto.name || t('multisite.mainSite')}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--t3)' }}>{resto.ville}</div>
+              </div>
+              {!activeSiteId && <span style={{ color: 'var(--bl)', fontWeight: 700, fontSize: 11 }}>✓</span>}
+            </button>
+
+            {/* Sites additionnels */}
+            {sites.filter(s => s.active).map(site => (
+              <button
+                key={site.id}
+                onClick={() => { setActiveSite(site.id); setShowSiteSwitch(false) }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  width: '100%', padding: '8px 12px',
+                  border: 'none', cursor: 'pointer', fontFamily: 'var(--ff)',
+                  background: activeSiteId === site.id ? `${site.color}18` : 'transparent',
+                  color: 'var(--text)', transition: 'background .12s',
+                  fontSize: 12, textAlign: 'left',
+                }}
+              >
+                <span style={{
+                  width: 28, height: 28, borderRadius: 6,
+                  background: site.color, color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 800, flexShrink: 0,
+                }}>{site.name.charAt(0).toUpperCase()}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: activeSiteId === site.id ? 700 : 500, fontSize: 12 }}>
+                    {site.name}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--t3)' }}>{site.ville}</div>
+                </div>
+                {activeSiteId === site.id && <span style={{ color: site.color, fontWeight: 700, fontSize: 11 }}>✓</span>}
+              </button>
+            ))}
+
+            {/* Lien gestion */}
+            <div style={{ borderTop: '1px solid var(--border)', padding: '6px 8px' }}>
+              <button
+                onClick={() => { setShowSiteSwitch(false); navigate('/multisite') }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  width: '100%', padding: '6px 8px', borderRadius: 6,
+                  border: 'none', background: 'transparent',
+                  color: 'var(--bl)', fontSize: 11, fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'var(--ff)',
+                }}
+              >
+                ⚙️ {t('multisite.manageSites')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Badge démo */}
@@ -282,6 +407,13 @@ export function Header() {
       >
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
+
+      {/* Recherche ⌘K */}
+      <button onClick={() => setShowSearch(true)} style={{ ...iconBtn, display: 'flex', alignItems: 'center', gap: 6, padding: '0 10px', fontSize: 11 }} title="⌘K">
+        <span>🔍</span>
+        <kbd style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.15)', color: 'rgba(255,255,255,.5)', fontFamily: 'var(--fm)' }}>⌘K</kbd>
+      </button>
+      <SearchModal open={showSearch} onClose={() => setShowSearch(false)} />
 
       {/* Notifications */}
       <div style={{ position: 'relative' }} data-notif-panel>

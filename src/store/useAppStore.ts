@@ -8,7 +8,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
   Resa, Table, Combo, Service, Salle, Resto,
-  OptionsData, User, Fermeture, UserRole, RoomItem, Client
+  OptionsData, User, Fermeture, UserRole, RoomItem, Client, GiftCard, Review,
+  LoyaltyConfig, LoyaltyCard, LoyaltyEvent, Site
 } from '../types'
 
 // ── Données par défaut ─────────────────────────────
@@ -67,6 +68,10 @@ interface AppStore {
   fermetures: Fermeture[]
   roomItems: RoomItem[]
   clients: Client[]
+  giftCards: GiftCard[]
+  reviews: Review[]
+  loyaltyConfig: LoyaltyConfig
+  loyaltyCards: LoyaltyCard[]
 
   // Navigation
   curView: string
@@ -103,6 +108,30 @@ interface AppStore {
   updateClient: (id: string, patch: Partial<Client>) => void
   deleteClient: (id: string) => void
 
+  // Actions — Gift Cards
+  addGiftCard: (gc: GiftCard) => void
+  updateGiftCard: (id: string, patch: Partial<GiftCard>) => void
+  deleteGiftCard: (id: string) => void
+  useGiftCard: (id: string, amount: number, resaId?: string) => void
+
+  // Actions — Reviews
+  addReview: (review: Review) => void
+  updateReview: (id: string, patch: Partial<Review>) => void
+  deleteReview: (id: string) => void
+
+  // Actions — Loyalty
+  updateLoyaltyConfig: (patch: Partial<LoyaltyConfig>) => void
+  addLoyaltyCard: (card: LoyaltyCard) => void
+  updateLoyaltyCard: (id: string, patch: Partial<LoyaltyCard>) => void
+  deleteLoyaltyCard: (id: string) => void
+  addLoyaltyEvent: (cardId: string, event: LoyaltyEvent) => void
+
+  // Actions — Multi-site
+  addSite: (site: Site) => void
+  updateSite: (id: string, patch: Partial<Site>) => void
+  deleteSite: (id: string) => void
+  setActiveSite: (id: string | null) => void
+
   // Actions — Auth & UI
   setUserRole: (role: UserRole) => void
   setLang: (lang: 'fr' | 'en' | 'de' | 'it') => void
@@ -130,6 +159,19 @@ export const useAppStore = create<AppStore>()(
       fermetures: [],
       roomItems: [],
       clients: [],
+      giftCards: [],
+      reviews: [],
+      loyaltyConfig: {
+        active: false, mode: 'stamps',
+        pointsPerChf: 1, stampsGoal: 10,
+        cashbackPercent: 5,
+        rewardName: 'Dessert offert', rewardValue: 15, rewardThreshold: 10,
+        welcomeBonus: 1, birthdayBonus: 2, expirationMonths: 12,
+        doublePointsDays: []
+      },
+      loyaltyCards: [],
+      sites: [],
+      activeSiteId: null,
       curView: 'dashboard',
       activeDate: today(),
       isDemo: false,
@@ -193,6 +235,75 @@ export const useAppStore = create<AppStore>()(
       })),
       deleteClient: (id) => set((s) => ({ clients: s.clients.filter((c) => c.id !== id) })),
 
+      // Gift Cards
+      addGiftCard: (gc) => set((s) => ({ giftCards: [...s.giftCards, gc] })),
+      updateGiftCard: (id, patch) => set((s) => ({
+        giftCards: s.giftCards.map((g) => g.id === id ? { ...g, ...patch } : g)
+      })),
+      deleteGiftCard: (id) => set((s) => ({ giftCards: s.giftCards.filter((g) => g.id !== id) })),
+      useGiftCard: (id, amount, resaId) => set((s) => ({
+        giftCards: s.giftCards.map((g) => {
+          if (g.id !== id) return g
+          const newBalance = Math.max(0, g.balance - amount)
+          return {
+            ...g,
+            balance: newBalance,
+            status: newBalance === 0 ? 'used' as const : 'partial' as const,
+            usedAt: new Date().toISOString().slice(0, 10),
+            usedResaId: resaId || g.usedResaId,
+          }
+        })
+      })),
+
+      // Reviews
+      addReview: (review) => set((s) => ({ reviews: [...s.reviews, review] })),
+      updateReview: (id, patch) => set((s) => ({
+        reviews: s.reviews.map((r) => r.id === id ? { ...r, ...patch } : r)
+      })),
+      deleteReview: (id) => set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) })),
+
+      // Loyalty
+      updateLoyaltyConfig: (patch) => set((s) => ({
+        loyaltyConfig: { ...s.loyaltyConfig, ...patch }
+      })),
+      addLoyaltyCard: (card) => set((s) => ({
+        loyaltyCards: [...s.loyaltyCards, card]
+      })),
+      updateLoyaltyCard: (id, patch) => set((s) => ({
+        loyaltyCards: s.loyaltyCards.map((c) => c.id === id ? { ...c, ...patch } : c)
+      })),
+      deleteLoyaltyCard: (id) => set((s) => ({
+        loyaltyCards: s.loyaltyCards.filter((c) => c.id !== id)
+      })),
+      addLoyaltyEvent: (cardId, event) => set((s) => ({
+        loyaltyCards: s.loyaltyCards.map((c) => {
+          if (c.id !== cardId) return c
+          const newHistory = [...c.history, event]
+          const delta = event.type === 'earn' || event.type === 'bonus' ? event.amount : -event.amount
+          return {
+            ...c,
+            points: s.loyaltyConfig.mode === 'points' ? c.points + delta : c.points,
+            stamps: s.loyaltyConfig.mode === 'stamps' ? c.stamps + delta : c.stamps,
+            cashbackBalance: s.loyaltyConfig.mode === 'cashback' ? c.cashbackBalance + delta : c.cashbackBalance,
+            totalEarned: event.type === 'earn' || event.type === 'bonus' ? c.totalEarned + event.amount : c.totalEarned,
+            rewardsUsed: event.type === 'redeem' ? c.rewardsUsed + 1 : c.rewardsUsed,
+            lastActivity: event.date,
+            history: newHistory
+          }
+        })
+      })),
+
+      // Multi-site
+      addSite: (site) => set((s) => ({ sites: [...s.sites, site] })),
+      updateSite: (id, patch) => set((s) => ({
+        sites: s.sites.map(si => si.id === id ? { ...si, ...patch } : si)
+      })),
+      deleteSite: (id) => set((s) => ({
+        sites: s.sites.filter(si => si.id !== id),
+        activeSiteId: s.activeSiteId === id ? null : s.activeSiteId
+      })),
+      setActiveSite: (id) => set({ activeSiteId: id }),
+
       // Auth & UI
       setUserRole: (role) => set({ userRole: role }),
       setLang: (lang) => set({ lang }),
@@ -207,7 +318,8 @@ export const useAppStore = create<AppStore>()(
       resetData: () => set({
         resas: [], tables: [], combos: [],
         services: DEFAULT_SERVICES, salles: DEFAULT_SALLES,
-        options: DEFAULT_OPTIONS, users: [], fermetures: [], roomItems: [], clients: [],
+        options: DEFAULT_OPTIONS, users: [], fermetures: [], roomItems: [], clients: [], giftCards: [], reviews: [], loyaltyCards: [],
+        sites: [], activeSiteId: null,
         activeDate: today()
       })
     }),
@@ -225,6 +337,12 @@ export const useAppStore = create<AppStore>()(
         fermetures: state.fermetures,
         roomItems: state.roomItems,
         clients: state.clients,
+        giftCards: state.giftCards,
+        reviews: state.reviews,
+        loyaltyConfig: state.loyaltyConfig,
+        loyaltyCards: state.loyaltyCards,
+        sites: state.sites,
+        activeSiteId: state.activeSiteId,
         lang: state.lang,
         theme: state.theme,
         sidebarCollapsed: state.sidebarCollapsed,

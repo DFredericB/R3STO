@@ -50,26 +50,26 @@ function planTableSvg(
   const tRef = Math.min(t.w, t.h)
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2
 
-  // Couleurs selon statut — identiques éditeur mais modulées par occupation
+  // Couleurs selon statut — libre = très discret, réservé = bien visible
   const fills: Record<string, string> = {
-    free:           'rgba(68,128,216,.11)',
-    reserved:       'rgba(68,128,216,.22)',
-    arrived:        'rgba(60,200,112,.22)',
+    free:           'rgba(68,128,216,.06)',
+    reserved:       'rgba(91,156,246,.30)',
+    arrived:        'rgba(60,200,112,.25)',
     blocked:        'rgba(100,116,139,.15)',
     combo_partial:  'rgba(144,96,224,.18)',
     held:           'rgba(232,165,48,.12)',
   }
   const strokes: Record<string, string> = {
-    free:           'rgba(68,128,216,.45)',
-    reserved:       'rgba(68,128,216,.75)',
-    arrived:        'rgba(60,200,112,.75)',
+    free:           'rgba(68,128,216,.25)',
+    reserved:       'rgba(91,156,246,.85)',
+    arrived:        'rgba(60,200,112,.85)',
     blocked:        'rgba(100,116,139,.40)',
     combo_partial:  'rgba(144,96,224,.55)',
     held:           'rgba(232,165,48,.55)',
   }
   const textCols: Record<string, string> = {
-    free:           '#4480d8',
-    reserved:       '#4480d8',
+    free:           'rgba(68,128,216,.55)',
+    reserved:       '#5b9cf6',
     arrived:        '#3cc870',
     blocked:        'rgba(100,116,139,.5)',
     combo_partial:  'rgba(144,96,224,.7)',
@@ -79,7 +79,7 @@ function planTableSvg(
   const fill = fills[status] || fills.free
   const stroke = isSelected ? '#facc15' : (strokes[status] || strokes.free)
   const tcol = textCols[status] || textCols.free
-  const sw = isSelected ? tRef * 0.125 : tRef * 0.067
+  const sw = isSelected ? tRef * 0.125 : (status === 'reserved' || status === 'arrived') ? tRef * 0.092 : tRef * 0.050
 
   // ── Tables dans un combo occupé → forme fantôme, aucun texte ──
   if (isInOccupiedCombo) {
@@ -107,10 +107,12 @@ function planTableSvg(
   // ── 1. Chaises DERRIÈRE la table (identique éditeur) ──
   const chairFill = status === 'arrived' ? 'rgba(60,200,112,.18)'
     : status === 'held' ? 'rgba(232,165,48,.10)'
-    : 'rgba(68,128,216,.13)'
+    : status === 'reserved' ? 'rgba(91,156,246,.18)'
+    : 'rgba(68,128,216,.07)'
   const chairStroke = status === 'arrived' ? 'rgba(60,200,112,.45)'
     : status === 'held' ? 'rgba(232,165,48,.28)'
-    : 'rgba(68,128,216,.32)'
+    : status === 'reserved' ? 'rgba(91,156,246,.50)'
+    : 'rgba(68,128,216,.18)'
   if (!t.blocked) s += spChairsSvg(t, chairFill, chairStroke)
 
   // ── 2. Ombre 3D pour tables hautes (identique éditeur) ──

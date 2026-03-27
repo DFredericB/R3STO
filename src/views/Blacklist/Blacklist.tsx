@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
+import PhoneInput from '../../components/ui/PhoneInput'
 
 interface BlacklistedClient {
   id: string
@@ -213,10 +214,7 @@ export function Blacklist() {
             </div>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Téléphone</label>
-              <input value={manualForm.tel} onChange={e => setManualForm(f => ({ ...f, tel: e.target.value }))}
-                placeholder="+41 xx xxx xx xx"
-                style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 7, border: '1.5px solid var(--border)', background: 'var(--surf)', color: 'var(--text)', fontFamily: 'var(--fm)', boxSizing: 'border-box' }}
-              />
+              <PhoneInput value={manualForm.tel} onChange={v => setManualForm(f => ({ ...f, tel: v }))} compact />
             </div>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', display: 'block', marginBottom: 3 }}>Niveau</label>

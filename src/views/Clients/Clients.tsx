@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { useT } from '../../i18n/useTranslation'
 import { sectionTitle } from '../../utils/design'
 import type { Client, Resa } from '../../types'
+import PhoneInput from '../../components/ui/PhoneInput'
 
 // ── Statut badge ────────────────────────────────
 const STATUT_META: Record<number, { label: string; icon: string; color: string; bg: string }> = {
@@ -271,7 +272,7 @@ export function Clients() {
               </div>
               <div>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Téléphone</label>
-                <input value={fTel} onChange={e => setFTel(e.target.value)} style={inp} placeholder="+41 79 000 00 00" />
+                <PhoneInput value={fTel} onChange={setFTel} compact />
               </div>
               <div>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Email</label>
