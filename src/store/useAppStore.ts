@@ -74,7 +74,6 @@ interface AppStore {
   loyaltyCards: LoyaltyCard[]
 
   // Navigation
-  curView: string
   activeDate: string
   isDemo: boolean
   _demoVersion: number
@@ -91,7 +90,6 @@ interface AppStore {
   swapTables: (idA: string, idB: string) => void
 
   // Actions — Navigation
-  setView: (view: string) => void
   setActiveDate: (date: string) => void
 
   // Actions — Config
@@ -172,7 +170,6 @@ export const useAppStore = create<AppStore>()(
       loyaltyCards: [],
       sites: [],
       activeSiteId: null,
-      curView: 'dashboard',
       activeDate: today(),
       isDemo: false,
       _demoVersion: 0,
@@ -216,7 +213,6 @@ export const useAppStore = create<AppStore>()(
       }),
 
       // Navigation
-      setView: (view) => set({ curView: view }),
       setActiveDate: (date) => set({ activeDate: date }),
 
       // Config

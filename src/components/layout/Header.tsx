@@ -619,7 +619,7 @@ export function Header() {
                 ⚙️ {t('profile.settings')}
               </button>
               <button
-                onClick={() => { setShowProfile(false); navigate('/restaurant') }}
+                onClick={() => { setShowProfile(false); navigate('/profil') }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   width: '100%', padding: '6px 8px', borderRadius: 6,
@@ -631,7 +631,7 @@ export function Header() {
                 🏠 {t('general.myRestaurant')}
               </button>
               <button
-                onClick={() => { setShowProfile(false); navigate('/team') }}
+                onClick={() => { setShowProfile(false); navigate('/acces-roles') }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   width: '100%', padding: '6px 8px', borderRadius: 6,

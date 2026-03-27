@@ -279,6 +279,10 @@ const translations: Record<string, Record<Lang, string>> = {
   'ferm.defaultWidgetHint': { FR: 'Utilisé si aucun message spécifique', DE: 'Verwendet wenn keine spezifische Nachricht', IT: 'Usato se nessun messaggio specifico', EN: 'Used when no specific message set' },
   'ferm.widgetSettings':   { FR: 'Réglages widget', DE: 'Widget-Einstellungen', IT: 'Impostazioni widget', EN: 'Widget settings' },
 
+  // ── Grille ──────────────────────────────────────
+  'grille.moveHere':     { FR: 'Déplacer ici', DE: 'Hierhin verschieben', IT: 'Sposta qui', EN: 'Move here' },
+  'grille.book':         { FR: 'Réserver', DE: 'Reservieren', IT: 'Prenota', EN: 'Book' },
+
   // ── ViewToolbar ────────────────────────────────
   'toolbar.today': { FR: "Aujourd'hui", DE: 'Heute', IT: 'Oggi', EN: 'Today' },
   'toolbar.todayShort': { FR: 'Auj.', DE: 'Heute', IT: 'Oggi', EN: 'Today' },

@@ -195,7 +195,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           minHeight: lineHeight, cursor: canTarget || !moveMode ? 'pointer' : 'default',
           opacity: moveMode && !canTarget ? .35 : 1,
         }}
-        title={canTarget ? `Déplacer ici → ${table.n}` : `Réserver ${table.n} (de réserve)`}
+        title={canTarget ? `${t('grille.moveHere')} → ${table.n}` : `${t('grille.book')} ${table.n}`}
       >
         {salleColor && (
           <div style={{ width: 3, flexShrink: 0, background: salleColor, borderRadius: '9px 0 0 9px', opacity: .6 }} />
@@ -387,7 +387,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
             /* ════ TABLE LIBRE (avec ghost done/noshow si applicable) ════ */
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {isValidMoveTarget ? (
-                <span style={{ fontSize: 14, color: 'var(--gn)', fontWeight: 700 }}>→ Déplacer ici</span>
+                <span style={{ fontSize: 14, color: 'var(--gn)', fontWeight: 700 }}>→ {t('grille.moveHere')}</span>
               ) : (() => {
                 const ghost = resas.find(r => r.s === 'done' || r.s === 'noshow')
                 if (ghost) {

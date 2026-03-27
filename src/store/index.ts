@@ -67,7 +67,6 @@ interface AppStore {
   fermetures: Fermeture[]
 
   // Navigation
-  curView: string
   activeDate: string
   isDemo: boolean
   userRole: UserRole
@@ -80,7 +79,6 @@ interface AppStore {
   setResaStatus: (id: string, status: Resa['s']) => void
 
   // Actions — Navigation
-  setView: (view: string) => void
   setActiveDate: (date: string) => void
 
   // Actions — Config
@@ -113,7 +111,6 @@ export const useAppStore = create<AppStore>()(
       options: DEFAULT_OPTIONS,
       users: [],
       fermetures: [],
-      curView: 'dashboard',
       activeDate: today(),
       isDemo: false,
       userRole: 'proprietaire',
@@ -143,7 +140,6 @@ export const useAppStore = create<AppStore>()(
       })),
 
       // Navigation
-      setView: (view) => set({ curView: view }),
       setActiveDate: (date) => set({ activeDate: date }),
 
       // Config

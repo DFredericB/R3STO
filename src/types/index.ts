@@ -348,7 +348,6 @@ export interface AppState {
   sites: Site[]
   activeSiteId: string | null  // null = site principal (mono-site)
   // Navigation
-  curView: string
   activeDate: string  // ISO YYYY-MM-DD
   // UI state
   isDemo: boolean
