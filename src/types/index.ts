@@ -5,7 +5,7 @@
 // ══════════════════════════════════════════════════
 
 export type ResaStatus = 'reserved' | 'arrived' | 'done' | 'noshow' | 'cancelled' | 'waitlist'
-export type ResaCanal = 'telephone' | 'walkin' | 'widget' | 'google' | 'email'
+export type ResaCanal = 'telephone' | 'walkin' | 'widget' | 'google' | 'email' | 'whatsapp' | 'sms'
 export type ResaMode = 'ia' | 'manuel' | 'web'
 export type UserRole = 'proprietaire' | 'manager' | 'serveur'
 export type Plan = 'bistro' | 'resto' | 'gastro'

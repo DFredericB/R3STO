@@ -359,7 +359,7 @@ export function ServiceView() {
           color: 'var(--t3)',
           cursor: 'pointer',
         }}>
-          🏠 Plan détaillé
+          📐 Plan détaillé
         </button>
       </div>
 

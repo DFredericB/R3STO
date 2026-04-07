@@ -3,12 +3,36 @@
 //  Résa rapide, agenda, KPIs, stats
 // ══════════════════════════════════════════════════
 
+import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useNavigate } from 'react-router-dom'
-import { QuickResa } from '../../components/ui/QuickResa'
+
 import { useT } from '../../i18n/useTranslation'
 import { todayISO, nowMins, timeToMins } from '../../utils/date'
-import { STATUS, CANAUX, sectionTitle } from '../../utils/design'
+import { CANAUX, sectionTitle, filterChip } from '../../utils/design'
+
+// ── Types ────────────────────────────────────────
+type PeriodKey = 'day' | '7d' | '30d' | '90d' | 'year' | 'month'
+
+const PERIODS: { key: PeriodKey; label: string }[] = [
+  { key: 'day', label: 'Jour' },
+  { key: '7d', label: '7 jours' },
+  { key: '30d', label: '30 jours' },
+  { key: '90d', label: '90 jours' },
+  { key: 'year', label: 'Année' },
+  { key: 'month', label: 'Mois' },
+]
+
+const MONTH_NAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
+
+// ── Helpers ──────────────────────────────────────
+function toISO(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+
+function daysInMonth(year: number, month: number) {
+  return new Date(year, month + 1, 0).getDate()
+}
 
 // ── StatCard ─────────────────────────────────────
 function StatCard({ label, value, sub, color = 'var(--bl)' }: {
@@ -23,19 +47,21 @@ function StatCard({ label, value, sub, color = 'var(--bl)' }: {
   )
 }
 
-// ── Badge pill compacte ─────────────────────────
-function BadgePill({ icon, label, color, bg, border }: {
-  icon: string; label: string; color: string; bg: string; border: string
+// ── Badge pill compacte (cliquable) ──────────────
+function BadgePill({ icon, label, color, bg, border, onClick }: {
+  icon: string; label: string; color: string; bg: string; border: string; onClick?: () => void
 }) {
   return (
-    <div style={{
+    <button onClick={onClick} style={{
       display: 'flex', alignItems: 'center', gap: 4,
       padding: '5px 10px', borderRadius: 7,
       background: bg, border: `1px solid ${border}`,
+      cursor: onClick ? 'pointer' : 'default',
+      fontFamily: 'var(--ff)',
     }}>
       <span style={{ fontSize: 12 }}>{icon}</span>
       <span style={{ fontSize: 11, fontWeight: 700, color }}>{label}</span>
-    </div>
+    </button>
   )
 }
 
@@ -62,11 +88,15 @@ export function Dashboard() {
   const todayDate = todayISO()
   const isToday = activeDate === todayDate
 
+  // ── Période d'analyse ──────────────────────────
+  const [period, setPeriod] = useState<PeriodKey>('day')
+  const now = new Date()
+  const [selMonth, setSelMonth] = useState(now.getMonth())
+  const [selYear, setSelYear] = useState(now.getFullYear())
+  const [selDay, setSelDay] = useState(activeDate)
+
   // ── Données du jour ────────────────────────────
   const dayResas = resas.filter(r => r.date === activeDate && r.s !== 'cancelled')
-  const arrived = dayResas.filter(r => r.s === 'arrived')
-  const done = dayResas.filter(r => r.s === 'done')
-  const noshows = dayResas.filter(r => r.s === 'noshow')
   const totalCvt = dayResas.reduce((s, r) => s + r.c, 0)
 
   const activeServices = services.filter(s => s.active)
@@ -78,37 +108,191 @@ export function Dashboard() {
 
   // ── Analytique ────────────────────────────
   const activeTables = tables.filter(tb => tb.active)
-  const maxCapacity = activeTables.reduce((s, tb) => s + tb.capMax, 0)
-  const occupancyPct = maxCapacity > 0 ? Math.round(totalCvt / maxCapacity * 100) : 0
   const avgTicket = resto.avg_ticket || 45
-  const estRevenue = totalCvt * avgTicket
 
-  // Canaux
+  // ── Données période pour analyse ──────────
+  const periodDays = (() => {
+    if (period === 'day') {
+      const iso = selDay
+      const dayR = resas.filter(r => r.date === iso && r.s !== 'cancelled')
+      const dayNS = resas.filter(r => r.date === iso && r.s === 'noshow')
+      const dayAll = resas.filter(r => r.date === iso)
+      return [{ iso, count: dayR.length, cvt: dayR.reduce((s, r) => s + r.c, 0), noshow: dayNS.length, total: dayAll.length }]
+    }
+    if (period === 'month') {
+      const numDays = daysInMonth(selYear, selMonth)
+      return Array.from({ length: numDays }, (_, i) => {
+        const d = new Date(selYear, selMonth, i + 1)
+        const iso = toISO(d)
+        const dayR = resas.filter(r => r.date === iso && r.s !== 'cancelled')
+        const dayNS = resas.filter(r => r.date === iso && r.s === 'noshow')
+        const dayAll = resas.filter(r => r.date === iso)
+        return { iso, count: dayR.length, cvt: dayR.reduce((s, r) => s + r.c, 0), noshow: dayNS.length, total: dayAll.length }
+      })
+    }
+    if (period === 'year') {
+      // Année complète sélectionnée
+      const days: typeof periodDays = []
+      for (let m = 0; m < 12; m++) {
+        const numDays = daysInMonth(selYear, m)
+        for (let d = 1; d <= numDays; d++) {
+          const dt = new Date(selYear, m, d)
+          const iso = toISO(dt)
+          const dayR = resas.filter(r => r.date === iso && r.s !== 'cancelled')
+          const dayNS = resas.filter(r => r.date === iso && r.s === 'noshow')
+          const dayAll = resas.filter(r => r.date === iso)
+          days.push({ iso, count: dayR.length, cvt: dayR.reduce((s, r) => s + r.c, 0), noshow: dayNS.length, total: dayAll.length })
+        }
+      }
+      return days
+    }
+    const numDays = period === '7d' ? 7 : period === '30d' ? 30 : 90
+    return Array.from({ length: numDays }, (_, i) => {
+      const d = new Date(); d.setDate(d.getDate() - (numDays - 1 - i))
+      const iso = toISO(d)
+      const dayR = resas.filter(r => r.date === iso && r.s !== 'cancelled')
+      const dayNS = resas.filter(r => r.date === iso && r.s === 'noshow')
+      const dayAll = resas.filter(r => r.date === iso)
+      return { iso, count: dayR.length, cvt: dayR.reduce((s, r) => s + r.c, 0), noshow: dayNS.length, total: dayAll.length }
+    })
+  })()
+
+  const pResas = periodDays.reduce((s, d) => s + d.count, 0)
+  const pCvt = periodDays.reduce((s, d) => s + d.cvt, 0)
+  const pNS = periodDays.reduce((s, d) => s + d.noshow, 0)
+  const pTotal = periodDays.reduce((s, d) => s + d.total, 0)
+  const pCancelled = resas.filter(r => periodDays.some(d => d.iso === r.date) && r.s === 'cancelled').length
+  const noshowRate = pTotal > 0 ? Math.round(pNS / pTotal * 100) : 0
+  const avgCvtPerResa = pResas > 0 ? (pCvt / pResas).toFixed(1) : '0'
+  const numDaysInPeriod = periodDays.length
+  const avgResaPerDay = numDaysInPeriod > 0 ? (pResas / numDaysInPeriod).toFixed(1) : '0'
+
+  // Label période
+  const periodLabel = period === 'day' ? (() => {
+      const dd = new Date(selDay + 'T12:00:00')
+      const dn = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']
+      return `${dn[dd.getDay()]} ${dd.getDate()} ${MONTH_NAMES[dd.getMonth()]} ${dd.getFullYear()}`
+    })()
+    : period === '7d' ? '7 jours'
+    : period === '30d' ? '30 jours'
+    : period === '90d' ? '90 jours'
+    : period === 'year' ? `Année ${selYear}`
+    : `${MONTH_NAMES[selMonth]} ${selYear}`
+
+  // Abréviation pour les StatCards
+  const pTag = period === 'day' ? (() => {
+      const dd = new Date(selDay + 'T12:00:00')
+      return `${dd.getDate()}/${dd.getMonth() + 1}`
+    })()
+    : period === '7d' ? '7j'
+    : period === '30d' ? '30j'
+    : period === '90d' ? '90j'
+    : period === 'year' ? String(selYear)
+    : MONTH_NAMES[selMonth].slice(0, 3)
+
+  // Performance par service (période)
+  const svcPerf = activeServices.map(svc => {
+    const svcR = resas.filter(r => r.svc === svc.id && periodDays.some(d => d.iso === r.date) && r.s !== 'cancelled')
+    const svcCvt = svcR.reduce((s, r) => s + r.c, 0)
+    return { name: svc.name, icon: svc.icon || '', color: svc.color || 'var(--bl)', count: svcR.length, cvt: svcCvt }
+  })
+
+  // Canaux (jour)
   const canalCounts = {
     telephone: dayResas.filter(r => r.canal === 'telephone').length,
     walkin: dayResas.filter(r => r.canal === 'walkin').length,
     widget: dayResas.filter(r => r.canal === 'widget').length,
     email: dayResas.filter(r => r.canal === 'email').length,
+    whatsapp: dayResas.filter(r => r.canal === 'whatsapp').length,
+    sms: dayResas.filter(r => r.canal === 'sms').length,
   }
 
-  // Tables
+  // Tables (jour)
   const occupiedTbls = new Set(dayResas.filter(r => r.s === 'arrived' || r.s === 'reserved').map(r => r.tbl))
   const blockedTables = tables.filter(tb => tb.blocked).length
   const heldTables = activeTables.filter(tb => tb.held && !occupiedTbls.has(tb.n)).length
   const freeTables = activeTables.filter(tb => !occupiedTbls.has(tb.n) && !tb.held).length
   const occTables = activeTables.length - freeTables - heldTables
 
-  // Badges enrichis
-  const groups = dayResas.filter(r => r.c >= 6)
-  const waitlist = resas.filter(r => r.date === activeDate && r.s === 'waitlist')
+  // Badges journée complète (pas filtré par service — service déjà dans header)
   const vips = dayResas.filter(r => r.statut === 2)
   const allergies = dayResas.filter(r => r.allergie)
   const babies = dayResas.reduce((s, r) => s + r.bebe, 0)
   const pmrs = dayResas.reduce((s, r) => s + r.pmr, 0)
 
+  // ── Tendance agrégée (semaines si >30j) ────────
+  // Pour les charts tendance/noshow, toujours montrer au moins 7 jours de contexte
+  const trendSource = (() => {
+    if (period === 'day') {
+      // Montrer 7 jours autour du jour sélectionné pour donner du contexte
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(selDay + 'T12:00:00')
+        d.setDate(d.getDate() - 6 + i)
+        const iso = toISO(d)
+        const dayR = resas.filter(r => r.date === iso && r.s !== 'cancelled')
+        const dayNS = resas.filter(r => r.date === iso && r.s === 'noshow')
+        const dayAll = resas.filter(r => r.date === iso)
+        return { iso, count: dayR.length, cvt: dayR.reduce((s, r) => s + r.c, 0), noshow: dayNS.length, total: dayAll.length }
+      })
+    }
+    return periodDays
+  })()
+
+  const trendData = (() => {
+    const source = trendSource
+    if (source.length <= 14) {
+      // Jour par jour
+      const DAY_ABBR = ['D', 'L', 'M', 'M', 'J', 'V', 'S']
+      return source.map(d => ({
+        label: DAY_ABBR[new Date(d.iso + 'T12:00:00').getDay()],
+        count: d.count,
+        cvt: d.cvt,
+        iso: d.iso,
+        noshow: d.noshow,
+        total: d.total,
+      }))
+    }
+    if (numDaysInPeriod <= 90) {
+      // Par semaine
+      const weeks: { label: string; count: number; cvt: number; noshow: number; total: number; iso: string }[] = []
+      for (let i = 0; i < periodDays.length; i += 7) {
+        const chunk = periodDays.slice(i, i + 7)
+        const d0 = new Date(chunk[0].iso + 'T12:00:00')
+        weeks.push({
+          label: `${d0.getDate()}/${d0.getMonth()+1}`,
+          count: chunk.reduce((s, d) => s + d.count, 0),
+          cvt: chunk.reduce((s, d) => s + d.cvt, 0),
+          noshow: chunk.reduce((s, d) => s + d.noshow, 0),
+          total: chunk.reduce((s, d) => s + d.total, 0),
+          iso: chunk[0].iso,
+        })
+      }
+      return weeks
+    }
+    // Par mois
+    const months: { label: string; count: number; cvt: number; noshow: number; total: number; iso: string }[] = []
+    const grouped: Record<string, typeof periodDays> = {}
+    periodDays.forEach(d => {
+      const key = d.iso.slice(0, 7) // YYYY-MM
+      if (!grouped[key]) grouped[key] = []
+      grouped[key].push(d)
+    })
+    Object.entries(grouped).forEach(([key, days]) => {
+      const [, m] = key.split('-')
+      months.push({
+        label: MONTH_NAMES[parseInt(m) - 1].slice(0, 3),
+        count: days.reduce((s, d) => s + d.count, 0),
+        cvt: days.reduce((s, d) => s + d.cvt, 0),
+        noshow: days.reduce((s, d) => s + d.noshow, 0),
+        total: days.reduce((s, d) => s + d.total, 0),
+        iso: days[0].iso,
+      })
+    })
+    return months
+  })()
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - var(--hh))', overflow: 'hidden' }}>
-
       {/* ── Header Dashboard — minimal ── */}
       <div style={{
         padding: '10px 18px',
@@ -120,15 +304,6 @@ export function Dashboard() {
         <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>
           {t('dash.title')}
         </div>
-        {currentService && (
-          <span style={{
-            fontSize: 11, fontWeight: 700, color: currentService.color,
-            padding: '2px 8px', borderRadius: 5,
-            background: `${currentService.color}15`,
-          }}>
-            ● {currentService.icon} {currentService.name} {t('dash.inProgress')}
-          </span>
-        )}
         {!isToday && (
           <span style={{
             fontSize: 11, fontWeight: 700, color: 'var(--am)',
@@ -139,172 +314,173 @@ export function Dashboard() {
         )}
       </div>
 
-      {/* ── Résa rapide — toujours visible ── */}
-      <div style={{ padding: '12px 18px', borderBottom: '1px solid var(--border)', background: 'var(--surf)', flexShrink: 0 }}>
-        <QuickResa onOpenFullModal={() => navigate('/reservations?new=1')} />
+      {/* ── Accès rapide +Résa ── */}
+      <div style={{
+        borderBottom: '1px solid var(--border)', background: 'var(--surf)', flexShrink: 0,
+        padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <button
+          onClick={() => navigate('/nouvelle-resa')}
+          style={{
+            padding: '8px 18px', borderRadius: 10, border: 'none',
+            background: 'linear-gradient(135deg,#6b3fa0,#a855f7)',
+            color: '#fff', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+            fontFamily: 'var(--ff)',
+          }}
+        >+ Nouvelle réservation</button>
+        <div style={{ flex: 1 }} />
+        {/* Accès rapide aux vues principales */}
+        {([
+          { path: '/agenda', icon: '📅', label: 'Agenda' },
+          { path: '/reservations', icon: '📖', label: 'Journal' },
+          { path: '/grille', icon: '🪑', label: 'Grille' },
+          { path: '/plan', icon: '📐', label: 'Plan de salle' },
+        ] as const).map(v => (
+          <button key={v.path} onClick={() => navigate(v.path)} style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            padding: '6px 14px', borderRadius: 8, cursor: 'pointer',
+            border: '1px solid var(--border)', background: 'var(--surf3)',
+            fontSize: 12, fontWeight: 700, color: 'var(--t2)', fontFamily: 'var(--ff)',
+            transition: 'all .12s',
+          }}>
+            <span style={{ fontSize: 13 }}>{v.icon}</span>
+            {v.label}
+          </button>
+        ))}
       </div>
 
       {/* ── Corps scrollable ── */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
 
-        {/* KPIs */}
-        <div style={{ padding: '16px 18px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-          <StatCard label={t('dash.reservations')} value={dayResas.length} sub={`${totalCvt} ${t('dash.covers')}`} color="var(--bl)" />
-          <StatCard label={t('dash.arrived')} value={`${arrived.length + done.length}`} sub={`${Math.round((arrived.length + done.length) / Math.max(dayResas.length, 1) * 100)}% ${t('dash.ofDay')}`} color="var(--gn)" />
-          <StatCard label={t('dash.occupancy')} value={`${occupancyPct}%`} sub={`${totalCvt}/${maxCapacity} ${t('dash.capacity')}`} color={occupancyPct > 85 ? 'var(--rd)' : occupancyPct > 60 ? 'var(--am)' : 'var(--bl)'} />
-          <StatCard label={t('dash.revenue')} value={`${estRevenue.toLocaleString()}`} sub={`${avgTicket} CHF ${t('dash.avgTicket')}`} color="var(--gn)" />
-        </div>
-
-        {/* Badges opérationnels */}
-        <div style={{ padding: '0 18px 14px', display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* ── Service + Statut (ligne unique) ── */}
+        <div style={{
+          padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+          borderBottom: '1px solid var(--border)', background: 'var(--surf)',
+        }}>
+          {currentService ? (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '4px 10px', borderRadius: 8,
+              background: `${currentService.color}12`, border: `1.5px solid ${currentService.color}30`,
+            }}>
+              <span style={{ fontSize: 14 }}>{currentService.icon}</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: currentService.color }}>{currentService.name}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>
+                {currentService.open.replace(':', 'h')}–{currentService.close.replace(':', 'h')}
+              </span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>
+                LO {currentService.lastOrder.replace(':', 'h')}
+              </span>
+            </div>
+          ) : (
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>Aucun service actif</span>
+          )}
+          {/* Tables compact : occupées/total */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 5,
-            padding: '5px 10px', borderRadius: 7,
+            padding: '4px 10px', borderRadius: 7,
             background: 'var(--surf2)', border: '1px solid var(--border)',
           }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>{t('dash.tables')}</span>
-            <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--gn)', fontFamily: 'var(--fm)' }}>{freeTables}</span>
-            <span style={{ fontSize: 10, color: 'var(--t4)' }}>{t('dash.available')}</span>
+            <span style={{ fontSize: 11 }}>🪑</span>
+            <span style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: 'var(--text)' }}>
+              {occTables}/{activeTables.length}
+            </span>
+            <span style={{ fontSize: 10, color: 'var(--t4)' }}>tables</span>
             <span style={{ color: 'var(--border)' }}>·</span>
-            <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--am)', fontFamily: 'var(--fm)' }}>{occTables}</span>
-            <span style={{ fontSize: 10, color: 'var(--t4)' }}>{t('dash.occupied')}</span>
+            <span style={{ fontSize: 11 }}>👥</span>
+            <span style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: 'var(--text)' }}>
+              {activeTables.reduce((s, tb) => s + tb.capMax, 0)}
+            </span>
+            <span style={{ fontSize: 10, color: 'var(--t4)' }}>places</span>
             {heldTables > 0 && (<>
               <span style={{ color: 'var(--border)' }}>·</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: '#e8a530', fontFamily: 'var(--fm)' }}>{heldTables}</span>
-              <span style={{ fontSize: 10, color: 'var(--t4)' }}>🔒 réserve</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#e8a530', fontFamily: 'var(--fm)' }}>🔒 {heldTables}</span>
             </>)}
             {blockedTables > 0 && (<>
               <span style={{ color: 'var(--border)' }}>·</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--fm)' }}>{blockedTables}</span>
-              <span style={{ fontSize: 10, color: 'var(--t4)' }}>🚫 bloquées</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--fm)' }}>🚫 {blockedTables}</span>
             </>)}
           </div>
-          <BadgePill icon="🚫" label={`${noshows.length} ${t('dash.noshows')}`} color="var(--rd)" bg="rgba(220,80,80,.08)" border="rgba(220,80,80,.2)" />
-          <BadgePill icon="👥" label={`${groups.length} ${t('dash.groups')}`} color="var(--bl)" bg="var(--bp)" border="var(--bl)" />
-          <BadgePill icon="⏳" label={`${waitlist.length} ${t('dash.waitlist')}`} color="var(--am)" bg="var(--ap)" border="var(--ab)" />
-          <BadgePill icon="⭐" label={`${vips.length} ${t('dash.vips')}`} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" />
-          <BadgePill icon="⚠️" label={`${allergies.length} ${t('dash.allergies')}`} color="var(--am)" bg="var(--ap)" border="var(--ab)" />
-          <BadgePill icon="👶" label={`${babies} ${t('dash.babies')}`} color="var(--t2)" bg="var(--surf3)" border="var(--border)" />
-          <BadgePill icon="♿" label={`${pmrs} ${t('dash.pmr')}`} color="var(--t2)" bg="var(--surf3)" border="var(--border)" />
-          <div style={{ flex: 1 }} />
-          <div style={{ display: 'flex', gap: 4 }}>
-            <CanalBadge label={t('canal.telephone')} count={canalCounts.telephone} icon="📞" />
-            <CanalBadge label={t('canal.walkin')} count={canalCounts.walkin} icon="🚶" />
-            <CanalBadge label={t('canal.widget')} count={canalCounts.widget} icon="🌐" />
-            <CanalBadge label={t('canal.email')} count={canalCounts.email} icon="✉️" />
-          </div>
+          {vips.length > 0 && <BadgePill icon="⭐" label={`${vips.length} ${t('dash.vips')}`} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" onClick={() => navigate('/reservations')} />}
+          {allergies.length > 0 && <BadgePill icon="⚠️" label={`${allergies.length} ${t('dash.allergies')}`} color="var(--am)" bg="var(--ap)" border="var(--ab)" onClick={() => navigate('/reservations')} />}
+          {babies > 0 && <BadgePill icon="👶" label={`${babies} ${t('dash.babies')}`} color="var(--t2)" bg="var(--surf3)" border="var(--border)" onClick={() => navigate('/reservations')} />}
+          {pmrs > 0 && <BadgePill icon="♿" label={`${pmrs} ${t('dash.pmr')}`} color="var(--t2)" bg="var(--surf3)" border="var(--border)" onClick={() => navigate('/reservations')} />}
         </div>
 
-        {/* ── AGENDA — créneaux du jour ── */}
-        <div style={{ padding: '0 18px 14px' }}>
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ ...sectionTitle, padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              📅 Agenda du jour
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--t4)' }}>{dayResas.length} résas</span>
+        {/* ── ANALYSE — sélecteur de période bien visible ── */}
+        <div style={{
+          padding: '8px 18px 12px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+          borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)',
+          background: 'var(--surf)',
+        }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>📈 Analyse</span>
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            {PERIODS.map(p => (
+              <button key={p.key} onClick={() => setPeriod(p.key)}
+                style={{ ...filterChip(period === p.key), fontSize: 11, padding: '5px 12px' }}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+          {/* Sélecteur jour */}
+          {period === 'day' && (
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginLeft: 4 }}>
+              <button onClick={() => {
+                const d = new Date(selDay + 'T12:00:00'); d.setDate(d.getDate() - 1); setSelDay(toISO(d))
+              }} style={{ border: '1px solid var(--border)', background: 'var(--surf3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, fontWeight: 700, color: 'var(--t2)' }}>◀</button>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', minWidth: 140, textAlign: 'center' }}>
+                {periodLabel}
+              </span>
+              <button onClick={() => {
+                const d = new Date(selDay + 'T12:00:00'); d.setDate(d.getDate() + 1); setSelDay(toISO(d))
+              }} style={{ border: '1px solid var(--border)', background: 'var(--surf3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, fontWeight: 700, color: 'var(--t2)' }}>▶</button>
             </div>
-            {(() => {
-              const nowM2 = nowMins()
-              const svcSlots = activeServices.map(s => ({
-                label: s.name, icon: s.icon || '',
-                open: timeToMins(s.open), close: timeToMins(s.close),
-                color: s.color || 'var(--bl)',
-              }))
-              const allSlots: number[] = []
-              svcSlots.forEach(svc => {
-                for (let m = svc.open; m < svc.close; m += 30) {
-                  if (!allSlots.includes(m)) allSlots.push(m)
-                }
-              })
-              allSlots.sort((a, b) => a - b)
+          )}
+          {/* Sélecteur mois/année */}
+          {period === 'month' && (
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginLeft: 4 }}>
+              <button onClick={() => {
+                if (selMonth === 0) { setSelMonth(11); setSelYear(y => y - 1) } else setSelMonth(m => m - 1)
+              }} style={{ border: '1px solid var(--border)', background: 'var(--surf3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, fontWeight: 700, color: 'var(--t2)' }}>◀</button>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', minWidth: 110, textAlign: 'center' }}>
+                {MONTH_NAMES[selMonth]} {selYear}
+              </span>
+              <button onClick={() => {
+                if (selMonth === 11) { setSelMonth(0); setSelYear(y => y + 1) } else setSelMonth(m => m + 1)
+              }} style={{ border: '1px solid var(--border)', background: 'var(--surf3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, fontWeight: 700, color: 'var(--t2)' }}>▶</button>
+            </div>
+          )}
+          {/* Sélecteur année */}
+          {period === 'year' && (
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginLeft: 4 }}>
+              <button onClick={() => setSelYear(y => y - 1)}
+                style={{ border: '1px solid var(--border)', background: 'var(--surf3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, fontWeight: 700, color: 'var(--t2)' }}>◀</button>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', minWidth: 50, textAlign: 'center' }}>
+                {selYear}
+              </span>
+              <button onClick={() => setSelYear(y => y + 1)}
+                style={{ border: '1px solid var(--border)', background: 'var(--surf3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, fontWeight: 700, color: 'var(--t2)' }}>▶</button>
+            </div>
+          )}
+          <div style={{ flex: 1 }} />
+          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--t3)' }}>{periodLabel}</span>
+        </div>
 
-              const resaBySlot: Record<number, typeof dayResas> = {}
-              dayResas.forEach(r => {
-                const parts = r.t.split(/[h:]/)
-                const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-                const slotKey = Math.floor(m / 30) * 30
-                if (!resaBySlot[slotKey]) resaBySlot[slotKey] = []
-                resaBySlot[slotKey].push(r)
-              })
-
-              return allSlots.length === 0 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--t4)', fontSize: 12 }}>Aucun service configuré</div>
-              ) : (
-                <div>
-                  {allSlots.map(slotMin => {
-                    const hr = Math.floor(slotMin / 60)
-                    const mn = slotMin % 60
-                    const label = `${hr}h${String(mn).padStart(2, '0')}`
-                    const isNow = nowM2 >= slotMin && nowM2 < slotMin + 30
-                    const slotResas = resaBySlot[slotMin] || []
-                    const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
-                    const svc = svcSlots.find(s => slotMin >= s.open && slotMin < s.close)
-                    const isFirstSlot = svc && slotMin === svc.open
-
-                    return (
-                      <div key={slotMin}>
-                        {isFirstSlot && svc && (
-                          <div style={{
-                            padding: '5px 12px', background: svc.color + '12',
-                            borderBottom: '1px solid var(--border)',
-                            fontSize: 11, fontWeight: 800, color: svc.color,
-                            textTransform: 'uppercase', letterSpacing: .5,
-                          }}>
-                            {svc.icon} {svc.label}
-                          </div>
-                        )}
-                        <div style={{
-                          display: 'flex', borderBottom: '1px solid var(--border)',
-                          background: isNow ? 'rgba(220,80,80,.05)' : 'transparent',
-                          minHeight: slotResas.length > 0 ? 44 : 32,
-                        }}>
-                          <div style={{
-                            width: 56, flexShrink: 0, padding: '6px 6px', textAlign: 'right',
-                            fontSize: 13, fontWeight: 800, fontFamily: 'var(--fm)',
-                            color: isNow ? 'var(--rd)' : 'var(--t3)',
-                            borderRight: isNow ? '3px solid var(--rd)' : '2px solid var(--border)',
-                          }}>
-                            {label}
-                            {slotCvt > 0 && <div style={{ fontSize: 10, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
-                          </div>
-                          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6, padding: '5px 10px', alignItems: 'center' }}>
-                            {slotResas.length === 0 && <span style={{ fontSize: 11, color: 'var(--t4)' }}>—</span>}
-                            {slotResas.map(r => {
-                              const st = STATUS[r.s as keyof typeof STATUS]
-                              return (
-                                <button key={r.id} type="button"
-                                  onClick={() => navigate(`/reservations?edit=${r.id}`)}
-                                  style={{
-                                    padding: '6px 10px', borderRadius: 7, cursor: 'pointer',
-                                    background: st?.bg || 'var(--surf2)',
-                                    border: `1.5px solid ${st?.border || 'var(--border)'}`,
-                                    display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13,
-                                    minHeight: 40, touchAction: 'manipulation',
-                                    fontFamily: 'inherit', textAlign: 'left',
-                                  }}>
-                                  <span style={{ fontSize: 10 }}>{st?.icon}</span>
-                                  <span style={{ fontWeight: 700, color: st?.hex || 'var(--text)' }}>
-                                    {r.nom || r.n?.split(' ')[0] || '?'}
-                                  </span>
-                                  <span style={{ fontFamily: 'var(--fm)', color: 'var(--t2)', fontWeight: 700 }}>{r.c}p</span>
-                                  {r.tbl && <span style={{ fontSize: 10, fontFamily: 'var(--fm)', color: 'var(--t3)', padding: '0 4px', background: 'rgba(68,128,216,.08)', borderRadius: 3 }}>{r.tbl}</span>}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })()}
+        {/* ── KPIs période ── */}
+        <div style={{ padding: '12px 18px 14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+            <StatCard label={`Résas (${pTag})`} value={pResas} sub={`${avgResaPerDay}/jour en moy.`} color="var(--bl)" />
+            <StatCard label={`Couverts (${pTag})`} value={pCvt} sub={`${avgCvtPerResa} cvt/résa`} color="var(--gn)" />
+            <StatCard label={`Remplissage (${pTag})`} value={period === 'day' ? `${occTables}/${activeTables.length}` : `${pResas > 0 ? Math.min(100, Math.round(pResas / (activeTables.length * numDaysInPeriod) * 100)) : 0}%`} sub={period === 'day' ? `${activeTables.length} tables actives` : `${numDaysInPeriod > 0 ? (pResas / numDaysInPeriod).toFixed(0) : 0} résas/jour · ${activeTables.length} tables`} color={period === 'day' ? (occTables >= activeTables.length ? 'var(--rd)' : occTables >= activeTables.length * 0.7 ? 'var(--am)' : 'var(--gn)') : 'var(--bl)'} />
+            <StatCard label={`No-shows (${pTag})`} value={pNS} sub={`Taux : ${noshowRate}%`} color={noshowRate > 10 ? 'var(--rd)' : noshowRate > 5 ? 'var(--am)' : 'var(--gn)'} />
+            <StatCard label={`Annulations (${pTag})`} value={pCancelled} sub={`sur ${pTotal} résas`} color="var(--t3)" />
           </div>
         </div>
 
-        {/* ── STATS — 2x2 grille ── */}
-        <div style={{ padding: '0 18px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {/* ── STATS — 3x2 grille ── */}
+        <div style={{ padding: '0 18px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
 
-          {/* Distribution horaire */}
+          {/* Distribution horaire (jour) */}
           <div className="card">
             <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.hourlyDistribution')}</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 80 }}>
@@ -332,7 +508,7 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Répartition par salle */}
+          {/* Répartition par salle (jour) */}
           <div className="card">
             <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.roomBreakdown')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -361,27 +537,44 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Tendance 7 jours */}
+          {/* Performance par service (période) */}
           <div className="card">
-            <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.weekTrend')}</div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 70 }}>
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>🍽️ Services ({pTag})</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {svcPerf.length === 0 ? (
+                <span style={{ fontSize: 11, color: 'var(--t4)' }}>Aucun service actif</span>
+              ) : svcPerf.map(svc => {
+                const maxSvcCount = Math.max(...svcPerf.map(s => s.count), 1)
+                const pct = Math.round(svc.count / maxSvcCount * 100)
+                return (
+                  <div key={svc.name}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>{svc.icon} {svc.name}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>{svc.count} résas · {svc.cvt}p</span>
+                    </div>
+                    <div style={{ height: 5, borderRadius: 3, background: 'var(--surf3)', overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', borderRadius: 3, background: svc.color, transition: 'width .3s ease' }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Tendance (période — agrégé auto) */}
+          <div className="card">
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>
+              📊 Tendance {period === 'day' ? '(7 derniers jours)' : numDaysInPeriod <= 14 ? '(jours)' : numDaysInPeriod <= 90 ? '(semaines)' : '(mois)'}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: trendData.length <= 14 ? 4 : 2, height: 70 }}>
               {(() => {
-                const days: { label: string; date: string; count: number; cvt: number }[] = []
-                const DAY_ABBR = ['D', 'L', 'M', 'M', 'J', 'V', 'S']
-                for (let i = 6; i >= 0; i--) {
-                  const d = new Date()
-                  d.setDate(d.getDate() - i)
-                  const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-                  const dayRs = resas.filter(r => r.date === iso && r.s !== 'cancelled')
-                  days.push({ label: DAY_ABBR[d.getDay()], date: iso, count: dayRs.length, cvt: dayRs.reduce((s, r) => s + r.c, 0) })
-                }
-                const maxC = Math.max(...days.map(d => d.count), 1)
-                return days.map((d, i) => {
-                  const isActive = d.date === activeDate
+                const maxC = Math.max(...trendData.map(d => d.count), 1)
+                return trendData.map((d, i) => {
+                  const isActive = period === 'day' ? d.iso === selDay : d.iso === activeDate
                   return (
-                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                      <span style={{ fontSize: 9, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>{d.count}</span>
-                      <div title={`${d.date}: ${d.count} résas, ${d.cvt} couverts`} style={{
+                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                      <span style={{ fontSize: 8, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--t3)' }}>{d.count}</span>
+                      <div title={`${d.label}: ${d.count} résas, ${d.cvt} couverts`} style={{
                         width: '100%', minHeight: 4,
                         height: `${Math.round(d.count / maxC * 48)}px`,
                         borderRadius: 3,
@@ -390,8 +583,9 @@ export function Dashboard() {
                         transition: 'height .3s ease',
                       }} />
                       <span style={{
-                        fontSize: 9, fontWeight: isActive ? 800 : 500,
+                        fontSize: trendData.length <= 14 ? 9 : 7, fontWeight: isActive ? 800 : 500,
                         color: isActive ? 'var(--bl)' : 'var(--t4)', fontFamily: 'var(--fm)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%',
                       }}>{d.label}</span>
                     </div>
                   )
@@ -400,7 +594,7 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Canaux — version visuelle */}
+          {/* Canaux — version visuelle (jour) */}
           <div className="card">
             <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.channels')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -409,6 +603,8 @@ export function Dashboard() {
                 { key: 'walkin' as const, icon: CANAUX.walkin.icon, label: t(CANAUX.walkin.label), color: CANAUX.walkin.hex },
                 { key: 'widget' as const, icon: CANAUX.widget.icon, label: t(CANAUX.widget.label), color: CANAUX.widget.hex },
                 { key: 'email' as const, icon: CANAUX.email.icon, label: t(CANAUX.email.label), color: CANAUX.email.hex },
+                { key: 'whatsapp' as const, icon: CANAUX.whatsapp.icon, label: t(CANAUX.whatsapp.label), color: CANAUX.whatsapp.hex },
+                { key: 'sms' as const, icon: CANAUX.sms.icon, label: t(CANAUX.sms.label), color: CANAUX.sms.hex },
               ]).map(canal => {
                 const cnt = canalCounts[canal.key]
                 const pct = dayResas.length > 0 ? Math.round(cnt / dayResas.length * 100) : 0
@@ -429,6 +625,32 @@ export function Dashboard() {
                   </div>
                 )
               })}
+            </div>
+          </div>
+
+          {/* Taux no-show — évolution période */}
+          <div className="card">
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>🚫 No-shows ({pTag})</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: trendData.length <= 14 ? 4 : 2, height: 60 }}>
+              {(() => {
+                const maxNS = Math.max(...trendData.map(d => d.noshow), 1)
+                return trendData.map((d, i) => (
+                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                    <span style={{ fontSize: 8, fontWeight: 700, fontFamily: 'var(--fm)', color: d.noshow > 0 ? 'var(--rd)' : 'var(--t4)' }}>{d.noshow}</span>
+                    <div title={`${d.label}: ${d.noshow} no-show${d.noshow > 1 ? 's' : ''} / ${d.total} résas`} style={{
+                      width: '100%', minHeight: 3,
+                      height: `${Math.round(d.noshow / maxNS * 40)}px`,
+                      borderRadius: 3,
+                      background: d.noshow > 0 ? (period === 'day' && d.iso === selDay ? 'var(--rd)' : 'rgba(220,80,80,.6)') : 'var(--surf3)',
+                      transition: 'height .3s ease',
+                    }} />
+                    <span style={{ fontSize: trendData.length <= 14 ? 9 : 7, color: 'var(--t4)', fontFamily: 'var(--fm)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{d.label}</span>
+                  </div>
+                ))
+              })()}
+            </div>
+            <div style={{ marginTop: 8, fontSize: 11, fontWeight: 700, color: noshowRate > 10 ? 'var(--rd)' : 'var(--t3)', textAlign: 'center' }}>
+              Taux : {noshowRate}% sur {periodLabel}
             </div>
           </div>
         </div>

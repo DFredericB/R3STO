@@ -1,421 +1,932 @@
-import { useState } from 'react'
-import { useToast } from '../../components/ui/Toast'
+import { useState, useEffect } from 'react'
 
-interface PaymentConfig {
-  mode: 'empreinte' | 'acompte'
-  trigger: 'groupe' | 'all' | 'never'
-  minCvt: number
-  montantPP: number
-  pctTotal: number
-  delaiRmb: number
-  stripeConnected: boolean
+interface BillItem {
+  name: string
+  quantity: number
+  price: number
 }
 
-interface Transaction {
-  n: string
-  svc: string
-  c: number
-  date: string
-  montant: number
-  mode: 'Empreinte' | 'Acompte'
-  status: 'en attente' | 'encaissé' | 'remboursé' | 'validée'
+interface SplitConfig {
+  mode: 'none' | 'equal' | 'custom'
+  parts: number
+  customAmounts?: number[]
 }
 
-const TRANSACTIONS: Transaction[] = [
-  { n: 'Dupont Jean', svc: 'Midi', c: 4, date: '2024-12-20', montant: 0, mode: 'Empreinte', status: 'validée' },
-  { n: 'Martin Sophie', svc: 'Soir', c: 2, date: '2024-12-19', montant: 45, mode: 'Acompte', status: 'encaissé' },
-  { n: 'Bernard Paul', svc: 'Midi', c: 6, date: '2024-12-18', montant: 80, mode: 'Acompte', status: 'en attente' },
+type PaymentState = 'viewing' | 'splitting' | 'paying' | 'processing' | 'success'
+type PaymentMethod = 'twint' | 'card' | 'apple' | 'google'
+type TipPercentage = 0 | 5 | 10 | 15
+
+const DEMO_BILL_ITEMS: BillItem[] = [
+  { name: 'Salade César', quantity: 2, price: 16 },
+  { name: 'Entrecôte 250g', quantity: 1, price: 46 },
+  { name: 'Filet de perche', quantity: 1, price: 38 },
+  { name: 'Tiramisu', quantity: 2, price: 14 },
+  { name: 'Eau minérale', quantity: 2, price: 5 },
+  { name: 'Vin rouge (Humagne)', quantity: 1, price: 48 },
 ]
 
 export function Prepaiement() {
-  const { toast } = useToast()
-  const [cfg, setCfg] = useState<PaymentConfig>({
-    mode: 'empreinte',
-    trigger: 'groupe',
-    minCvt: 6,
-    montantPP: 0,
-    pctTotal: 25,
-    delaiRmb: 48,
-    stripeConnected: true,
-  })
-  const [txns] = useState<Transaction[]>(TRANSACTIONS)
+  const [state, setState] = useState<PaymentState>('viewing')
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('twint')
+  const [selectedTip, setSelectedTip] = useState<TipPercentage>(0)
+  const [customTip, setCustomTip] = useState<string>('')
+  const [emailReceipt, setEmailReceipt] = useState(true)
+  const [email, setEmail] = useState('')
+  const [split, setSplit] = useState<SplitConfig>({ mode: 'none', parts: 1 })
+  const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' })
+  const [processingProgress, setProcessingProgress] = useState(0)
 
-  const encaisse = txns.filter(t => t.montant > 0 && (t.status === 'encaissé' || t.status.includes('encaissé'))).reduce((s, t) => s + t.montant, 0)
-  const attente = txns.filter(t => t.status === 'en attente').reduce((s, t) => s + t.montant, 0)
-  const empreintes = txns.filter(t => t.mode === 'Empreinte' && t.status === 'validée').length
+  const subtotal = DEMO_BILL_ITEMS.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  const tipAmount = customTip ? parseFloat(customTip) : (subtotal * selectedTip) / 100
+  const total = subtotal + tipAmount
+  const amountPerPerson = split.mode === 'none' ? total : total / split.parts
+
+  useEffect(() => {
+    if (state === 'processing') {
+      const interval = setInterval(() => {
+        setProcessingProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval)
+            setTimeout(() => setState('success'), 500)
+            return 100
+          }
+          return prev + Math.random() * 40
+        })
+      }, 300)
+      return () => clearInterval(interval)
+    }
+  }, [state])
+
+  const handlePayment = () => {
+    if (selectedPayment === 'card') {
+      if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvc) {
+        alert('Veuillez remplir tous les champs de la carte')
+        return
+      }
+    }
+    setState('processing')
+  }
+
+  const handleNewPayment = () => {
+    setState('viewing')
+    setSelectedTip(0)
+    setCustomTip('')
+    setSplit({ mode: 'none', parts: 1 })
+    setCardDetails({ number: '', expiry: '', cvc: '' })
+    setProcessingProgress(0)
+  }
 
   return (
-    <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 20, overflow: 'auto', height: 'calc(100vh - var(--hh))' }}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: 'calc(100vh - var(--hh))',
+      background: 'var(--bg)',
+      overflow: 'hidden',
+    }}>
       {/* Header */}
-      <div>
-        <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--text)', margin: 0 }}>Prépaiement</h2>
-        <p style={{ fontSize: 13, color: 'var(--t2)', margin: '8px 0 0 0' }}>
-          Anti no-show · Acomptes en ligne · Stripe
-        </p>
-      </div>
-
-      {/* KPI Cards - 4 columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-        <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14, textAlign: 'center' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--t3)', marginBottom: 8 }}>Encaissé ce mois</div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--gn)', fontFamily: 'var(--fm)' }}>CHF {encaisse}</div>
-          <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4 }}>+12% vs mars</div>
+      {state !== 'success' && (
+        <div style={{
+          padding: '20px 24px',
+          borderBottom: '1px solid var(--border)',
+          background: 'var(--surf)',
+        }}>
+          <h1 style={{
+            fontSize: 28,
+            fontWeight: 900,
+            color: 'var(--text)',
+            margin: 0,
+            marginBottom: 4,
+          }}>
+            Table T3
+          </h1>
+          <p style={{
+            fontSize: 13,
+            color: 'var(--t2)',
+            margin: 0,
+          }}>
+            {state === 'viewing' && 'Consultez votre facture'}
+            {state === 'splitting' && 'Partager la facture'}
+            {state === 'paying' && 'Méthode de paiement'}
+          </p>
         </div>
-        <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14, textAlign: 'center' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--t3)', marginBottom: 8 }}>En attente</div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--am)', fontFamily: 'var(--fm)' }}>CHF {attente}</div>
-          <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4 }}>{txns.filter(t => t.status === 'en attente').length} transaction</div>
-        </div>
-        <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14, textAlign: 'center' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--t3)', marginBottom: 8 }}>Empreintes actives</div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--bl)', fontFamily: 'var(--fm)' }}>{empreintes}</div>
-          <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4 }}>résas garanties</div>
-        </div>
-        <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14, textAlign: 'center' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--t3)', marginBottom: 8 }}>No-shows évités</div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--pu)', fontFamily: 'var(--fm)' }}>3</div>
-          <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4 }}>-60% vs avant</div>
-        </div>
-      </div>
+      )}
 
-      {/* Config Cards - 2 columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-        {/* Mode & Trigger */}
-        <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>Mode de garantie</div>
-
-          {/* Mode selector */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
-            <button
-              onClick={() => setCfg({ ...cfg, mode: 'empreinte' })}
-              style={{
-                padding: 12,
-                borderRadius: 10,
-                border: `2px solid ${cfg.mode === 'empreinte' ? 'var(--bl)' : 'var(--border)'}`,
-                background: cfg.mode === 'empreinte' ? 'var(--bp)' : 'var(--surf)',
-                cursor: 'pointer',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ fontSize: 18, marginBottom: 4 }}>🔒</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>Empreinte CB</div>
-              <div style={{ fontSize: 11, color: 'var(--t3)' }}>CHF 0 débité · Encaissement si no-show</div>
-            </button>
-            <button
-              onClick={() => setCfg({ ...cfg, mode: 'acompte' })}
-              style={{
-                padding: 12,
-                borderRadius: 10,
-                border: `2px solid ${cfg.mode === 'acompte' ? 'var(--bl)' : 'var(--border)'}`,
-                background: cfg.mode === 'acompte' ? 'var(--bp)' : 'var(--surf)',
-                cursor: 'pointer',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ fontSize: 18, marginBottom: 4 }}>💰</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>Acompte</div>
-              <div style={{ fontSize: 11, color: 'var(--t3)' }}>Montant encaissé à la réservation</div>
-            </button>
-          </div>
-
-          {/* Trigger */}
-          <div style={{ marginBottom: 10 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>Déclencher pour</label>
-            <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setCfg({ ...cfg, trigger: 'groupe' })}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 20,
-                  border: `1px solid ${cfg.trigger === 'groupe' ? 'var(--bl)' : 'var(--border)'}`,
-                  background: cfg.trigger === 'groupe' ? 'var(--bp)' : 'transparent',
-                  color: cfg.trigger === 'groupe' ? 'var(--bl)' : 'var(--text)',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                Groupes {cfg.minCvt}+ pers.
-              </button>
-              <button
-                onClick={() => setCfg({ ...cfg, trigger: 'all' })}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 20,
-                  border: `1px solid ${cfg.trigger === 'all' ? 'var(--bl)' : 'var(--border)'}`,
-                  background: cfg.trigger === 'all' ? 'var(--bp)' : 'transparent',
-                  color: cfg.trigger === 'all' ? 'var(--bl)' : 'var(--text)',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                Toutes résas
-              </button>
-              <button
-                onClick={() => setCfg({ ...cfg, trigger: 'never' })}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 20,
-                  border: `1px solid ${cfg.trigger === 'never' ? 'var(--bl)' : 'var(--border)'}`,
-                  background: cfg.trigger === 'never' ? 'var(--bp)' : 'transparent',
-                  color: cfg.trigger === 'never' ? 'var(--bl)' : 'var(--text)',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                Désactivé
-              </button>
-            </div>
-          </div>
-
-          {cfg.trigger === 'groupe' && (
+      {/* Content */}
+      <div style={{
+        flex: 1,
+        overflow: 'auto',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 24,
+      }}>
+        {state === 'viewing' && (
+          <>
+            {/* Bill Items */}
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>Minimum couverts</label>
-              <input
-                type="number"
-                value={cfg.minCvt}
-                onChange={(e) => setCfg({ ...cfg, minCvt: +e.target.value })}
-                min="2"
-                max="50"
-                style={{
-                  width: '100%',
-                  marginTop: 6,
-                  padding: '8px 10px',
-                  borderRadius: 4,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surf2)',
-                  color: 'var(--text)',
-                  fontFamily: 'var(--fm)',
+              <div style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--t3)',
+                textTransform: 'uppercase',
+                letterSpacing: '.07em',
+                marginBottom: 12,
+              }}>
+                Commandes
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {DEMO_BILL_ITEMS.map((item, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 14px',
+                    background: 'var(--surf)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                  }}>
+                    <div>
+                      <div style={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: 'var(--text)',
+                      }}>
+                        {item.name}
+                      </div>
+                      <div style={{
+                        fontSize: 11,
+                        color: 'var(--t3)',
+                        marginTop: 2,
+                      }}>
+                        x{item.quantity} à CHF {item.price.toFixed(2)}
+                      </div>
+                    </div>
+                    <div style={{
+                      fontSize: 13,
+                      fontWeight: 800,
+                      color: 'var(--text)',
+                      fontFamily: "'DM Mono, monospace'",
+                    }}>
+                      CHF {(item.price * item.quantity).toFixed(2)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bill Summary */}
+            <div style={{
+              padding: '16px',
+              background: 'var(--surf)',
+              border: '1px solid var(--border)',
+              borderRadius: 12,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={{ fontSize: 13, color: 'var(--t2)' }}>Sous-total</span>
+                <span style={{
+                  fontSize: 13,
                   fontWeight: 700,
-                }}
-              />
+                  fontFamily: "'DM Mono, monospace'",
+                  color: 'var(--text)',
+                }}>
+                  CHF {subtotal.toFixed(2)}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--border)' }}>
+                <span style={{ fontSize: 13, color: 'var(--t2)' }}>Pourboire</span>
+                <span style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  fontFamily: "'DM Mono, monospace'",
+                  color: tipAmount > 0 ? 'var(--gn)' : 'var(--t3)',
+                }}>
+                  CHF {tipAmount.toFixed(2)}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: 'var(--text)' }}>Total</span>
+                <span style={{
+                  fontSize: 20,
+                  fontWeight: 900,
+                  fontFamily: "'DM Mono, monospace'",
+                  color: 'var(--bl)',
+                }}>
+                  CHF {total.toFixed(2)}
+                </span>
+              </div>
             </div>
-          )}
 
-          {cfg.mode === 'acompte' && (
-            <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>CHF par personne</label>
+            {/* Tip Selection */}
+            <div>
+              <div style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--t3)',
+                textTransform: 'uppercase',
+                letterSpacing: '.07em',
+                marginBottom: 12,
+              }}>
+                Pourboire
+              </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, 1fr)',
+                gap: 8,
+              }}>
+                {[
+                  { label: 'Aucun', value: 0 },
+                  { label: '5%', value: 5 },
+                  { label: '10%', value: 10 },
+                  { label: '15%', value: 15 },
+                  { label: 'Perso', value: null },
+                ].map((tip) => (
+                  <button
+                    key={tip.value === null ? 'custom' : tip.value}
+                    onClick={() => {
+                      if (tip.value !== null) {
+                        setSelectedTip(tip.value as TipPercentage)
+                        setCustomTip('')
+                      }
+                    }}
+                    style={{
+                      padding: '12px 8px',
+                      borderRadius: 8,
+                      border: `2px solid ${(selectedTip === tip.value && !customTip) || (tip.value === null && customTip) ? 'var(--gn)' : 'var(--border)'}`,
+                      background: (selectedTip === tip.value && !customTip) || (tip.value === null && customTip) ? 'var(--gn)15' : 'var(--surf)',
+                      color: 'var(--text)',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {tip.label}
+                  </button>
+                ))}
+              </div>
+              {selectedTip === 15 || customTip ? (
                 <input
                   type="number"
-                  value={cfg.montantPP}
-                  onChange={(e) => setCfg({ ...cfg, montantPP: +e.target.value })}
-                  min="1"
+                  value={customTip}
+                  onChange={(e) => setCustomTip(e.target.value)}
+                  placeholder="CHF"
                   style={{
                     width: '100%',
-                    marginTop: 6,
-                    padding: '8px 10px',
-                    borderRadius: 4,
+                    marginTop: 12,
+                    padding: '10px 12px',
+                    borderRadius: 6,
                     border: '1px solid var(--border)',
-                    background: 'var(--surf2)',
+                    background: 'var(--surf)',
                     color: 'var(--text)',
-                    fontFamily: 'var(--fm)',
+                    fontSize: 13,
                     fontWeight: 700,
+                    fontFamily: "'DM Mono, monospace'",
                   }}
                 />
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>Ou % total</label>
-                <input
-                  type="number"
-                  value={cfg.pctTotal}
-                  onChange={(e) => setCfg({ ...cfg, pctTotal: +e.target.value })}
-                  min="1"
-                  max="100"
-                  style={{
-                    width: '100%',
-                    marginTop: 6,
-                    padding: '8px 10px',
-                    borderRadius: 4,
-                    border: '1px solid var(--border)',
-                    background: 'var(--surf2)',
-                    color: 'var(--text)',
-                    fontFamily: 'var(--fm)',
-                    fontWeight: 700,
-                  }}
-                />
-              </div>
+              ) : null}
             </div>
-          )}
-        </div>
 
-        {/* Stripe */}
-        <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 8, padding: 14 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Stripe</div>
-          {cfg.stripeConnected ? (
-            <div style={{ padding: '10px 12px', borderRadius: 6, background: 'var(--gn)20', border: '1px solid var(--gn)', color: 'var(--gn)', fontSize: 11, fontWeight: 700, marginBottom: 12 }}>
-              Stripe connecté · Mode production
-            </div>
-          ) : (
-            <>
-              <div style={{ padding: '10px 12px', borderRadius: 6, background: 'var(--rd)20', border: '1px solid var(--rd)', color: 'var(--rd)', fontSize: 11, fontWeight: 700, marginBottom: 12 }}>
-                Stripe non connecté
-              </div>
+            {/* Action Buttons */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+            }}>
               <button
-                onClick={() => toast('Connexion Stripe', 'success')}
+                onClick={() => setState('splitting')}
                 style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  marginBottom: 12,
-                  borderRadius: 4,
+                  padding: '14px 16px',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--surf)',
+                  color: 'var(--text)',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                Partager
+              </button>
+              <button
+                onClick={() => setState('paying')}
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: 8,
                   border: 'none',
                   background: 'var(--bl)',
                   color: 'white',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                Payer
+              </button>
+            </div>
+          </>
+        )}
+
+        {state === 'splitting' && (
+          <>
+            <div>
+              <div style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--t3)',
+                textTransform: 'uppercase',
+                letterSpacing: '.07em',
+                marginBottom: 12,
+              }}>
+                Mode de partage
+              </div>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+              }}>
+                {[
+                  { label: 'Sans partage', value: 'none' as const },
+                  { label: 'En 2 parts égales', value: 'equal', parts: 2 },
+                  { label: 'En 3 parts égales', value: 'equal', parts: 3 },
+                  { label: 'En 4 parts égales', value: 'equal', parts: 4 },
+                  { label: 'Montants personnalisés', value: 'custom' as const },
+                ].map((option, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      if (option.value === 'none') {
+                        setSplit({ mode: 'none', parts: 1 })
+                      } else if (option.value === 'equal') {
+                        setSplit({ mode: 'equal', parts: option.parts! })
+                      } else {
+                        setSplit({ mode: 'custom', parts: 2 })
+                      }
+                    }}
+                    style={{
+                      padding: '14px 16px',
+                      borderRadius: 8,
+                      border: `2px solid ${split.mode === option.value && (option.value === 'none' || option.value === 'custom' || split.parts === option.parts) ? 'var(--bl)' : 'var(--border)'}`,
+                      background: split.mode === option.value && (option.value === 'none' || option.value === 'custom' || split.parts === option.parts) ? 'var(--bp)' : 'var(--surf)',
+                      color: 'var(--text)',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <div>{option.label}</div>
+                    {option.value === 'equal' && (
+                      <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4 }}>
+                        CHF {(total / option.parts!).toFixed(2)} par personne
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {split.mode === 'custom' && (
+              <div>
+                <div style={{
                   fontSize: 11,
+                  fontWeight: 700,
+                  color: 'var(--t3)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.07em',
+                  marginBottom: 12,
+                }}>
+                  Montants
+                </div>
+                <div style={{
+                  padding: '16px',
+                  background: 'var(--surf)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                }}>
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>Nombre de parts</label>
+                    <select
+                      value={split.parts}
+                      onChange={(e) => setSplit({ ...split, parts: parseInt(e.target.value) })}
+                      style={{
+                        width: '100%',
+                        marginTop: 6,
+                        padding: '8px 10px',
+                        borderRadius: 4,
+                        border: '1px solid var(--border)',
+                        background: 'var(--surf2)',
+                        color: 'var(--text)',
+                        fontSize: 13,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {[2, 3, 4, 5, 6].map((n) => (
+                        <option key={n} value={n}>{n} parts</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div style={{
+              padding: '16px',
+              background: 'var(--surf)',
+              border: '1px solid var(--border)',
+              borderRadius: 12,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={{ fontSize: 13, color: 'var(--t2)' }}>Par personne</span>
+                <span style={{
+                  fontSize: 16,
+                  fontWeight: 900,
+                  fontFamily: "'DM Mono, monospace'",
+                  color: 'var(--bl)',
+                }}>
+                  CHF {amountPerPerson.toFixed(2)}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>Total à payer</span>
+                <span style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  fontFamily: "'DM Mono, monospace'",
+                  color: 'var(--text)',
+                }}>
+                  CHF {total.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+            }}>
+              <button
+                onClick={() => setState('viewing')}
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--surf)',
+                  color: 'var(--text)',
+                  fontSize: 13,
                   fontWeight: 700,
                   cursor: 'pointer',
                 }}
               >
-                Connecter Stripe
+                Retour
               </button>
-            </>
-          )}
+              <button
+                onClick={() => setState('paying')}
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: 'var(--bl)',
+                  color: 'white',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Continuer
+              </button>
+            </div>
+          </>
+        )}
 
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>Délai remboursement auto</label>
-            <select
-              value={cfg.delaiRmb}
-              onChange={(e) => setCfg({ ...cfg, delaiRmb: +e.target.value })}
-              style={{
-                width: '100%',
-                marginTop: 6,
-                padding: '8px 10px',
-                borderRadius: 4,
-                border: '1px solid var(--border)',
-                background: 'var(--surf2)',
-                color: 'var(--text)',
-                fontFamily: 'var(--fm)',
+        {state === 'paying' && (
+          <>
+            <div>
+              <div style={{
                 fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--t3)',
+                textTransform: 'uppercase',
+                letterSpacing: '.07em',
+                marginBottom: 12,
+              }}>
+                Méthode de paiement
+              </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: 10,
+              }}>
+                {[
+                  { id: 'twint' as const, label: 'TWINT', icon: '📱' },
+                  { id: 'card' as const, label: 'Carte', icon: '💳' },
+                  { id: 'apple' as const, label: 'Apple Pay', icon: '🍎' },
+                  { id: 'google' as const, label: 'Google Pay', icon: '🔵' },
+                ].map((method) => (
+                  <button
+                    key={method.id}
+                    onClick={() => setSelectedPayment(method.id)}
+                    style={{
+                      padding: '14px 12px',
+                      borderRadius: 8,
+                      border: `2px solid ${selectedPayment === method.id ? 'var(--bl)' : 'var(--border)'}`,
+                      background: selectedPayment === method.id ? 'var(--bp)' : 'var(--surf)',
+                      color: 'var(--text)',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    <span style={{ fontSize: 16 }}>{method.icon}</span>
+                    {method.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {selectedPayment === 'card' && (
+              <div>
+                <div style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: 'var(--t3)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.07em',
+                  marginBottom: 12,
+                }}>
+                  Détails de la carte
+                </div>
+                <div style={{
+                  padding: '16px',
+                  background: 'var(--surf)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 12,
+                }}>
+                  <input
+                    type="text"
+                    placeholder="Numéro de carte"
+                    value={cardDetails.number}
+                    onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() })}
+                    maxLength={19}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: 'var(--surf2)',
+                      color: 'var(--text)',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      fontFamily: "'DM Mono, monospace'",
+                    }}
+                  />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <input
+                      type="text"
+                      placeholder="MM/YY"
+                      value={cardDetails.expiry}
+                      onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+                      maxLength={5}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: 6,
+                        border: '1px solid var(--border)',
+                        background: 'var(--surf2)',
+                        color: 'var(--text)',
+                        fontSize: 13,
+                        fontWeight: 700,
+                        fontFamily: "'DM Mono, monospace'",
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="CVC"
+                      value={cardDetails.cvc}
+                      onChange={(e) => setCardDetails({ ...cardDetails, cvc: e.target.value })}
+                      maxLength={4}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: 6,
+                        border: '1px solid var(--border)',
+                        background: 'var(--surf2)',
+                        color: 'var(--text)',
+                        fontSize: 13,
+                        fontWeight: 700,
+                        fontFamily: "'DM Mono, monospace'",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <input
+                  type="checkbox"
+                  id="email-receipt"
+                  checked={emailReceipt}
+                  onChange={(e) => setEmailReceipt(e.target.checked)}
+                  style={{ cursor: 'pointer', width: 18, height: 18 }}
+                />
+                <label htmlFor="email-receipt" style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                  cursor: 'pointer',
+                }}>
+                  Reçu par email
+                </label>
+              </div>
+              {emailReceipt && (
+                <input
+                  type="email"
+                  placeholder="email@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 6,
+                    border: '1px solid var(--border)',
+                    background: 'var(--surf)',
+                    color: 'var(--text)',
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                />
+              )}
+            </div>
+
+            <div style={{
+              padding: '16px',
+              background: 'var(--surf)',
+              border: '1px solid var(--border)',
+              borderRadius: 12,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 12, color: 'var(--t2)' }}>Sous-total</span>
+                <span style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  fontFamily: "'DM Mono, monospace'",
+                  color: 'var(--text)',
+                }}>
+                  CHF {subtotal.toFixed(2)}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 12, color: 'var(--t2)' }}>Pourboire</span>
+                <span style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  fontFamily: "'DM Mono, monospace'",
+                  color: 'var(--text)',
+                }}>
+                  CHF {tipAmount.toFixed(2)}
+                </span>
+              </div>
+              {split.mode !== 'none' && (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 8,
+                  paddingBottom: 8,
+                  borderBottom: '1px solid var(--border)',
+                }}>
+                  <span style={{ fontSize: 12, color: 'var(--t2)' }}>Votre part</span>
+                  <span style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    fontFamily: "'DM Mono, monospace'",
+                    color: 'var(--text)',
+                  }}>
+                    CHF {amountPerPerson.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 14, fontWeight: 900, color: 'var(--text)' }}>À payer</span>
+                <span style={{
+                  fontSize: 18,
+                  fontWeight: 900,
+                  fontFamily: "'DM Mono, monospace'",
+                  color: 'var(--bl)',
+                }}>
+                  CHF {(split.mode === 'none' ? total : amountPerPerson).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+            }}>
+              <button
+                onClick={() => setState('viewing')}
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--surf)',
+                  color: 'var(--text)',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handlePayment}
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: 'var(--gn)',
+                  color: 'white',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Payer CHF {(split.mode === 'none' ? total : amountPerPerson).toFixed(2)}
+              </button>
+            </div>
+          </>
+        )}
+
+        {state === 'processing' && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+            gap: 24,
+          }}>
+            <div style={{
+              fontSize: 64,
+              animation: 'spin 2s linear infinite',
+            }}>
+              💳
+            </div>
+            <div>
+              <h2 style={{
+                fontSize: 20,
+                fontWeight: 900,
+                color: 'var(--text)',
+                margin: '0 0 12px 0',
+                textAlign: 'center',
+              }}>
+                Paiement en cours
+              </h2>
+              <p style={{
+                fontSize: 13,
+                color: 'var(--t2)',
+                margin: 0,
+                textAlign: 'center',
+              }}>
+                Veuillez patienter...
+              </p>
+            </div>
+            <div style={{
+              width: '100%',
+              maxWidth: 300,
+              height: 6,
+              background: 'var(--surf)',
+              borderRadius: 12,
+              overflow: 'hidden',
+              border: '1px solid var(--border)',
+            }}>
+              <div style={{
+                height: '100%',
+                background: 'var(--bl)',
+                width: `${processingProgress}%`,
+                transition: 'width 0.3s ease',
+              }} />
+            </div>
+            <style>{`
+              @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        )}
+
+        {state === 'success' && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+            gap: 24,
+            padding: '24px',
+          }}>
+            <style>{`
+              @keyframes checkmark-bounce {
+                0%, 100% { transform: scale(0); opacity: 0; }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); opacity: 1; }
+              }
+              .checkmark {
+                animation: checkmark-bounce 0.6s ease-out;
+              }
+            `}</style>
+            <div style={{
+              fontSize: 80,
+              className: 'checkmark',
+            }}>
+              ✓
+            </div>
+            <div>
+              <h2 style={{
+                fontSize: 24,
+                fontWeight: 900,
+                color: 'var(--gn)',
+                margin: '0 0 8px 0',
+                textAlign: 'center',
+              }}>
+                Paiement confirmé
+              </h2>
+              <p style={{
+                fontSize: 13,
+                color: 'var(--t2)',
+                margin: 0,
+                textAlign: 'center',
+              }}>
+                CHF {(split.mode === 'none' ? total : amountPerPerson).toFixed(2)}
+              </p>
+            </div>
+
+            <div style={{
+              width: '100%',
+              padding: '16px',
+              background: 'var(--surf)',
+              border: '1px solid var(--border)',
+              borderRadius: 12,
+              textAlign: 'center',
+            }}>
+              {emailReceipt && email ? (
+                <>
+                  <div style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: 'var(--t3)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '.07em',
+                    marginBottom: 8,
+                  }}>
+                    Reçu envoyé
+                  </div>
+                  <div style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'var(--text)',
+                  }}>
+                    {email}
+                  </div>
+                </>
+              ) : (
+                <div style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                }}>
+                  Merci de votre visite
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleNewPayment}
+              style={{
+                padding: '14px 24px',
+                borderRadius: 8,
+                border: 'none',
+                background: 'var(--bl)',
+                color: 'white',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                marginTop: 12,
               }}
             >
-              <option value={24}>24h après no-show</option>
-              <option value={48}>48h après no-show</option>
-              <option value={72}>72h après no-show</option>
-            </select>
+              Nouveau paiement
+            </button>
           </div>
-
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>Message client (confirmation)</label>
-            <textarea
-              rows={3}
-              defaultValue={`Votre réservation est confirmée.${cfg.mode === 'empreinte' ? ' Une empreinte CB a été prise en garantie.' : ' Un acompte de {montant} CHF a été prélevé.'}`}
-              style={{
-                width: '100%',
-                marginTop: 6,
-                padding: '8px 10px',
-                borderRadius: 4,
-                border: '1px solid var(--border)',
-                background: 'var(--surf2)',
-                color: 'var(--text)',
-                fontFamily: 'var(--fm)',
-                fontSize: 11,
-                resize: 'vertical',
-              }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Transactions Table */}
-      <div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 12 }}>
-          Transactions récentes
-        </div>
-        <div style={{ overflow: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 520 }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={{ textAlign: 'left', padding: 12, fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Client</th>
-                <th style={{ textAlign: 'left', padding: 12, fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Date</th>
-                <th style={{ textAlign: 'left', padding: 12, fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Mode</th>
-                <th style={{ textAlign: 'left', padding: 12, fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Montant</th>
-                <th style={{ textAlign: 'left', padding: 12, fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Statut</th>
-                <th style={{ textAlign: 'left', padding: 12, fontSize: 11, fontWeight: 700, color: 'var(--t2)', textTransform: 'uppercase', letterSpacing: '.05em' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {txns.map((t, i) => {
-                const sc = t.status === 'encaissé' || t.status === 'validée' || t.status.includes('encaissé') ? 'var(--gn)' : t.status === 'remboursé' ? 'var(--am)' : t.status === 'en attente' ? 'var(--bp)' : 'var(--rd)'
-                const amt = t.montant > 0 ? 'CHF ' + t.montant : t.mode === 'Empreinte' ? '—' : 'CHF 0'
-                return (
-                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: 12 }}>
-                      <strong>{t.n}</strong>
-                      <div style={{ fontSize: 11, color: 'var(--t3)' }}>{t.svc} · {t.c}p</div>
-                    </td>
-                    <td style={{ padding: 12, fontSize: 11, color: 'var(--t3)' }}>{t.date}</td>
-                    <td style={{ padding: 12 }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 8px',
-                        borderRadius: 3,
-                        background: t.mode === 'Empreinte' ? 'var(--am)20' : 'var(--bp)20',
-                        color: t.mode === 'Empreinte' ? 'var(--am)' : 'var(--bp)',
-                        fontSize: 11,
-                        fontWeight: 700,
-                      }}>
-                        {t.mode}
-                      </span>
-                    </td>
-                    <td style={{ padding: 12, fontFamily: 'var(--fm)', fontWeight: 800, color: t.montant > 0 ? 'var(--gn)' : 'var(--t2)' }}>
-                      {amt}
-                    </td>
-                    <td style={{ padding: 12 }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 8px',
-                        borderRadius: 3,
-                        background: sc === 'var(--gn)' ? 'var(--gn)20' : sc === 'var(--am)' ? 'var(--am)20' : sc === 'var(--bp)' ? 'var(--bp)20' : 'var(--rd)20',
-                        color: sc,
-                        fontSize: 11,
-                        fontWeight: 700,
-                      }}>
-                        {t.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: 12 }}>
-                      {t.status === 'en attente' && (
-                        <button
-                          onClick={() => toast('Encaissement déclenché', 'success')}
-                          style={{
-                            fontSize: 11,
-                            padding: '2px 7px',
-                            borderRadius: 3,
-                            border: '1px solid var(--gn)',
-                            background: 'var(--gn)20',
-                            color: 'var(--gn)',
-                            cursor: 'pointer',
-                            fontWeight: 700,
-                          }}
-                        >
-                          Encaisser
-                        </button>
-                      )}
-                      {t.status === 'encaissé' && (
-                        <button
-                          onClick={() => toast('Remboursement initié', 'success')}
-                          style={{
-                            fontSize: 11,
-                            padding: '2px 7px',
-                            borderRadius: 3,
-                            border: '1px solid var(--border)',
-                            background: 'var(--surf2)',
-                            color: 'var(--text)',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Rembourser
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+        )}
       </div>
     </div>
   )

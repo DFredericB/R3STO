@@ -8,7 +8,7 @@ import { useState, useMemo } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import { useT } from '../../i18n/useTranslation'
-import { RADIUS, labelStyle, inputStyle, sectionTitle } from '../../utils/design'
+import { RADIUS, labelStyle, inputStyle, sectionTitle, filterChip } from '../../utils/design'
 import type { Review } from '../../types'
 
 // ── Constantes ─────────────────────────────────────
@@ -44,13 +44,7 @@ const btnSecondary: React.CSSProperties = {
   fontWeight: 600, fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)',
 }
 
-const chipS = (on: boolean): React.CSSProperties => ({
-  padding: '6px 14px', borderRadius: RADIUS.pill,
-  background: on ? 'var(--bp)' : 'var(--surf3)',
-  border: `1.5px solid ${on ? 'var(--bl)' : 'var(--border)'}`,
-  color: on ? 'var(--bl)' : 'var(--t2)',
-  fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)',
-})
+const chipS = filterChip
 
 // ── Helpers ────────────────────────────────────────
 function Stars({ rating, size = 16, onClick }: { rating: number; size?: number; onClick?: (r: number) => void }) {
@@ -91,7 +85,7 @@ function RatingBar({ rating, count, total }: { rating: number; count: number; to
 // ══════════════════════════════════════════════════
 export function Avis() {
   const { toast } = useToast()
-  useT()
+  const { t } = useT()
   const reviews = useAppStore(s => s.reviews)
   const addReview = useAppStore(s => s.addReview)
   const updateReview = useAppStore(s => s.updateReview)
@@ -368,7 +362,7 @@ export function Avis() {
                         autoFocus
                       />
                       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                        <button style={btnSecondary} onClick={() => { setReplyingId(null); setReplyText('') }}>Annuler</button>
+                        <button style={btnSecondary} onClick={() => { setReplyingId(null); setReplyText('') }}>{t('action.cancel')}</button>
                         <button style={btnPrimary} onClick={() => handleReply(r.id)}>Envoyer la réponse</button>
                       </div>
                     </div>
@@ -529,8 +523,8 @@ export function Avis() {
             </div>
 
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button style={{ ...btnSecondary, flex: 1 }} onClick={() => setShowAddModal(false)}>Annuler</button>
-              <button style={{ ...btnPrimary, flex: 1 }} onClick={handleAddReview}>Ajouter l'avis</button>
+              <button style={{ ...btnSecondary, flex: 1 }} onClick={() => setShowAddModal(false)}>{t('action.cancel')}</button>
+              <button style={{ ...btnPrimary, flex: 1 }} onClick={handleAddReview}>{t('action.add')} l'avis</button>
             </div>
           </div>
         </div>

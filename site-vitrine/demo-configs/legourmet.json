@@ -1,0 +1,132 @@
+{
+  "name": "Le Gourmet",
+  "slug": "legourmet",
+  "tagline": "Cuisine française raffinée au bord du lac",
+  "cuisine": "Française",
+  "description": "Depuis 1998, Le Gourmet propose une cuisine française authentique et raffinée, préparée par notre chef de renom. Nous sélectionnons les meilleurs ingrédients locaux et de saison pour vous offrir une expérience culinaire inoubliable. Notre restaurant offre une vue spectaculaire sur le lac Léman dans une atmosphère chaleureuse et élégante.",
+  "primaryColor": "#8B4513",
+  "theme": "light",
+  "phone": "+41 21 612 34 56",
+  "email": "contact@legourmet.ch",
+  "address": "Rue du Lac 12, 1006 Lausanne",
+  "website": "https://legourmet.ch",
+  "hours": [
+    { "day": "Lundi", "status": "Fermé" },
+    { "day": "Mardi – Vendredi", "lunch": "12:00 – 14:30", "dinner": "19:00 – 22:30" },
+    { "day": "Samedi", "lunch": "", "dinner": "19:00 – 23:00" },
+    { "day": "Dimanche", "status": "Fermé" }
+  ],
+  "menu": [
+    {
+      "category": "Entrées",
+      "items": [
+        {
+          "name": "Tartare de bœuf",
+          "price": 24,
+          "desc": "Câpres, oignon, sauce worcestershire et anguille fumée"
+        },
+        {
+          "name": "Salade César",
+          "price": 18,
+          "desc": "Poulet grillé, parmesan, croûtons maison et anchois"
+        },
+        {
+          "name": "Carpaccio de saumon",
+          "price": 22,
+          "desc": "Aneth frais, citron, huile d'olive extra vierge et fleur de sel"
+        },
+        {
+          "name": "Foie gras poêlé",
+          "price": 32,
+          "desc": "Pommes cuites, brioche chaude et réduction de Sauternes"
+        }
+      ]
+    },
+    {
+      "category": "Plats",
+      "items": [
+        {
+          "name": "Filet de bœuf",
+          "price": 48,
+          "desc": "Sauce béarnaise, légumes de saison et frites croustillantes"
+        },
+        {
+          "name": "Filet de perche",
+          "price": 38,
+          "desc": "Beurre blanc, riz sauvage et asperges fraîches"
+        },
+        {
+          "name": "Risotto aux cèpes",
+          "price": 32,
+          "desc": "Parmesan 24 mois, truffe noire et beurre de montagne"
+        },
+        {
+          "name": "Homard thermidor",
+          "price": 55,
+          "desc": "Sauce crémeuse, gratin de fromage et pommes Anna"
+        },
+        {
+          "name": "Canard aux cerises",
+          "price": 42,
+          "desc": "Sauce aux cerises, légumes racines et polenta crémeuse"
+        }
+      ]
+    },
+    {
+      "category": "Desserts",
+      "items": [
+        {
+          "name": "Tiramisu maison",
+          "price": 14,
+          "desc": "Mascarpone crémeux, café et cacao fraîchement moulu"
+        },
+        {
+          "name": "Crème brûlée",
+          "price": 12,
+          "desc": "Vanille de Madagascar et sucre caramélisé à la torche"
+        },
+        {
+          "name": "Tarte au chocolat",
+          "price": 13,
+          "desc": "Chocolat noir 70%, pâte sablée et coulis de framboise"
+        },
+        {
+          "name": "Soufflé au Grand Marnier",
+          "price": 16,
+          "desc": "Léger et aérien avec sauce à l'orange frais"
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "name": "Marie D.",
+      "rating": 5,
+      "text": "Une expérience culinaire exceptionnelle ! Le chef a vraiment les mains magiques. Je recommande vivement!",
+      "date": "2026-03-15"
+    },
+    {
+      "name": "Thomas R.",
+      "rating": 4,
+      "text": "Excellent filet de perche, service impeccable et vue magnifique sur le lac. À revenir très bientôt.",
+      "date": "2026-03-10"
+    },
+    {
+      "name": "Sophie L.",
+      "rating": 5,
+      "text": "Le meilleur restaurant de Lausanne, sans hésiter. L'atmosphère, la nourriture, le service : tout est parfait!",
+      "date": "2026-02-28"
+    },
+    {
+      "name": "Jean-Claude M.",
+      "rating": 4,
+      "text": "Menu varié, plats savoureux et chef très attentif. Quelques petits délais en cuisine mais ça en vaut la peine.",
+      "date": "2026-02-20"
+    }
+  ],
+  "bookingUrl": "https://booking.r3sto.ch/legourmet",
+  "socialMedia": {
+    "instagram": "https://instagram.com/legourmet",
+    "facebook": "https://facebook.com/legourmet"
+  }
+}

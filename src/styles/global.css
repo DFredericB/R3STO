@@ -107,6 +107,14 @@ html, body, #root {
   padding-bottom: 60px;
 }
 
+/* ── Mode plein écran (tablette) ─────────────── */
+:fullscreen .app-layout { --hh: 42px; }
+:fullscreen .app-body > :first-child { width: var(--sbc) !important; min-width: var(--sbc) !important; }
+:fullscreen .main-content { padding-bottom: 0; }
+@media (max-width: 1024px) {
+  :fullscreen .app-body > :first-child { width: 0 !important; min-width: 0 !important; overflow: hidden; padding: 0; border: none; }
+}
+
 /* ── Typographie ────────────────────────────────── */
 .page-title {
   font-family: 'Fraunces', serif;
@@ -240,7 +248,8 @@ html, body, #root {
   50% { opacity: .6; }
 }
 
-/* ── Scrollbar ──────────────────────────────────── */
+/* ── Scrollbar (all elements) ──────────────────── */
+* { scrollbar-width: thin; scrollbar-color: var(--surf4) transparent; }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--surf4); border-radius: 3px; }

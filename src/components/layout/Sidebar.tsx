@@ -3,9 +3,11 @@
 //  Navigation principale latérale — collapsible
 // ══════════════════════════════════════════════════
 
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
+import { computeAlerts } from '../../utils/alerts'
 
 interface NavItem {
   path: string
@@ -19,9 +21,11 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   // OPÉRATIONS
   { path: '/dashboard',     icon: '📊', labelKey: 'nav.dashboard', badge: 'count', groupKey: 'operations' },
+  { path: '/nouvelle-resa', icon: '➕', labelKey: 'nav.nouvelleResa', groupKey: 'operations' },
+  { path: '/agenda',        icon: '📅', labelKey: 'nav.agenda', groupKey: 'operations' },
   { path: '/reservations',  icon: '📖', labelKey: 'nav.journal', groupKey: 'operations' },
   { path: '/grille',        icon: '🪑', labelKey: 'nav.grid', groupKey: 'operations' },
-  { path: '/plan',          icon: '🏠', labelKey: 'nav.floorplan', groupKey: 'operations' },
+  { path: '/plan',          icon: '📐', labelKey: 'nav.floorplan', groupKey: 'operations' },
   { path: '/waitlist',      icon: '⏳', labelKey: 'nav.waitlist', badge: 'waitlist', groupKey: 'operations' },
   { path: '/groupes',       icon: '👥', labelKey: 'nav.groups', badge: 'pending', groupKey: 'operations' },
   // CLIENTS & MARKETING
@@ -58,13 +62,27 @@ const NAV_ITEMS: NavItem[] = [
 export function Sidebar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { sidebarCollapsed } = useAppStore()
+  const { sidebarCollapsed, resas, activeDate } = useAppStore()
   const { t } = useT()
 
   const collapsed = sidebarCollapsed
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQ, setSearchQ] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+  useEffect(() => { if (searchOpen && searchRef.current) searchRef.current.focus() }, [searchOpen])
+  // ⌘K shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setSearchOpen(o => !o); setSearchQ('') } }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+  const alerts = useMemo(() => computeAlerts(resas, activeDate), [resas, activeDate])
+  const dayResas = useMemo(() => resas.filter(r => r.date === activeDate && r.s !== 'cancelled'), [resas, activeDate])
   const w = collapsed ? 'var(--sbc)' : 'var(--sb)'
 
   return (
+    <>
+    <style>{`@keyframes sidebarPulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
     <nav style={{
       width: w,
       minWidth: collapsed ? 56 : 230,
@@ -79,7 +97,7 @@ export function Sidebar() {
       transition: 'width .2s ease, min-width .2s ease',
     }}>
       <div style={{ padding: collapsed ? '8px 4px' : '8px 6px', flex: 1 }}>
-        {NAV_ITEMS.map((item, i) => {
+        {(searchOpen && searchQ ? NAV_ITEMS.filter(n => t(n.labelKey).toLowerCase().includes(searchQ.toLowerCase())) : NAV_ITEMS).map((item, i) => {
           const isActive = location.pathname === item.path
           const showGroup = item.groupKey && (i === 0 || item.groupKey !== NAV_ITEMS[i-1]?.groupKey)
           const groupKeyMap: Record<string, { label: string; badge?: string }> = {
@@ -122,6 +140,7 @@ export function Sidebar() {
                 onClick={() => !item.locked && navigate(item.path)}
                 title={collapsed ? displayLabel : undefined}
                 style={{
+                  position: 'relative',
                   display: 'flex', alignItems: 'center', gap: 8,
                   width: '100%', padding: collapsed ? '8px 0' : '8px 9px',
                   justifyContent: collapsed ? 'center' : 'flex-start',
@@ -145,14 +164,52 @@ export function Sidebar() {
                   </span>
                 )}
                 {!collapsed && item.locked && <span style={{ fontSize: 11 }}>🔒</span>}
-                {!collapsed && item.badge ? (
-                  <span style={{
-                    fontSize: 10, fontWeight: 800,
-                    padding: '1px 5px', borderRadius: 10,
-                    background: 'var(--bl)', color: '#fff',
-                    flexShrink: 0
-                  }}>{item.badge}</span>
-                ) : null}
+                {(() => {
+                  // Live badge counts
+                  let badgeCount = 0
+                  let badgeBg = 'var(--bl)'
+                  let pulse = false
+                  if (item.badge === 'count') {
+                    badgeCount = dayResas.length
+                    badgeBg = 'var(--bl)'
+                  } else if (item.badge === 'waitlist') {
+                    badgeCount = alerts.waitlist
+                    badgeBg = badgeCount > 0 ? '#e8a530' : 'var(--t4)'
+                    pulse = badgeCount > 0
+                  } else if (item.badge === 'pending') {
+                    badgeCount = alerts.groups
+                    badgeBg = badgeCount > 0 ? '#b482ff' : 'var(--t4)'
+                    pulse = badgeCount > 0
+                  }
+                  if (!item.badge || collapsed) return null
+                  if (badgeCount === 0 && item.badge !== 'count') return null
+                  return (
+                    <span style={{
+                      fontSize: 10, fontWeight: 800,
+                      padding: '1px 5px', borderRadius: 10,
+                      background: badgeBg, color: '#fff',
+                      flexShrink: 0, minWidth: 18, textAlign: 'center',
+                      animation: pulse ? 'sidebarPulse 2s ease-in-out infinite' : undefined,
+                    }}>{badgeCount}</span>
+                  )
+                })()}
+                {collapsed && (() => {
+                  // Dot indicator in collapsed mode
+                  let dotCount = 0
+                  let dotColor = ''
+                  if (item.badge === 'waitlist' && alerts.waitlist > 0) { dotCount = alerts.waitlist; dotColor = '#e8a530' }
+                  if (item.badge === 'pending' && alerts.groups > 0) { dotCount = alerts.groups; dotColor = '#b482ff' }
+                  if (item.badge === 'count' && dayResas.length > 0) { dotCount = dayResas.length; dotColor = 'var(--bl)' }
+                  if (!dotCount) return null
+                  return (
+                    <span style={{
+                      position: 'absolute', top: 4, right: 4,
+                      width: 7, height: 7, borderRadius: '50%',
+                      background: dotColor,
+                      animation: (item.badge === 'waitlist' || item.badge === 'pending') && dotCount > 0 ? 'sidebarPulse 2s ease-in-out infinite' : undefined,
+                    }} />
+                  )
+                })()}
               </button>
             </div>
           )
@@ -167,23 +224,44 @@ export function Sidebar() {
       }}>
         {/* Search Bar */}
         {!collapsed && (
-          <button
-            onClick={() => alert('Recherche — bientôt disponible')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              width: '100%', padding: '6px 8px',
-              background: 'var(--bg2)', border: '1px solid var(--border)',
-              borderRadius: 6,
-              color: 'var(--t3)',
-              cursor: 'pointer',
-              fontSize: 12,
-              fontFamily: 'var(--ff)',
-            }}
-          >
-            <span>🔍</span>
-            <span style={{ flex: 1, textAlign: 'left' }}>Chercher</span>
-            <span style={{ fontSize: 10, color: 'var(--t4)' }}>⌘K</span>
-          </button>
+          searchOpen ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, width: '100%' }}>
+              <input ref={searchRef} value={searchQ} onChange={e => setSearchQ(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Escape') { setSearchOpen(false); setSearchQ('') }
+                  if (e.key === 'Enter') {
+                    const q = searchQ.toLowerCase()
+                    const match = NAV_ITEMS.find(n => t(n.labelKey).toLowerCase().includes(q))
+                    if (match) { navigate(match.path); setSearchOpen(false); setSearchQ('') }
+                  }
+                }}
+                placeholder="Chercher..."
+                style={{
+                  flex: 1, padding: '6px 8px', fontSize: 12, fontFamily: 'var(--ff)',
+                  background: 'var(--bg2)', border: '1.5px solid var(--bl)', borderRadius: 6,
+                  color: 'var(--text)', outline: 'none',
+                }} />
+              <button onClick={() => { setSearchOpen(false); setSearchQ('') }}
+                style={{ background: 'none', border: 'none', color: 'var(--t4)', cursor: 'pointer', fontSize: 12 }}>✕</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setSearchOpen(true); setSearchQ('') }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                width: '100%', padding: '6px 8px',
+                background: 'var(--bg2)', border: '1px solid var(--border)',
+                borderRadius: 6,
+                color: 'var(--t3)',
+                cursor: 'pointer',
+                fontSize: 12,
+                fontFamily: 'var(--ff)',
+              }}
+            >
+              <span>🔍</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>Chercher</span>
+              <span style={{ fontSize: 10, color: 'var(--t4)' }}>⌘K</span>
+            </button>
+          )
         )}
 
         {/* Version */}
@@ -199,7 +277,7 @@ export function Sidebar() {
         {/* Role Badge */}
         {!collapsed && (
           <button
-            onClick={() => alert('Rôle — bientôt disponible')}
+            onClick={() => navigate('/acces')}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               width: '100%', padding: '6px 8px',
@@ -245,5 +323,6 @@ export function Sidebar() {
         )}
       </div>
     </nav>
+    </>
   )
 }

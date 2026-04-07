@@ -1,60 +1,138 @@
 import { useState, useMemo } from 'react'
 import { useT } from '../../i18n/useTranslation'
 import { useToast } from '../../components/ui/Toast'
+import { useAppStore } from '../../store/useAppStore'
+import { filterChip } from '../../utils/design'
 
 type TabType = 'resas' | 'journal'
-
-// Demo data
-const DEMO_RESAS = [
-  { id: '1', date: '2026-03-25', t: '19h30', n: 'Martin Dupont', c: 4, tbl: 'T12,T13', svc: 'Dîner', s: 'reserved' as const },
-  { id: '2', date: '2026-03-25', t: '20h00', n: 'Sophie Lefevre', c: 2, tbl: 'T05', svc: 'Dîner', s: 'arrived' as const },
-  { id: '3', date: '2026-03-25', t: '19h00', n: 'Jean Moreau', c: 6, tbl: 'T20,T21', svc: 'Dîner', s: 'cancelled' as const },
-  { id: '4', date: '2026-03-24', t: '20h30', n: 'Marie Rousseau', c: 3, tbl: 'T08', svc: 'Dîner', s: 'noshow' as const },
-  { id: '5', date: '2026-03-24', t: '19h00', n: 'Pierre Martin', c: 5, tbl: 'T15', svc: 'Dîner', s: 'done' as const },
-  { id: '6', date: '2026-03-24', t: '12h30', n: 'Isabelle Dubois', c: 2, tbl: 'T03', svc: 'Déjeuner', s: 'arrived' as const },
-  { id: '7', date: '2026-03-23', t: '20h00', n: 'Laurent Bonnet', c: 4, tbl: 'T14', svc: 'Dîner', s: 'done' as const },
-]
-
-const DEMO_HISTORIQUE = [
-  { id: 'h1', ts: '25/03 20:45', icon: '✓', action: 'Réservation créée', detail: 'Sophie Lefevre · 2p', user: 'Emma Lefevre', role: 'Hôtesse', type: 'create' },
-  { id: 'h2', ts: '25/03 20:30', icon: '✏️', action: 'Modification table', detail: 'Martin Dupont · Table 12 → 12+13', user: 'Louis Petit', role: 'Manager', type: 'edit' },
-  { id: 'h3', ts: '25/03 19:00', icon: '✕', action: 'Réservation annulée', detail: 'Jean Moreau · 6 couverts', user: 'Emma Lefevre', role: 'Hôtesse', type: 'cancel' },
-  { id: 'h4', ts: '24/03 21:15', icon: '⚠', action: 'No-show marqué', detail: 'Marie Rousseau · Dîner 20h30', user: 'Système', role: 'Auto', type: 'noshow' },
-  { id: 'h5', ts: '24/03 19:05', icon: '→', action: 'Arrivée confirmée', detail: 'Pierre Martin · Dîner 19h00', user: 'Emma Lefevre', role: 'Hôtesse', type: 'arrive' },
-  { id: 'h6', ts: '24/03 12:45', icon: '✓', action: 'Réservation créée', detail: 'Isabelle Dubois · 2p', user: 'Louis Petit', role: 'Manager', type: 'create' },
-  { id: 'h7', ts: '23/03 21:00', icon: '⏱', action: 'Passage fermeture', detail: 'Service Dîner fermé', user: 'Système', role: 'Auto', type: 'close' },
-]
 
 export function Historique() {
   useT()
   const { toast } = useToast()
+
+  // Read real data from store
+  const resas = useAppStore(s => s.resas)
+
   const [activeTab, setActiveTab] = useState<TabType>('resas')
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 20
 
-  // Sort resas by date desc, then time desc
-  const sortedResas = useMemo(() => {
-    const sorted = [...DEMO_RESAS]
-    sorted.sort((a, b) => {
+  // Filter and sort resas by date desc, then time desc
+  const filteredAndSortedResas = useMemo(() => {
+    let result = [...resas]
+
+    // Apply search filter (by client name)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter(r => r.n && r.n.toLowerCase().includes(query))
+    }
+
+    // Apply status filter
+    if (filterStatus !== 'all') {
+      result = result.filter(r => r.s === filterStatus)
+    }
+
+    // Apply date range filter
+    if (dateFrom) {
+      result = result.filter(r => r.date >= dateFrom)
+    }
+    if (dateTo) {
+      result = result.filter(r => r.date <= dateTo)
+    }
+
+    // Sort by date desc, then time desc
+    result.sort((a, b) => {
       if (a.date !== b.date) return b.date.localeCompare(a.date)
-      return b.t.localeCompare(a.t)
+      return (b.t || '').localeCompare(a.t || '')
     })
-    return sorted
-  }, [])
 
-  // Calculate stats
-  const totalResas = sortedResas.length
-  const totalCovers = sortedResas.reduce((sum, r) => sum + (r.c || 0), 0)
-  const cancelledCount = sortedResas.filter(r => r.s === 'cancelled').length
-  const noshowCount = sortedResas.filter(r => r.s === 'noshow').length
+    return result
+  }, [resas, searchQuery, filterStatus, dateFrom, dateTo])
+
+  // Pagination for resas tab
+  const totalPages = Math.ceil(filteredAndSortedResas.length / itemsPerPage)
+  const paginatedResas = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return filteredAndSortedResas.slice(start, start + itemsPerPage)
+  }, [filteredAndSortedResas, currentPage])
+
+  // Reset to page 1 when filters change
+  const handleFilterChange = (callback: () => void) => {
+    setCurrentPage(1)
+    callback()
+  }
+
+  // Calculate stats from real data
+  const totalResas = filteredAndSortedResas.length
+  const totalCovers = filteredAndSortedResas.reduce((sum, r) => sum + (r.c || 0), 0)
+  const cancelledCount = filteredAndSortedResas.filter(r => r.s === 'cancelled').length
+  const noshowCount = filteredAndSortedResas.filter(r => r.s === 'noshow').length
+
+  // Generate journal from resas data
+  const journalEntries = useMemo(() => {
+    const entries = resas.map(r => {
+      const date = new Date(r.date)
+      const createdDate = new Date(r.createdAt * 1000)
+      const ts = `${String(createdDate.getDate()).padStart(2, '0')}/${String(createdDate.getMonth() + 1).padStart(2, '0')} ${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`
+
+      let actionType = 'create'
+      let actionLabel = 'Réservation créée'
+      let icon = '✓'
+
+      if (r.s === 'cancelled') {
+        actionType = 'cancel'
+        actionLabel = 'Réservation annulée'
+        icon = '✕'
+      } else if (r.s === 'noshow') {
+        actionType = 'noshow'
+        actionLabel = 'No-show marqué'
+        icon = '⚠'
+      } else if (r.s === 'arrived') {
+        actionType = 'arrive'
+        actionLabel = 'Arrivée confirmée'
+        icon = '→'
+      } else if (r.s === 'done') {
+        actionType = 'done'
+        actionLabel = 'Service terminé'
+        icon = '⏱'
+      }
+
+      return {
+        id: r.id,
+        ts,
+        icon,
+        action: actionLabel,
+        detail: `${r.n || ''} · ${r.c}p`,
+        user: r.prisPar || 'Système',
+        role: 'Utilisateur',
+        type: actionType as string,
+        createdAt: r.createdAt,
+      }
+    })
+
+    // Sort by createdAt desc
+    entries.sort((a, b) => b.createdAt - a.createdAt)
+    return entries
+  }, [resas])
 
   // Journal stats
   const journalStats = {
-    total: DEMO_HISTORIQUE.length,
-    creates: DEMO_HISTORIQUE.filter(h => h.type === 'create').length,
-    cancels: DEMO_HISTORIQUE.filter(h => h.type === 'cancel').length,
-    noshows: DEMO_HISTORIQUE.filter(h => h.type === 'noshow').length,
+    total: journalEntries.length,
+    creates: journalEntries.filter(h => h.type === 'create').length,
+    cancels: journalEntries.filter(h => h.type === 'cancel').length,
+    noshows: journalEntries.filter(h => h.type === 'noshow').length,
   }
+
+  // Pagination for journal tab
+  const journalTotalPages = Math.ceil(journalEntries.length / itemsPerPage)
+  const paginatedJournal = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return journalEntries.slice(start, start + itemsPerPage)
+  }, [journalEntries, currentPage])
 
   const statusColors: Record<string, string> = {
     reserved: 'var(--bl)',
@@ -62,6 +140,7 @@ export function Historique() {
     noshow: 'var(--rd)',
     cancelled: 'var(--t3)',
     done: 'var(--t4)',
+    waitlist: 'var(--am)',
   }
 
   const statusLabels: Record<string, string> = {
@@ -70,16 +149,48 @@ export function Historique() {
     noshow: 'No-show',
     cancelled: 'Annulé',
     done: 'Terminé',
+    waitlist: 'Liste d\'attente',
   }
 
   const typeColorsMap: Record<string, string> = {
     create: 'var(--gn)',
     cancel: 'var(--rd)',
     arrive: 'var(--gn)',
+    done: 'var(--t4)',
     noshow: 'var(--am)',
     edit: 'var(--bl)',
     block: 'var(--am)',
     close: 'var(--t3)',
+  }
+
+  // CSV Export function
+  const handleExportCSV = () => {
+    const headers = ['Date', 'Heure', 'Client', 'Couverts', 'Table', 'Service', 'Statut']
+    const rows = filteredAndSortedResas.map(r => [
+      r.date,
+      (r.t || '').replace('h', ':'),
+      r.n || '',
+      r.c.toString(),
+      r.tbl || '',
+      r.svc || '',
+      statusLabels[r.s] || r.s,
+    ])
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `historique_resas_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    toast('Export CSV téléchargé', 'success')
   }
 
   return (
@@ -97,7 +208,7 @@ export function Historique() {
           <input
             placeholder="🔍 Rechercher…"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => handleFilterChange(() => setSearchQuery(e.target.value))}
             style={{
               fontSize: 11, padding: '4px 10px', borderRadius: 5,
               border: '1px solid var(--border)', background: 'var(--surf2)',
@@ -106,7 +217,7 @@ export function Historique() {
           />
           <select
             value={filterStatus}
-            onChange={e => setFilterStatus(e.target.value)}
+            onChange={e => handleFilterChange(() => setFilterStatus(e.target.value))}
             style={{
               fontSize: 11, padding: '4px 8px', borderRadius: 5,
               border: '1px solid var(--border)', background: 'var(--surf2)',
@@ -121,7 +232,7 @@ export function Historique() {
             <option value="noshow">No-show</option>
           </select>
           <button
-            onClick={() => toast('Export CSV téléchargé', 'success')}
+            onClick={handleExportCSV}
             style={{
               fontSize: 11, padding: '4px 10px', borderRadius: 5,
               border: '1px solid var(--border)', background: 'var(--surf2)',
@@ -132,37 +243,60 @@ export function Historique() {
           </button>
         </div>
 
+        {/* Date Range Filter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <label style={{ fontSize: 11, color: 'var(--t3)' }}>
+            Du:
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={e => handleFilterChange(() => setDateFrom(e.target.value))}
+              style={{
+                fontSize: 11, padding: '4px 8px', borderRadius: 5, marginLeft: 6,
+                border: '1px solid var(--border)', background: 'var(--surf2)',
+                color: 'var(--text)',
+              }}
+            />
+          </label>
+          <label style={{ fontSize: 11, color: 'var(--t3)' }}>
+            Au:
+            <input
+              type="date"
+              value={dateTo}
+              onChange={e => handleFilterChange(() => setDateTo(e.target.value))}
+              style={{
+                fontSize: 11, padding: '4px 8px', borderRadius: 5, marginLeft: 6,
+                border: '1px solid var(--border)', background: 'var(--surf2)',
+                color: 'var(--text)',
+              }}
+            />
+          </label>
+          {(dateFrom || dateTo) && (
+            <button
+              onClick={() => {
+                handleFilterChange(() => {
+                  setDateFrom('')
+                  setDateTo('')
+                })
+              }}
+              style={{
+                fontSize: 11, padding: '4px 8px', borderRadius: 5,
+                border: '1px solid var(--border)', background: 'var(--surf2)',
+                color: 'var(--t3)', cursor: 'pointer',
+              }}
+            >
+              Effacer dates
+            </button>
+          )}
+        </div>
+
         {/* Tab Switcher */}
         <div style={{ display: 'flex', gap: 6, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
-          <button
-            onClick={() => setActiveTab('resas')}
-            style={{
-              padding: '6px 16px',
-              borderRadius: 20,
-              border: `1.5px solid ${activeTab === 'resas' ? 'var(--bl)' : 'var(--border)'}`,
-              background: activeTab === 'resas' ? 'var(--bp)' : 'transparent',
-              color: activeTab === 'resas' ? 'var(--bl)' : 'var(--t3)',
-              fontSize: 11,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            📋 Toutes les réservations <span style={{ fontSize: 11, opacity: 0.7 }}>({DEMO_RESAS.length})</span>
+          <button onClick={() => setActiveTab('resas')} style={filterChip(activeTab === 'resas')}>
+            📋 Toutes les réservations <span style={{ fontSize: 11, opacity: 0.7 }}>({totalResas})</span>
           </button>
-          <button
-            onClick={() => setActiveTab('journal')}
-            style={{
-              padding: '6px 16px',
-              borderRadius: 20,
-              border: `1.5px solid ${activeTab === 'journal' ? 'var(--bl)' : 'var(--border)'}`,
-              background: activeTab === 'journal' ? 'var(--bp)' : 'transparent',
-              color: activeTab === 'journal' ? 'var(--bl)' : 'var(--t3)',
-              fontSize: 11,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            📜 Journal d'actions <span style={{ fontSize: 11, opacity: 0.7 }}>({DEMO_HISTORIQUE.length})</span>
+          <button onClick={() => setActiveTab('journal')} style={filterChip(activeTab === 'journal')}>
+            📜 Journal d'actions <span style={{ fontSize: 11, opacity: 0.7 }}>({journalStats.total})</span>
           </button>
         </div>
       </div>
@@ -214,45 +348,88 @@ export function Historique() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedResas.map(r => (
-                    <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', fontSize: 11, cursor: 'pointer' }}>
-                      <td style={{ padding: '7px 10px', fontFamily: 'var(--fm)', fontSize: 11, color: 'var(--t3)' }}>
-                        {r.date}
-                      </td>
-                      <td style={{ padding: '7px 10px', fontFamily: 'var(--fm)', fontSize: 11, fontWeight: 700, color: 'var(--text)' }}>
-                        {r.t.replace('h', ':')}
-                      </td>
-                      <td style={{ padding: '7px 10px', fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>
-                        {r.n}
-                      </td>
-                      <td style={{ padding: '7px 10px', fontFamily: 'var(--fm)', fontSize: 11, color: 'var(--text)' }}>
-                        {r.c}p
-                      </td>
-                      <td style={{ padding: '7px 10px', fontSize: 11, color: 'var(--t2)' }}>
-                        {r.tbl}
-                      </td>
-                      <td style={{ padding: '7px 10px', fontSize: 11, color: 'var(--t2)' }}>
-                        {r.svc}
-                      </td>
-                      <td style={{ padding: '7px 10px' }}>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            padding: '2px 7px',
-                            borderRadius: 5,
-                            background: 'rgba(68,128,216,.08)',
-                            color: statusColors[r.s] || 'var(--bl)',
-                            fontWeight: 700,
-                          }}
-                        >
-                          {statusLabels[r.s] || r.s}
-                        </span>
+                  {paginatedResas.length > 0 ? (
+                    paginatedResas.map(r => (
+                      <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', fontSize: 11, cursor: 'pointer' }}>
+                        <td style={{ padding: '7px 10px', fontFamily: 'var(--fm)', fontSize: 11, color: 'var(--t3)' }}>
+                          {r.date}
+                        </td>
+                        <td style={{ padding: '7px 10px', fontFamily: 'var(--fm)', fontSize: 11, fontWeight: 700, color: 'var(--text)' }}>
+                          {(r.t || '').replace('h', ':')}
+                        </td>
+                        <td style={{ padding: '7px 10px', fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>
+                          {r.n || ''}
+                        </td>
+                        <td style={{ padding: '7px 10px', fontFamily: 'var(--fm)', fontSize: 11, color: 'var(--text)' }}>
+                          {r.c}p
+                        </td>
+                        <td style={{ padding: '7px 10px', fontSize: 11, color: 'var(--t2)' }}>
+                          {r.tbl || ''}
+                        </td>
+                        <td style={{ padding: '7px 10px', fontSize: 11, color: 'var(--t2)' }}>
+                          {r.svc || ''}
+                        </td>
+                        <td style={{ padding: '7px 10px' }}>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              padding: '2px 7px',
+                              borderRadius: 5,
+                              background: 'rgba(68,128,216,.08)',
+                              color: statusColors[r.s] || 'var(--bl)',
+                              fontWeight: 700,
+                            }}
+                          >
+                            {statusLabels[r.s] || r.s}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: 'var(--t3)', fontSize: 12 }}>
+                        Aucune réservation trouvée
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10, padding: '12px 18px' }}>
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    fontSize: 11, padding: '4px 10px', borderRadius: 5,
+                    border: '1px solid var(--border)', background: 'var(--surf2)',
+                    color: currentPage === 1 ? 'var(--t3)' : 'var(--text)',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                  }}
+                >
+                  ← Précédent
+                </button>
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>
+                  Page {currentPage} sur {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    fontSize: 11, padding: '4px 10px', borderRadius: 5,
+                    border: '1px solid var(--border)', background: 'var(--surf2)',
+                    color: currentPage === totalPages ? 'var(--t3)' : 'var(--text)',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === totalPages ? 0.5 : 1,
+                  }}
+                >
+                  Suivant →
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -296,52 +473,95 @@ export function Historique() {
                   </tr>
                 </thead>
                 <tbody>
-                  {DEMO_HISTORIQUE.map(h => (
-                    <tr key={h.id} style={{ borderBottom: '1px solid var(--border)', fontSize: 11 }}>
-                      <td style={{ padding: '7px 10px', fontFamily: 'var(--fm)', fontSize: 11, color: 'var(--t3)', whiteSpace: 'nowrap' }}>
-                        {h.ts}
-                      </td>
-                      <td style={{ padding: '7px 10px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 14 }}>{h.icon}</span>
-                          <div>
-                            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)' }}>
-                              {h.action}
-                            </div>
-                            <div style={{ fontSize: 11, color: 'var(--t3)' }}>
-                              {h.detail}
+                  {paginatedJournal.length > 0 ? (
+                    paginatedJournal.map(h => (
+                      <tr key={h.id} style={{ borderBottom: '1px solid var(--border)', fontSize: 11 }}>
+                        <td style={{ padding: '7px 10px', fontFamily: 'var(--fm)', fontSize: 11, color: 'var(--t3)', whiteSpace: 'nowrap' }}>
+                          {h.ts}
+                        </td>
+                        <td style={{ padding: '7px 10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 14 }}>{h.icon}</span>
+                            <div>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)' }}>
+                                {h.action}
+                              </div>
+                              <div style={{ fontSize: 11, color: 'var(--t3)' }}>
+                                {h.detail}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '7px 10px' }}>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>
-                          {h.user}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--t3)' }}>
-                          {h.role}
-                        </div>
-                      </td>
-                      <td style={{ padding: '7px 10px' }}>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontFamily: 'var(--fm)',
-                            padding: '2px 7px',
-                            borderRadius: 5,
-                            background: 'rgba(68,128,216,.1)',
-                            color: typeColorsMap[h.type] || 'var(--bl)',
-                            border: `1px solid rgba(68,128,216,.2)`,
-                          }}
-                        >
-                          {h.type}
-                        </span>
+                        </td>
+                        <td style={{ padding: '7px 10px' }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>
+                            {h.user}
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--t3)' }}>
+                            {h.role}
+                          </div>
+                        </td>
+                        <td style={{ padding: '7px 10px' }}>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontFamily: 'var(--fm)',
+                              padding: '2px 7px',
+                              borderRadius: 5,
+                              background: 'rgba(68,128,216,.1)',
+                              color: typeColorsMap[h.type] || 'var(--bl)',
+                              border: `1px solid rgba(68,128,216,.2)`,
+                            }}
+                          >
+                            {h.type}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: 'var(--t3)', fontSize: 12 }}>
+                        Aucune action trouvée
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {journalTotalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10, padding: '12px 18px' }}>
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    fontSize: 11, padding: '4px 10px', borderRadius: 5,
+                    border: '1px solid var(--border)', background: 'var(--surf2)',
+                    color: currentPage === 1 ? 'var(--t3)' : 'var(--text)',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                  }}
+                >
+                  ← Précédent
+                </button>
+                <span style={{ fontSize: 11, color: 'var(--t3)' }}>
+                  Page {currentPage} sur {journalTotalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(journalTotalPages, p + 1))}
+                  disabled={currentPage === journalTotalPages}
+                  style={{
+                    fontSize: 11, padding: '4px 10px', borderRadius: 5,
+                    border: '1px solid var(--border)', background: 'var(--surf2)',
+                    color: currentPage === journalTotalPages ? 'var(--t3)' : 'var(--text)',
+                    cursor: currentPage === journalTotalPages ? 'not-allowed' : 'pointer',
+                    opacity: currentPage === journalTotalPages ? 0.5 : 1,
+                  }}
+                >
+                  Suivant →
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>

@@ -35,15 +35,33 @@ export function isOccupying(resa: Resa): boolean {
 //  RÈGLE 2 — TABLES OCCUPÉES / LIBRES
 //  Retourne les IDs des tables actuellement occupées
 //  pour une date + service donnés.
+//  Si slot + durationMins fournis → vérifie le chevauchement
+//  (une table occupée de 19h à 20h30 est libre à 20h30+).
+//  Sans slot → comportement legacy (tout le service).
 // ─────────────────────────────────────────────────────────────
+function _hmToMins(t: string): number {
+  const [h, m] = t.replace('h', ':').split(':').map(Number)
+  return h * 60 + (m || 0)
+}
+
 export function getOccupiedTableIds(
-  resas: Resa[], date: string, svc: string, excludeResaId?: string
+  resas: Resa[], date: string, svc: string,
+  excludeResaId?: string, slot?: string, durationMins?: number
 ): Set<string> {
   const ids = new Set<string>()
+  const slotM = slot ? _hmToMins(slot) : null
+  const dur = durationMins || 90
   for (const r of resas) {
     if (r.date !== date || r.svc !== svc) continue
     if (excludeResaId && r.id === excludeResaId) continue
     if (!isOccupying(r)) continue
+    // Vérification de chevauchement si créneau spécifié
+    if (slotM !== null && r.t) {
+      const resaM = _hmToMins(r.t)
+      // Pas de chevauchement si la nouvelle résa commence après la fin
+      // de l'existante OU si l'existante commence après la fin de la nouvelle
+      if (slotM >= resaM + dur || resaM >= slotM + dur) continue
+    }
     if (r.tbl) {
       if (r.tbl.includes('+')) {
         r.tbl.split('+').forEach(tn => ids.add(tn.trim()))
@@ -56,9 +74,10 @@ export function getOccupiedTableIds(
 }
 
 export function getFreeTables(
-  tables: Table[], resas: Resa[], date: string, svc: string, excludeResaId?: string
+  tables: Table[], resas: Resa[], date: string, svc: string,
+  excludeResaId?: string, slot?: string, durationMins?: number
 ): Table[] {
-  const occupied = getOccupiedTableIds(resas, date, svc, excludeResaId)
+  const occupied = getOccupiedTableIds(resas, date, svc, excludeResaId, slot, durationMins)
   return tables.filter(t =>
     t.active && !t.blocked && !t.held && !occupied.has(t.n)
   )
@@ -70,9 +89,10 @@ export function getFreeTables(
 // ─────────────────────────────────────────────────────────────
 export function getFreeCombos(
   combos: Combo[], tables: Table[], resas: Resa[],
-  date: string, svc: string, excludeResaId?: string
+  date: string, svc: string, excludeResaId?: string,
+  slot?: string, durationMins?: number
 ): Combo[] {
-  const free = getFreeTables(tables, resas, date, svc, excludeResaId)
+  const free = getFreeTables(tables, resas, date, svc, excludeResaId, slot, durationMins)
   const freeIds = new Set(free.map(t => t.id))
   return combos.filter(c => c.tables.every(tid => freeIds.has(tid)))
 }
@@ -94,6 +114,47 @@ export function getMaxCapacity(
     ...freeCombos.map(c => c.cap),
     0
   )
+}
+
+// ═════════════════════════════════════════════════════════════
+//  ██ RÈGLE 4b — ANTI-OVERBOOKING (CRITIQUE) ██
+//
+//  AUCUNE réservation ne doit dépasser la capacité physique
+//  réellement disponible sur le service.
+//
+//  Plafond effectif = min(
+//    maxCapFree,       ← plus grande table/combo libre
+//    remainingCvt      ← couverts restants avant maxCouverts du service
+//  )
+//
+//  Cette règle s'applique à TOUS les canaux :
+//    - ModalResa (app interne)
+//    - Resas.tsx (édition inline)
+//    - Widget public (réservation en ligne)
+//    - API / intégrations futures
+//
+//  Le sélecteur de couverts DOIT bloquer au-delà de ce plafond.
+//  Les boutons au-delà sont désactivés (not-allowed) et barrés.
+//
+//  ⚠️  NE JAMAIS CONTOURNER CETTE RÈGLE — risque de surbooking !
+// ═════════════════════════════════════════════════════════════
+export function getEffectiveMaxCovers(
+  tables: Table[], combos: Combo[], resas: Resa[],
+  date: string, svc: string, serviceMaxCvt: number,
+  excludeResaId?: string
+): number {
+  const maxCapFree = getMaxCapacity(tables, combos, resas, date, svc, excludeResaId)
+  const svcResas = resas.filter(r =>
+    r.date === date && r.svc === svc && r.s !== 'cancelled' && r.s !== 'noshow'
+    && (!excludeResaId || r.id !== excludeResaId)
+  )
+  const totalCvt = svcResas.reduce((s, r) => s + r.c, 0)
+  const remainingCvt = Math.max(0, serviceMaxCvt - totalCvt)
+  // Le plafond effectif = le plus petit des deux limites
+  const effective = maxCapFree > 0
+    ? Math.min(maxCapFree, remainingCvt)
+    : remainingCvt
+  return Math.max(effective, 0)
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -349,10 +410,12 @@ export function iaPlacement(
   tablePref?: string,
   excludeResaId?: string,
   salleFilter?: string,
+  slot?: string,
+  durationMins?: number,
 ): string | null {
-  const free = getFreeTables(tables, resas, date, svc, excludeResaId)
+  const free = getFreeTables(tables, resas, date, svc, excludeResaId, slot, durationMins)
     .filter(t => !salleFilter || salleFilter === 'toutes' || t.salle === salleFilter)
-  const freeCombos = getFreeCombos(combos, tables, resas, date, svc, excludeResaId)
+  const freeCombos = getFreeCombos(combos, tables, resas, date, svc, excludeResaId, slot, durationMins)
 
   // 1. Table préférée
   if (tablePref) {

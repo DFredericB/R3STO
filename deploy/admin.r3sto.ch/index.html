@@ -1114,7 +1114,7 @@
           </div>
           <div>
             <label>Password</label>
-            <input type="password" class="input-field" id="passwordInput" value="admin2026" required>
+            <input type="password" class="input-field" id="passwordInput" value="" placeholder="Mot de passe" required>
           </div>
           <button type="submit" class="login-btn">Sign In</button>
         </form>
@@ -1160,6 +1160,12 @@
             </div>
 
             <div class="sidebar-group">
+              <div class="sidebar-group-title">FINANCE</div>
+              <div class="sidebar-item" data-page="budget">💰 Budget & Prévisions</div>
+              <div class="sidebar-item" data-page="taxes">📋 Taxes & Impôts</div>
+            </div>
+
+            <div class="sidebar-group">
               <div class="sidebar-group-title">SUPPORT</div>
               <div class="sidebar-item" data-page="tickets">🎫 Tickets</div>
               <div class="sidebar-item" data-page="alertes">🔔 Alertes</div>
@@ -1174,15 +1180,26 @@
             </div>
 
             <div class="sidebar-group">
-              <div class="sidebar-group-title">CROISSANCE</div>
+              <div class="sidebar-group-title">ANALYTICS</div>
               <div class="sidebar-item" data-page="marche">🔭 Marché</div>
               <div class="sidebar-item" data-page="analytics">📈 Analytics</div>
+              <div class="sidebar-item" data-page="stats-resas">📊 Resas & Couverts</div>
+              <div class="sidebar-item" data-page="stats-clients">👥 Clients</div>
+              <div class="sidebar-item" data-page="performance">📉 Performance</div>
+              <div class="sidebar-item" data-page="campagnes-roi">📣 Retours campagnes</div>
+              <div class="sidebar-item" data-page="survey-results">📝 Retours onboarding</div>
             </div>
 
             <div class="sidebar-group">
               <div class="sidebar-group-title">PLATEFORME</div>
               <div class="sidebar-item" data-page="monitoring">🟢 Monitoring</div>
               <div class="sidebar-item" data-page="deployments">🛠 Déploiements</div>
+            </div>
+
+            <div class="sidebar-group">
+              <div class="sidebar-group-title">SÉCURITÉ</div>
+              <div class="sidebar-item" data-page="antifraud">🔍 Anti-fraude</div>
+              <div class="sidebar-item" data-page="blacklist-global">🛡️ Blacklist globale</div>
               <div class="sidebar-item" data-page="securite">🔐 Sécurité</div>
             </div>
 
@@ -1256,6 +1273,9 @@
   </div>
 
   <script>
+    const API = 'https://api.r3sto.ch';
+    let authToken = '';
+
     const DATA = {
       clients: [
         { id: 1, name: 'Les Trois Couronnes', plan: 'Gastro', city: 'Genève', tables: 48, res7d: 127, status: 'active', mrr: 599, logo: '👑' },
@@ -1386,13 +1406,61 @@
         { user: 'Marc L.', action: 'Sent broadcast notification', timestamp: '2026-03-24 16:30', ipAddress: '192.168.1.102' },
         { user: 'Didier G.', action: 'Reviewed security alerts', timestamp: '2026-03-24 09:00', ipAddress: '192.168.1.100' },
       ],
+      surveyResponses: [
+        { id: 1, resto: 'Les Trois Couronnes', date: '2026-01-15', previousSystem: 'thefork', discovery: 'google', reasons: ['digital','time','organize'] },
+        { id: 2, resto: 'Pizzeria Napoli', date: '2026-01-22', previousSystem: 'none', discovery: 'reco', reasons: ['digital','time'] },
+        { id: 3, resto: 'Bistro du Coin', date: '2026-02-05', previousSystem: 'none', discovery: 'social', reasons: ['time','noshow'] },
+        { id: 4, resto: 'Le Petit Lyon', date: '2026-02-12', previousSystem: 'resmio', discovery: 'article', reasons: ['replace','organize'] },
+        { id: 5, resto: 'Casa Blanca', date: '2026-02-20', previousSystem: 'aleno', discovery: 'reco', reasons: ['replace','crm','time'] },
+        { id: 6, resto: 'Le Gourmet', date: '2026-03-01', previousSystem: 'guestonline', discovery: 'event', reasons: ['replace','digital','organize'] },
+        { id: 7, resto: 'Sushi Zen', date: '2026-03-08', previousSystem: 'none', discovery: 'google', reasons: ['digital','time','noshow'] },
+        { id: 8, resto: 'The Irish Pub', date: '2026-03-12', previousSystem: 'none', discovery: 'social', reasons: ['digital'] },
+        { id: 9, resto: 'Trattoria Roma', date: '2026-03-18', previousSystem: 'thefork', discovery: 'reco', reasons: ['replace','organize','crm'] },
+        { id: 10, resto: 'Taverne Suisse', date: '2026-03-22', previousSystem: 'none', discovery: 'google', reasons: ['time','organize','noshow'] },
+      ],
+      financials: {
+        mrr: 3841, arr: 46092, churnRate: 2.1, arpu: 384,
+        costs: { servers: 450, stripe: 185, marketing: 800, dev: 2500, support: 1200 },
+        monthlyRevenue: [3200, 3350, 3450, 3550, 3650, 3750, 3841, 0, 0, 0, 0, 0],
+        tvaRate: 8.1,
+      },
+      fraudSignals: [
+        { id: 1, type: 'duplicate_phone', phone: '+41791234567', clients: ['Les Trois Couronnes', 'Pizzeria Napoli'], names: ['Martin L.', 'Martin Laurent'], severity: 'medium', detected: '2026-03-25' },
+        { id: 2, type: 'multi_booking', email: 'jean@test.com', restos: ['Les Trois Couronnes', 'Sushi Zen', 'Casa Blanca'], date: '2026-03-27', severity: 'high', detected: '2026-03-27' },
+        { id: 3, type: 'noshow_repeat', name: 'Dupont Pierre', noshows: 5, restos: ['Pizzeria Napoli', 'Le Gourmet', 'Bistro du Coin'], severity: 'high', detected: '2026-03-26' },
+        { id: 4, type: 'late_cancel', name: 'Marie V.', cancels: 8, avgDelay: '45min', restos: ['Le Gourmet', 'Sushi Zen'], severity: 'medium', detected: '2026-03-24' },
+        { id: 5, type: 'fake_group', name: 'Anonyme', covers: 24, restos: ['Trattoria Roma'], noshows: 2, severity: 'critical', detected: '2026-03-27' },
+      ],
+      blacklistGlobal: [
+        { id: 1, name: 'Dupont Pierre', phone: '+41791234567', email: 'dupont@mail.ch', reason: '5 no-shows cross-restaurants', level: 'block', reportedBy: ['Pizzeria Napoli', 'Le Gourmet', 'Bistro du Coin'], date: '2026-03-26', score: 15 },
+        { id: 2, name: 'Marie V.', phone: '+41799876543', email: 'marie.v@test.ch', reason: 'Annulations tardives répétées', level: 'warn', reportedBy: ['Le Gourmet', 'Sushi Zen'], date: '2026-03-24', score: 35 },
+        { id: 3, name: 'Anonyme (groupe)', phone: '+41780000000', email: '', reason: 'Réservation groupe 24p no-show', level: 'block', reportedBy: ['Trattoria Roma'], date: '2026-03-27', score: 5 },
+      ],
+      statsResas: {
+        today: { total: 47, covers: 186, noshow: 2, cancelled: 3 },
+        week: { total: 312, covers: 1248, noshow: 14, cancelled: 21 },
+        month: { total: 1340, covers: 5360, noshow: 58, cancelled: 89 },
+        byResto: [
+          { name: 'Les Trois Couronnes', resas: 156, covers: 624, noshow: 6, occ: 82 },
+          { name: 'Le Gourmet', resas: 148, covers: 592, noshow: 4, occ: 78 },
+          { name: 'Trattoria Roma', resas: 134, covers: 536, noshow: 8, occ: 74 },
+          { name: 'Pizzeria Napoli', resas: 112, covers: 448, noshow: 12, occ: 71 },
+          { name: 'Casa Blanca', resas: 108, covers: 432, noshow: 5, occ: 68 },
+          { name: 'Sushi Zen', resas: 98, covers: 392, noshow: 7, occ: 65 },
+          { name: 'The Irish Pub', resas: 78, covers: 312, noshow: 3, occ: 59 },
+          { name: 'Bistro du Coin', resas: 72, covers: 288, noshow: 8, occ: 55 },
+          { name: 'Le Petit Lyon', resas: 65, covers: 260, noshow: 2, occ: 52 },
+          { name: 'Taverne Suisse', resas: 58, covers: 232, noshow: 3, occ: 48 },
+        ],
+        byCanal: { telephone: 35, walkin: 20, widget: 28, google: 10, email: 7 },
+        byService: { midi: 45, soir: 55 },
+      },
     };
 
     let currentPage = 'dashboard';
     let currentFilter = 'Tous';
 
     function initApp() {
-      document.getElementById('loginForm').addEventListener('submit', doLogin);
       document.getElementById('quickLinksBtn').addEventListener('click', () => {
         document.getElementById('quickLinksModal').classList.add('show');
       });
@@ -1422,22 +1490,102 @@
       setPage('dashboard');
     }
 
-    function doLogin(e) {
+    async function doLogin(e) {
       e.preventDefault();
       const email = document.getElementById('emailInput').value;
       const password = document.getElementById('passwordInput').value;
-      if (email && password) {
+      if (!email || !password) return;
+
+      // Show loading state
+      const btn = document.querySelector('#loginContainer button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'Connexion...'; }
+
+      try {
+        const res = await fetch(API + '/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.access_token && !data.token) {
+          showToast(data.error || data.message || 'Identifiants incorrects', 'error');
+          if (btn) { btn.disabled = false; btn.textContent = 'Se connecter'; }
+          return;
+        }
+
+        authToken = data.access_token || data.token;
+
+        // Check role — admin only
+        if (data.user && !['superadmin', 'admin'].includes(data.user.role)) {
+          showToast('Accès réservé aux administrateurs', 'error');
+          if (btn) { btn.disabled = false; btn.textContent = 'Se connecter'; }
+          return;
+        }
+
+        // Load real data from API
+        await loadRealData();
+
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('mainApp').style.display = 'flex';
         initApp();
+      } catch (err) {
+        showToast('Erreur de connexion au serveur', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = 'Se connecter'; }
+      }
+    }
+
+    async function loadRealData() {
+      const headers = { 'Authorization': 'Bearer ' + authToken };
+      try {
+        // Fetch clients + stats + restaurants in parallel
+        const [clientsRes, statsRes, restosRes] = await Promise.all([
+          fetch(API + '/admin/clients', { headers }).then(r => r.json()).catch(() => ({ clients: [] })),
+          fetch(API + '/admin/stats', { headers }).then(r => r.json()).catch(() => ({})),
+          fetch(API + '/admin/restaurants', { headers }).then(r => r.json()).catch(() => ({ restaurants: [] })),
+        ]);
+
+        // Map real clients to admin DATA format
+        if (clientsRes.clients) {
+          const restoMap = {};
+          if (restosRes.restaurants) {
+            restosRes.restaurants.forEach(r => { restoMap[r.user_id] = r; });
+          }
+
+          DATA.clients = clientsRes.clients.map((c, i) => {
+            const resto = restoMap[c.id];
+            const planPrices = { free: 0, bistro: 39, resto: 59, gastro: 79 };
+            return {
+              id: c.id,
+              name: resto ? resto.name : (c.name || c.email),
+              plan: (c.plan || 'free').charAt(0).toUpperCase() + (c.plan || 'free').slice(1),
+              city: resto ? (resto.city || '') : '',
+              tables: resto ? (resto.capacity || 0) : 0,
+              res7d: 0,
+              status: c.status || 'active',
+              mrr: planPrices[c.plan] || 0,
+              logo: resto ? '🍽' : '👤',
+              email: c.email,
+              phone: c.phone || '',
+              role: c.role,
+              created_at: c.created_at,
+              restaurant_count: c.restaurant_count || 0,
+            };
+          });
+        }
+
+        console.log('[Admin] Real data loaded:', DATA.clients.length, 'clients');
+      } catch (err) {
+        console.error('[Admin] Error loading data:', err);
       }
     }
 
     function doLogout() {
+      authToken = '';
       document.getElementById('mainApp').style.display = 'none';
       document.getElementById('loginContainer').style.display = 'flex';
       document.getElementById('emailInput').value = 'didier@r3sto.com';
-      document.getElementById('passwordInput').value = 'admin2026';
+      document.getElementById('passwordInput').value = '';
     }
 
     function toggleSidebar() {
@@ -1465,11 +1613,46 @@
     }
 
     function enableShadowMode() {
-      const client = document.getElementById('shadowClientSelect').value;
-      if (client) {
-        showToast(`Shadow mode activated for selected client`, 'success');
+      const select = document.getElementById('shadowClientSelect');
+      const clientId = select.value;
+      if (clientId) {
+        const client = DATA.clients.find(c => c.id == clientId);
+        const name = client ? client.name : 'Client';
+        showToast(`Shadow mode: ouverture de ${name}`, 'success');
         document.getElementById('shadowModeModal').classList.remove('show');
+        window.open(`https://app.r3sto.ch?shadow=${clientId}`, '_blank');
+      } else {
+        showToast('Sélectionnez un restaurant', 'error');
       }
+    }
+
+    function openDemo() {
+      window.open('https://demo.r3sto.ch', '_blank');
+    }
+
+    function showAddUserForm() {
+      document.getElementById('addUserFormArea').style.display = 'block';
+      document.getElementById('newUserName').focus();
+    }
+
+    function addNewUser() {
+      const name = document.getElementById('newUserName').value;
+      const email = document.getElementById('newUserEmail').value;
+      const pwd = document.getElementById('newUserPwd').value;
+      const role = document.getElementById('newUserRole').value;
+      if (!name || !email || !pwd) {
+        showToast('Remplissez tous les champs', 'error');
+        return;
+      }
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      const newId = Date.now();
+      DATA.users.push({ id: newId, name: name, role: role, email: email, avatar: initials });
+      showToast(`${name} ajouté en tant que ${role}`, 'success');
+      document.getElementById('addUserFormArea').style.display = 'none';
+      document.getElementById('newUserName').value = '';
+      document.getElementById('newUserEmail').value = '';
+      document.getElementById('newUserPwd').value = '';
+      renderRoles();
     }
 
     function setPage(page) {
@@ -1479,6 +1662,8 @@
         facturation: 'Facturation',
         onboarding: 'Onboarding',
         activite: 'Activité',
+        budget: 'Budget & Prévisions',
+        taxes: 'Taxes & Impôts',
         tickets: 'Tickets',
         alertes: 'Alertes',
         avis: 'Avis & Idées',
@@ -1487,8 +1672,15 @@
         kb: 'Base de connaissances',
         marche: 'Marché',
         analytics: 'Analytics',
+        'stats-resas': 'Réservations & Couverts',
+        'stats-clients': 'Analyse Clients',
+        performance: 'Performance opérationnelle',
+        'campagnes-roi': 'Retours campagnes',
+        'survey-results': 'Retours onboarding',
         monitoring: 'Monitoring',
         deployments: 'Déploiements',
+        antifraud: 'Détection de fraude',
+        'blacklist-global': 'Blacklist globale',
         securite: 'Sécurité',
         roles: 'Rôles & Accès',
       };
@@ -1502,6 +1694,8 @@
         case 'facturation': renderFacturation(); break;
         case 'onboarding': renderOnboarding(); break;
         case 'activite': renderActivite(); break;
+        case 'budget': renderBudget(); break;
+        case 'taxes': renderTaxes(); break;
         case 'tickets': renderTickets(); break;
         case 'alertes': renderAlertes(); break;
         case 'avis': renderAvis(); break;
@@ -1510,8 +1704,15 @@
         case 'kb': renderKB(); break;
         case 'marche': renderMarche(); break;
         case 'analytics': renderAnalytics(); break;
+        case 'stats-resas': renderStatsResas(); break;
+        case 'stats-clients': renderStatsClients(); break;
+        case 'performance': renderPerformance(); break;
+        case 'campagnes-roi': renderCampagnesRoi(); break;
+        case 'survey-results': renderSurveyResults(); break;
         case 'monitoring': renderMonitoring(); break;
         case 'deployments': renderDeployments(); break;
+        case 'antifraud': renderAntifraud(); break;
+        case 'blacklist-global': renderBlacklistGlobal(); break;
         case 'securite': renderSecurite(); break;
         case 'roles': renderRoles(); break;
       }
@@ -1655,7 +1856,8 @@
                       </span>
                     </td>
                     <td>
-                      <button class="btn-shadow btn-sm" onclick="showToast('Shadow mode for ${c.name}', 'success')">🔭</button>
+                      <button class="btn-shadow btn-sm" onclick="window.open('https://app.r3sto.ch?shadow=${c.id}','_blank')">🔭 Ouvrir</button>
+                      <button class="btn-shadow btn-sm" onclick="window.open('https://demo.r3sto.ch','_blank')" style="margin-left:4px">🎮 Démo</button>
                     </td>
                   </tr>
                 `).join('')}
@@ -2292,23 +2494,90 @@
     function renderRoles() {
       const body = document.getElementById('pageBody');
       let html = `
+        <div style="background:var(--bp);border:1px solid var(--b2);border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px">👑</span>
+          <div>
+            <div style="color:var(--bl);font-weight:700;font-size:12px;">Connecté en tant que Super Admin</div>
+            <div style="color:var(--t3);font-size:11px;">Vous avez tous les droits : gestion des utilisateurs, mots de passe, rôles et permissions.</div>
+          </div>
+        </div>
+
         <div class="card">
-          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Team Members</h3>
-          <div style="display: grid; gap: 12px; margin-bottom: 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="color:var(--text);font-size:14px;font-weight:700;font-family:'Fraunces',serif;">Gestion des utilisateurs</h3>
+            <button class="btn-primary" onclick="showAddUserForm()">+ Ajouter un membre</button>
+          </div>
+
+          <div id="addUserFormArea" style="display:none;margin-bottom:16px;padding:16px;background:var(--surf3);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-weight:700;color:var(--text);font-size:12px;margin-bottom:12px;">Nouvel utilisateur</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+              <div>
+                <label style="display:block;font-size:10px;font-weight:600;color:var(--t3);margin-bottom:4px;">Nom complet</label>
+                <input class="input-field" id="newUserName" placeholder="Ex: Jean Dupont">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;font-weight:600;color:var(--t3);margin-bottom:4px;">Email</label>
+                <input class="input-field" id="newUserEmail" type="email" placeholder="jean@r3sto.com">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;font-weight:600;color:var(--t3);margin-bottom:4px;">Mot de passe</label>
+                <input class="input-field" id="newUserPwd" type="text" placeholder="Min. 8 caractères">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;font-weight:600;color:var(--t3);margin-bottom:4px;">Rôle</label>
+                <select class="select-field" id="newUserRole">
+                  <option value="Support">Support</option>
+                  <option value="Admin">Admin</option>
+                  <option value="Super Admin">Super Admin</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-primary" onclick="addNewUser()">Créer l'utilisateur</button>
+              <button class="btn-secondary" onclick="document.getElementById('addUserFormArea').style.display='none'">Annuler</button>
+            </div>
+          </div>
+
+          <div id="usersListArea" style="display:flex;flex-direction:column;gap:10px;">
             ${DATA.users.map(u => `
-              <div style="padding: 12px; background: var(--surf3); border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                  <div class="user-avatar" style="width: 36px; height: 36px;">${u.avatar}</div>
+              <div style="padding:14px;background:var(--surf3);border-radius:8px;border:1px solid var(--border);" id="user-card-${u.id}">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="user-avatar" style="width:40px;height:40px;font-size:13px;">${u.avatar}</div>
+                    <div>
+                      <div style="color:var(--text);font-size:13px;font-weight:700;">${u.name}</div>
+                      <div style="color:var(--t3);font-size:11px;">${u.email}</div>
+                    </div>
+                  </div>
+                  <span class="pill ${u.role==='Super Admin'?'pill-blue':u.role==='Admin'?'pill-green':'pill-yellow'}" style="font-size:10px;">
+                    ${u.role==='Super Admin'?'👑':''}${u.role}
+                  </span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
                   <div>
-                    <div style="color: var(--text); font-size: 12px; font-weight: 600;">${u.name}</div>
-                    <div style="color: var(--t3); font-size: 10px;">${u.email}</div>
+                    <label style="display:block;font-size:9px;font-weight:600;color:var(--t4);margin-bottom:3px;text-transform:uppercase;">Email</label>
+                    <input class="input-field" value="${u.email}" style="font-size:11px;" onchange="showToast('Email mis à jour pour ${u.name}','success')">
+                  </div>
+                  <div>
+                    <label style="display:block;font-size:9px;font-weight:600;color:var(--t4);margin-bottom:3px;text-transform:uppercase;">Mot de passe</label>
+                    <div style="display:flex;gap:4px;">
+                      <input class="input-field" type="password" value="••••••••" style="font-size:11px;flex:1;">
+                      <button class="btn-secondary" style="padding:4px 8px;font-size:10px;" onclick="showToast('Mot de passe réinitialisé pour ${u.name}','success')">Reset</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label style="display:block;font-size:9px;font-weight:600;color:var(--t4);margin-bottom:3px;text-transform:uppercase;">Rôle</label>
+                    <select class="select-field" style="font-size:11px;" onchange="showToast('Rôle mis à jour pour ${u.name}','success')">
+                      <option ${u.role==='Super Admin'?'selected':''}>Super Admin</option>
+                      <option ${u.role==='Admin'?'selected':''}>Admin</option>
+                      <option ${u.role==='Support'?'selected':''}>Support</option>
+                    </select>
                   </div>
                 </div>
-                <span class="pill pill-blue">${u.role}</span>
+                ${u.role!=='Super Admin' ? `<div style="margin-top:8px;text-align:right;"><button class="btn-secondary" style="color:var(--rd);border-color:var(--rb);font-size:10px;padding:4px 10px;" onclick="if(confirm('Supprimer ${u.name} ?')){showToast('${u.name} supprimé','success');document.getElementById('user-card-${u.id}').remove();}">Supprimer</button></div>` : ''}
               </div>
             `).join('')}
           </div>
-          <button class="btn-primary" onclick="showToast('Add user form opened')">+ Add Team Member</button>
         </div>
 
         <div class="card">
@@ -2374,8 +2643,764 @@
       body.innerHTML = html;
     }
 
+    function renderBudget() {
+      const body = document.getElementById('pageBody');
+      const fin = DATA.financials;
+      const totalCosts = fin.costs.servers + fin.costs.stripe + fin.costs.marketing + fin.costs.dev + fin.costs.support;
+      const margin = fin.mrr - totalCosts;
+      const marginPct = ((margin / fin.mrr) * 100).toFixed(1);
+
+      let html = `
+        <div class="grid-2">
+          <div class="kpi-card">
+            <div class="kpi-label">MRR (CHF)</div>
+            <div class="kpi-value">${fin.mrr.toLocaleString('de-CH')}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">ARR (CHF)</div>
+            <div class="kpi-value">${fin.arr.toLocaleString('de-CH')}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Churn Rate</div>
+            <div class="kpi-value" style="color: var(--rd);">${fin.churnRate.toFixed(1)}%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">ARPU (CHF)</div>
+            <div class="kpi-value">${fin.arpu.toLocaleString('de-CH')}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Répartition des coûts</h3>
+          <table>
+            <thead><tr><th>Catégorie</th><th>Montant (CHF)</th><th>% du MRR</th></tr></thead>
+            <tbody>
+              ${Object.entries(fin.costs).map(([cat, amount]) => {
+                const pct = ((amount / fin.mrr) * 100).toFixed(1);
+                const labels = { servers: 'Serveurs', stripe: 'Stripe', marketing: 'Marketing', dev: 'Développement', support: 'Support' };
+                return `
+                  <tr>
+                    <td>${labels[cat]}</td>
+                    <td><strong>${amount.toLocaleString('de-CH')}</strong></td>
+                    <td><div style="background:var(--bl);width:${pct}%;height:22px;border-radius:4px;"></div></td>
+                  </tr>
+                `;
+              }).join('')}
+              <tr style="background: var(--surf3); font-weight: 700;">
+                <td>Total Coûts</td>
+                <td>${totalCosts.toLocaleString('de-CH')}</td>
+                <td><div style="background:var(--rd);width:${((totalCosts/fin.mrr)*100).toFixed(1)}%;height:22px;border-radius:4px;"></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid-2">
+          <div class="kpi-card">
+            <div class="kpi-label">Marge nette (CHF)</div>
+            <div class="kpi-value" style="color: ${margin > 0 ? 'var(--gn)' : 'var(--rd)'};">${margin.toLocaleString('de-CH')}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Marge nette (%)</div>
+            <div class="kpi-value" style="color: ${margin > 0 ? 'var(--gn)' : 'var(--rd)'};">${marginPct}%</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Prévision mensuelle (7 prochains mois)</h3>
+          <div style="display: flex; gap: 8px; height: 150px; align-items: flex-end;">
+            ${fin.monthlyRevenue.map((rev, idx) => `
+              <div style="flex: 1; position: relative;">
+                ${rev > 0 ? `<div style="background: var(--bl); height: ${(rev/4000)*140}px; border-radius: 4px 4px 0 0; width: 100%;"></div>` : ''}
+                <div style="color: var(--t3); font-size: 10px; text-align: center; margin-top: 4px;">${['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul'][idx]}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">TVA (${(fin.tvaRate).toFixed(1)}%)</h3>
+          <div style="padding: 16px; background: var(--surf3); border-radius: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="color: var(--t2); font-size: 11px; margin-bottom: 4px;">Montant HT (CHF)</div>
+              <div style="color: var(--text); font-size: 18px; font-weight: 700;">${(fin.mrr).toLocaleString('de-CH')}</div>
+            </div>
+            <div>
+              <div style="color: var(--t2); font-size: 11px; margin-bottom: 4px;">TVA à reverser (CHF)</div>
+              <div style="color: var(--am); font-size: 18px; font-weight: 700;">${((fin.mrr * fin.tvaRate) / 100).toLocaleString('de-CH')}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderTaxes() {
+      const body = document.getElementById('pageBody');
+      const fin = DATA.financials;
+      const tva = (fin.mrr * fin.tvaRate) / 100;
+      const annual = fin.arr;
+      const annualTva = (annual * fin.tvaRate) / 100;
+
+      let html = `
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Résumé TVA</h3>
+          <table>
+            <thead><tr><th>Période</th><th>Montant HT (CHF)</th><th>TVA ${(fin.tvaRate).toFixed(1)}% (CHF)</th><th>Montant TTC (CHF)</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Mensuel</strong></td>
+                <td>${fin.mrr.toLocaleString('de-CH')}</td>
+                <td class="status-badge" style="background: var(--ap); color: var(--am); padding: 4px 8px; border-radius: 4px;">${tva.toLocaleString('de-CH')}</td>
+                <td>${(fin.mrr + tva).toLocaleString('de-CH')}</td>
+              </tr>
+              <tr style="background: var(--surf3);">
+                <td><strong>Annuel</strong></td>
+                <td>${annual.toLocaleString('de-CH')}</td>
+                <td class="status-badge" style="background: var(--ap); color: var(--am); padding: 4px 8px; border-radius: 4px;"><strong>${annualTva.toLocaleString('de-CH')}</strong></td>
+                <td><strong>${(annual + annualTva).toLocaleString('de-CH')}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Outils de fiduciaire</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <button class="btn-primary" onclick="showToast('Export comptable pour fiduciaire','success')">📊 Export comptable</button>
+            <button class="btn-primary" onclick="showToast('Export TVA mensuels','success')">📋 Export TVA mensuels</button>
+            <button class="btn-primary" onclick="showToast('Export relevé détaillé','success')">📄 Export relevé détaillé</button>
+            <button class="btn-secondary" onclick="showToast('Intégration Wintax en cours...','success')">🔗 Intégrer Wintax</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Résumé annuel (2026)</h3>
+          <div style="padding: 12px; background: var(--surf3); border-radius: 6px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div>
+                <div style="color: var(--t3); font-size: 10px; margin-bottom: 4px;">CHIFFRE D'AFFAIRES</div>
+                <div style="color: var(--text); font-size: 16px; font-weight: 700;">${annual.toLocaleString('de-CH')} CHF</div>
+              </div>
+              <div>
+                <div style="color: var(--t3); font-size: 10px; margin-bottom: 4px;">TVA À REVERSER</div>
+                <div style="color: var(--am); font-size: 16px; font-weight: 700;">${annualTva.toLocaleString('de-CH')} CHF</div>
+              </div>
+            </div>
+            <div style="padding-top: 12px; border-top: 1px solid var(--border);">
+              <span style="color: var(--t2); font-size: 11px;">Prochaine déclaration TVA : 31 mai 2026</span>
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderStatsResas() {
+      const body = document.getElementById('pageBody');
+      const stats = DATA.statsResas;
+
+      let html = `
+        <div class="grid-3">
+          <div class="kpi-card">
+            <div class="kpi-label">Resas auj.</div>
+            <div class="kpi-value">${stats.today.total}</div>
+            <div style="font-size: 10px; color: var(--t3); margin-top: 4px;">${stats.today.covers} couverts</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Resas sem.</div>
+            <div class="kpi-value">${stats.week.total}</div>
+            <div style="font-size: 10px; color: var(--t3); margin-top: 4px;">${stats.week.covers} couverts</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Resas mois</div>
+            <div class="kpi-value">${stats.month.total}</div>
+            <div style="font-size: 10px; color: var(--t3); margin-top: 4px;">${stats.month.covers} couverts</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Par restaurant (mois)</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Restaurant</th><th>Resas</th><th>Couverts</th><th>No-shows</th><th>Taux occ.</th></tr>
+              </thead>
+              <tbody>
+                ${stats.byResto.map(r => `
+                  <tr>
+                    <td><strong>${r.name}</strong></td>
+                    <td>${r.resas}</td>
+                    <td>${r.covers}</td>
+                    <td><span class="pill pill-red">${r.noshow}</span></td>
+                    <td><div style="background:var(--gn);width:${r.occ}%;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700;">${r.occ}%</div></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Par canal</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${Object.entries(stats.byCanal).map(([canal, count]) => {
+                const total = Object.values(stats.byCanal).reduce((a,b) => a+b, 0);
+                const pct = ((count / total) * 100).toFixed(0);
+                const labels = { telephone: '☎️ Téléphone', walkin: '🚶 Walk-in', widget: '📱 Widget', google: '🔍 Google', email: '📧 Email' };
+                return `
+                  <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px;">
+                      <span>${labels[canal]}</span>
+                      <span style="color: var(--t2);">${pct}%</span>
+                    </div>
+                    <div style="background: var(--surf3); height: 20px; border-radius: 4px; overflow: hidden;">
+                      <div style="background: var(--bl); width: ${pct}%; height: 100%; border-radius: 4px;"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Par service</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              ${Object.entries(stats.byService).map(([service, count]) => {
+                const total = Object.values(stats.byService).reduce((a,b) => a+b, 0);
+                const pct = ((count / total) * 100).toFixed(0);
+                const labels = { midi: '🌤️ Midi', soir: '🌙 Soir' };
+                return `
+                  <div style="background: var(--surf3); padding: 12px; border-radius: 6px; text-align: center;">
+                    <div style="color: var(--t2); font-size: 10px; margin-bottom: 4px;">${labels[service]}</div>
+                    <div style="color: var(--text); font-size: 18px; font-weight: 700;">${pct}%</div>
+                    <div style="color: var(--t3); font-size: 9px; margin-top: 2px;">${count} resas</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderStatsClients() {
+      const body = document.getElementById('pageBody');
+      const totalClients = DATA.clients.length;
+      const newClientsMonth = 3;
+      const returnRate = 76;
+      const topRestosCount = DATA.clients.filter(c => c.mrr >= 399).length;
+
+      let html = `
+        <div class="grid-2">
+          <div class="kpi-card">
+            <div class="kpi-label">Clients total</div>
+            <div class="kpi-value">${totalClients}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Nouveaux (mois)</div>
+            <div class="kpi-value" style="color: var(--gn);">+${newClientsMonth}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Taux rétention</div>
+            <div class="kpi-value">${returnRate}%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Gastro/Resto</div>
+            <div class="kpi-value">${topRestosCount} clients</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Par plan</h3>
+          <table>
+            <thead><tr><th>Plan</th><th>Nombre</th><th>MRR total</th><th>MRR moyen</th><th>%</th></tr></thead>
+            <tbody>
+              ${['Bistro', 'Resto', 'Gastro'].map(plan => {
+                const planClients = DATA.clients.filter(c => c.plan === plan);
+                const count = planClients.length;
+                const mrr = planClients.reduce((s, c) => s + c.mrr, 0);
+                const avg = count > 0 ? Math.round(mrr / count) : 0;
+                const totalMrr = DATA.clients.reduce((s, c) => s + c.mrr, 0);
+                const pct = count > 0 ? ((count / totalClients) * 100).toFixed(0) : 0;
+                return `
+                  <tr>
+                    <td><strong>${plan}</strong></td>
+                    <td>${count}</td>
+                    <td>${mrr.toLocaleString('de-CH')}</td>
+                    <td>${avg.toLocaleString('de-CH')}</td>
+                    <td><div style="background:var(--bl);width:${pct}%;height:22px;border-radius:4px;"></div></td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Top restaurants (par MRR)</h3>
+          <table>
+            <thead><tr><th>Restaurant</th><th>Plan</th><th>Ville</th><th>MRR</th></tr></thead>
+            <tbody>
+              ${DATA.clients.sort((a, b) => b.mrr - a.mrr).slice(0, 5).map(c => `
+                <tr>
+                  <td><span style="margin-right: 6px;">${c.logo}</span><strong>${c.name}</strong></td>
+                  <td><span class="pill pill-blue">${c.plan}</span></td>
+                  <td>${c.city}</td>
+                  <td style="color: var(--gn); font-weight: 700;">${c.mrr.toLocaleString('de-CH')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderPerformance() {
+      const body = document.getElementById('pageBody');
+      const stats = DATA.statsResas;
+
+      let html = `
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Taux d'occupation par restaurant</h3>
+          <table>
+            <thead><tr><th>Restaurant</th><th>Taux</th><th>Graphique</th></tr></thead>
+            <tbody>
+              ${stats.byResto.map(r => `
+                <tr>
+                  <td><strong>${r.name}</strong></td>
+                  <td style="color: ${r.occ >= 75 ? 'var(--gn)' : r.occ >= 50 ? 'var(--am)' : 'var(--rd)'}; font-weight: 700;">${r.occ}%</td>
+                  <td><div style="background:var(--surf3);width:100%;height:22px;border-radius:4px;overflow:hidden;"><div style="background:${r.occ >= 75 ? 'var(--gn)' : r.occ >= 50 ? 'var(--am)' : 'var(--rd)'};width:${r.occ}%;height:100%;"></div></div></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">No-shows ranking</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${stats.byResto.sort((a, b) => b.noshow - a.noshow).slice(0, 3).map((r, i) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: var(--surf3); border-radius: 4px;">
+                  <div>
+                    <div style="color: var(--text); font-size: 11px; font-weight: 600;">${i+1}. ${r.name}</div>
+                    <div style="color: var(--t3); font-size: 10px;">${((r.noshow/r.resas)*100).toFixed(1)}% de ${r.resas}</div>
+                  </div>
+                  <span class="pill pill-red">${r.noshow}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Annulations (top 3)</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${[
+                { name: 'Casa Blanca', rate: 12.5 },
+                { name: 'Pizzeria Napoli', rate: 18.8 },
+                { name: 'Sushi Zen', rate: 15.2 }
+              ].map((r, i) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: var(--surf3); border-radius: 4px;">
+                  <div>
+                    <div style="color: var(--text); font-size: 11px; font-weight: 600;">${i+1}. ${r.name}</div>
+                    <div style="color: var(--t3); font-size: 10px;">${r.rate}% d'annulations</div>
+                  </div>
+                  <span class="pill pill-yellow">${r.rate}%</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Rotation tables (est.)</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${[
+                { name: 'Les Trois Couronnes', turnover: 2.4 },
+                { name: 'Le Gourmet', turnover: 2.1 },
+                { name: 'Trattoria Roma', turnover: 1.9 }
+              ].map((r, i) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: var(--surf3); border-radius: 4px;">
+                  <div>
+                    <div style="color: var(--text); font-size: 11px; font-weight: 600;">${r.name}</div>
+                    <div style="color: var(--t3); font-size: 10px;">Moyenne soir</div>
+                  </div>
+                  <span class="pill pill-blue">${r.turnover}x</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderCampagnesRoi() {
+      const body = document.getElementById('pageBody');
+
+      let html = `
+        <div style="background:var(--bp);border:1px solid var(--b2);border-radius:8px;padding:16px;margin-bottom:16px;text-align:center;">
+          <div style="font-size: 28px; margin-bottom: 8px;">🔗</div>
+          <div style="color: var(--bl); font-weight: 700; margin-bottom: 4px;">Connecter vos données marketing</div>
+          <div style="color: var(--t3); font-size: 11px; margin-bottom: 12px;">Intégrez Google Ads, Facebook Ads ou HubSpot pour voir le ROI de vos campagnes.</div>
+          <button class="btn-primary" onclick="showToast('Intégration marketing en cours...')">🔌 Configurer une intégration</button>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Aperçu des campagnes (données simulées)</h3>
+          <table>
+            <thead><tr><th>Campagne</th><th>Source</th><th>Coût</th><th>Conversions</th><th>Clients acquis</th><th>ROI</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Spring Promo 2026</strong></td>
+                <td>Facebook Ads</td>
+                <td>CHF 1'200</td>
+                <td>45</td>
+                <td>3</td>
+                <td><span class="pill pill-green">+245%</span></td>
+              </tr>
+              <tr>
+                <td><strong>Google Ads - Restaurants</strong></td>
+                <td>Google Ads</td>
+                <td>CHF 800</td>
+                <td>28</td>
+                <td>2</td>
+                <td><span class="pill pill-yellow">+125%</span></td>
+              </tr>
+              <tr>
+                <td><strong>Influencer Collab</strong></td>
+                <td>Social</td>
+                <td>CHF 500</td>
+                <td>12</td>
+                <td>1</td>
+                <td><span class="pill pill-yellow">+92%</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderSurveyResults() {
+      const body = document.getElementById('pageBody');
+      const surveys = DATA.surveyResponses;
+
+      // Count previous systems
+      const prevSystems = {};
+      surveys.forEach(s => {
+        prevSystems[s.previousSystem] = (prevSystems[s.previousSystem] || 0) + 1;
+      });
+
+      // Count discovery sources
+      const discoveryMethods = {};
+      surveys.forEach(s => {
+        discoveryMethods[s.discovery] = (discoveryMethods[s.discovery] || 0) + 1;
+      });
+
+      // Count reasons
+      const reasons = {};
+      surveys.forEach(s => {
+        s.reasons.forEach(r => {
+          reasons[r] = (reasons[r] || 0) + 1;
+        });
+      });
+
+      const reasonLabels = {
+        'digital': 'Digitaliser',
+        'time': 'Gagner du temps',
+        'organize': 'Organiser',
+        'replace': 'Remplacer ancien système',
+        'crm': 'CRM/Client data',
+        'noshow': 'Réduire no-shows'
+      };
+
+      let html = `
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Q1. Ancien système</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${Object.entries(prevSystems).map(([sys, count]) => {
+                const pct = ((count / surveys.length) * 100).toFixed(0);
+                const labels = { 'none': 'Aucun', 'thefork': 'TheFork', 'resmio': 'Resmio', 'aleno': 'Aleno', 'guestonline': 'GuestOnline' };
+                return `
+                  <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px;">
+                      <span>${labels[sys] || sys}</span>
+                      <span style="color: var(--t2);">${pct}%</span>
+                    </div>
+                    <div style="background: var(--surf3); height: 18px; border-radius: 3px; overflow: hidden;">
+                      <div style="background: var(--bl); width: ${pct}%; height: 100%;"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Q2. Découverte</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${Object.entries(discoveryMethods).map(([method, count]) => {
+                const pct = ((count / surveys.length) * 100).toFixed(0);
+                const labels = { 'google': 'Google', 'reco': 'Recommandation', 'social': 'Social', 'article': 'Article', 'event': 'Événement' };
+                return `
+                  <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px;">
+                      <span>${labels[method] || method}</span>
+                      <span style="color: var(--t2);">${pct}%</span>
+                    </div>
+                    <div style="background: var(--surf3); height: 18px; border-radius: 3px; overflow: hidden;">
+                      <div style="background: var(--gn); width: ${pct}%; height: 100%;"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Q3. Raisons du choix (multi-sélection)</h3>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            ${Object.entries(reasons).map(([reason, count]) => {
+              const pct = ((count / surveys.length) * 100).toFixed(0);
+              return `
+                <div style="background: var(--surf3); padding: 12px; border-radius: 6px; text-align: center;">
+                  <div style="color: var(--text); font-size: 12px; font-weight: 600; margin-bottom: 4px;">${reasonLabels[reason]}</div>
+                  <div style="color: var(--bl); font-size: 18px; font-weight: 700;">${count}</div>
+                  <div style="color: var(--t3); font-size: 10px; margin-top: 2px;">${pct}% citent</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Réponses brutes (${surveys.length})</h3>
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Restaurant</th><th>Date</th><th>Ancien système</th><th>Découverte</th><th>Raisons principales</th></tr></thead>
+              <tbody>
+                ${surveys.map(s => `
+                  <tr>
+                    <td><strong>${s.resto}</strong></td>
+                    <td>${s.date}</td>
+                    <td>${s.previousSystem === 'none' ? '(Aucun)' : s.previousSystem}</td>
+                    <td>${s.discovery}</td>
+                    <td><span style="color: var(--t2); font-size: 10px;">${s.reasons.join(', ')}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Insights clés</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="padding: 12px; background: var(--gp); border-radius: 6px; border-left: 3px solid var(--gn);">
+              <div style="color: var(--gn); font-weight: 700; font-size: 11px;">Top motivation</div>
+              <div style="color: var(--t2); font-size: 10px; margin-top: 2px;">Gagner du temps (${reasons['time']} mentions)</div>
+            </div>
+            <div style="padding: 12px; background: var(--bp); border-radius: 6px; border-left: 3px solid var(--bl);">
+              <div style="color: var(--bl); font-weight: 700; font-size: 11px;">Top canal de découverte</div>
+              <div style="color: var(--t2); font-size: 10px; margin-top: 2px;">Google (${discoveryMethods['google'] || 0} mentions)</div>
+            </div>
+            <div style="padding: 12px; background: var(--ap); border-radius: 6px; border-left: 3px solid var(--am);">
+              <div style="color: var(--am); font-weight: 700; font-size: 11px;">Profil type</div>
+              <div style="color: var(--t2); font-size: 10px; margin-top: 2px;">${Math.round((surveys.filter(s => s.previousSystem === 'none').length / surveys.length) * 100)}% viennent sans système précédent</div>
+            </div>
+          </div>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderAntifraud() {
+      const body = document.getElementById('pageBody');
+      const frauds = DATA.fraudSignals;
+
+      const severityColors = {
+        'critical': 'var(--rd)',
+        'high': 'var(--am)',
+        'medium': 'var(--am)',
+        'low': 'var(--gn)'
+      };
+
+      const severityBg = {
+        'critical': 'var(--rp)',
+        'high': 'var(--ap)',
+        'medium': 'var(--ap)',
+        'low': 'var(--gp)'
+      };
+
+      const typeIcons = {
+        'duplicate_phone': '📱',
+        'multi_booking': '🔄',
+        'noshow_repeat': '❌',
+        'late_cancel': '⏰',
+        'fake_group': '👥'
+      };
+
+      const typeLabels = {
+        'duplicate_phone': 'Téléphone en doublon',
+        'multi_booking': 'Multi-réservation',
+        'noshow_repeat': 'No-shows répétés',
+        'late_cancel': 'Annulations tardives',
+        'fake_group': 'Groupe suspect'
+      };
+
+      let html = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-bottom: 16px;">
+          ${frauds.map(f => `
+            <div style="background: ${severityBg[f.severity]}; border: 1px solid ${severityColors[f.severity]}; border-radius: 8px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                <div style="display: flex; gap: 10px;">
+                  <div style="font-size: 24px;">${typeIcons[f.type]}</div>
+                  <div>
+                    <div style="color: ${severityColors[f.severity]}; font-weight: 700; font-size: 12px;">${typeLabels[f.type]}</div>
+                    <div style="color: var(--t3); font-size: 10px; margin-top: 2px;">Détecté: ${f.detected}</div>
+                  </div>
+                </div>
+                <span class="pill" style="background: ${severityBg[f.severity]}; color: ${severityColors[f.severity]}, border: none;">${f.severity.toUpperCase()}</span>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 10px; color: var(--t2);">
+                ${f.type === 'duplicate_phone' ? `
+                  <div><strong>Téléphone:</strong> ${f.phone}</div>
+                  <div style="margin-top: 4px;"><strong>Clients:</strong> ${f.clients.join(', ')}</div>
+                  <div style="margin-top: 4px;"><strong>Noms:</strong> ${f.names.join(', ')}</div>
+                ` : f.type === 'multi_booking' ? `
+                  <div><strong>Email:</strong> ${f.email}</div>
+                  <div style="margin-top: 4px;"><strong>Restaurants:</strong> ${f.restos.join(', ')}</div>
+                  <div style="margin-top: 4px;"><strong>Date:</strong> ${f.date}</div>
+                ` : f.type === 'noshow_repeat' ? `
+                  <div><strong>Personne:</strong> ${f.name}</div>
+                  <div style="margin-top: 4px;"><strong>No-shows:</strong> ${f.noshows}</div>
+                  <div style="margin-top: 4px;"><strong>Restaurants:</strong> ${f.restos.join(', ')}</div>
+                ` : f.type === 'late_cancel' ? `
+                  <div><strong>Personne:</strong> ${f.name}</div>
+                  <div style="margin-top: 4px;"><strong>Annulations:</strong> ${f.cancels}</div>
+                  <div style="margin-top: 4px;"><strong>Délai moyen:</strong> ${f.avgDelay}</div>
+                ` : `
+                  <div><strong>Groupe:</strong> ${f.name}</div>
+                  <div style="margin-top: 4px;"><strong>Couverts:</strong> ${f.covers}</div>
+                  <div style="margin-top: 4px;"><strong>No-shows:</strong> ${f.noshows}/${f.covers}</div>
+                `}
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <button class="btn-primary" style="padding: 6px; font-size: 10px;" onclick="showToast('Investigation lancée')">🔎 Enquêter</button>
+                <button class="btn-secondary" style="padding: 6px; font-size: 10px;" onclick="showToast('Alerte fermée')">✕ Fermer</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Historique des fraudes</h3>
+          <table>
+            <thead><tr><th>Type</th><th>Détails</th><th>Sévérité</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody>
+              ${frauds.map(f => `
+                <tr>
+                  <td>${typeIcons[f.type]} ${typeLabels[f.type]}</td>
+                  <td style="font-size: 10px; color: var(--t2);">
+                    ${f.type === 'duplicate_phone' ? f.phone : f.type === 'multi_booking' ? f.email : f.name}
+                  </td>
+                  <td><span class="pill" style="background: ${severityBg[f.severity]}; color: ${severityColors[f.severity]};">${f.severity}</span></td>
+                  <td style="font-size: 10px;">${f.detected}</td>
+                  <td><button class="btn-secondary btn-sm" onclick="showToast('Détails affichés')">Voir</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
+    function renderBlacklistGlobal() {
+      const body = document.getElementById('pageBody');
+      const blacklist = DATA.blacklistGlobal;
+
+      let html = `
+        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+          <button class="filter-btn active" onclick="currentFilter='all'; setPage('blacklist-global')">Tous (${blacklist.length})</button>
+          <button class="filter-btn" onclick="currentFilter='block'; setPage('blacklist-global')">Bloqués (${blacklist.filter(b => b.level === 'block').length})</button>
+          <button class="filter-btn" onclick="currentFilter='warn'; setPage('blacklist-global')">Avertissements (${blacklist.filter(b => b.level === 'warn').length})</button>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Clients en blacklist</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Nom</th><th>Téléphone</th><th>Email</th><th>Raison</th><th>Niveau</th><th>Score</th><th>Signalé par</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                ${blacklist.filter(b => currentFilter === 'all' || b.level === currentFilter).map(b => `
+                  <tr>
+                    <td><strong>${b.name}</strong></td>
+                    <td><span style="font-family: var(--fm); font-size: 10px;">${b.phone}</span></td>
+                    <td><span style="font-family: var(--fm); font-size: 10px;">${b.email || '—'}</span></td>
+                    <td style="font-size: 10px; color: var(--t2);">${b.reason}</td>
+                    <td>
+                      <span class="pill ${b.level === 'block' ? 'pill-red' : 'pill-yellow'}">
+                        ${b.level === 'block' ? '🚫 BLOCK' : '⚠️ WARN'}
+                      </span>
+                    </td>
+                    <td style="font-weight: 700;">${b.score}</td>
+                    <td style="font-size: 10px; color: var(--t2);">${b.reportedBy.slice(0, 2).join(', ')}${b.reportedBy.length > 2 ? '...' : ''}</td>
+                    <td style="font-size: 10px;">${b.date}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--text); margin-bottom: 12px; font-size: 13px; font-weight: 600;">Ajouter à la blacklist</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Nom</label>
+              <input class="input-field" type="text" placeholder="Nom du client">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Téléphone/Email</label>
+              <input class="input-field" type="text" placeholder="+41... ou email@...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Raison</label>
+              <select class="select-field">
+                <option>No-shows répétés</option>
+                <option>Annulations tardives</option>
+                <option>Fraude</option>
+                <option>Abusif/Spam</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Niveau</label>
+              <select class="select-field">
+                <option>WARN (Avertissement)</option>
+                <option>BLOCK (Blocage)</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top: 12px;" onclick="showToast('Client ajouté à la blacklist','success')">+ Ajouter à la liste</button>
+        </div>
+      `;
+      body.innerHTML = html;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('loginContainer').style.display = 'flex';
+      document.getElementById('loginForm').addEventListener('submit', doLogin);
     });
   </script>
 </body>

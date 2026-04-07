@@ -6,6 +6,7 @@
 
 import { useState, useMemo } from 'react'
 import { useAppStore } from '../../store/useAppStore'
+import { useT } from '../../i18n/useTranslation'
 import type { LoyaltyCard, LoyaltyEvent, LoyaltyMode } from '../../types'
 
 // ── Design tokens ────────────────────────────────
@@ -59,6 +60,7 @@ const MODE_LABELS: Record<LoyaltyMode, { fr: string; icon: string; unit: string 
 }
 
 export function Fidelite() {
+  const { t } = useT()
   const {
     loyaltyConfig, loyaltyCards, clients,
     updateLoyaltyConfig, addLoyaltyCard, deleteLoyaltyCard, addLoyaltyEvent

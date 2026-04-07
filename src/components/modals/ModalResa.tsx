@@ -5,7 +5,7 @@
 // ══════════════════════════════════════════════════
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useAppStore } from '../../store/useAppStore'
+import { useAppStore, isDoubleBooked } from '../../store/useAppStore'
 import { useToast } from '../ui/Toast'
 import { useT } from '../../i18n/useTranslation'
 import PhoneInput, { toE164 } from '../ui/PhoneInput'
@@ -55,8 +55,15 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
 
   const date = preselectedDate || activeDate
 
-  // Services actifs
-  const activeServices = services.filter(s => s.active)
+  // Services actifs (filtrés par jour de la semaine)
+  const activeServices = (() => {
+    const dayOfWeek = new Date(date + 'T12:00:00').getDay()
+    return services.filter(s => {
+      if (!s.active) return false
+      if (s.jours && s.jours.length > 0) return s.jours.includes(dayOfWeek)
+      return true
+    })
+  })()
 
   // Init service par défaut
   useEffect(() => {
@@ -178,6 +185,11 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
     if (!slot) { toast(t('modal.selectSlot'), 'error'); return }
     if (!svc) { toast(t('modal.selectService'), 'error'); return }
     if (options.require_phone && !tel.trim()) { toast(t('modal.phoneRequired'), 'error'); return }
+    // ── Validation date passée ──
+    const todayStr = new Date().toISOString().slice(0, 10)
+    if (date < todayStr) { toast('⛔ Impossible de réserver dans le passé', 'error'); return }
+    // ── Validation couverts > 0 ──
+    if (cvt < 1) { toast('⛔ Nombre de couverts requis', 'error'); return }
 
     const finalTbl = modeIA ? (suggestedTable || t('modal.toAssign')) : (tbl || t('modal.toAssign'))
     const fullName = `${nom.trim()}${prenom.trim() ? ' ' + prenom.trim() : ''}`
@@ -206,6 +218,11 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
       allergie,
     }
 
+    // ── Double-booking check ──
+    if (finalTbl && finalTbl !== t('modal.toAssign') && isDoubleBooked(finalTbl, date, svc)) {
+      toast(`⛔ ${finalTbl} déjà occupée pour ce service`, 'error')
+      return
+    }
     addResa(newResa)
     toast(`✓ ${fullName} · ${cvt}p à ${slot.replace('h',':')} · ${finalTbl}`, 'success')
     onClose()
@@ -324,7 +341,7 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
             <div>
               <label style={labelStyle}>{t('modal.canal')}</label>
               <div style={{ display: 'flex', gap: 5 }}>
-                {([['telephone',`📞 ${t('modal.tel')}`],['walkin',`🚶 ${t('modal.walkin')}`],['widget',`🌐 ${t('modal.canalWeb')}`],['email',`✉️ ${t('modal.email')}`]] as [ResaCanal, string][]).map(([val, lbl]) => (
+                {([['telephone',`📞 ${t('modal.tel')}`],['walkin',`🚶 ${t('modal.walkin')}`],['widget',`🌐 ${t('modal.canalWeb')}`],['email',`✉️ ${t('modal.email')}`],['whatsapp','💬 WhatsApp'],['sms','📱 SMS']] as [ResaCanal, string][]).map(([val, lbl]) => (
                   <button
                     key={val}
                     onClick={() => setCanal(val)}
@@ -373,33 +390,75 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
               </div>
             </div>
 
-            {/* Couverts — grisés si dépassent capacité */}
+            {/* Couverts — chips + flèches ◀ ▶ */}
             <div>
-              <label style={labelStyle}>{t('modal.covers')} *</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                {[1,2,3,4,5,6,7,8,9,10].map(n => {
-                  const isSel = cvt === n
-                  const exceeded = n > availability.maxCapFree
-                  return (
+              <label style={labelStyle}>
+                {t('modal.covers')} *
+                {availability.maxCapFree > 0 && availability.maxCapFree < 10 && (
+                  <span style={{ fontSize: 10, fontWeight: 600, color: availability.maxCapFree <= 2 ? 'var(--rd)' : 'var(--am)', marginLeft: 6 }}>
+                    (max {availability.maxCapFree}p dispo)
+                  </span>
+                )}
+              </label>
+              {(() => {
+                const effectiveMax = availability.maxCapFree > 0 ? Math.min(availability.maxCapFree, availability.remainingCvt) : availability.remainingCvt
+                const hardMax = effectiveMax > 0 ? effectiveMax : 20
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <button
-                      key={n}
-                      onClick={() => setCvt(n)}
+                      onClick={() => setCvt(Math.max(1, cvt - 1))}
                       style={{
-                        width: 36, height: 36, borderRadius: '50%',
-                        border: `1.5px solid ${isSel ? (exceeded ? '#f59e0b' : 'var(--bl)') : 'var(--border)'}`,
-                        background: isSel ? (exceeded ? 'rgba(245,158,11,.1)' : 'var(--bp)') : 'transparent',
-                        color: isSel ? (exceeded ? '#f59e0b' : 'var(--bl)') : exceeded ? 'var(--t4)' : 'var(--t3)',
-                        fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                        fontFamily: 'var(--fm)',
-                        opacity: exceeded && !isSel ? 0.4 : 1,
-                        transition: 'all .12s',
+                        width: 32, height: 32, borderRadius: '50%', border: '1.5px solid var(--border)',
+                        background: 'var(--sf)', color: cvt <= 1 ? 'var(--t4)' : 'var(--bl)',
+                        fontSize: 16, fontWeight: 800, cursor: cvt <= 1 ? 'not-allowed' : 'pointer',
+                        fontFamily: 'var(--fm)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        opacity: cvt <= 1 ? 0.35 : 1, transition: 'all .12s', flexShrink: 0,
                       }}
-                    >
-                      {n}
-                    </button>
-                  )
-                })}
-              </div>
+                      disabled={cvt <= 1}
+                    >◀</button>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, flex: 1 }}>
+                      {[1,2,3,4,5,6,7,8,9,10].map(n => {
+                        const isSel = cvt === n
+                        const exceeded = n > availability.maxCapFree
+                        const overCapacity = n > hardMax
+                        return (
+                          <button
+                            key={n}
+                            onClick={() => !overCapacity && setCvt(n)}
+                            disabled={overCapacity}
+                            title={overCapacity ? `Capacité max dispo: ${hardMax}p` : undefined}
+                            style={{
+                              width: 36, height: 36, borderRadius: '50%',
+                              border: `1.5px solid ${overCapacity ? 'var(--border)' : isSel ? (exceeded ? '#f59e0b' : 'var(--bl)') : 'var(--border)'}`,
+                              background: overCapacity ? 'var(--surf3)' : isSel ? (exceeded ? 'rgba(245,158,11,.1)' : 'var(--bp)') : 'transparent',
+                              color: overCapacity ? 'var(--t4)' : isSel ? (exceeded ? '#f59e0b' : 'var(--bl)') : exceeded ? 'var(--t4)' : 'var(--t3)',
+                              fontSize: 12, fontWeight: 700,
+                              cursor: overCapacity ? 'not-allowed' : 'pointer',
+                              fontFamily: 'var(--fm)',
+                              opacity: overCapacity ? 0.25 : exceeded && !isSel ? 0.4 : 1,
+                              transition: 'all .12s',
+                              textDecoration: overCapacity ? 'line-through' : 'none',
+                            }}
+                          >
+                            {n}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <button
+                      onClick={() => setCvt(Math.min(hardMax, cvt + 1))}
+                      style={{
+                        width: 32, height: 32, borderRadius: '50%', border: '1.5px solid var(--border)',
+                        background: 'var(--sf)', color: cvt >= hardMax ? 'var(--t4)' : 'var(--bl)',
+                        fontSize: 16, fontWeight: 800, cursor: cvt >= hardMax ? 'not-allowed' : 'pointer',
+                        fontFamily: 'var(--fm)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        opacity: cvt >= hardMax ? 0.35 : 1, transition: 'all .12s', flexShrink: 0,
+                      }}
+                      disabled={cvt >= hardMax}
+                    >▶</button>
+                  </div>
+                )
+              })()}
             </div>
 
             {/* Créneau — barres de remplissage */}

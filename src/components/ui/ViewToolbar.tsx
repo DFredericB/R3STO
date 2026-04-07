@@ -33,7 +33,7 @@ interface ViewToolbarProps {
 }
 
 export function ViewToolbar({
-  title, subtitle,
+  title, subtitle: _subtitle,
   serviceFilter, onServiceFilter,
   salleFilter, onSalleFilter,
   search, onSearch, onSearchSubmit,
@@ -110,25 +110,24 @@ export function ViewToolbar({
           {activeClosure.note && <span style={{ fontWeight: 500, fontSize: 11, color: 'var(--t3)', marginLeft: 4 }}>— {activeClosure.note}</span>}
         </div>
       )}
-      {/* ── Ligne 1 : titre + date + recherche + actions ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', flexWrap: 'wrap' }}>
+      {/* ── Ligne 1 : titre + date + résumé + recherche + actions ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', flexWrap: 'nowrap' }}>
         {/* Titre */}
-        <div style={{ minWidth: 90, flexShrink: 0 }}>
+        <div style={{ flexShrink: 0 }}>
           <div className="page-title">{title}</div>
-          {subtitle && <div className="page-subtitle">{subtitle}</div>}
         </div>
 
-        {/* Date nav : ◀ [date cliquable = input natif] ▶ [Auj.] + stats */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        {/* Date nav : ◀ [date cliquable = input natif] ▶ [Auj.] + résumé */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           <button onClick={() => setActiveDate(shiftISO(activeDate, -1))} style={navBtnS}>◀</button>
           <button type="button" onClick={openDatePicker}
             style={{
               position: 'relative', display: 'inline-flex', cursor: 'pointer',
-              height: 36, padding: '0 14px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+              height: 36, padding: '0 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
               border: `2px solid ${isToday ? 'var(--b2)' : 'var(--ab)'}`,
               background: isToday ? 'var(--bp)' : 'var(--ap)',
               color: isToday ? 'var(--bl)' : 'var(--am)',
-              minWidth: 150, textAlign: 'center',
+              minWidth: 120, textAlign: 'center',
               alignItems: 'center', justifyContent: 'center',
             }}>
             {isToday ? `📅 ${t('toolbar.today')}` : `📅 ${fmtDate(activeDate)}`}
@@ -152,35 +151,57 @@ export function ViewToolbar({
               {t('toolbar.todayShort')}
             </button>
           )}
+          {/* Résumé — collé à la date */}
           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', fontFamily: 'var(--fm)', marginLeft: 4, whiteSpace: 'nowrap' }}>
             {total} {t('toolbar.resa')} · {totalCvt}p
           </span>
         </div>
 
-        {/* Spacer → pousse recherche + actions à droite */}
-        <div style={{ flex: 1 }} />
+        {/* Spacer */}
+        <div style={{ flex: 1, minWidth: 8 }} />
 
-        {/* 🔍 Recherche — dans la ligne 1, collée aux actions */}
+        {/* 🔍 Recherche avec bouton X pour effacer */}
         {onSearch && (
-          <input className="input" placeholder={t('toolbar.search')}
-            value={search} onChange={e => onSearch(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && onSearchSubmit) onSearchSubmit() }}
-            style={{
-              width: 160, padding: '6px 10px', fontSize: 12, height: CHIP_H,
-              borderRadius: 7, boxSizing: 'border-box', flexShrink: 1, minWidth: 100,
-            }} />
+          <div style={{ position: 'relative', flexShrink: 1, minWidth: 100, maxWidth: 180 }}>
+            <input className="input" placeholder={t('toolbar.search')}
+              value={search} onChange={e => onSearch(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && onSearchSubmit) onSearchSubmit(); if (e.key === 'Escape') onSearch('') }}
+              style={{
+                width: '100%', padding: '6px 28px 6px 10px', fontSize: 12, height: CHIP_H,
+                borderRadius: 7, boxSizing: 'border-box',
+              }} />
+            {search && (
+              <button
+                onClick={() => onSearch('')}
+                style={{
+                  position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)',
+                  width: 22, height: 22, borderRadius: '50%', border: 'none',
+                  background: 'var(--surf3)', color: 'var(--t3)', cursor: 'pointer',
+                  fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+                title="Effacer"
+              >✕</button>
+            )}
+          </div>
         )}
 
-        {/* Imprimer — reste en ligne 1 */}
+        {/* Imprimer */}
         {onPrint && (
           <button onClick={onPrint} style={navBtnS} title={t('toolbar.print')}>🖨️</button>
         )}
+
+        {/* +Résa — remonté en ligne 1 à droite */}
+        {onNewResa && (
+          <button className="btn btn-primary" style={{ fontSize: 12, minHeight: 36, padding: '0 14px', fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap' }} onClick={onNewResa}>
+            ➕ {t('toolbar.book')}
+          </button>
+        )}
       </div>
 
-      {/* ── Ligne 2 : Services + Salles + Réserver (fusionnée sur une seule ligne) ── */}
+      {/* ── Ligne 2 : Services + Salles (pas de scroll, wrap si nécessaire) ── */}
       {(onServiceFilter || onSalleFilter) && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0 16px 6px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          {/* Services */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0 16px 6px', flexWrap: 'wrap' }}>
+          {/* Services — avec horaires dessous */}
           {onServiceFilter && <>
             <span style={labelS}>Svc</span>
             {[...(hideAllFilter ? [] : [{ id: 'tous', label: t('toolbar.all'), sub: '', open: '', close: '' }]), ...activeServices.map(s => ({ id: s.name.toLowerCase(), label: `${s.icon} ${s.name}`, sub: `${s.open}–${s.lastOrder}`, open: s.open, close: s.close }))].map(f => {
@@ -194,13 +215,15 @@ export function ViewToolbar({
               const dotColor = svcActive ? 'var(--gn)' : svcNext ? '#e8a530' : null
               const dotShadow = svcActive ? '0 0 6px rgba(60,200,112,.5)' : svcNext ? '0 0 6px rgba(232,165,48,.5)' : 'none'
               return (
-                <button key={f.id} style={{ ...chipS(serviceFilter === f.id), opacity: svcDone ? .45 : 1, position: 'relative' as const }} onClick={() => onServiceFilter(f.id)}>
-                  {dotColor && <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, display: 'inline-block', boxShadow: dotShadow, flexShrink: 0 }} />}
-                  <span style={svcDone ? { filter: 'blur(1.5px)', WebkitFilter: 'blur(1.5px)' } : undefined}>
-                    {f.label}{cnt > 0 ? ` (${cnt})` : ''}
-                  </span>
-                  {f.sub && <span style={{ fontSize: 9, opacity: .55, fontWeight: 500, marginLeft: 2, ...(svcDone ? { filter: 'blur(1px)' } : {}) }}>{f.sub}</span>}
-                  {svcDone && <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--t4)', marginLeft: 3, textTransform: 'uppercase' as const, letterSpacing: '.04em', flexShrink: 0 }}>✓</span>}
+                <button key={f.id} style={{ ...chipS(serviceFilter === f.id), opacity: svcDone ? .45 : 1, position: 'relative' as const, flexDirection: 'column' as const, padding: '4px 12px', height: 'auto', minHeight: 32, gap: 1 }} onClick={() => onServiceFilter(f.id)}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {dotColor && <span style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor, display: 'inline-block', boxShadow: dotShadow, flexShrink: 0 }} />}
+                    <span style={svcDone ? { filter: 'blur(1.5px)', WebkitFilter: 'blur(1.5px)' } : undefined}>
+                      {f.label}{cnt > 0 ? ` (${cnt})` : ''}
+                    </span>
+                    {svcDone && <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--t4)', textTransform: 'uppercase' as const, letterSpacing: '.04em', flexShrink: 0 }}>✓</span>}
+                  </div>
+                  {f.sub && <div style={{ fontSize: 9, opacity: .55, fontWeight: 500, lineHeight: 1, ...(svcDone ? { filter: 'blur(1px)' } : {}) }}>{f.sub}</div>}
                 </button>
               )
             })}
@@ -220,23 +243,6 @@ export function ViewToolbar({
               </button>
             ))}
           </>}
-
-          {/* Spacer + Réserver — toujours à droite */}
-          {onNewResa && <>
-            <div style={{ flex: 1 }} />
-            <button className="btn btn-primary" style={{ fontSize: 13, minHeight: 36, padding: '0 16px', fontWeight: 700, flexShrink: 0 }} onClick={onNewResa}>
-              ➕ {t('toolbar.book')}
-            </button>
-          </>}
-        </div>
-      )}
-
-      {/* Fallback si pas de svc/salle bar mais onNewResa */}
-      {!onServiceFilter && !onSalleFilter && onNewResa && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px 5px' }}>
-          <button className="btn btn-primary" style={{ fontSize: 13, minHeight: 36, padding: '0 16px', fontWeight: 700 }} onClick={onNewResa}>
-            ➕ {t('toolbar.book')}
-          </button>
         </div>
       )}
 

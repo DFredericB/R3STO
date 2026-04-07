@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>R3STO API — Test</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 2rem; }
+    h1 { color: #38bdf8; margin-bottom: 1.5rem; }
+    h2 { color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; margin: 1.5rem 0 0.5rem; }
+    .card { background: #1e293b; border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; }
+    button { background: #2563eb; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-size: 0.95rem; margin: 0.3rem 0.3rem 0.3rem 0; }
+    button:hover { background: #3b82f6; }
+    button.green { background: #16a34a; }
+    button.green:hover { background: #22c55e; }
+    button.orange { background: #d97706; }
+    button.orange:hover { background: #f59e0b; }
+    pre { background: #0f172a; padding: 1rem; border-radius: 8px; margin-top: 0.8rem; overflow-x: auto; font-size: 0.85rem; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+    .status { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem; }
+    .status.ok { background: #16a34a33; color: #4ade80; }
+    .status.err { background: #dc262633; color: #f87171; }
+    input { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 0.5rem; border-radius: 6px; width: 100%; margin: 0.3rem 0; }
+    label { font-size: 0.85rem; color: #94a3b8; }
+    .row { display: flex; gap: 0.5rem; }
+    .row > div { flex: 1; }
+  </style>
+</head>
+<body>
+
+<h1>🍽️ R3STO API — Console de test</h1>
+<p style="color:#64748b; margin-bottom:1rem;">API : <strong>https://api.r3sto.ch</strong></p>
+
+<div id="output-area"></div>
+
+<h2>1. Santé</h2>
+<div class="card">
+  <button class="green" onclick="callApi('GET', '/health')">GET /health</button>
+</div>
+
+<h2>2. Authentification</h2>
+<div class="card">
+  <div class="row">
+    <div><label>Email</label><input id="login-email" value="didier@r3sto.com"></div>
+    <div><label>Mot de passe</label><input id="login-pass" value="R3STO2026!" type="password"></div>
+  </div>
+  <button onclick="doLogin()" style="margin-top:0.5rem">POST /auth/login</button>
+  <button class="green" onclick="callApi('GET', '/auth/me', true)">GET /auth/me</button>
+</div>
+
+<h2>3. Inscription (nouveau client)</h2>
+<div class="card">
+  <div class="row">
+    <div><label>Email</label><input id="reg-email" value="test@example.com"></div>
+    <div><label>Mot de passe</label><input id="reg-pass" value="Test1234!" type="password"></div>
+    <div><label>Nom</label><input id="reg-name" value="Test User"></div>
+  </div>
+  <button onclick="doRegister()" style="margin-top:0.5rem">POST /auth/register</button>
+</div>
+
+<h2>4. Restaurants</h2>
+<div class="card">
+  <button onclick="callApi('GET', '/restaurants', true)">GET /restaurants (mes restos)</button>
+  <button class="orange" onclick="doCreateRestaurant()">POST /restaurants (créer test)</button>
+</div>
+
+<h2>5. Admin</h2>
+<div class="card">
+  <button onclick="callApi('GET', '/admin/stats', true)">GET /admin/stats</button>
+  <button onclick="callApi('GET', '/admin/clients', true)">GET /admin/clients</button>
+  <button onclick="callApi('GET', '/admin/restaurants', true)">GET /admin/restaurants</button>
+</div>
+
+<h2>Résultat</h2>
+<div class="card">
+  <div id="status-line"></div>
+  <pre id="result">En attente d'un appel...</pre>
+</div>
+
+<script>
+const API = 'https://api.r3sto.ch';
+let token = '';
+
+function showResult(method, path, status, data) {
+  const el = document.getElementById('result');
+  const sl = document.getElementById('status-line');
+  const ok = status >= 200 && status < 300;
+  sl.innerHTML = `<strong>${method} ${path}</strong> <span class="status ${ok ? 'ok' : 'err'}">${status}</span>`;
+  el.textContent = JSON.stringify(data, null, 2);
+}
+
+async function callApi(method, path, auth = false) {
+  const opts = { method, headers: {} };
+  if (method !== 'GET') opts.headers['Content-Type'] = 'application/json';
+  if (auth && token) opts.headers['Authorization'] = 'Bearer ' + token;
+  try {
+    const res = await fetch(API + path, opts);
+    const data = await res.json();
+    showResult(method, path, res.status, data);
+    return data;
+  } catch (e) {
+    showResult(method, path, 0, { error: e.message });
+  }
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-pass').value;
+  const opts = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  };
+  try {
+    const res = await fetch(API + '/auth/login', opts);
+    const data = await res.json();
+    if (data.token) {
+      token = data.token;
+      showResult('POST', '/auth/login', res.status, { ...data, _info: '✅ Token sauvegardé ! Tu peux maintenant tester les routes authentifiées.' });
+    } else {
+      showResult('POST', '/auth/login', res.status, data);
+    }
+  } catch (e) {
+    showResult('POST', '/auth/login', 0, { error: e.message });
+  }
+}
+
+async function doRegister() {
+  const email = document.getElementById('reg-email').value;
+  const password = document.getElementById('reg-pass').value;
+  const name = document.getElementById('reg-name').value;
+  const opts = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, name })
+  };
+  try {
+    const res = await fetch(API + '/auth/register', opts);
+    const data = await res.json();
+    if (data.token) token = data.token;
+    showResult('POST', '/auth/register', res.status, data);
+  } catch (e) {
+    showResult('POST', '/auth/register', 0, { error: e.message });
+  }
+}
+
+async function doCreateRestaurant() {
+  const opts = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({ name: 'Chez Test', type: 'restaurant', city: 'Lausanne', canton: 'VD', capacity: 40 })
+  };
+  try {
+    const res = await fetch(API + '/restaurants', opts);
+    const data = await res.json();
+    showResult('POST', '/restaurants', res.status, data);
+  } catch (e) {
+    showResult('POST', '/restaurants', 0, { error: e.message });
+  }
+}
+</script>
+</body>
+</html>

@@ -82,6 +82,8 @@ export const CANAUX: Record<ResaCanal, CanalMeta> = {
   widget:    { label: 'modal.canalWeb',  icon: '🌐', color: 'var(--pu)', hex: '#9060e0' },
   google:    { label: 'canal.google',    icon: '🔍', color: 'var(--am)', hex: '#e8a530' },
   email:     { label: 'modal.email',     icon: '✉️', color: 'var(--am)', hex: '#e8a530' },
+  whatsapp:  { label: 'canal.whatsapp', icon: '💬', color: '#25d366',    hex: '#25d366' },
+  sms:       { label: 'canal.sms',      icon: '📱', color: 'var(--t2)',  hex: '#64748b' },
 }
 
 // ── Statuts client ──────────────────────────────
@@ -180,6 +182,24 @@ export const sectionTitle: React.CSSProperties = {
   color: 'var(--t3)',
   marginBottom: 4,
 }
+
+/** Filter chip / tab style — usage: style={filterChip(isActive)} */
+export const filterChip = (on: boolean): React.CSSProperties => ({
+  padding: '6px 14px',
+  borderRadius: RADIUS.pill,
+  border: `1.5px solid ${on ? 'var(--bl)' : 'var(--border)'}`,
+  background: on ? 'var(--bp)' : 'var(--surf3)',
+  color: on ? 'var(--bl)' : 'var(--t2)',
+  fontWeight: 700,
+  fontSize: 12,
+  cursor: 'pointer',
+  fontFamily: 'var(--ff)',
+  whiteSpace: 'nowrap' as const,
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  transition: 'all .12s',
+})
 
 /** Input standard */
 export const inputStyle: React.CSSProperties = {

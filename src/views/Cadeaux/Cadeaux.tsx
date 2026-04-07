@@ -76,7 +76,7 @@ const chipS = (on: boolean): React.CSSProperties => ({
 // ── Composant principal ────────────────────────────
 export function Cadeaux() {
   const { toast } = useToast()
-  useT()
+  const { t } = useT()
   const giftCards = useAppStore(s => s.giftCards)
   const addGiftCard = useAppStore(s => s.addGiftCard)
   const updateGiftCard = useAppStore(s => s.updateGiftCard)
@@ -602,7 +602,7 @@ body { font-family: 'DM Sans', sans-serif; width: 210mm; height: 297mm; display:
               )}
               {(selected.status === 'active' || selected.status === 'partial') && (
                 <button style={btnDanger} onClick={() => handleCancel(selected)}>
-                  Annuler
+                  {t('action.cancel')}
                 </button>
               )}
             </div>
@@ -701,8 +701,8 @@ body { font-family: 'DM Sans', sans-serif; width: 210mm; height: 297mm; display:
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={{ ...btnSecondary, flex: 1 }} onClick={() => setShowUseModal(false)}>Annuler</button>
-              <button style={{ ...btnPrimary, flex: 1 }} onClick={handleUse}>Confirmer</button>
+              <button style={{ ...btnSecondary, flex: 1 }} onClick={() => setShowUseModal(false)}>{t('action.cancel')}</button>
+              <button style={{ ...btnPrimary, flex: 1 }} onClick={handleUse}>{t('action.confirm')}</button>
             </div>
           </div>
         </div>

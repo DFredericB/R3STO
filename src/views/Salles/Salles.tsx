@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useToast } from '../../components/ui/Toast'
+import { useT } from '../../i18n/useTranslation'
 
 type TabType = 'salles' | 'services' | 'avance'
 type ModalKind = 'none' | 'add-salle' | 'edit-salle' | 'add-service' | 'edit-service'
@@ -60,6 +61,7 @@ function minsToSlot(mins: number): string {
 
 export function Salles() {
   const { toast } = useToast()
+  const { t } = useT()
   const [activeTab, setActiveTab] = useState<TabType>('salles')
   const [salles, setSalles] = useState(DEMO_SALLES)
   const [services, setServices] = useState(DEMO_SERVICES)
@@ -439,7 +441,7 @@ export function Salles() {
                         color: svc.active ? 'var(--gn)' : 'var(--rd)',
                       }}
                     >
-                      {svc.active ? 'Actif' : 'Inactif'}
+                      {svc.active ? t('state.active') : t('state.inactive')}
                     </span>
                   </div>
 
@@ -456,9 +458,9 @@ export function Salles() {
                         {svc.close}
                       </div>
                     </div>
-                    <div style={{ padding: '6px 9px', background: 'rgba(220,80,80,.07)', border: '1px solid rgba(220,80,80,.2)', borderRadius: 7 }}>
-                      <div style={{ fontSize: 11, color: 'var(--rd)', marginBottom: 1 }}>Last order</div>
-                      <div style={{ fontSize: 12, fontWeight: 800, fontFamily: 'var(--fm)', color: 'var(--rd)' }}>
+                    <div style={{ padding: '6px 9px', background: 'rgba(232,165,48,.07)', border: '1px solid rgba(232,165,48,.2)', borderRadius: 7 }}>
+                      <div style={{ fontSize: 11, color: '#d4a800', marginBottom: 1 }}>Last order</div>
+                      <div style={{ fontSize: 12, fontWeight: 800, fontFamily: 'var(--fm)', color: '#d4a800' }}>
                         {svc.lastOrder}
                       </div>
                     </div>
@@ -909,7 +911,7 @@ export function Salles() {
 
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                   <button onClick={() => setModal('none')} style={{ padding: '7px 14px', borderRadius: 7, border: '1px solid var(--border)', background: 'transparent', color: 'var(--t2)', fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>
-                    Annuler
+                    {t('action.cancel')}
                   </button>
                   <button
                     onClick={submitSalle}
@@ -921,7 +923,7 @@ export function Salles() {
                       fontWeight: 700, fontSize: 12, cursor: salleForm.name.trim() ? 'pointer' : 'not-allowed',
                     }}
                   >
-                    {modal === 'add-salle' ? 'Ajouter' : 'Enregistrer'}
+                    {modal === 'add-salle' ? t('action.add') : t('action.save')}
                   </button>
                 </div>
               </>
@@ -1034,7 +1036,7 @@ export function Salles() {
 
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                   <button onClick={() => setModal('none')} style={{ padding: '7px 14px', borderRadius: 7, border: '1px solid var(--border)', background: 'transparent', color: 'var(--t2)', fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>
-                    Annuler
+                    {t('action.cancel')}
                   </button>
                   <button
                     onClick={submitSvc}
@@ -1046,7 +1048,7 @@ export function Salles() {
                       fontWeight: 700, fontSize: 12, cursor: svcForm.name.trim() ? 'pointer' : 'not-allowed',
                     }}
                   >
-                    {modal === 'add-service' ? 'Ajouter' : 'Enregistrer'}
+                    {modal === 'add-service' ? t('action.add') : t('action.save')}
                   </button>
                 </div>
               </>

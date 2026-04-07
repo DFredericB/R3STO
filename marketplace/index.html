@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R3STO Table - Réservez votre restaurant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #e63946;
+            --color-secondary: #1d3557;
+            --color-accent-light: #f4f1de;
+            --color-accent-warm: #f1faee;
+            --color-success: #2ecc71;
+            --color-text-dark: #1a1a1a;
+            --color-text-light: #666666;
+            --color-border: #e8e8e8;
+            --color-bg: #ffffff;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-dark);
+            line-height: 1.6;
+        }
+
+        /* ========== HEADER ========== */
+        header {
+            background-color: var(--color-bg);
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .logo::before {
+            content: "🍽️";
+            font-size: 1.8rem;
+        }
+
+        .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: var(--transition-smooth);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 0.5rem;
+            border-right: 1px solid var(--color-border);
+            padding-right: 1rem;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .lang-btn.active {
+            color: var(--color-primary);
+        }
+
+        .lang-btn:hover {
+            color: var(--color-primary);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+        }
+
+        .btn-login {
+            background-color: transparent;
+            color: var(--color-text-dark);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-login:hover {
+            background-color: var(--color-accent-light);
+            border-color: var(--color-text-dark);
+        }
+
+        .btn-signup {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-signup:hover {
+            background-color: #d62828;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #d62828;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--color-text-dark);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--color-accent-light);
+        }
+
+        /* ========== HERO SEARCH ========== */
+        .hero {
+            background: linear-gradient(135deg, var(--color-accent-warm) 0%, #fef3e2 100%);
+            padding: 3rem 1.5rem;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--color-text-light);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .search-form {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.875rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: var(--transition-smooth);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+        }
+
+        .date-chips {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+        }
+
+        .date-chip {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--color-border);
+            background-color: white;
+            border-radius: 2rem;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        .date-chip:hover {
+            border-color: var(--color-primary);
+            background-color: var(--color-accent-light);
+        }
+
+        .date-chip.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .search-button-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .btn-search {
+            padding: 1rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            width: 100%;
+        }
+
+        .quick-cities {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .quick-cities-title {
+            font-size: 0.95rem;
+            color: var(--color-text-light);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .quick-cities-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .quick-city {
+            padding: 0.5rem 1rem;
+            background-color: white;
+            border: 1px solid var(--color-border);
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        .quick-city:hover {
+            background-color: var(--color-accent-light);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        /* ========== FEATURED RESTAURANTS CAROUSEL ========== */
+        .featured-section {
+            padding: 3rem 1.5rem;
+            background-color: var(--color-bg);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 0.95rem;
+            color: var(--color-text-light);
+            margin-bottom: 2rem;
+        }
+
+        .featured-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .carousel {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            scroll-behavior: smooth;
+        }
+
+        .carousel::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .carousel::-webkit-scrollbar-track {
+            background: var(--color-accent-light);
+            border-radius: 3px;
+        }
+
+        .carousel::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 3px;
+        }
+
+        .restaurant-card {
+            flex: 0 0 280px;
+            background-color: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: var(--transition-smooth);
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .restaurant-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f4a261 0%, #e76f51 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restaurant-image.cuisine-2 {
+            background: linear-gradient(135deg, #264653 0%, #2a9d8f 100%);
+        }
+
+        .restaurant-image.cuisine-3 {
+            background: linear-gradient(135deg, #e9c46a 0%, #f4a261 100%);
+        }
+
+        .restaurant-image.cuisine-4 {
+            background: linear-gradient(135deg, #d62828 0%, #f77f00 100%);
+        }
+
+        .restaurant-image.cuisine-5 {
+            background: linear-gradient(135deg, #06a77d 0%, #55a630 100%);
+        }
+
+        .restaurant-image.cuisine-6 {
+            background: linear-gradient(135deg, #8b4513 0%, #cd853f 100%);
+        }
+
+        .restaurant-image.cuisine-7 {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+        }
+
+        .restaurant-image.cuisine-8 {
+            background: linear-gradient(135deg, #a8d8ea 0%, #aa96da 100%);
+        }
+
+        .availability-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--color-success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .restaurant-info {
+            padding: 1.5rem;
+        }
+
+        .restaurant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .restaurant-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            flex: 1;
+        }
+
+        .restaurant-rating {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            white-space: nowrap;
+        }
+
+        .restaurant-cuisine {
+            display: inline-block;
+            background-color: var(--color-accent-light);
+            color: var(--color-secondary);
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .restaurant-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+        }
+
+        .restaurant-price {
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        .restaurant-footer {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-reserve {
+            flex: 1;
+            padding: 0.75rem;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+        }
+
+        .btn-reserve:hover {
+            background-color: #d62828;
+        }
+
+        /* ========== BROWSE BY CUISINE ========== */
+        .cuisine-section {
+            padding: 3rem 1.5rem;
+            background-color: var(--color-accent-warm);
+        }
+
+        .cuisine-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .cuisine-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .cuisine-card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .cuisine-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(230, 57, 70, 0.15);
+        }
+
+        .cuisine-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .cuisine-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        /* ========== TOP RATED ========== */
+        .top-rated-section {
+            padding: 3rem 1.5rem;
+            background-color: var(--color-bg);
+        }
+
+        .top-rated-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .restaurant-card-grid {
+            background-color: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: var(--transition-smooth);
+        }
+
+        .restaurant-card-grid:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .restaurant-card-grid .restaurant-image {
+            height: 180px;
+        }
+
+        .restaurant-card-grid .restaurant-info {
+            padding: 1.5rem;
+        }
+
+        .restaurant-description {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            margin: 0.75rem 0;
+            line-height: 1.4;
+        }
+
+        .time-slots {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .time-slot {
+            padding: 0.35rem 0.75rem;
+            background-color: var(--color-accent-light);
+            color: var(--color-secondary);
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ========== HOW IT WORKS ========== */
+        .how-it-works {
+            padding: 3rem 1.5rem;
+            background: linear-gradient(135deg, #f1faee 0%, #e0f2e0 100%);
+        }
+
+        .how-it-works-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .step {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background-color: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+
+        .step-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+            font-size: 0.95rem;
+            color: var(--color-text-light);
+            line-height: 1.5;
+        }
+
+        /* ========== DOWNLOAD APP ========== */
+        .download-app {
+            padding: 3rem 1.5rem;
+            background-color: var(--color-bg);
+        }
+
+        .download-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .download-content h2 {
+            font-size: 2rem;
+            color: var(--color-text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .download-content p {
+            font-size: 1rem;
+            color: var(--color-text-light);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .app-badges {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .app-badge {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--color-border);
+            border-radius: 0.5rem;
+            background-color: white;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .app-badge:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .phone-mockup {
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+            width: 250px;
+            height: 400px;
+            border-radius: 2rem;
+            padding: 10px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            background-color: var(--color-secondary);
+            color: white;
+            padding: 3rem 1.5rem 1.5rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-section h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        .footer-links a:hover {
+            color: white;
+            padding-left: 0.5rem;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .footer-logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 1.2rem;
+        }
+
+        .social-icon:hover {
+            background-color: var(--color-primary);
+            transform: translateY(-3px);
+        }
+
+        .restaurateur-link {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+
+        .restaurateur-link:hover {
+            background-color: #d62828;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .search-form {
+                padding: 1.5rem;
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .download-container {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-section,
+            .cuisine-section,
+            .top-rated-section,
+            .how-it-works,
+            .download-app {
+                padding: 2rem 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .restaurant-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cuisine-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 1rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .search-form {
+                padding: 1.25rem;
+                border-radius: 0.75rem;
+            }
+
+            .quick-cities {
+                margin-top: 1.5rem;
+            }
+
+            .quick-cities-list {
+                justify-content: flex-start;
+                gap: 0.5rem;
+            }
+
+            .quick-city {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .restaurant-card {
+                flex: 0 0 100%;
+            }
+
+            .carousel {
+                gap: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .auth-buttons {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+
+            .btn-login,
+            .btn-signup {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo">R3STO Table</a>
+            <div class="header-search">
+                <input type="text" class="search-input" placeholder="Rechercher un restaurant...">
+            </div>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <button class="lang-btn active">FR</button>
+                    <button class="lang-btn">DE</button>
+                    <button class="lang-btn">EN</button>
+                </div>
+                <div class="auth-buttons">
+                    <button class="btn btn-login">Se connecter</button>
+                    <button class="btn btn-signup">S'inscrire</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SEARCH -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1 class="hero-title">Réservez votre table idéale</h1>
+            <p class="hero-subtitle">Découvrez les meilleurs restaurants suisses et réservez en ligne</p>
+
+            <form class="search-form" id="searchForm">
+                <div class="search-grid">
+                    <div class="form-group">
+                        <label for="location">Lieu (Ville ou quartier)</label>
+                        <input type="text" id="location" placeholder="Genève, Lausanne, Zurich...">
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <div class="date-chips" id="dateChips"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="service">Service</label>
+                        <select id="service">
+                            <option>Midi</option>
+                            <option>Soir</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">Nombre de convives</label>
+                        <select id="guests">
+                            <option>1 personne</option>
+                            <option selected>2 personnes</option>
+                            <option>3 personnes</option>
+                            <option>4 personnes</option>
+                            <option>5 personnes</option>
+                            <option>6 personnes</option>
+                            <option>7 personnes</option>
+                            <option>8 personnes</option>
+                            <option>9 personnes</option>
+                            <option>10 personnes</option>
+                            <option>11 personnes</option>
+                            <option>12+ personnes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="search-button-group">
+                    <button type="submit" class="btn btn-primary btn-search">Rechercher des restaurants</button>
+                </div>
+            </form>
+
+            <div class="quick-cities">
+                <div class="quick-cities-title">Cherchez par ville</div>
+                <div class="quick-cities-list">
+                    <div class="quick-city">Genève</div>
+                    <div class="quick-city">Lausanne</div>
+                    <div class="quick-city">Zurich</div>
+                    <div class="quick-city">Berne</div>
+                    <div class="quick-city">Sion</div>
+                    <div class="quick-city">Montreux</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED RESTAURANTS -->
+    <section class="featured-section">
+        <div class="featured-container">
+            <h2 class="section-title">Restaurants en vedette</h2>
+            <p class="section-subtitle">Nos coups de cœur disponibles cette semaine</p>
+
+            <div class="carousel" id="featuredCarousel">
+                <!-- Restaurants will be inserted by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- BROWSE BY CUISINE -->
+    <section class="cuisine-section">
+        <div class="cuisine-container">
+            <h2 class="section-title">Parcourir par cuisine</h2>
+            <p class="section-subtitle">Explorez une variété de cuisines du monde</p>
+
+            <div class="cuisine-grid">
+                <div class="cuisine-card">
+                    <div class="cuisine-icon">🥖</div>
+                    <div class="cuisine-name">Française</div>
+                </div>
+                <div class="cuisine-card">
+                    <div class="cuisine-icon">🍝</div>
+                    <div class="cuisine-name">Italienne</div>
+                </div>
+                <div class="cuisine-card">
+                    <div class="cuisine-icon">🍱</div>
+                    <div class="cuisine-name">Japonaise</div>
+                </div>
+                <div class="cuisine-card">
+                    <div class="cuisine-icon">🧀</div>
+                    <div class="cuisine-name">Suisse</div>
+                </div>
+                <div class="cuisine-card">
+                    <div class="cuisine-icon">🌶️</div>
+                    <div class="cuisine-name">Thaï</div>
+                </div>
+                <div class="cuisine-card">
+                    <div class="cuisine-icon">🍛</div>
+                    <div class="cuisine-name">Indienne</div>
+                </div>
+                <div class="cuisine-card">
+                    <div class="cuisine-icon">🌮</div>
+                    <div class="cuisine-name">Mexicaine</div>
+                </div>
+                <div class="cuisine-card">
+                    <div class="cuisine-icon">🥗</div>
+                    <div class="cuisine-name">Méditerranéenne</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOP RATED -->
+    <section class="top-rated-section">
+        <div class="top-rated-container">
+            <h2 class="section-title">Top Réstaurants</h2>
+            <p class="section-subtitle">Les établissements les mieux notés de Suisse</p>
+
+            <div class="restaurant-grid" id="topRatedGrid">
+                <!-- Restaurants will be inserted by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works">
+        <div class="how-it-works-container">
+            <h2 class="section-title">Comment ça marche</h2>
+            <p class="section-subtitle">Réservez votre restaurant en 3 étapes simples</p>
+
+            <div class="steps-grid">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Choisissez un restaurant</div>
+                    <div class="step-description">Parcourez notre sélection de restaurants et trouvez celui qui vous correspond.</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Réservez en ligne gratuitement</div>
+                    <div class="step-description">Sélectionnez votre date, heure et nombre de convives, c'est gratuit et instantané.</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Profitez de votre repas</div>
+                    <div class="step-description">Présentez votre confirmation au restaurant et savourez votre expérience culinaire.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DOWNLOAD APP -->
+    <section class="download-app">
+        <div class="download-container">
+            <div class="download-content">
+                <h2>Réservez depuis votre mobile</h2>
+                <p>Téléchargez l'application R3STO Table pour réserver vos restaurants préférés en quelques clics. Disponible sur iOS et Android.</p>
+                <div class="app-badges">
+                    <div class="app-badge">
+                        <span>🍎</span> App Store
+                    </div>
+                    <div class="app-badge">
+                        <span>🔵</span> Google Play
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        🍽️
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>R3STO Table</h3>
+                    <div class="footer-links">
+                        <a href="#about">À propos</a>
+                        <a href="#contact">Contact</a>
+                        <a href="#terms">Conditions Générales</a>
+                        <a href="#privacy">Confidentialité</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Villes populaires</h3>
+                    <div class="footer-links">
+                        <a href="#geneva">Genève</a>
+                        <a href="#lausanne">Lausanne</a>
+                        <a href="#zurich">Zurich</a>
+                        <a href="#berne">Berne</a>
+                        <a href="#sion">Sion</a>
+                        <a href="#montreux">Montreux</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Types de cuisine</h3>
+                    <div class="footer-links">
+                        <a href="#french">Française</a>
+                        <a href="#italian">Italienne</a>
+                        <a href="#japanese">Japonaise</a>
+                        <a href="#swiss">Suisse</a>
+                        <a href="#thai">Thaïlandaise</a>
+                        <a href="#mediterranean">Méditerranéenne</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Pour les restaurateurs</h3>
+                    <div class="footer-links">
+                        <a href="https://r3sto.ch" class="restaurateur-link">r3sto.ch →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-bottom-left">
+                    <div class="footer-logo">🍽️ R3STO Table</div>
+                    <div style="color: rgba(255, 255, 255, 0.6);">© 2026 R3STO Table. Tous droits réservés.</div>
+                </div>
+                <div class="social-icons">
+                    <div class="social-icon" title="Facebook">f</div>
+                    <div class="social-icon" title="Instagram">📷</div>
+                    <div class="social-icon" title="Twitter">𝕏</div>
+                    <div class="social-icon" title="LinkedIn">in</div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Restaurant data
+        const restaurants = [
+            {
+                id: 1,
+                name: "Le Gourmet",
+                cuisine: "Française",
+                city: "Lausanne",
+                rating: 4.8,
+                price: "CHF CHF CHF",
+                description: "Cuisine française raffinée dans un cadre élégant et intemporel.",
+                image: "cuisine-0"
+            },
+            {
+                id: 2,
+                name: "La Terrasse du Lac",
+                cuisine: "Méditerranéenne",
+                city: "Montreux",
+                rating: 4.6,
+                price: "CHF CHF",
+                description: "Vue panoramique sur le lac avec spécialités méditerranéennes authentiques.",
+                image: "cuisine-1"
+            },
+            {
+                id: 3,
+                name: "Chez Marcel",
+                cuisine: "Bistro",
+                city: "Genève",
+                rating: 4.5,
+                price: "CHF CHF",
+                description: "Atmosphère chaleureuse et cuisine de bistro traditionnelle française.",
+                image: "cuisine-2"
+            },
+            {
+                id: 4,
+                name: "Sakura Zen",
+                cuisine: "Japonaise",
+                city: "Zurich",
+                rating: 4.7,
+                price: "CHF CHF CHF",
+                description: "Authentique cuisine japonaise avec sushi et plats traditionnels préparés par des maîtres.",
+                image: "cuisine-3"
+            },
+            {
+                id: 5,
+                name: "Trattoria Bella",
+                cuisine: "Italienne",
+                city: "Lausanne",
+                rating: 4.4,
+                price: "CHF",
+                description: "Saveurs authentiques de l'Italie dans une ambiance méditerranéenne.",
+                image: "cuisine-4"
+            },
+            {
+                id: 6,
+                name: "L'Alpage",
+                cuisine: "Suisse traditionnelle",
+                city: "Sion",
+                rating: 4.9,
+                price: "CHF CHF",
+                description: "Fondues, raclettes et spécialités valaisannes dans un décor rustique.",
+                image: "cuisine-5"
+            },
+            {
+                id: 7,
+                name: "Thai Orchid",
+                cuisine: "Thaïlandaise",
+                city: "Berne",
+                rating: 4.3,
+                price: "CHF",
+                description: "Saveurs exotiques et plats thaïlandais authentiques dans un cadre zen.",
+                image: "cuisine-6"
+            },
+            {
+                id: 8,
+                name: "Spice Route",
+                cuisine: "Indienne",
+                city: "Genève",
+                rating: 4.5,
+                price: "CHF CHF",
+                description: "Curry savoureux et plats indiens épicés préparés selon les traditions ancestrales.",
+                image: "cuisine-7"
+            }
+        ];
+
+        // Initialize date chips
+        function initDateChips() {
+            const dateChipsContainer = document.getElementById('dateChips');
+            const today = new Date();
+            const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+            const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() + i);
+                const dayName = days[date.getDay()];
+                const dayNum = date.getDate();
+                const monthName = months[date.getMonth()];
+
+                const chip = document.createElement('div');
+                chip.className = 'date-chip' + (i === 0 ? ' active' : '');
+                chip.textContent = `${dayName} ${dayNum} ${monthName}`;
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                });
+                dateChipsContainer.appendChild(chip);
+            }
+        }
+
+        // Render featured restaurants
+        function renderFeaturedRestaurants() {
+            const carousel = document.getElementById('featuredCarousel');
+            restaurants.forEach((restaurant, index) => {
+                const card = document.createElement('div');
+                card.className = 'restaurant-card';
+                card.innerHTML = `
+                    <div class="restaurant-image cuisine-${index}">
+                        <div class="availability-badge">Disponible ce soir</div>
+                    </div>
+                    <div class="restaurant-info">
+                        <div class="restaurant-header">
+                            <div class="restaurant-name">${restaurant.name}</div>
+                            <div class="restaurant-rating">⭐ ${restaurant.rating}</div>
+                        </div>
+                        <div class="restaurant-cuisine">${restaurant.cuisine}</div>
+                        <div class="restaurant-meta">
+                            <span>${restaurant.city}</span>
+                            <span class="restaurant-price">${restaurant.price}</span>
+                        </div>
+                        <div class="restaurant-footer">
+                            <button class="btn-reserve">Réserver</button>
+                        </div>
+                    </div>
+                `;
+                carousel.appendChild(card);
+            });
+        }
+
+        // Render top rated restaurants (different subset)
+        function renderTopRatedRestaurants() {
+            const grid = document.getElementById('topRatedGrid');
+            const topRated = [...restaurants].slice(0, 6);
+
+            topRated.forEach((restaurant, index) => {
+                const card = document.createElement('div');
+                card.className = 'restaurant-card-grid';
+                const times = ['19:00', '19:30', '20:00'];
+                const timeSlots = times.map(t => `<span class="time-slot">${t}</span>`).join('');
+
+                card.innerHTML = `
+                    <div class="restaurant-image cuisine-${index}"></div>
+                    <div class="restaurant-info">
+                        <div class="restaurant-header">
+                            <div class="restaurant-name">${restaurant.name}</div>
+                            <div class="restaurant-rating">⭐ ${restaurant.rating}</div>
+                        </div>
+                        <div class="restaurant-cuisine">${restaurant.cuisine}</div>
+                        <div class="restaurant-description">${restaurant.description}</div>
+                        <div class="restaurant-meta">
+                            <span>${restaurant.city}</span>
+                            <span class="restaurant-price">${restaurant.price}</span>
+                        </div>
+                        <div class="time-slots">
+                            ${timeSlots}
+                        </div>
+                        <div class="restaurant-footer" style="margin-top: 1rem;">
+                            <button class="btn-reserve">Réserver</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Handle search form submission
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const location = document.getElementById('location').value;
+            const service = document.getElementById('service').value;
+            const guests = document.getElementById('guests').value;
+            alert(`Recherche: ${location}, ${service}, ${guests}`);
+        });
+
+        // Handle quick city clicks
+        document.querySelectorAll('.quick-city').forEach(city => {
+            city.addEventListener('click', function() {
+                document.getElementById('location').value = this.textContent;
+                this.style.backgroundColor = 'var(--color-primary)';
+                this.style.color = 'white';
+                this.style.borderColor = 'var(--color-primary)';
+            });
+        });
+
+        // Handle cuisine card clicks
+        document.querySelectorAll('.cuisine-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const cuisine = this.querySelector('.cuisine-name').textContent;
+                alert(`Filtrer par: ${cuisine}`);
+            });
+        });
+
+        // Handle reserve buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-reserve')) {
+                alert('Redirection vers la page de réservation...');
+            }
+        });
+
+        // Handle language selector
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const lang = this.textContent;
+                console.log(`Langue changée à: ${lang}`);
+            });
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initDateChips();
+            renderFeaturedRestaurants();
+            renderTopRatedRestaurants();
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && document.querySelector(href)) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

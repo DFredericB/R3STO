@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useAppStore } from '../../store/useAppStore'
 
 export function Options() {
+  const { theme, setTheme, updateOptions: storeUpdateOptions } = useAppStore()
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [options, setOptions] = useState({
     // Équipements
@@ -61,11 +63,24 @@ export function Options() {
 
     // Automatisations
     auto_confirm: false,
-    auto_remind_24h: true,
-    auto_remind_2h: false,
     auto_noshow_flag: true,
     auto_cancel_noreply: false,
     auto_confirm_delay: 0,
+
+    // Rappels clients
+    remind_confirmation: true,
+    remind_confirmation_channel: 'email' as string,
+    remind_48h: false,
+    remind_48h_channel: 'email' as string,
+    remind_24h: true,
+    remind_24h_channel: 'email' as string,
+    remind_2h: false,
+    remind_2h_channel: 'email' as string,
+    remind_morning: false,
+    remind_morning_channel: 'email' as string,
+    remind_postvisit: false,
+    remind_postvisit_channel: 'email' as string,
+    remind_postvisit_delay: 2,
 
     // Accessibilité
     chaises_bebe_active: true,
@@ -96,6 +111,10 @@ export function Options() {
     campaigns_loyalty: false,
   })
 
+  const handleSelect = (key: string, value: string) => {
+    setOptions(prev => ({ ...prev, [key]: value }))
+  }
+
   const handleToggle = (key: string) => {
     setOptions(prev => ({
       ...prev,
@@ -121,10 +140,11 @@ export function Options() {
 
   const handleSave = async () => {
     setSaveState('saving')
+    storeUpdateOptions(options as any)
     setTimeout(() => {
       setSaveState('saved')
       setTimeout(() => setSaveState('idle'), 2000)
-    }, 500)
+    }, 400)
   }
 
   const Toggle = ({ label, desc, keyName }: { label: string; desc?: string; keyName: string }) => {
@@ -190,7 +210,7 @@ export function Options() {
       {/* Header */}
       <div style={{ padding: '16px 18px 0', flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
         <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--text)', marginBottom: 4 }}>
-          Options
+          Paramètres
         </div>
         <div style={{ fontSize: 13, color: 'var(--t3)', marginBottom: 12 }}>
           Équipements, politiques de réservation et automatisations
@@ -222,6 +242,39 @@ export function Options() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {/* Column 1 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Apparence */}
+            <div className="card">
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🎨 Apparence</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+                <div>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>Thème</span>
+                  <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 1 }}>Interface claire ou sombre</div>
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    onClick={() => setTheme('light')}
+                    style={{
+                      padding: '6px 14px', borderRadius: 5, fontSize: 11, fontWeight: 700,
+                      border: `1px solid ${theme === 'light' ? 'var(--bl)' : 'var(--border)'}`,
+                      background: theme === 'light' ? 'var(--bp)' : 'var(--surf2)',
+                      color: theme === 'light' ? 'var(--bl)' : 'var(--t3)',
+                      cursor: 'pointer', fontFamily: 'var(--ff)',
+                    }}
+                  >☀️ Clair</button>
+                  <button
+                    onClick={() => setTheme('dark')}
+                    style={{
+                      padding: '6px 14px', borderRadius: 5, fontSize: 11, fontWeight: 700,
+                      border: `1px solid ${theme === 'dark' ? 'var(--bl)' : 'var(--border)'}`,
+                      background: theme === 'dark' ? 'var(--bp)' : 'var(--surf2)',
+                      color: theme === 'dark' ? 'var(--bl)' : 'var(--t3)',
+                      cursor: 'pointer', fontFamily: 'var(--ff)',
+                    }}
+                  >🌙 Sombre</button>
+                </div>
+              </div>
+            </div>
+
             {/* Équipements */}
             <div className="card">
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📡 Équipements</div>
@@ -292,6 +345,36 @@ export function Options() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Widget & Online */}
+            <div className="card">
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🌐 Widget & Réservation en ligne</div>
+              <Toggle label="Widget de réservation actif" desc="Page booking.r3sto.ch accessible aux clients" keyName="widget_active" />
+              <Toggle label="Choix de table sur le widget" desc="Les clients peuvent choisir leur table" keyName="widget_table_choice" />
+              <Toggle label="Reconnaissance profil client" desc="Remplissage auto si le client a déjà réservé" keyName="widget_client_recognition" />
+              <Toggle label="Table préférée automatique" desc="Proposer en priorité la dernière table du client" keyName="widget_pref_table" />
+              <Toggle label="Liste d'attente auto" desc="Si complet, proposer la liste d'attente" keyName="widget_auto_waitlist" />
+              <Toggle label="QR code de paiement" desc="Générer un QR code pour le prépaiement" keyName="widget_qr_payment" />
+            </div>
+
+            {/* Carte & Menu */}
+            <div className="card">
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🍽️ Carte & Menu</div>
+              <Toggle label="Afficher la carte sur le widget" desc="Les clients voient le menu avant de réserver" keyName="menu_on_widget" />
+              <Toggle label="Menu du jour" desc="Section menu du jour modifiable quotidiennement" keyName="menu_du_jour" />
+              <Toggle label="Allergènes affichés" desc="Indicateurs allergènes sur chaque plat" keyName="menu_allergenes" />
+              <Toggle label="Prix affichés" desc="Montrer les prix sur le widget" keyName="menu_prix_visible" />
+              <Toggle label="Photos des plats" desc="Galerie photos par plat" keyName="menu_photos" />
+            </div>
+
+            {/* Campagnes */}
+            <div className="card">
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📣 Campagnes & Communication</div>
+              <Toggle label="Campagnes email" desc="Envoyer des offres et promotions aux clients" keyName="campaigns_email" />
+              <Toggle label="Campagnes SMS" desc="Notifications SMS pour les événements spéciaux" keyName="campaigns_sms" />
+              <Toggle label="Anniversaires auto" desc="Message automatique pour les anniversaires clients" keyName="campaigns_birthday" />
+              <Toggle label="Fidélité" desc="Programme de fidélité basé sur les visites" keyName="campaigns_loyalty" />
             </div>
           </div>
 
@@ -503,13 +586,74 @@ export function Options() {
             <div className="card">
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>⚡ Automatisations</div>
               <Toggle label="Confirmation automatique" desc="Réservations confirmées instantanément sans validation" keyName="auto_confirm" />
-              <Toggle label="Rappel 24h avant" desc="E-mail / SMS envoyé la veille aux clients" keyName="auto_remind_24h" />
-              <Toggle label="Rappel 2h avant" desc="Second rappel proche du service" keyName="auto_remind_2h" />
               <Toggle label="Marquage auto no-show" desc="Après 15 min sans arrivée confirmée" keyName="auto_noshow_flag" />
               <Toggle label="Annulation si pas de réponse" desc="Si le client ne confirme pas dans les 24h" keyName="auto_cancel_noreply" />
               <div style={{ marginTop: 10 }}>
                 <NumField label="Délai confirmation auto" keyName="auto_confirm_delay" min={0} max={120} unit="min" />
               </div>
+            </div>
+
+            {/* Rappels clients */}
+            <div className="card">
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🔔 Rappels clients</div>
+              <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 10, lineHeight: 1.4 }}>
+                Configurez quand et comment vos clients reçoivent des rappels. Réduisez les no-shows jusqu'à 60%.
+              </div>
+              {([
+                { key: 'remind_confirmation', label: '✅ Confirmation de réservation', desc: 'Envoyé immédiatement après la prise de résa', channelKey: 'remind_confirmation_channel' },
+                { key: 'remind_48h', label: '📅 Rappel 48h avant', desc: 'Deux jours avant le service', channelKey: 'remind_48h_channel' },
+                { key: 'remind_24h', label: '⏰ Rappel 24h avant', desc: 'La veille du service — le plus efficace contre les no-shows', channelKey: 'remind_24h_channel' },
+                { key: 'remind_morning', label: '☀️ Rappel jour-même (matin)', desc: 'Envoyé à 9h le jour du service', channelKey: 'remind_morning_channel' },
+                { key: 'remind_2h', label: '🔜 Rappel 2h avant', desc: 'Dernière chance de confirmer ou annuler', channelKey: 'remind_2h_channel' },
+                { key: 'remind_postvisit', label: '💌 Remerciement post-visite', desc: 'Message de remerciement après le repas — fidélisation', channelKey: 'remind_postvisit_channel' },
+              ] as const).map(r => {
+                const isOn = !!options[r.key as keyof typeof options]
+                const channel = (options as any)[r.channelKey] || 'email'
+                return (
+                  <div key={r.key} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '10px 0', borderBottom: '1px solid var(--border)', gap: 10,
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{r.label}</span>
+                      <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 1 }}>{r.desc}</div>
+                    </div>
+                    {/* Canal */}
+                    <select
+                      value={channel}
+                      onChange={e => handleSelect(r.channelKey, e.target.value)}
+                      disabled={!isOn}
+                      style={{
+                        fontSize: 11, fontWeight: 600, padding: '4px 8px', borderRadius: 6,
+                        border: '1px solid var(--border)', background: 'var(--surf3)',
+                        color: isOn ? 'var(--text)' : 'var(--t4)', cursor: 'pointer',
+                        fontFamily: 'var(--ff)', opacity: isOn ? 1 : .4,
+                      }}
+                    >
+                      <option value="email">✉️ Email</option>
+                      <option value="sms">📱 SMS</option>
+                      <option value="whatsapp">💬 WhatsApp</option>
+                    </select>
+                    {/* Toggle */}
+                    <button
+                      onClick={() => handleToggle(r.key)}
+                      style={{
+                        fontSize: 11, minWidth: 68, flexShrink: 0,
+                        padding: '6px 12px', borderRadius: 5,
+                        border: '1px solid var(--border)',
+                        background: isOn ? 'var(--gn)' : 'var(--surf2)',
+                        color: isOn ? 'white' : 'var(--t3)',
+                        fontWeight: 600, cursor: 'pointer',
+                      }}
+                    >{isOn ? '✓ Oui' : 'Non'}</button>
+                  </div>
+                )
+              })}
+              {options.remind_postvisit && (
+                <div style={{ marginTop: 10 }}>
+                  <NumField label="Délai post-visite" keyName="remind_postvisit_delay" min={1} max={72} unit="heures" />
+                </div>
+              )}
             </div>
 
             {/* Accessibilité */}
@@ -526,35 +670,6 @@ export function Options() {
               <Toggle label="Gérer par table" desc="Cocher les tables avec équipement PMR/bébé (vs global)" keyName="chaises_bebe_par_table" />
             </div>
 
-            {/* Widget & Online */}
-            <div className="card">
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🌐 Widget & Réservation en ligne</div>
-              <Toggle label="Widget de réservation actif" desc="Page booking.r3sto.ch accessible aux clients" keyName="widget_active" />
-              <Toggle label="Choix de table sur le widget" desc="Les clients peuvent choisir leur table" keyName="widget_table_choice" />
-              <Toggle label="Reconnaissance profil client" desc="Remplissage auto si le client a déjà réservé" keyName="widget_client_recognition" />
-              <Toggle label="Table préférée automatique" desc="Proposer en priorité la dernière table du client" keyName="widget_pref_table" />
-              <Toggle label="Liste d'attente auto" desc="Si complet, proposer la liste d'attente" keyName="widget_auto_waitlist" />
-              <Toggle label="QR code de paiement" desc="Générer un QR code pour le prépaiement" keyName="widget_qr_payment" />
-            </div>
-
-            {/* Carte & Menu */}
-            <div className="card">
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>🍽️ Carte & Menu</div>
-              <Toggle label="Afficher la carte sur le widget" desc="Les clients voient le menu avant de réserver" keyName="menu_on_widget" />
-              <Toggle label="Menu du jour" desc="Section menu du jour modifiable quotidiennement" keyName="menu_du_jour" />
-              <Toggle label="Allergènes affichés" desc="Indicateurs allergènes sur chaque plat" keyName="menu_allergenes" />
-              <Toggle label="Prix affichés" desc="Montrer les prix sur le widget" keyName="menu_prix_visible" />
-              <Toggle label="Photos des plats" desc="Galerie photos par plat" keyName="menu_photos" />
-            </div>
-
-            {/* Campagnes */}
-            <div className="card">
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>📣 Campagnes & Communication</div>
-              <Toggle label="Campagnes email" desc="Envoyer des offres et promotions aux clients" keyName="campaigns_email" />
-              <Toggle label="Campagnes SMS" desc="Notifications SMS pour les événements spéciaux" keyName="campaigns_sms" />
-              <Toggle label="Anniversaires auto" desc="Message automatique pour les anniversaires clients" keyName="campaigns_birthday" />
-              <Toggle label="Fidélité" desc="Programme de fidélité basé sur les visites" keyName="campaigns_loyalty" />
-            </div>
           </div>
         </div>
       </div>

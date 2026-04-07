@@ -13,8 +13,10 @@
 import { loadStripe, type Stripe } from '@stripe/stripe-js'
 
 // ── Stripe public key (test vs live) ──
-const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string
-  || 'pk_test_REPLACE_ME' // fallback for dev
+const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string || ''
+if (!STRIPE_PUBLIC_KEY && typeof window !== 'undefined') {
+  console.error('[R3STO] VITE_STRIPE_PUBLIC_KEY manquante — paiements désactivés')
+}
 
 // ── Singleton Stripe instance ──
 let stripePromise: Promise<Stripe | null> | null = null

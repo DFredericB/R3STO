@@ -8,9 +8,11 @@ import { useState, useMemo } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useNavigate } from 'react-router-dom'
 import { useT } from '../../i18n/useTranslation'
-import { sectionTitle } from '../../utils/design'
+import { sectionTitle, filterChip } from '../../utils/design'
 import type { Client, Resa } from '../../types'
 import PhoneInput from '../../components/ui/PhoneInput'
+import { useToast } from '../../components/ui/Toast'
+import { useConfirm } from '../../components/ui/ConfirmDialog'
 
 // ── Statut badge ────────────────────────────────
 const STATUT_META: Record<number, { label: string; icon: string; color: string; bg: string }> = {
@@ -27,7 +29,9 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 export function Clients() {
   const { clients, addClient, updateClient, deleteClient, resas } = useAppStore()
   const navigate = useNavigate()
-  useT()
+  const { toast } = useToast()
+  const { confirm: confirmAction, dialog: confirmDialog } = useConfirm()
+  const { t } = useT()
 
   const [search, setSearch] = useState('')
   const [filterStatut, setFilterStatut] = useState<number | null>(null)
@@ -163,6 +167,7 @@ export function Clients() {
 
   return (
     <div style={{ display: 'flex', height: 'calc(100vh - var(--hh))', overflow: 'hidden' }}>
+      {confirmDialog}
 
       {/* ── COLONNE GAUCHE : liste ── */}
       <div style={{ width: 380, flexShrink: 0, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
@@ -173,7 +178,7 @@ export function Clients() {
             <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>👥 Clients</div>
             <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{clients.length}</span>
             <div style={{ flex: 1 }} />
-            <button onClick={() => { const n = syncFromResas(); alert(`${n} client(s) créé(s) depuis les résas`) }}
+            <button onClick={() => { const n = syncFromResas(); toast(`✓ ${n} client(s) créé(s) depuis les résas`, 'success') }}
               style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t2)', cursor: 'pointer' }}>
               🔄 Sync résas
             </button>
@@ -193,12 +198,7 @@ export function Clients() {
               const meta = s !== null ? STATUT_META[s] : null
               return (
                 <button key={String(s)} onClick={() => setFilterStatut(s)}
-                  style={{
-                    fontSize: 10, fontWeight: on ? 800 : 600, padding: '3px 8px', borderRadius: 5,
-                    border: `1.5px solid ${on ? 'var(--bl)' : 'var(--border)'}`,
-                    background: on ? 'var(--bp)' : 'transparent',
-                    color: on ? 'var(--bl)' : 'var(--t3)', cursor: 'pointer',
-                  }}>
+                  style={filterChip(on)}>
                   {s === null ? 'Tous' : `${meta!.icon} ${meta!.label}`}
                 </button>
               )
@@ -321,10 +321,10 @@ export function Clients() {
               <button onClick={handleSave} className="btn btn-primary" style={{ fontSize: 13 }}>
                 {selectedId ? '💾 Sauver' : '➕ Créer'}
               </button>
-              <button onClick={() => setShowForm(false)} className="btn btn-secondary" style={{ fontSize: 13 }}>Annuler</button>
+              <button onClick={() => setShowForm(false)} className="btn btn-secondary" style={{ fontSize: 13 }}>{t('action.cancel')}</button>
               {selectedId && (
-                <button onClick={() => {
-                  if (confirm('Supprimer ce client ?')) {
+                <button onClick={async () => {
+                  if (await confirmAction({ title: 'Supprimer le client', message: 'Cette action est irréversible. Supprimer ce client ?', danger: true, confirmLabel: 'Supprimer' })) {
                     deleteClient(selectedId)
                     setSelectedId(null); setShowForm(false)
                   }

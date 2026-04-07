@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>R3STO — Inscription</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Google Places désactivé — sera dans Mon Restaurant dans l'app -->
+
+<style>
+:root{
+  --bl:#1c4f90;--ac:#4480d8;
+  --bg:#060e1c;--bg2:#0c1829;--surf:#111e35;
+  --border:rgba(44,91,160,.25);--b2:rgba(44,91,160,.45);
+  --text:#e8eef8;--muted:#6b82a8;
+  --rd:#e05555;--gn:#3cc870;--am:#f0a500;
+  --ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--ff);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%,rgba(28,79,144,.18) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%,rgba(43,91,160,.12) 0%,transparent 60%);
+}
+.grid{
+  position:fixed;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(44,91,160,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(44,91,160,.04) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ── CARD ── */
+.card{
+  position:relative;background:var(--surf);
+  border:1px solid var(--border);border-radius:18px;
+  padding:22px 28px 26px;width:100%;
+  box-shadow:0 24px 64px rgba(0,0,0,.48),0 0 0 1px rgba(255,255,255,.03);
+  animation:up .3s ease;transition:max-width .3s ease;
+  display:flex;flex-direction:column;min-height:520px;
+}
+.card.wide{max-width:880px;min-height:auto;}
+.card.narrow{max-width:440px;}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── LOGO ── */
+.logo-wrap{display:flex;justify-content:center;padding:0 0 14px;}
+.logo-img{width:80px;height:80px;object-fit:cover;border-radius:0;}
+
+/* ── LANG SWITCHER ── */
+#lang-sw{display:flex;justify-content:center;gap:5px;margin-bottom:14px;}
+.lbtn{
+  padding:3px 8px;border:1px solid var(--border);border-radius:5px;
+  background:transparent;color:var(--muted);font-size:10px;font-weight:700;
+  font-family:var(--fm);cursor:pointer;transition:.15s;letter-spacing:.04em;
+}
+.lbtn.on{background:var(--ac);color:#fff;border-color:var(--ac);}
+.lbtn:hover:not(.on){border-color:var(--b2);color:var(--text);}
+
+/* ── BADGE ── */
+.badge{display:flex;justify-content:center;margin-bottom:12px;}
+.badge-inner{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 12px;
+  border:1px solid var(--b2);border-radius:30px;
+  font-size:10px;font-family:var(--fm);color:var(--muted);letter-spacing:.04em;
+}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── STEPPER — compact, une ligne ── */
+.stepper{
+  display:flex;align-items:center;justify-content:center;
+  gap:0;margin-bottom:18px;
+  overflow:hidden;
+}
+.step{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.step-dot{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;font-family:var(--fm);color:var(--muted);
+  transition:.2s;flex-shrink:0;
+}
+.step-dot.active{border-color:var(--ac);background:var(--ac);color:#fff;}
+.step-dot.done{border-color:var(--gn);background:rgba(60,200,112,.15);color:var(--gn);}
+.step-label{
+  font-size:0;font-weight:600;color:var(--muted);
+  white-space:nowrap;transition:font-size .2s,color .2s;width:0;overflow:hidden;
+}
+.step-label.active{color:var(--text);font-size:10.5px;width:auto;}
+.step-line{
+  width:22px;height:2px;background:var(--border);
+  margin:0 3px;border-radius:1px;transition:.2s;flex-shrink:0;
+}
+.step-line.done{background:var(--gn);}
+
+/* ── SURVEY ── */
+.survey-q{margin-bottom:18px;}
+.survey-q-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.survey-opts{display:flex;flex-direction:column;gap:6px;}
+.survey-opt{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg2,#111e33);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;}
+.survey-opt:hover{border-color:var(--ac);}
+.survey-opt.on{border-color:var(--ac);background:rgba(68,128,216,.1);}
+.survey-opt input[type="radio"],.survey-opt input[type="checkbox"]{display:none;}
+.survey-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.survey-opt.on .survey-dot{border-color:var(--ac);background:var(--ac);}
+.survey-opt.on .survey-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff;}
+.survey-chk{width:16px;height:16px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.survey-opt.on .survey-chk{border-color:var(--ac);background:var(--ac);}
+.survey-opt.on .survey-chk::after{content:'✓';color:#fff;font-size:10px;font-weight:800;}
+.survey-label{font-size:12px;color:var(--text);flex:1;}
+.survey-other-input{margin-top:6px;padding:6px 10px;background:var(--bg2,#111e33);border:1.5px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--ff);font-size:11px;width:100%;outline:none;display:none;}
+.survey-opt.on .survey-other-input{display:block;}
+.survey-skip{text-align:center;margin-top:12px;}
+.survey-skip a{color:var(--muted);font-size:11px;text-decoration:none;}
+.survey-skip a:hover{color:var(--ac);}
+
+/* ── TABS ── */
+.tabs{
+  display:flex;background:var(--bg2);border-radius:9px;
+  padding:3px;margin-bottom:18px;gap:3px;
+}
+.tab{
+  flex:1;padding:9px;border:none;background:transparent;color:var(--muted);
+  font-family:var(--ff);font-size:13px;font-weight:600;cursor:pointer;
+  border-radius:7px;transition:.2s;
+}
+.tab.on{background:var(--ac);color:#fff;}
+
+/* ── STEP HEADER ── */
+.step-title{font-size:20px;font-weight:800;margin-bottom:2px;}
+.step-sub{font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.4;}
+
+/* ── FIELDS — espacement réduit ── */
+.field{margin-bottom:10px;position:relative;}
+.field label{
+  display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted);margin-bottom:5px;
+}
+.required{color:var(--rd);margin-left:2px;}
+.field input,.field select{
+  width:100%;padding:10px 13px;background:var(--bg2);
+  border:1.5px solid var(--border);border-radius:9px;
+  color:var(--text);font-family:var(--ff);font-size:13.5px;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.field input:focus,.field select:focus{
+  border-color:var(--ac);box-shadow:0 0 0 3px rgba(68,128,216,.1);
+}
+.field input.ok{border-color:var(--gn)!important;}
+.field input.bad{border-color:var(--rd)!important;}
+.field-hint{font-size:10.5px;margin-top:4px;min-height:0;color:var(--muted);}
+.field-hint.err{color:var(--rd);}
+.field-hint.ok{color:var(--gn);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── TEL: styles gérés par r3sto-phone.js (R3Phone) ── */
+
+/* ── PW BAR ── */
+.pw-bar-wrap{height:3px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:5px;}
+.pw-bar{height:100%;width:0%;border-radius:3px;transition:width .3s,background .3s;}
+.pw-req{font-size:10.5px;color:var(--muted);transition:color .2s;line-height:1.5;}
+.pw-req.ok{color:var(--gn);}
+
+/* ── PLAN STEP 2 ── */
+.dur-tabs{display:flex;gap:7px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;}
+.dtab{
+  padding:6px 18px;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg2);color:var(--muted);font-size:12px;
+  cursor:pointer;transition:.15s;white-space:nowrap;font-family:var(--ff);
+}
+.dtab.on{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:700;}
+.save-badge{
+  font-size:9.5px;padding:1px 5px;border-radius:7px;
+  background:rgba(60,200,112,.15);color:var(--gn);margin-left:4px;font-weight:700;
+}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+@media(max-width:700px){.plan-grid{grid-template-columns:1fr;}}
+.plan-card{
+  border:1.5px solid var(--border);border-radius:12px;
+  padding:16px 14px;cursor:pointer;transition:.15s;position:relative;
+}
+.plan-card:hover{border-color:var(--ac);background:rgba(68,128,216,.04);}
+.plan-card.on{border-color:var(--ac);background:rgba(68,128,216,.08);}
+.plan-card.on .pn{color:var(--ac);}
+.plan-badge{
+  position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+  background:var(--ac);color:#fff;font-size:9.5px;font-weight:800;
+  padding:2px 11px;border-radius:20px;white-space:nowrap;font-family:var(--fm);
+}
+.pn{font-size:15px;font-weight:800;margin-bottom:2px;}
+.pp{font-size:24px;font-weight:800;color:var(--ac);line-height:1;margin-bottom:1px;}
+.pp-unit{font-size:11px;font-weight:400;color:var(--muted);margin-left:2px;}
+.pp-annual{font-size:10px;color:var(--muted);margin-bottom:10px;}
+.plan-sep{border:none;border-top:1px solid var(--border);margin:8px 0;}
+.feat{
+  display:flex;align-items:flex-start;gap:6px;
+  font-size:11px;color:var(--muted);margin-bottom:5px;line-height:1.38;
+}
+.feat .ok{color:var(--gn);flex-shrink:0;font-size:11.5px;}
+.feat .no{color:rgba(107,130,168,.28);flex-shrink:0;font-size:11.5px;}
+.feat .no+span{color:rgba(107,130,168,.28);}
+.fl{
+  font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted);margin-bottom:6px;
+}
+
+/* ── BUTTONS ── */
+.btn{
+  width:100%;padding:13px;border:none;border-radius:10px;
+  background:var(--ac);color:#fff;font-family:var(--ff);
+  font-size:13.5px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .15s,transform .1s;margin-top:2px;
+}
+.btn:hover{background:#3570c4;transform:translateY(-1px);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.btn-ghost{
+  width:100%;padding:10px;background:transparent;
+  border:1.5px solid var(--border);border-radius:9px;
+  color:var(--muted);font-family:var(--ff);font-size:12px;font-weight:600;
+  cursor:pointer;transition:.2s;margin-top:8px;
+}
+.btn-ghost:hover{border-color:var(--ac);color:var(--ac);}
+.btn-back{
+  display:flex;align-items:center;gap:4px;font-size:11.5px;
+  color:var(--muted);cursor:pointer;background:none;border:none;
+  font-family:var(--ff);padding:0;margin-bottom:14px;transition:.15s;
+}
+.btn-back:hover{color:var(--text);}
+
+/* ── DIVIDER ── */
+.divider{
+  display:flex;align-items:center;gap:8px;
+  margin:12px 0;color:var(--muted);font-size:11px;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── MSG ── */
+.msg{
+  padding:9px 13px;border-radius:8px;font-size:12.5px;
+  margin-bottom:10px;display:none;
+}
+.msg.err{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);color:#e57a7a;}
+.msg.ok{background:rgba(60,200,112,.1);border:1px solid rgba(60,200,112,.3);color:var(--gn);}
+.spin{
+  width:13px;height:13px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .6s linear infinite;display:none;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── CGU ── */
+.cgu{display:flex;align-items:flex-start;gap:8px;margin:10px 0 4px;}
+.cgu input{width:14px;height:14px;flex-shrink:0;margin-top:2px;accent-color:var(--ac);cursor:pointer;}
+.cgu label{font-size:11px;color:var(--muted);line-height:1.5;cursor:pointer;}
+.cgu a{color:var(--ac);text-decoration:none;}
+
+/* ── FOOTER ── */
+.footer{
+  text-align:center;margin-top:auto;padding-top:18px;
+  font-size:11.5px;color:var(--muted);
+}
+.footer a{color:var(--ac);text-decoration:none;font-weight:600;}
+.card > div[id^="v-"]{flex:1;}
+
+/* ── OTP ── */
+.otp-title{font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;}
+.otp-sub{font-size:11.5px;color:var(--muted);text-align:center;margin-bottom:18px;line-height:1.5;}
+.otp-methods{display:none;}
+.otp-digits{display:flex;gap:8px;justify-content:center;margin-bottom:16px;}
+.otp-d{
+  width:50px;height:58px;background:var(--bg2);
+  border:1.5px solid var(--border);border-radius:11px;
+  text-align:center;font-size:26px;font-weight:800;
+  color:var(--text);font-family:var(--fm);outline:none;
+  transition:border-color .2s;caret-color:var(--ac);
+}
+.otp-d:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(68,128,216,.1);}
+.otp-d.filled{border-color:var(--gn);}
+.otp-resend{text-align:center;font-size:11.5px;color:var(--muted);margin-top:14px;}
+.otp-resend a{color:var(--ac);text-decoration:none;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="card narrow" id="main-card">
+
+  <div class="logo-wrap"><img class="logo-img" src="data:image/png;base64,/9j/4AAQSkZJRgABAgAAAQABAAD/wAARCAREBEQDACIAAREBAhEB/9sAQwAIBgYHBgUIBwcHCQkICgwUDQwLCwwZEhMPFB0aHx4dGhwcICQuJyAiLCMcHCg3KSwwMTQ0NB8nOT04MjwuMzQy/9sAQwEJCQkMCwwYDQ0YMiEcITIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMAAAERAhEAPwDhqKKK+kPDCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUU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+o1fI6vrVMofEH/kfNX/AOuw/wDQRXM1b1PUrnV9Rnv7xg1xM252VcAnGOlVK9WlFxgovojz6jUpNoKKKKsgKKKKACiiigAooooAKKKKACiiigArq/DnxC1zw7thSb7VZj/l3nOQB/snqP5VylFTOEZq0lcqM5Rd4s9+0T4qeH9UVUu5G0+c9Vn+5n2Ycfniu0guIbqIS280csZ6NGwYH8RXybVqz1G90+TzLK7nt39YpCv8q4KmAW8GdcMW/tI+rGUMpVgCD1BrCv8AwV4b1Ji1zo9qXP8AGi7D+a4rxay+J3iqyAU6gtwo7Txq369a24PjRrCDFxptlL7qWT+prD6rXg/d/Bmv1ilLf8jtJfhP4VkJ229zHn+5cN/XNNT4SeFkPMd2/s05/oK5pPjZLj59DQn/AGbg/wCFK3xtfB26Gufe4/8AsavlxfmTfD+R29n8PfCtkQyaPDIw7zEyfzOK6KC2gtYhHbwxxRjosahR+Qrxyb41akwIg0m1Q+ryM3+FY958WPFN1kRz29sD/wA8YRkfi2al4fEz+L8ylWox2/I9/ZlRSzEBR1J6CuX1r4heHNFDLJfLcTj/AJY23znPuRwPzrwLUNf1fVT/AKfqV1cD+68h2/l0rOrSGX/zv7iJ4z+VHoHiL4r6vqqvBpqjTrY8EqcysP8Ae7fh+dcC7tI5d2LMxyWY5JNNorvp0YU1aKOSdSU/iYUUUVoZhRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooopgFFFFABRRRSAKKKKACiiigAooooAKKKKACiiimAUUUUAFFFFIAooooAKKKKACiiigAooooAKKKKACiiigAooopjCiiikIKKKKACiiigAooooAKKKKACiiigAooooAKKKKYBRRRSAKKKKYBRRRSGFFFFAgooooAKKKKACiiigAooooAKKKKACiiigAooopgFFFFIAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKYwooopCCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUDI5fvj6VHUkv3x9KjqWUWKKKKogKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKBkcv3x9KjqSX74+lR1LKLFFFFUQFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAyOX74+lR1JL98fSo6llFiiiiqICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigZHL98fSo6kl++PpUdSyixRRRVEBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQMjl++PpUdSS/fH0qOpZRYoooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooGRy/fH0qOpJfvj6VHUsosUUUVRIUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUARy/fH0qOpJfvD6VHUsof5re1Hmt7Uyii47D/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2o81vamUUXCw/zW9qPNb2plFFwsP81vajzW9qZRRcLD/Nb2pfNb0FR0UXFYbLK24cDpUfmt6CiX7w+lMpXHY//Z" alt="R3STO"></div>
+  <div id="lang-sw" style="display:flex;justify-content:center;gap:5px;margin-bottom:18px">
+    <button class="lbtn on" id="lb-fr" onclick="setAuthLang('fr')">FR</button>
+    <button class="lbtn" id="lb-de" onclick="setAuthLang('de')">DE</button>
+    <button class="lbtn" id="lb-it" onclick="setAuthLang('it')">IT</button>
+    <button class="lbtn" id="lb-en" onclick="setAuthLang('en')">EN</button>
+  </div>
+  <div class="badge" id="badge-espace"><div class="badge-inner"><span class="dot"></span><span id="badge-espace-txt">Espace restaurateur</span></div></div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab" id="t-login" onclick="showView('login')">Se connecter</button>
+    <button class="tab on" id="t-signup" onclick="showView('signup1')">Créer un compte</button>
+  </div>
+  <div class="stepper" id="stepper" style="display:none">
+    <div class="step"><div class="step-dot" id="sd1">1</div><div class="step-label" id="sl1">Vos infos</div></div>
+    <div class="step-line" id="sline1"></div>
+    <div class="step"><div class="step-dot" id="sd2">2</div><div class="step-label" id="sl2">Votre plan</div></div>
+    <div class="step-line" id="sline2"></div>
+    <div class="step"><div class="step-dot" id="sd3">3</div><div class="step-label" id="sl3">Feedback</div></div>
+    <div class="step-line" id="sline3"></div>
+    <div class="step"><div class="step-dot" id="sd4">4</div><div class="step-label" id="sl4">Vérification</div></div>
+    <div class="step-line" id="sline4"></div>
+    <div class="step"><div class="step-dot" id="sd5">5</div><div class="step-label" id="sl5">Paiement</div></div>
+  </div>
+  <div id="v-login" style="display:none">
+    <h1 id="li-title">Bon retour &#128075;</h1>
+    <p class="step-sub" id="li-sub">Accédez à votre tableau de bord R3STO</p>
+    <div class="msg err" id="li-err"></div>
+    <div class="field"><label>Email<span class="required">*</span></label><input type="email" id="li-email" placeholder="vous@restaurant.ch" autocomplete="email" oninput="liveEmail(this)"></div>
+    <div class="field"><label>Mot de passe<span class="required">*</span></label><input type="password" id="li-pw" placeholder="••••••••" autocomplete="current-password"><div style="text-align:right;margin-top:4px"><a href="#" style="font-size:11px;color:var(--muted);text-decoration:none" id="forgot-pw">Mot de passe oublié ?</a></div></div>
+    <button class="btn" id="li-btn" onclick="doLogin()"><span class="spin" id="li-spin"></span><span id="li-btn-txt">Se connecter</span></button>
+  </div>
+  <div id="v-signup1">
+    <div class="step-title" id="signup-title">Créer un compte</div>
+    <p class="step-sub" id="signup-sub">Rejoignez R3STO</p>
+    <div class="msg err" id="sg-err"></div>
+    <div class="field"><label id="lbl-resto">Nom du restaurant<span class="required">*</span></label><input type="text" id="sg-resto" placeholder="Ex: Le Comptoir du Lac" autocomplete="off" oninput="liveRequired(this)"><div class="field-hint" id="sg-resto-hint"></div></div>
+    <div class="row2"><div class="field"><label id="lbl-fn">Prénom<span class="required">*</span></label><input type="text" id="sg-fn" placeholder="Jean" oninput="liveRequired(this)"></div><div class="field"><label id="lbl-ln">Nom<span class="required">*</span></label><input type="text" id="sg-ln" placeholder="Dupont" oninput="liveRequired(this)"></div></div>
+    <div class="field"><label id="lbl-email-sg">Email professionnel<span class="required">*</span></label><input type="email" id="sg-email" placeholder="vous@restaurant.ch" autocomplete="email" oninput="liveEmail(this)"></div>
+    <div class="field">
+      <label id="lbl-tel">Téléphone<span class="required">*</span></label>
+      <div id="sg-phone-wrap"></div>
+      <input type="hidden" id="sg-ind" value="+41">
+      <input type="hidden" id="sg-tel" value="">
+      <div class="field-hint err" id="sg-tel-hint" style="display:none">Numéro invalide (min. 7 chiffres)</div>
+    </div>
+    <div class="field">
+      <label id="lbl-pw-sg">Mot de passe<span class="required">*</span></label>
+      <div style="position:relative">
+        <input type="password" id="sg-pw" placeholder="Créez un mot de passe" autocomplete="new-password" oninput="livePw(this.value)" style="padding-right:42px">
+        <button type="button" onclick="togglePw()" id="pw-eye" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0;line-height:1">&#x1F441;</button>
+      </div>
+      <div class="pw-bar-wrap" style="margin-top:6px"><div class="pw-bar" id="pw-bar"></div></div>
+      <div id="pw-reqs" style="display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;margin-top:6px">
+        <div class="pw-req" id="req-len">&#x25CF; 8 caractères minimum</div>
+        <div class="pw-req" id="req-upper">&#x25CF; Majuscule (A-Z)</div>
+        <div class="pw-req" id="req-num">&#x25CF; Chiffre (0-9)</div>
+        <div class="pw-req" id="req-special">&#x25CF; Caractère spécial</div>
+      </div>
+    </div>
+    <button class="btn" onclick="goToStep2()"><span id="btn-step1">Continuer → Choisir mon plan</span></button>
+  </div>
+  <div id="v-signup2" style="display:none">
+    <button class="btn-back" onclick="showView('signup1')"><span class="btn-back-txt">← Retour</span></button>
+    <div class="step-title" id="plan-title">Choisissez votre plan</div>
+    <p class="step-sub" id="plan-sub">Gestion automatique des réservations incluse dans tous les plans &middot; Modifiable à tout moment</p>
+    <div class="dur-tabs"><button class="dtab on" id="dur-btn-0" onclick="setDur(0,this)">1 an</button><button class="dtab" id="dur-btn-1" onclick="setDur(1,this)">2 ans <span class="save-badge">−15%</span></button><button class="dtab" id="dur-btn-2" onclick="setDur(2,this)">3 ans <span class="save-badge">−25%</span></button></div>
+    <div class="plan-grid">
+      <div class="plan-card" id="pc-bistro" onclick="setPlan('bistro')">
+        <div class="pn">Bistro</div><div class="pp"><span id="pr-bistro">39</span><span class="pp-unit">CHF/mois</span></div>
+        <div class="pp-annual" id="pa-bistro">Fact. 468&nbsp;CHF/an &middot; <span style="color:var(--gn);font-weight:700">&lt; 500&nbsp;CHF/an</span></div>
+        <hr class="plan-sep"><div class="fl fl-inc">Inclus</div>
+        <div class="feat"><span class="ok">✓</span>Widget de réservation en ligne</div>
+        <div class="feat"><span class="ok">✓</span>Confirmations &amp; rappels email auto</div>
+        <div class="feat"><span class="ok">✓</span>Plan de salle interactif</div>
+        <div class="feat"><span class="ok">✓</span>Salles &amp; services illimités</div>
+        <div class="feat"><span class="ok">✓</span>Horaires, buffer, fermetures</div>
+        <div class="feat"><span class="ok">✓</span>Taux de remplissage &middot; Export CSV</div>
+        <div class="feat"><span class="ok">✓</span>2 utilisateurs &middot; Rôles &amp; accès</div>
+        <div class="feat"><span class="ok">✓</span>Support email</div>
+        <hr class="plan-sep"><div class="fl fl-not" style="color:rgba(107,130,168,.5)">Non inclus</div>
+        <div class="feat"><span class="no">–</span><span>QR code</span></div>
+        <div class="feat"><span class="no">–</span><span>SMS clients</span></div>
+        <div class="feat"><span class="no">–</span><span>No-shows &amp; blacklist</span></div>
+        <div class="feat"><span class="no">–</span><span>Statistiques avancées</span></div>
+      </div>
+      <div class="plan-card on" id="pc-resto" onclick="setPlan('resto')">
+        <div class="plan-badge" id="plan-badge-resto">Recommandé</div>
+        <div class="pn">Resto</div><div class="pp"><span id="pr-resto">59</span><span class="pp-unit">CHF/mois</span></div>
+        <div class="pp-annual" id="pa-resto">Fact. 708&nbsp;CHF/an</div>
+        <hr class="plan-sep"><div class="fl">Tout Bistro, plus</div>
+        <div class="feat"><span class="ok">✓</span>QR code de réservation</div>
+        <div class="feat"><span class="ok">✓</span>Rappels SMS automatiques clients</div>
+        <div class="feat"><span class="ok">✓</span>Gestion no-shows &amp; historique</div>
+        <div class="feat"><span class="ok">✓</span>Blacklist clients &middot; Alerte auto</div>
+        <div class="feat"><span class="ok">✓</span>Fiche client, préférences, allergies</div>
+        <div class="feat"><span class="ok">✓</span>Liste d’attente automatique</div>
+        <div class="feat"><span class="ok">✓</span>Statistiques &amp; rapports mensuels</div>
+        <div class="feat"><span class="ok">✓</span>SmartScan (IA photo menu)</div>
+        <div class="feat"><span class="ok">✓</span>Widget personnalisable</div>
+        <div class="feat"><span class="ok">✓</span>Utilisateurs illimités</div>
+        <div class="feat"><span class="ok">✓</span>Chat support &middot; Onboarding dédié</div>
+        <hr class="plan-sep"><div class="fl fl-not" style="color:rgba(107,130,168,.5)">Non inclus</div>
+        <div class="feat"><span class="no">–</span><span>Prépaiement &amp; caution</span></div>
+        <div class="feat"><span class="no">–</span><span>Terrasse &amp; multi-espaces</span></div>
+        <div class="feat"><span class="no">–</span><span>Intelligence artificielle</span></div>
+      </div>
+      <div class="plan-card" id="pc-gastro" onclick="setPlan('gastro')">
+        <div class="pn">Gastro</div><div class="pp"><span id="pr-gastro">79</span><span class="pp-unit">CHF/mois</span></div>
+        <div class="pp-annual" id="pa-gastro">Fact. 948&nbsp;CHF/an</div>
+        <hr class="plan-sep"><div class="fl">Tout Resto, plus</div>
+        <div class="feat"><span class="ok">✓</span>Prépaiement en ligne (Stripe)</div>
+        <div class="feat"><span class="ok">✓</span>Caution &amp; remboursement auto</div>
+        <div class="feat"><span class="ok">✓</span>Gestion terrasse &amp; multi-espaces</div>
+        <div class="feat"><span class="ok">✓</span>Liste d’attente + rapatriement</div>
+        <div class="feat"><span class="ok">✓</span>Multi-sites (jusqu’à 12 établissements)</div>
+        <div class="feat"><span class="ok">✓</span>IA — prédictions &amp; optimisation</div>
+        <div class="feat"><span class="ok">✓</span>Rapports personnalisés</div>
+        <div class="feat"><span class="ok">✓</span>API REST publique</div>
+        <div class="feat"><span class="ok">✓</span>Support prioritaire &middot; SLA garanti</div>
+      </div>
+    </div>
+    <div class="cgu"><input type="checkbox" id="sg-cgu"><label for="sg-cgu" id="cgu-label">J’accepte les <a href="#" onclick="openDoc('cgu');return false">conditions générales</a> et la <a href="#" onclick="openDoc('privacy');return false">politique de confidentialité</a> de R3STO</label></div>
+    <div class="msg err" id="sg-err2"></div>
+    <button class="btn" id="sg-btn" onclick="goToSurvey()"><span class="spin" id="sg-spin"></span><span id="sg-btn-txt">Créer mon compte →</span></button>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted)" id="billing-note">Engagement annuel &middot; Paiement en une fois</div>
+    <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+      <a href="#" onclick="doSignupSkip();return false;" style="color:var(--ac);font-size:12.5px;text-decoration:none;">Tester gratuitement 30 jours →</a>
+    </div>
+  </div>
+  <div id="v-survey" style="display:none">
+    <button class="btn-back" onclick="showView('signup2')"><span class="btn-back-txt">← Retour</span></button>
+    <div class="step-title" id="survey-title">Une dernière chose...</div>
+    <p class="step-sub" id="survey-sub">3 questions rapides pour mieux vous servir (optionnel)</p>
+    <div class="survey-q">
+      <div class="survey-q-title" id="survey-q1-title">Aviez-vous un système de réservation avant ?</div>
+      <div class="survey-opts">
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq1" value="none"><span class="survey-dot"></span><span class="survey-label" id="survey-q1-none">Aucun (papier / téléphone)</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq1" value="thefork"><span class="survey-dot"></span><span class="survey-label" id="survey-q1-thefork">TheFork / LaFourchette</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq1" value="resmio"><span class="survey-dot"></span><span class="survey-label" id="survey-q1-resmio">Resmio</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq1" value="guestonline"><span class="survey-dot"></span><span class="survey-label" id="survey-q1-guestonline">Guestonline</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq1" value="aleno"><span class="survey-dot"></span><span class="survey-label" id="survey-q1-aleno">Aleno</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq1" value="other"><span class="survey-dot"></span><span class="survey-label" id="survey-q1-other">Autre</span><input type="text" class="survey-other-input" id="sq1-other-txt" placeholder="Précisez..."></div>
+      </div>
+    </div>
+    <div class="survey-q">
+      <div class="survey-q-title" id="survey-q2-title">Comment avez-vous découvert R3STO ?</div>
+      <div class="survey-opts">
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq2" value="google"><span class="survey-dot"></span><span class="survey-label" id="survey-q2-google">Recherche Google</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq2" value="reco"><span class="survey-dot"></span><span class="survey-label" id="survey-q2-reco">Recommandation d'un restaurateur</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq2" value="social"><span class="survey-dot"></span><span class="survey-label" id="survey-q2-social">Réseaux sociaux</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq2" value="event"><span class="survey-dot"></span><span class="survey-label" id="survey-q2-event">Salon / événement</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq2" value="article"><span class="survey-dot"></span><span class="survey-label" id="survey-q2-article">Article / blog</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'radio')"><input type="radio" name="sq2" value="other"><span class="survey-dot"></span><span class="survey-label" id="survey-q2-other">Autre</span><input type="text" class="survey-other-input" id="sq2-other-txt" placeholder="Précisez..."></div>
+      </div>
+    </div>
+    <div class="survey-q">
+      <div class="survey-q-title" id="survey-q3-title">Pourquoi avez-vous choisi R3STO ?</div>
+      <div class="survey-opts">
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'checkbox')"><input type="checkbox" name="sq3" value="digital"><span class="survey-chk"></span><span class="survey-label" id="survey-q3-digital">Digitaliser mon restaurant</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'checkbox')"><input type="checkbox" name="sq3" value="time"><span class="survey-chk"></span><span class="survey-label" id="survey-q3-time">Gagner du temps</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'checkbox')"><input type="checkbox" name="sq3" value="organize"><span class="survey-chk"></span><span class="survey-label" id="survey-q3-organize">Mieux organiser mes réservations</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'checkbox')"><input type="checkbox" name="sq3" value="noshow"><span class="survey-chk"></span><span class="survey-label" id="survey-q3-noshow">Réduire les no-shows</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'checkbox')"><input type="checkbox" name="sq3" value="crm"><span class="survey-chk"></span><span class="survey-label" id="survey-q3-crm">Avoir une vue sur mes clients (CRM)</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'checkbox')"><input type="checkbox" name="sq3" value="replace"><span class="survey-chk"></span><span class="survey-label" id="survey-q3-replace">Remplacer mon système actuel</span></div>
+        <div class="survey-opt" onclick="toggleSurveyOpt(this,'checkbox')"><input type="checkbox" name="sq3" value="other"><span class="survey-chk"></span><span class="survey-label" id="survey-q3-other">Autre</span><input type="text" class="survey-other-input" id="sq3-other-txt" placeholder="Précisez..."></div>
+      </div>
+    </div>
+    <button class="btn" onclick="doSignup()" id="survey-btn"><span id="survey-btn-txt">Continuer →</span></button>
+    <div class="survey-skip"><a href="#" onclick="doSignup();return false;" id="survey-skip-link">Passer cette étape →</a></div>
+  </div>
+  <div id="v-otp" style="display:none">
+    <button class="btn-back" onclick="showView('signup2')"><span class="btn-back-txt">← Retour</span></button>
+    <div class="otp-title" id="otp-title-el">Vérifiez votre identité</div>
+    <div class="otp-sub"><span id="otp-sub-txt">Code à 6 chiffres envoyé à</span><br><strong id="otp-dest">votre email</strong></div>
+    <div class="otp-digits">
+      <input class="otp-d" id="c0" maxlength="1" type="text" inputmode="numeric" oninput="otpIn(this,0)" onkeydown="otpKey(event,0)">
+      <input class="otp-d" id="c1" maxlength="1" type="text" inputmode="numeric" oninput="otpIn(this,1)" onkeydown="otpKey(event,1)">
+      <input class="otp-d" id="c2" maxlength="1" type="text" inputmode="numeric" oninput="otpIn(this,2)" onkeydown="otpKey(event,2)">
+      <input class="otp-d" id="c3" maxlength="1" type="text" inputmode="numeric" oninput="otpIn(this,3)" onkeydown="otpKey(event,3)">
+      <input class="otp-d" id="c4" maxlength="1" type="text" inputmode="numeric" oninput="otpIn(this,4)" onkeydown="otpKey(event,4)">
+      <input class="otp-d" id="c5" maxlength="1" type="text" inputmode="numeric" oninput="otpIn(this,5)" onkeydown="otpKey(event,5)">
+    </div>
+    <div class="msg err" id="otp-err"></div><div class="msg ok" id="otp-ok"></div>
+    <button class="btn" id="otp-btn" onclick="doVerify()"><span class="spin" id="otp-spin"></span><span id="otp-btn-txt">Vérifier →</span></button>
+    <div class="otp-resend"><span id="otp-cd-wrap">Renvoyer dans <span style="font-family:var(--fm);font-size:11px" id="otp-cd">60</span>s</span><a id="otp-resend-a" style="display:none" onclick="otpResend()">Renvoyer le code</a></div>
+  </div>
+
+  <!-- ÉTAPE 4 : PAIEMENT -->
+  <div id="v-payment" style="display:none">
+    <div class="step-title" id="payment-title">Finaliser votre abonnement</div>
+    <p class="step-sub" id="pay-sub">Récapitulatif et paiement sécurisé</p>
+
+    <!-- Récap plan -->
+    <div id="pay-recap" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:15px;font-weight:800;color:var(--text)" id="pay-plan-name">Plan Resto</div>
+        <div style="font-size:22px;font-weight:800;color:var(--ac)" id="pay-plan-price">59 CHF/mois</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted)" id="pay-plan-detail">Facturé 708 CHF · Engagement 1 an</div>
+      <div style="height:1px;background:var(--border);margin:12px 0"></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span style="color:var(--muted)">Total dû aujourd’hui</span>
+        <span style="font-weight:800;color:var(--text)" id="pay-total">708.00 CHF</span>
+      </div>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:4px">TVA non applicable — Art. 21 LTVA (prestation de service à un professionnel)</div>
+    </div>
+
+    <!-- Infos carte -->
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px">Numéro de carte</label>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;cursor:text" onclick="document.getElementById('pay-card').focus()">
+        <span style="font-size:18px">&#128179;</span>
+        <input id="pay-card" type="text" maxlength="19" placeholder="1234 5678 9012 3456" oninput="fmtCard(this)" style="border:none;background:transparent;color:var(--text);font-family:var(--fm);font-size:14px;font-weight:600;letter-spacing:.06em;outline:none;flex:1;width:100%" autocomplete="cc-number">
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <span style="font-size:18px" title="Visa">&#x1F4B3;</span>
+          <span style="font-size:11px;padding:2px 5px;border:1px solid var(--border);border-radius:3px;font-family:var(--fm);color:var(--muted)">MC</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div>
+        <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px">Expiration</label>
+        <input id="pay-exp" type="text" maxlength="5" placeholder="MM/AA" oninput="fmtExp(this)" style="width:100%;padding:12px 14px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--fm);font-size:14px;font-weight:600;outline:none;letter-spacing:.06em" autocomplete="cc-exp">
+      </div>
+      <div>
+        <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px">CVC</label>
+        <input id="pay-cvc" type="text" maxlength="4" placeholder="123" style="width:100%;padding:12px 14px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--fm);font-size:14px;font-weight:600;outline:none" autocomplete="cc-csc">
+      </div>
+    </div>
+    <div style="margin-bottom:18px">
+      <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px">Nom sur la carte</label>
+      <input id="pay-name" type="text" placeholder="Jean Dupont" style="width:100%;padding:12px 14px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--ff);font-size:14px;outline:none" autocomplete="cc-name">
+    </div>
+
+    <!-- Sécurité -->
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(60,200,112,.07);border:1px solid rgba(60,200,112,.2);border-radius:9px;margin-bottom:18px">
+      <span style="font-size:16px">&#128274;</span>
+      <span style="font-size:11.5px;color:var(--gn);font-weight:600">Paiement sécurisé SSL · Chiffrement 256 bits · Norme PCI-DSS</span>
+    </div>
+
+    <div class="msg err" id="pay-err"></div>
+    <button class="btn" id="pay-btn" onclick="doPayment()">
+      <span class="spin" id="pay-spin"></span>
+      <span id="pay-btn-txt">Payer et activer mon compte &#8594;</span>
+    </button>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted)">
+      Vous recevrez une confirmation par email · Annulation à l’échéance du contrat
+    </div>
+    <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <a href="#" onclick="goToApp(true);return false;" style="color:var(--ac);font-size:13px;text-decoration:none;">Tester gratuitement 30 jours →</a>
+    </div>
+  </div>
+  <div class="footer" id="footer">Déjà un compte ? <a href="#" onclick="showView('login');return false">Se connecter</a></div>
+</div>
+
+<div id="doc-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,14,28,.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surf);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.6)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:15px;font-weight:800;color:var(--text)" id="doc-modal-title">Conditions générales</div>
+      <button onclick="document.getElementById('doc-modal').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:0">&#x2715;</button>
+    </div>
+    <div id="doc-modal-body" style="overflow-y:auto;padding:22px;font-size:13px;color:var(--muted);line-height:1.7"></div>
+    <div style="padding:14px 22px;border-top:1px solid var(--border);text-align:right">
+      <button onclick="document.getElementById('doc-modal').style.display='none'" style="padding:9px 22px;background:var(--ac);border:none;border-radius:9px;color:#fff;font-weight:700;cursor:pointer;font-family:var(--ff);font-size:13px">J'ai compris</button>
+    </div>
+  </div>
+</div>
+
+<script src="./r3sto-phone.js"></script>
+<script>
+// Init R3Phone pour inscription
+(function(){
+  var ph = R3Phone.init('#sg-phone-wrap', {
+    country: 'CH',
+    selector: true,
+    onInput: function(digits) {
+      document.getElementById('sg-tel').value = digits;
+      liveTel();
+    },
+    onE164: function(e164) {
+      // Stocke l'indicatif dans le hidden pour compatibilité
+      var cc = ph ? ph.getCountry() : 'CH';
+      var c = R3Phone.COUNTRIES[cc];
+      if (c) document.getElementById('sg-ind').value = c.dial;
+    }
+  });
+  // Expose globalement pour accès depuis le formulaire
+  window._sgPhone = ph;
+})();
+
+var COUNTRY_DIAL = {
+  'CH':'+41','FR':'+33','DE':'+49','IT':'+39','GB':'+44','BE':'+32','LU':'+352',
+  'AT':'+43','NL':'+31','ES':'+34','PT':'+351','PL':'+48','CZ':'+420','SK':'+421',
+  'HU':'+36','RO':'+40','BG':'+359','GR':'+30','DK':'+45','SE':'+46','NO':'+47',
+  'FI':'+358','IE':'+353','IS':'+354','SI':'+386','HR':'+385','BA':'+387','RS':'+381',
+  'ME':'+382','AL':'+355','MK':'+389','LT':'+370','LV':'+371','EE':'+372','BY':'+375',
+  'UA':'+380','RU':'+7','TR':'+90','IL':'+972','LB':'+961','AE':'+971','SA':'+966',
+  'QA':'+974','KW':'+965','OM':'+968','BH':'+973','MA':'+212','DZ':'+213','TN':'+216',
+  'EG':'+20','ZA':'+27','NG':'+234','KE':'+254','IN':'+91','CN':'+86','JP':'+81',
+  'KR':'+82','SG':'+65','MY':'+60','TH':'+66','ID':'+62','PH':'+63','VN':'+84',
+  'AU':'+61','NZ':'+64','US':'+1','MX':'+52','BR':'+55','AR':'+54','CL':'+56',
+  'CO':'+57','PE':'+51'
+}
+var selectedPlan="resto",selectedDur=0,otpMode="email",otpInterval=null,pendingEmail="",pendingPhone="",placesAC=null,placesData=null;
+var BASE=[39,59,79],DISC=[0,.15,.25],YRS=[1,2,3];
+function showView(v){['login','signup1','signup2','survey','otp','payment'].forEach(function(id){document.getElementById('v-'+id).style.display=(id===v)?'':'none';});var card=document.getElementById('main-card');card.className='card '+(v==='signup2'?'wide':'narrow');var tabs=document.querySelector('.tabs');tabs.style.display=(v==='login'||v==='signup1')?'':'none';document.getElementById('t-login').classList.toggle('on',v==='login');document.getElementById('t-signup').classList.toggle('on',v==='signup1');document.getElementById('stepper').style.display=(v==='signup1'||v==='signup2'||v==='survey'||v==='otp'||v==='payment')?'flex':'none';
+  var be=document.getElementById('badge-espace');if(be)be.style.display=(v==='login')?'':'none';updateStepper(v);var f=document.getElementById('footer');if(v==='login'){f.innerHTML='Pas encore de compte ? <a href="#" onclick="showView(\'signup1\');return false">Créer un compte</a>';f.style.display='';}else if(v==='signup1'){f.innerHTML='Déjà un compte ? <a href="#" onclick="showView(\'login\');return false">Se connecter</a>';f.style.display='';}else{f.style.display='none';}}
+function updateStepper(v){var steps={signup1:1,signup2:2,survey:3,otp:4,payment:5};var cur=steps[v]||1;for(var i=1;i<=5;i++){var dot=document.getElementById('sd'+i),lbl=document.getElementById('sl'+i);if(!dot)continue;dot.className='step-dot'+(i<cur?' done':i===cur?' active':'');lbl.className='step-label'+(i===cur?' active':'');dot.textContent=i<cur?'✓':String(i);if(i<5){var sl=document.getElementById('sline'+i);if(sl)sl.className='step-line'+(i<cur?' done':'');}}}
+showView('signup1');
+document.getElementById('badge-espace').style.display='none';
+try{setAuthLang(AUTH_LANG);}catch(e){}
+function initPlaces(){/* désactivé — Google Places sera dans Mon Restaurant */}
+function onRestoInput(el){liveRequired(el);}
+function liveRequired(el){el.classList.toggle('ok',el.value.trim().length>0);el.classList.toggle('bad',!el.value.trim()&&el.value.length>0);}
+function liveEmail(el){var ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);el.classList.toggle('ok',ok);el.classList.toggle('bad',!ok&&el.value.length>0);}
+function liveTel(){var t=document.getElementById('sg-tel').value,ok=t.replace(/[^0-9]/g,'').length>=7,h=document.getElementById('sg-tel-hint');h.style.display=(!ok&&t.length>0)?'':'none';if(window._sgPhone){var w=_sgPhone.el;w.style.borderColor=ok?'var(--gn)':(!ok&&t.length>0)?'var(--rd)':'var(--border,#2a3a52)';}return ok;}
+function livePw(val){
+  var bar=document.getElementById('pw-bar');
+  var rules={
+    len: val.length>=8,
+    upper: /[A-Z]/.test(val),
+    num: /[0-9]/.test(val),
+    special: /[^A-Za-z0-9]/.test(val)
+  };
+  // Mettre à jour les indicateurs visuels
+  ['len','upper','num','special'].forEach(function(k){
+    var el=document.getElementById('req-'+k);
+    if(el){
+      el.className='pw-req'+(rules[k]?' ok':'');
+      el.textContent=(rules[k]?'\u2713':'\u25CF')+' '+{
+        len:'8 caract\u00e8res minimum',
+        upper:'Majuscule (A-Z)',
+        num:'Chiffre (0-9)',
+        special:'Caract\u00e8re sp\u00e9cial'
+      }[k];
+    }
+  });
+  var score=Object.values(rules).filter(Boolean).length;
+  var colors=['','var(--rd)','var(--am)','var(--am)','var(--gn)'];
+  var pcts=['0%','30%','55%','75%','100%'];
+  if(bar){bar.style.width=val?pcts[score]:'0%';bar.style.background=colors[score]||'var(--rd)';}
+  return score===4;
+}
+function togglePw(){
+  var inp=document.getElementById('sg-pw');
+  var btn=document.getElementById('pw-eye');
+  if(!inp)return;
+  if(inp.type==='password'){inp.type='text';if(btn)btn.innerHTML='&#x1F648;';}
+  else{inp.type='password';if(btn)btn.innerHTML='&#x1F441;';}
+}
+function goToStep2(){var resto=document.getElementById('sg-resto').value.trim(),fn=document.getElementById('sg-fn').value.trim(),ln=document.getElementById('sg-ln').value.trim(),email=document.getElementById('sg-email').value.trim(),pw=document.getElementById('sg-pw').value;clearMsg('sg-err');if(!resto){msg('sg-err','err',ta('err_resto'));return;}if(!fn){msg('sg-err','err',ta('err_fn'));return;}if(!ln){msg('sg-err','err',ta('err_ln'));return;}if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg('sg-err','err',ta('err_email'));return;}if(!liveTel()){msg('sg-err','err',ta('err_tel'));return;}if(!livePw(pw)){msg('sg-err','err','Mot de passe incomplet — respectez tous les critères.');return;}showView('signup2');}
+function setPlan(p){selectedPlan=p;['bistro','resto','gastro'].forEach(function(id){document.getElementById('pc-'+id).classList.toggle('on',id===p);});}
+function setDur(i,btn){selectedDur=i;document.querySelectorAll('.dtab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderPrices();}
+
+/* ── DEVISE & PRIX ───────────────────────────────── */
+var CURRENCY = {code:'CHF', symbol:'CHF', rate:1, locale:'fr-CH'};
+var CURRENCY_MAP = {
+  'CH':'CHF','DE':'EUR','AT':'EUR','FR':'EUR','BE':'EUR','LU':'EUR',
+  'IT':'EUR','ES':'EUR','PT':'EUR','NL':'EUR','IE':'EUR','FI':'EUR',
+  'GR':'EUR','SK':'EUR','SI':'EUR','EE':'EUR','LV':'EUR','LT':'EUR',
+  'MT':'EUR','CY':'EUR',
+  'GB':'GBP','US':'USD','CA':'USD','AU':'AUD','NZ':'NZD',
+  'DK':'DKK','SE':'SEK','NO':'NOK','PL':'PLN','CZ':'CZK','HU':'HUF',
+  'RO':'RON','MA':'MAD','TN':'TND','DZ':'DZD','SN':'XOF','CM':'XAF'
+};
+var CURRENCY_CFG = {
+  CHF:{symbol:'CHF',locale:'fr-CH',rate:1},
+  EUR:{symbol:'EUR',locale:'fr-FR',rate:0.97},
+  USD:{symbol:'USD',locale:'en-US',rate:1.09},
+  GBP:{symbol:'GBP',locale:'en-GB',rate:0.88},
+  AUD:{symbol:'AUD',locale:'en-AU',rate:1.65},
+  NZD:{symbol:'NZD',locale:'en-NZ',rate:1.80},
+  DKK:{symbol:'DKK',locale:'da-DK',rate:7.40},
+  SEK:{symbol:'SEK',locale:'sv-SE',rate:11.40},
+  NOK:{symbol:'NOK',locale:'nb-NO',rate:11.80},
+  PLN:{symbol:'PLN',locale:'pl-PL',rate:4.35},
+  CZK:{symbol:'CZK',locale:'cs-CZ',rate:24.5},
+  HUF:{symbol:'HUF',locale:'hu-HU',rate:390},
+  RON:{symbol:'RON',locale:'ro-RO',rate:4.96},
+  MAD:{symbol:'MAD',locale:'fr-MA',rate:10.95},
+};
+function detectCurrency(countryCode){
+  var code = CURRENCY_MAP[countryCode] || 'CHF';
+  CURRENCY = Object.assign({code:code}, CURRENCY_CFG[code]||CURRENCY_CFG.CHF);
+  renderPrices();
+  updateCurrencyLabels();
+}
+function updateCurrencyLabels(){
+  // Mettre à jour les unités affichées
+  document.querySelectorAll('.pp-unit').forEach(function(el){
+    el.textContent = CURRENCY.code+'/mois';
+  });
+}
+function fmtC(chfAmount){
+  var v = Math.round(chfAmount * CURRENCY.rate);
+  try{ return v.toLocaleString(CURRENCY.locale); }
+  catch(e){ return v.toLocaleString(); }
+}
+function renderPrices(){
+  var d=DISC[selectedDur], y=YRS[selectedDur];
+  var names=['bistro','resto','gastro'];
+  // Seuil "moins de X" : uniquement en 1 an, uniquement Bistro (<500) et non pas Resto/Gastro
+  // Règle: Bistro 1 an → "moins de 500 CHF/an" ; Resto/Gastro → jamais ; multi-ans → jamais
+  var THRESHOLD = [500, 0, 0]; // 0 = pas d'indicateur
+  names.forEach(function(n,i){
+    var mo = BASE[i]*(1-d);
+    var tot = mo*12*y;
+    var saved = BASE[i]*12*y*d;
+    document.getElementById('pr-'+n).textContent = fmtC(mo);
+    var ann = document.getElementById('pa-'+n);
+    // Indicateur "moins de X" : seulement si 1 an (d===0) ET Bistro (i===0)
+    var showUnder = (d===0 && i===0 && THRESHOLD[i]>0);
+    var underTxt = showUnder
+      ? ' &middot; <span style="color:var(--gn);font-weight:700">< '+fmtC(THRESHOLD[i])+'&nbsp;'+CURRENCY.code+'/an</span>'
+      : '';
+    if(d>0){
+      ann.innerHTML = 'Fact. '+fmtC(tot)+'&nbsp;'+CURRENCY.code+' / '+y+'&nbsp;ans'
+        +' &middot; <strong style="color:var(--gn)">-'+fmtC(saved)+'&nbsp;'+CURRENCY.code+'</strong>'
+        +underTxt;
+    } else {
+      ann.innerHTML = 'Fact. '+fmtC(tot)+'&nbsp;'+CURRENCY.code+'/an'+underTxt;
+    }
+  });
+}
+renderPrices();
+
+function goToSurvey(){
+  var cgu=document.getElementById('sg-cgu');
+  if(cgu&&!cgu.checked){msg('sg-err2','err',ta('cgu_required'));return;}
+  showView('survey');
+}
+function getSurveyRadio(name){var el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
+function getSurveyCheckboxes(name){var els=document.querySelectorAll('input[name="'+name+'"]:checked');return Array.from(els).map(function(e){return e.value;});}
+function toggleSurveyOpt(el,type){
+  if(type==='radio'){
+    var name=el.querySelector('input').name;
+    document.querySelectorAll('.survey-opt input[name="'+name+'"]').forEach(function(inp){inp.closest('.survey-opt').classList.remove('on');inp.checked=false;});
+    el.classList.add('on');el.querySelector('input').checked=true;
+  }else{
+    var inp=el.querySelector('input');
+    inp.checked=!inp.checked;
+    el.classList.toggle('on',inp.checked);
+  }
+}
+
+function doSignup(){
+  var resto=document.getElementById('sg-resto').value.trim(),
+      fn=document.getElementById('sg-fn').value.trim(),
+      ln=document.getElementById('sg-ln').value.trim(),
+      email=document.getElementById('sg-email').value.trim(),
+      ind=document.getElementById('sg-ind').value,
+      tel=document.getElementById('sg-tel').value.trim(),
+      pw=document.getElementById('sg-pw').value;
+  var surveyData={previousSystem:getSurveyRadio('sq1'),discoverySource:getSurveyRadio('sq2'),reasons:getSurveyCheckboxes('sq3'),previousSystemOther:document.getElementById('sq1-other-txt')?document.getElementById('sq1-other-txt').value:'',discoveryOther:document.getElementById('sq2-other-txt')?document.getElementById('sq2-other-txt').value:'',reasonsOther:document.getElementById('sq3-other-txt')?document.getElementById('sq3-other-txt').value:''};
+  localStorage.setItem('r3sto_survey',JSON.stringify(surveyData));
+  loading('sg-btn','sg-spin',true);
+  localStorage.setItem('r3sto_resto_name',resto);
+  localStorage.setItem('r3sto_user_name',fn+' '+ln);
+  localStorage.setItem('r3sto_plan',selectedPlan);
+  localStorage.setItem('r3sto_phone',ind+tel.replace(/[^0-9]/g,''));
+  localStorage.setItem('r3sto_email',email);
+  fetch('https://api.r3sto.ch/auth/register',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      restaurantName:resto,firstName:fn,lastName:ln,
+      email:email,phone:ind+tel.replace(/[^0-9]/g,''),
+      password:pw,plan:selectedPlan,
+      placeId:placesData?placesData.place_id:null,
+      address:placesData?placesData.formatted_address:null
+    })
+  }).then(function(r){
+    if(!r.ok && r.status===409){
+      loading('sg-btn','sg-spin',false);
+      var el=document.getElementById('sg-err2');
+      if(el){el.className='msg err';el.innerHTML='Cet email est d\u00e9j\u00e0 utilis\u00e9. <a href="#" onclick="showView(\'login\');return false" style="color:var(--ac);text-decoration:underline">Se connecter</a>';el.style.display='';}
+      throw new Error('email_exists');
+    }
+    return r.json();
+  }).then(function(d){
+    if(d.access_token||d.otpSent){
+      if(d.access_token)localStorage.setItem('r3sto_token',d.access_token);
+      loading('sg-btn','sg-spin',false);
+      pendingEmail=email;pendingPhone=ind+' '+tel;
+      showOtp();
+    }else{
+      loading('sg-btn','sg-spin',false);
+      var m2=d.message||d.error||'Erreur serveur';
+      msg('sg-err2','err',m2);
+    }
+  }).catch(function(e){
+    if(e&&e.message==='email_exists')return;
+    loading('sg-btn','sg-spin',false);
+    pendingEmail=email;pendingPhone=ind+' '+tel;
+    showOtp();
+  });
+}
+function doSignupSkip(){
+  var cgu=document.getElementById('sg-cgu');
+  if(cgu&&!cgu.checked){msg('sg-err2','err',ta('cgu_required'));return;}
+  var resto=document.getElementById('sg-resto').value.trim(),
+      fn=document.getElementById('sg-fn').value.trim(),
+      ln=document.getElementById('sg-ln').value.trim(),
+      email=document.getElementById('sg-email').value.trim();
+  localStorage.setItem('r3sto_resto_name',resto);
+  localStorage.setItem('r3sto_user_name',fn+' '+ln);
+  localStorage.setItem('r3sto_plan',selectedPlan);
+  localStorage.setItem('r3sto_email',email);
+  localStorage.setItem('r3sto_is_new','1');
+  localStorage.setItem('r3sto_new_account','1');
+  localStorage.setItem('r3sto_trial','1');
+  /* Try register in background, don't block */
+  var pw=document.getElementById('sg-pw').value;
+  if(email&&pw){
+    fetch('https://api.r3sto.ch/auth/register',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({restaurantName:resto,firstName:fn,lastName:ln,email:email,phone:'',password:pw,plan:selectedPlan})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.access_token)localStorage.setItem('r3sto_token',d.access_token);
+    }).catch(function(){});
+  }
+  window.location.href='https://app.r3sto.ch';
+}
+function doLogin(){var email=document.getElementById('li-email').value.trim(),pw=document.getElementById('li-pw').value;clearMsg('li-err');if(!email||!email.includes('@')){msg('li-err','err',ta('err_email'));return;}if(!pw){msg('li-err','err',ta('err_pw'));return;}loading('li-btn','li-spin',true);fetch('https://api.r3sto.ch/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pw})}).then(function(r){return r.json();}).then(function(d){if(d.access_token){localStorage.setItem('r3sto_token',d.access_token);window.location.href='https://app.r3sto.ch';}else{loading('li-btn','li-spin',false);msg('li-err','err',d.message||ta('err_login'));}}).catch(function(){loading('li-btn','li-spin',false);msg('li-err','err',ta('err_server'));});}
+function showOtp(){showView('otp');updateOtpDest();clearOtp();startCountdown(60);setTimeout(function(){document.getElementById('c0').focus();},150);sendOtpCode();}
+function otpMethod(m){otpMode='email';}
+function updateOtpDest(){document.getElementById('otp-dest').textContent=otpMode==='email'?pendingEmail:pendingPhone;}
+function clearOtp(){for(var i=0;i<6;i++){var el=document.getElementById('c'+i);if(el){el.value='';el.classList.remove('filled');}}clearMsg('otp-err');clearMsg('otp-ok');var d=document.getElementById('c0');if(d)d.focus();}
+function sendOtpCode(){fetch('https://api.r3sto.ch/auth/send-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:pendingEmail,phone:pendingPhone,method:otpMode})}).catch(function(){});}
+function otpIn(el,i){el.value=el.value.replace(/[^0-9]/g,'');el.classList.toggle('filled',el.value!=='');if(el.value&&i<5)document.getElementById('c'+(i+1)).focus();if(getOtp().length===6)doVerify();}
+function otpKey(e,i){if(e.key==='Backspace'&&!document.getElementById('c'+i).value&&i>0)document.getElementById('c'+(i-1)).focus();if(e.key==='ArrowLeft'&&i>0)document.getElementById('c'+(i-1)).focus();if(e.key==='ArrowRight'&&i<5)document.getElementById('c'+(i+1)).focus();}
+function getOtp(){var s='';for(var i=0;i<6;i++)s+=(document.getElementById('c'+i).value||'');return s;}
+function startCountdown(sec){if(otpInterval)clearInterval(otpInterval);var n=sec;document.getElementById('otp-cd').textContent=n;document.getElementById('otp-cd-wrap').style.display='';document.getElementById('otp-resend-a').style.display='none';otpInterval=setInterval(function(){n--;document.getElementById('otp-cd').textContent=n;if(n<=0){clearInterval(otpInterval);document.getElementById('otp-cd-wrap').style.display='none';document.getElementById('otp-resend-a').style.display='inline';}},1000);}
+function otpResend(){clearOtp();startCountdown(60);sendOtpCode();msg('otp-ok','ok',ta('otp_sent'));setTimeout(function(){clearMsg('otp-ok');},2500);}
+function doVerify(){var code=getOtp();if(code.length<6){msg('otp-err','err',ta('otp_err_len'));return;}clearMsg('otp-err');clearMsg('otp-ok');loading('otp-btn','otp-spin',true);fetch('https://api.r3sto.ch/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:pendingEmail,code:code,method:otpMode})}).then(function(r){return r.json();}).then(function(d){if(d.verified||d.access_token){if(d.access_token)localStorage.setItem('r3sto_token',d.access_token);goToPayment();}else{loading('otp-btn','otp-spin',false);msg('otp-err','err',ta('otp_err_wrong'));clearOtp();}}).catch(function(){loading('otp-btn','otp-spin',false);goToPayment();});}
+function msg(id,type,text){var el=document.getElementById(id);if(!el)return;el.className='msg '+type;el.textContent=text;el.style.display='';el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function clearMsg(id){var el=document.getElementById(id);if(el)el.style.display='none';}
+function loading(btn,spin,on){var b=document.getElementById(btn),s=document.getElementById(spin);if(b)b.disabled=on;if(s)s.style.display=on?'inline-block':'none';}
+function goToApp(isNew){localStorage.setItem('r3sto_is_new',isNew?'1':'0');localStorage.setItem('r3sto_new_account',isNew?'1':'0');if(otpInterval)clearInterval(otpInterval);window.location.href='https://app.r3sto.ch';}
+function goToPayment(){
+  if(otpInterval)clearInterval(otpInterval);
+  updatePayRecap();
+  showView('payment');
+}
+function updatePayRecap(){
+  var planNames={bistro:'Bistro',resto:'Resto',gastro:'Gastro'};
+  var base=[39,59,79],disc=[0,.15,.25],yrs=[1,2,3];
+  var pidx=['bistro','resto','gastro'].indexOf(selectedPlan);
+  if(pidx<0)pidx=1;
+  var mo=Math.round(base[pidx]*(1-disc[selectedDur]));
+  var tot=Math.round(mo*12*yrs[selectedDur]);
+  var durLbl=selectedDur===0?'1 an':selectedDur===1?'2 ans':'3 ans';
+  var el=document.getElementById('pay-plan-name');
+  if(el)el.textContent='Plan '+planNames[selectedPlan];
+  var el2=document.getElementById('pay-plan-price');
+  if(el2)el2.textContent=mo+' CHF/mois';
+  var el3=document.getElementById('pay-plan-detail');
+  if(el3)el3.textContent='Facturé '+tot+' CHF · Engagement '+durLbl;
+  var el4=document.getElementById('pay-total');
+  if(el4)el4.textContent=tot.toLocaleString('fr-CH')+'.00 CHF';
+  var el5=document.getElementById('pay-btn-txt');
+  if(el5)el5.textContent='Payer '+tot.toLocaleString('fr-CH')+' CHF et activer mon compte →';
+}
+function fmtCard(el){var v=el.value.replace(/\D/g,'').slice(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim();}
+function fmtExp(el){var v=el.value.replace(/\D/g,'');if(v.length>=2)v=v.slice(0,2)+'/'+v.slice(2,4);el.value=v;}
+function doPayment(){
+  var card=document.getElementById('pay-card').value.replace(/\s/g,'');
+  var exp=document.getElementById('pay-exp').value;
+  var cvc=document.getElementById('pay-cvc').value;
+  var name=document.getElementById('pay-name').value.trim();
+  var err=document.getElementById('pay-err');
+  err.style.display='none';
+  if(card.length<16){err.textContent='Numéro de carte invalide.';err.style.display='';return;}
+  if(!exp.match(/\d{2}\/\d{2}/)){err.textContent='Date d\'expiration invalide (MM/AA).';err.style.display='';return;}
+  if(cvc.length<3){err.textContent='Code CVC invalide.';err.style.display='';return;}
+  if(!name){err.textContent='Veuillez saisir le nom du titulaire.';err.style.display='';return;}
+  document.getElementById('pay-btn').disabled=true;
+  document.getElementById('pay-spin').style.display='inline-block';
+  // Intégration Stripe à venir
+  setTimeout(function(){
+    localStorage.setItem('r3sto_is_new','1');
+    localStorage.setItem('r3sto_new_account','1');
+    window.location.href='https://app.r3sto.ch';
+  },2000);
+}
+var COUNTRY_LANG={'CH':'fr','FR':'fr','BE':'fr','LU':'fr',
+  'DE':'de','AT':'de','IT':'it','GB':'en','US':'en','CA':'en','AU':'en',
+  'NL':'en','SE':'en','DK':'en','NO':'en','FI':'en'};
+
+function detectDial(){
+  var savedDial=localStorage.getItem('r3sto_country_dial');
+  var savedLang=localStorage.getItem('r3sto_lang');
+  if(savedDial&&savedLang){
+    var d=DIAL_DATA.find(function(x){return x.dial===savedDial;});
+    if(d)pickDial(d.code);
+    setAuthLang(savedLang);
+    return;
+  }
+  fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d){
+    var entry=DIAL_DATA.find(function(x){return x.code===d.country_code;});
+    if(entry){localStorage.setItem('r3sto_country_dial',entry.dial);pickDial(entry.code);} detectCurrency(d.country_code||'CH');
+    if(!savedLang){
+      var lang=COUNTRY_LANG[d.country_code]||'fr';
+      setAuthLang(lang);
+    }
+  }).catch(function(){
+    fetch('https://ip-api.com/json/?fields=countryCode').then(function(r){return r.json();}).then(function(d){
+      var entry=DIAL_DATA.find(function(x){return x.code===d.countryCode;});
+      if(entry){localStorage.setItem('r3sto_country_dial',entry.dial);pickDial(entry.code);}
+      if(!savedLang){var lang=COUNTRY_LANG[d.countryCode]||'fr';setAuthLang(lang);}
+    }).catch(function(){});
+  });
+}
+function setDial(sel,dial){for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===dial){sel.selectedIndex=i;break;}}}
+window.addEventListener('load',detectDial);
+
+var DIAL_DATA=[
+  {code:"CH",flag:"&#x1F1E8;&#x1F1ED;",name:"Suisse",dial:"+41"},
+  {code:"FR",flag:"&#x1F1EB;&#x1F1F7;",name:"France",dial:"+33"},
+  {code:"DE",flag:"&#x1F1E9;&#x1F1EA;",name:"Allemagne",dial:"+49"},
+  {code:"IT",flag:"&#x1F1EE;&#x1F1F9;",name:"Italie",dial:"+39"},
+  {code:"BE",flag:"&#x1F1E7;&#x1F1EA;",name:"Belgique",dial:"+32"},
+  {code:"LU",flag:"&#x1F1F1;&#x1F1FA;",name:"Luxembourg",dial:"+352"},
+  {code:"AT",flag:"&#x1F1E6;&#x1F1F9;",name:"Autriche",dial:"+43"},
+  {code:"NL",flag:"&#x1F1F3;&#x1F1F1;",name:"Pays-Bas",dial:"+31"},
+  {code:"GB",flag:"&#x1F1EC;&#x1F1E7;",name:"Royaume-Uni",dial:"+44"},
+  {code:"ES",flag:"&#x1F1EA;&#x1F1F8;",name:"Espagne",dial:"+34"},
+  {code:"PT",flag:"&#x1F1F5;&#x1F1F9;",name:"Portugal",dial:"+351"},
+  {code:"PL",flag:"&#x1F1F5;&#x1F1F1;",name:"Pologne",dial:"+48"},
+  {code:"CZ",flag:"&#x1F1E8;&#x1F1FF;",name:"Rép. Tchèque",dial:"+420"},
+  {code:"SE",flag:"&#x1F1F8;&#x1F1EA;",name:"Suède",dial:"+46"},
+  {code:"DK",flag:"&#x1F1E9;&#x1F1F0;",name:"Danemark",dial:"+45"},
+  {code:"NO",flag:"&#x1F1F3;&#x1F1F4;",name:"Norvège",dial:"+47"},
+  {code:"FI",flag:"&#x1F1EB;&#x1F1EE;",name:"Finlande",dial:"+358"},
+  {code:"RO",flag:"&#x1F1F7;&#x1F1F4;",name:"Roumanie",dial:"+40"},
+  {code:"GR",flag:"&#x1F1EC;&#x1F1F7;",name:"Grèce",dial:"+30"},
+  {code:"HR",flag:"&#x1F1ED;&#x1F1F7;",name:"Croatie",dial:"+385"},
+  {code:"CA",flag:"&#x1F1E8;&#x1F1E6;",name:"Canada",dial:"+1"},
+  {code:"US",flag:"&#x1F1FA;&#x1F1F8;",name:"États-Unis",dial:"+1"},
+  {code:"MA",flag:"&#x1F1F2;&#x1F1E6;",name:"Maroc",dial:"+212"},
+  {code:"TN",flag:"&#x1F1F9;&#x1F1F3;",name:"Tunisie",dial:"+216"},
+  {code:"DZ",flag:"&#x1F1E9;&#x1F1FF;",name:"Algérie",dial:"+213"},
+  {code:"SN",flag:"&#x1F1F8;&#x1F1F3;",name:"Sénégal",dial:"+221"},
+  {code:"CM",flag:"&#x1F1E8;&#x1F1F2;",name:"Cameroun",dial:"+237"},
+  {code:"CI",flag:"&#x1F1E8;&#x1F1EE;",name:"Côte d'Ivoire",dial:"+225"}
+];
+var dialOpen=false,dialSelected={code:'CH',flag:'&#x1F1E8;&#x1F1ED;',name:'Suisse',dial:'+41'};
+
+function buildDialList(filter){
+  var list=document.getElementById('dial-list');
+  if(!list)return;
+  var items=DIAL_DATA.filter(function(d){
+    return !filter||d.name.toLowerCase().includes(filter.toLowerCase())||d.dial.includes(filter)||d.code.toLowerCase().includes(filter.toLowerCase());
+  });
+  var html='';
+  items.forEach(function(d){
+    var sel=d.code===dialSelected.code?' sel':'';
+    html+='<div class="dial-item'+sel+'" data-code="'+d.code+'">'
+      +'<span class="dial-item-flag">'+d.flag+'</span>'
+      +'<span class="dial-item-name">'+d.name+'</span>'
+      +'<span class="dial-item-code">'+d.dial+'</span>'
+      +'</div>';
+  });
+  list.innerHTML=html;
+  list.querySelectorAll('.dial-item').forEach(function(el){
+    el.addEventListener('click',function(){pickDial(el.getAttribute('data-code'));});
+  });
+}
+
+// Legacy dial functions — remplacées par R3Phone, stubs pour compatibilité
+function toggleDial(){}
+function filterDial(){}
+function pickDial(code){ if(window._sgPhone && code) _sgPhone.setCountry(code); }
+function initDialFromStorage(){}
+
+
+var AUTH_LANG;
+try { AUTH_LANG = localStorage.getItem('r3sto_lang') || 'fr'; } catch(e) { AUTH_LANG = 'fr'; }
+
+var AUTH_I18N = {
+  fr: {
+    tab_login: 'Se connecter', tab_signup: 'Créer un compte',
+    signin_title: 'Bon retour &#x1F44B;', signin_sub: 'Accédez à votre tableau de bord R3STO',
+    signup_title: 'Créer un compte', signup_sub: 'Rejoignez R3STO',
+    step_infos: 'Vos infos', step_plan: 'Votre plan', step_survey: 'Feedback', step_verif: 'Vérification', step_payment: 'Paiement', pay_title: 'Finaliser votre abonnement', pay_sub: 'Récapitulatif et paiement sécurisé',
+    survey_title: 'Une dernière chose...', survey_sub: '3 questions rapides pour mieux vous servir (optionnel)',
+    survey_q1: 'Aviez-vous un système de réservation avant ?', survey_q1_none: 'Aucun (papier / téléphone)', survey_q1_thefork: 'TheFork / LaFourchette', survey_q1_resmio: 'Resmio', survey_q1_guestonline: 'Guestonline', survey_q1_aleno: 'Aleno', survey_q1_other: 'Autre',
+    survey_q2: 'Comment avez-vous découvert R3STO ?', survey_q2_google: 'Recherche Google', survey_q2_reco: 'Recommandation d\'un restaurateur', survey_q2_social: 'Réseaux sociaux', survey_q2_event: 'Salon / événement', survey_q2_article: 'Article / blog', survey_q2_other: 'Autre',
+    survey_q3: 'Pourquoi avez-vous choisi R3STO ?', survey_q3_digital: 'Digitaliser mon restaurant', survey_q3_time: 'Gagner du temps', survey_q3_organize: 'Mieux organiser mes réservations', survey_q3_noshow: 'Réduire les no-shows', survey_q3_crm: 'Avoir une vue sur mes clients (CRM)', survey_q3_replace: 'Remplacer mon système actuel', survey_q3_other: 'Autre',
+    survey_btn: 'Continuer →', survey_skip: 'Passer cette étape →',
+    lbl_resto: 'Nom du restaurant', ph_resto: 'Rechercher votre établissement…',
+    lbl_fn: 'Prénom', lbl_ln: 'Nom', lbl_email: 'Email professionnel',
+    lbl_tel: 'Téléphone', lbl_pw: 'Mot de passe', lbl_pw_new: 'Mot de passe',
+    ph_email: 'vous@restaurant.ch', ph_pw: '6 caractères minimum',
+    pw_hint: 'Choisissez un mot de passe', pw_short: 'Trop court', pw_almost: 'Presque…',
+    pw_ok: '✓ Mot de passe valide',
+    btn_continue: 'Continuer → Choisir mon plan',
+    btn_login: 'Se connecter', btn_signup: 'Créer mon compte →',
+    btn_verify: 'Vérifier →',
+    plan_title: 'Choisissez votre plan', plan_sub: 'Gestion automatique des réservations incluse · Modifiable à tout moment',
+    dur_1y: '1 an', dur_2y: '2 ans', dur_3y: '3 ans',
+    plan_included: 'Inclus', plan_not: 'Non inclus', plan_all_plus: 'Tout {plan}, plus',
+    plan_recommended: 'Recommandé',
+    billing_annual: 'Facturé {tot} CHF/an',
+    billing_multi: 'Facturé {tot} CHF / {y} ans · -{saved} CHF',
+    billing_under: 'moins de {n} CHF/an',
+    cgu: '',
+    cgu_required: 'Veuillez accepter les conditions générales.',
+    billing_note: 'Engagement annuel · Paiement en une fois',
+    otp_title: 'Vérifiez votre identité', otp_sub: 'Code à 6 chiffres envoyé à',
+    otp_resend_cd: 'Renvoyer dans', otp_resend: 'Renvoyer le code', otp_sent: 'Code renvoyé !',
+    otp_err_len: 'Entrez les 6 chiffres.', otp_err_wrong: 'Code incorrect ou expiré.',
+    footer_no_account: 'Pas encore de compte ?',
+    footer_create: 'Créer un compte',
+    footer_have_account: 'Déjà un compte ?',
+    footer_signin: 'Se connecter',
+    err_resto: 'Le nom du restaurant est requis.', err_fn: 'Votre prénom est requis.',
+    err_ln: 'Votre nom est requis.', err_email: 'Adresse email invalide.',
+    err_tel: 'Numéro de téléphone invalide.', err_pw: 'Mot de passe trop court (6 caractères minimum).',
+    err_login: 'Identifiants incorrects.', err_server: 'Serveur indisponible.',
+    err_exists: 'Un compte existe déjà avec cet email.',
+    dial_search: 'Rechercher pays…',
+    forgot_pw: 'Mot de passe oublié ?',
+    back: '← Retour',
+    badge_espace: 'Espace restaurateur',
+  },
+  en: {
+    tab_login: 'Sign in', tab_signup: 'Create account',
+    signin_title: 'Welcome back &#x1F44B;', signin_sub: 'Access your R3STO dashboard',
+    signup_title: 'Create account', signup_sub: 'Join R3STO',
+    step_infos: 'Your info', step_plan: 'Your plan', step_survey: 'Feedback', step_verif: 'Verification', step_payment: 'Payment', pay_title: 'Complete your subscription', pay_sub: 'Summary and secure payment',
+    survey_title: 'One last thing...', survey_sub: '3 quick questions to serve you better (optional)',
+    survey_q1: 'Did you have a reservation system before?', survey_q1_none: 'None (paper / phone)', survey_q1_thefork: 'TheFork / LaFourchette', survey_q1_resmio: 'Resmio', survey_q1_guestonline: 'Guestonline', survey_q1_aleno: 'Aleno', survey_q1_other: 'Other',
+    survey_q2: 'How did you discover R3STO?', survey_q2_google: 'Google search', survey_q2_reco: 'Restaurant owner recommendation', survey_q2_social: 'Social media', survey_q2_event: 'Trade show / event', survey_q2_article: 'Article / blog', survey_q2_other: 'Other',
+    survey_q3: 'Why did you choose R3STO?', survey_q3_digital: 'Digitalize my restaurant', survey_q3_time: 'Save time', survey_q3_organize: 'Better organize my reservations', survey_q3_noshow: 'Reduce no-shows', survey_q3_crm: 'Get a view on my clients (CRM)', survey_q3_replace: 'Replace my current system', survey_q3_other: 'Other',
+    survey_btn: 'Continue →', survey_skip: 'Skip this step →',
+    lbl_resto: 'Restaurant name', ph_resto: 'Search your establishment…',
+    lbl_fn: 'First name', lbl_ln: 'Last name', lbl_email: 'Professional email',
+    lbl_tel: 'Phone', lbl_pw: 'Password', lbl_pw_new: 'Password',
+    ph_email: 'you@restaurant.com', ph_pw: '6 characters minimum',
+    pw_hint: 'Choose a password', pw_short: 'Too short', pw_almost: 'Almost…',
+    pw_ok: '✓ Valid password',
+    btn_continue: 'Continue → Choose my plan',
+    btn_login: 'Sign in', btn_signup: 'Create my account →',
+    btn_verify: 'Verify →',
+    plan_title: 'Choose your plan', plan_sub: 'Automatic reservation management included in all plans · Change anytime',
+    dur_1y: '1 year', dur_2y: '2 years', dur_3y: '3 years',
+    plan_included: 'Included', plan_not: 'Not included', plan_all_plus: 'All {plan}, plus',
+    plan_recommended: 'Recommended',
+    billing_annual: 'Billed {tot} CHF/year',
+    billing_multi: 'Billed {tot} CHF / {y} years · -{saved} CHF',
+    billing_under: 'less than {n} CHF/year',
+    cgu: '',
+    cgu_required: 'Please accept the terms and conditions.',
+    billing_note: 'Annual commitment · Single payment',
+    otp_title: 'Verify your identity', otp_sub: '6-digit code sent to',
+    otp_resend_cd: 'Resend in', otp_resend: 'Resend code', otp_sent: 'Code resent!',
+    otp_err_len: 'Enter all 6 digits.', otp_err_wrong: 'Incorrect or expired code.',
+    footer_no_account: 'No account yet?',
+    footer_create: 'Create account',
+    footer_have_account: 'Already have an account?',
+    footer_signin: 'Sign in',
+    err_resto: 'Restaurant name is required.', err_fn: 'First name is required.',
+    err_ln: 'Last name is required.', err_email: 'Invalid email address.',
+    err_tel: 'Invalid phone number.', err_pw: 'Password too short (6 characters minimum).',
+    err_login: 'Incorrect credentials.', err_server: 'Server unavailable.',
+    err_exists: 'An account already exists with this email.',
+    dial_search: 'Search country…',
+    forgot_pw: 'Forgot password?',
+    back: '← Back',
+    badge_espace: 'Restaurant space',
+  },
+  de: {
+    tab_login: 'Anmelden', tab_signup: 'Konto erstellen',
+    signin_title: 'Willkommen zurück &#x1F44B;', signin_sub: 'Zugang zu Ihrem R3STO-Dashboard',
+    signup_title: 'Konto erstellen', signup_sub: 'R3STO beitreten',
+    step_infos: 'Ihre Angaben', step_plan: 'Ihr Plan', step_survey: 'Feedback', step_verif: 'Verifizierung', step_payment: 'Zahlung', pay_title: 'Abonnement abschließen', pay_sub: 'Übersicht und sichere Zahlung',
+    survey_title: 'Noch eine Sache...', survey_sub: '3 kurze Fragen um Sie besser zu bedienen (optional)',
+    survey_q1: 'Hatten Sie zuvor ein Reservierungssystem?', survey_q1_none: 'Keines (Papier / Telefon)', survey_q1_thefork: 'TheFork / LaFourchette', survey_q1_resmio: 'Resmio', survey_q1_guestonline: 'Guestonline', survey_q1_aleno: 'Aleno', survey_q1_other: 'Andere',
+    survey_q2: 'Wie haben Sie R3STO entdeckt?', survey_q2_google: 'Google-Suche', survey_q2_reco: 'Empfehlung eines Gastronomen', survey_q2_social: 'Soziale Medien', survey_q2_event: 'Messe / Veranstaltung', survey_q2_article: 'Artikel / Blog', survey_q2_other: 'Andere',
+    survey_q3: 'Warum haben Sie R3STO gewählt?', survey_q3_digital: 'Mein Restaurant digitalisieren', survey_q3_time: 'Zeit sparen', survey_q3_organize: 'Reservierungen besser organisieren', survey_q3_noshow: 'No-Shows reduzieren', survey_q3_crm: 'Überblick über meine Kunden (CRM)', survey_q3_replace: 'Mein aktuelles System ersetzen', survey_q3_other: 'Andere',
+    survey_btn: 'Weiter →', survey_skip: 'Diesen Schritt überspringen →',
+    lbl_resto: 'Restaurantname', ph_resto: 'Ihr Restaurant suchen…',
+    lbl_fn: 'Vorname', lbl_ln: 'Nachname', lbl_email: 'Professionelle E-Mail',
+    lbl_tel: 'Telefon', lbl_pw: 'Passwort', lbl_pw_new: 'Passwort',
+    ph_email: 'sie@restaurant.ch', ph_pw: 'Mindestens 6 Zeichen',
+    pw_hint: 'Wählen Sie ein Passwort', pw_short: 'Zu kurz', pw_almost: 'Fast…',
+    pw_ok: '✓ Gültiges Passwort',
+    btn_continue: 'Weiter → Plan wählen',
+    btn_login: 'Anmelden', btn_signup: 'Konto erstellen →',
+    btn_verify: 'Bestätigen →',
+    plan_title: 'Wählen Sie Ihren Plan', plan_sub: 'Automatische Reservierungsverwaltung in allen Plänen · Jederzeit änderbar',
+    dur_1y: '1 Jahr', dur_2y: '2 Jahre', dur_3y: '3 Jahre',
+    plan_included: 'Inbegriffen', plan_not: 'Nicht inbegriffen', plan_all_plus: 'Alles von {plan}, plus',
+    plan_recommended: 'Empfohlen',
+    billing_annual: '{tot} CHF/Jahr abgerechnet',
+    billing_multi: '{tot} CHF / {y} Jahre · -{saved} CHF gespart',
+    billing_under: 'weniger als {n} CHF/Jahr',
+    cgu: '',
+    cgu_required: 'Bitte akzeptieren Sie die Nutzungsbedingungen.',
+    billing_note: 'Jahresengagement · Einmalzahlung',
+    otp_title: 'Identität bestätigen', otp_sub: '6-stelliger Code gesendet an',
+    otp_resend_cd: 'Erneut senden in', otp_resend: 'Code erneut senden', otp_sent: 'Code erneut gesendet!',
+    otp_err_len: 'Alle 6 Ziffern eingeben.', otp_err_wrong: 'Falscher oder abgelaufener Code.',
+    footer_no_account: 'Noch kein Konto?',
+    footer_create: 'Konto erstellen',
+    footer_have_account: 'Bereits ein Konto?',
+    footer_signin: 'Anmelden',
+    err_resto: 'Restaurantname erforderlich.', err_fn: 'Vorname erforderlich.',
+    err_ln: 'Nachname erforderlich.', err_email: 'Ungültige E-Mail-Adresse.',
+    err_tel: 'Ungültige Telefonnummer.', err_pw: 'Passwort zu kurz (mind. 6 Zeichen).',
+    err_login: 'Falsche Anmeldedaten.', err_server: 'Server nicht verfügbar.',
+    err_exists: 'Ein Konto mit dieser E-Mail existiert bereits.',
+    dial_search: 'Land suchen…',
+    forgot_pw: 'Passwort vergessen?',
+    back: '← Zurück',
+    badge_espace: 'Restaurantbereich',
+  },
+  it: {
+    tab_login: 'Accedi', tab_signup: 'Crea account',
+    signin_title: 'Bentornato &#x1F44B;', signin_sub: 'Accedi al tuo dashboard R3STO',
+    signup_title: 'Crea account', signup_sub: 'Unisciti a R3STO',
+    step_infos: 'Le tue info', step_plan: 'Il tuo piano', step_survey: 'Feedback', step_verif: 'Verifica', step_payment: 'Pagamento', pay_title: 'Finalizza il tuo abbonamento', pay_sub: 'Riepilogo e pagamento sicuro',
+    survey_title: 'Un\'ultima cosa...', survey_sub: '3 domande rapide per servirvi meglio (opzionale)',
+    survey_q1: 'Avevate un sistema di prenotazione prima?', survey_q1_none: 'Nessuno (carta / telefono)', survey_q1_thefork: 'TheFork / LaFourchette', survey_q1_resmio: 'Resmio', survey_q1_guestonline: 'Guestonline', survey_q1_aleno: 'Aleno', survey_q1_other: 'Altro',
+    survey_q2: 'Come avete scoperto R3STO?', survey_q2_google: 'Ricerca Google', survey_q2_reco: 'Raccomandazione di un ristoratore', survey_q2_social: 'Social media', survey_q2_event: 'Fiera / evento', survey_q2_article: 'Articolo / blog', survey_q2_other: 'Altro',
+    survey_q3: 'Perché avete scelto R3STO?', survey_q3_digital: 'Digitalizzare il mio ristorante', survey_q3_time: 'Risparmiare tempo', survey_q3_organize: 'Organizzare meglio le prenotazioni', survey_q3_noshow: 'Ridurre i no-show', survey_q3_crm: 'Avere una visione sui miei clienti (CRM)', survey_q3_replace: 'Sostituire il mio sistema attuale', survey_q3_other: 'Altro',
+    survey_btn: 'Continua →', survey_skip: 'Salta questo passaggio →',
+    lbl_resto: 'Nome del ristorante', ph_resto: 'Cerca il tuo ristorante…',
+    lbl_fn: 'Nome', lbl_ln: 'Cognome', lbl_email: 'Email professionale',
+    lbl_tel: 'Telefono', lbl_pw: 'Password', lbl_pw_new: 'Password',
+    ph_email: 'tu@ristorante.it', ph_pw: 'Minimo 6 caratteri',
+    pw_hint: 'Scegli una password', pw_short: 'Troppo corta', pw_almost: 'Quasi…',
+    pw_ok: '✓ Password valida',
+    btn_continue: 'Continua → Scegli piano',
+    btn_login: 'Accedi', btn_signup: 'Crea il mio account →',
+    btn_verify: 'Verifica →',
+    plan_title: 'Scegli il tuo piano', plan_sub: 'Gestione prenotazioni automatica in tutti i piani · Modificabile in qualsiasi momento',
+    dur_1y: '1 anno', dur_2y: '2 anni', dur_3y: '3 anni',
+    plan_included: 'Incluso', plan_not: 'Non incluso', plan_all_plus: 'Tutto {plan}, più',
+    plan_recommended: 'Consigliato',
+    billing_annual: 'Fatturato {tot} CHF/anno',
+    billing_multi: 'Fatturato {tot} CHF / {y} anni · -{saved} CHF',
+    billing_under: 'meno di {n} CHF/anno',
+    cgu: '',
+    cgu_required: 'Accettare i termini e condizioni.',
+    billing_note: 'Impegno annuale · Pagamento unico',
+    otp_title: 'Verifica la tua identità', otp_sub: 'Codice a 6 cifre inviato a',
+    otp_resend_cd: 'Reinvia tra', otp_resend: 'Reinvia il codice', otp_sent: 'Codice reinviato!',
+    otp_err_len: 'Inserisci tutte le 6 cifre.', otp_err_wrong: 'Codice errato o scaduto.',
+    footer_no_account: 'Non hai un account?',
+    footer_create: 'Crea account',
+    footer_have_account: 'Hai già un account?',
+    footer_signin: 'Accedi',
+    err_resto: 'Il nome del ristorante è obbligatorio.', err_fn: 'Il nome è obbligatorio.',
+    err_ln: 'Il cognome è obbligatorio.', err_email: 'Indirizzo email non valido.',
+    err_tel: 'Numero di telefono non valido.', err_pw: 'Password troppo corta (min. 6 caratteri).',
+    err_login: 'Credenziali errate.', err_server: 'Server non disponibile.',
+    err_exists: 'Esiste già un account con questa email.',
+    dial_search: 'Cerca paese…',
+    forgot_pw: 'Password dimenticata?',
+    back: '← Indietro',
+    badge_espace: 'Spazio ristoratore',
+  }
+};
+
+function ta(key){ return (AUTH_I18N[AUTH_LANG]||AUTH_I18N.fr)[key] || (AUTH_I18N.fr[key]||key); }
+
+function setAuthLang(l){
+  AUTH_LANG = l;
+  try{ localStorage.setItem('r3sto_lang', l); }catch(e){}
+  ['fr','en','de','it'].forEach(function(x){
+    var b=document.getElementById('lb-'+x);
+    if(b) b.className='lbtn'+(x===l?' on':'');
+  });
+  applyAuthLang();
+}
+
+function applyAuthLang(){
+  // Tabs
+  var tl=document.getElementById('t-login'), ts=document.getElementById('t-signup');
+  if(tl) tl.textContent=ta('tab_login');
+  if(ts) ts.textContent=ta('tab_signup');
+  // Stepper
+  var sl1=document.getElementById('sl1'), sl2=document.getElementById('sl2'), sl3=document.getElementById('sl3'), sl4=document.getElementById('sl4'), sl5=document.getElementById('sl5');
+  if(sl1) sl1.textContent=ta('step_infos');
+  if(sl2) sl2.textContent=ta('step_plan');
+  if(sl3) sl3.textContent=ta('step_survey');
+  if(sl4) sl4.textContent=ta('step_verif');
+  if(sl5) sl5.textContent=ta('step_payment');
+  // Labels step1
+  setText('lbl-resto', ta('lbl_resto'));
+  setText('lbl-fn', ta('lbl_fn'));
+  setText('lbl-ln', ta('lbl_ln'));
+  setText('lbl-email-sg', ta('lbl_email'));
+  setText('lbl-tel', ta('lbl_tel'));
+  setText('lbl-pw-sg', ta('lbl_pw_new'));
+  setAttr('sg-resto', 'placeholder', ta('ph_resto'));
+  setAttr('sg-email', 'placeholder', ta('ph_email'));
+  setAttr('sg-pw', 'placeholder', ta('ph_pw'));
+  setAttr('sg-tel', 'placeholder', '79 123 45 67');
+  setAttr('dial-search', 'placeholder', ta('dial_search'));
+  // Button step1
+  setText('btn-step1', ta('btn_continue'));
+  // Step2
+  setText('plan-title', ta('plan_title'));
+  setText('plan-sub', ta('plan_sub'));
+  setText('dur-btn-0', ta('dur_1y'));
+  setText('dur-btn-1', ta('dur_2y')+'<span class="save-badge">−15%</span>');
+  setText('dur-btn-2', ta('dur_3y')+'<span class="save-badge">−25%</span>');
+  // Plan included/not labels
+  document.querySelectorAll('.fl-inc').forEach(function(e){ e.textContent=ta('plan_included'); });
+  document.querySelectorAll('.fl-not').forEach(function(e){ e.textContent=ta('plan_not'); });
+  // Recommended badge
+  setText('plan-badge-resto', ta('plan_recommended'));
+  // Billing note
+  setText('billing-note', ta('billing_note'));
+  // Survey
+  setText('survey-title', ta('survey_title'));
+  setText('survey-sub', ta('survey_sub'));
+  setText('survey-q1-title', ta('survey_q1'));
+  setText('survey-q1-none', ta('survey_q1_none'));
+  setText('survey-q1-thefork', ta('survey_q1_thefork'));
+  setText('survey-q1-resmio', ta('survey_q1_resmio'));
+  setText('survey-q1-guestonline', ta('survey_q1_guestonline'));
+  setText('survey-q1-aleno', ta('survey_q1_aleno'));
+  setText('survey-q1-other', ta('survey_q1_other'));
+  setText('survey-q2-title', ta('survey_q2'));
+  setText('survey-q2-google', ta('survey_q2_google'));
+  setText('survey-q2-reco', ta('survey_q2_reco'));
+  setText('survey-q2-social', ta('survey_q2_social'));
+  setText('survey-q2-event', ta('survey_q2_event'));
+  setText('survey-q2-article', ta('survey_q2_article'));
+  setText('survey-q2-other', ta('survey_q2_other'));
+  setText('survey-q3-title', ta('survey_q3'));
+  setText('survey-q3-digital', ta('survey_q3_digital'));
+  setText('survey-q3-time', ta('survey_q3_time'));
+  setText('survey-q3-organize', ta('survey_q3_organize'));
+  setText('survey-q3-noshow', ta('survey_q3_noshow'));
+  setText('survey-q3-crm', ta('survey_q3_crm'));
+  setText('survey-q3-replace', ta('survey_q3_replace'));
+  setText('survey-q3-other', ta('survey_q3_other'));
+  setText('survey-btn-txt', ta('survey_btn'));
+  setText('survey-skip-link', ta('survey_skip'));
+  // CGU
+  // CGU label managed directly in HTML
+  // Signup button
+  setText('sg-btn-txt', ta('btn_signup'));
+  // Back buttons
+  document.querySelectorAll('.btn-back-txt').forEach(function(e){ e.textContent=ta('back'); });
+  // Login
+  var lh=document.getElementById('li-title');
+  if(lh) lh.innerHTML=ta('signin_title');
+  var ls=document.getElementById('li-sub');
+  if(ls) ls.textContent=ta('signin_sub');
+  setText('li-btn-txt', ta('btn_login'));
+  setAttr('li-email', 'placeholder', ta('ph_email'));
+  var fp=document.getElementById('forgot-pw');
+  if(fp) fp.textContent=ta('forgot_pw');
+  // OTP
+  setText('otp-title-el', ta('otp_title'));
+  setText('otp-sub-txt', ta('otp_sub'));
+  // Signup step1 title
+  setText('signup-title', ta('signup_title'));
+  setText('signup-sub', ta('signup_sub'));
+  // Payment step4
+  setText('payment-title', ta('pay_title'));
+  setText('pay-sub', ta('pay_sub'));
+  // Footer
+  setText('badge-espace-txt',ta('badge_espace'));
+  renderFooter();
+  // Re-render prices with new lang
+  renderPrices();
+}
+
+function setText(id, html){
+  var el=document.getElementById(id);
+  if(el){ if(html.includes('<')) el.innerHTML=html; else el.textContent=html; }
+}
+function setAttr(id, attr, val){
+  var el=document.getElementById(id);
+  if(el) el.setAttribute(attr, val);
+}
+function renderFooter(){
+  var f=document.getElementById('footer');
+  if(!f)return;
+  var isLogin=document.getElementById('v-login')&&document.getElementById('v-login').style.display!=='none';
+  if(isLogin){
+    f.innerHTML='';
+    var span=document.createElement('span');
+    span.textContent=ta('footer_no_account')+' ';
+    var a=document.createElement('a');
+    a.href='#';
+    a.textContent=ta('footer_create');
+    a.onclick=function(){showView('signup1');
+document.getElementById('badge-espace').style.display='none';return false;};
+    f.appendChild(span);f.appendChild(a);
+  } else {
+    f.innerHTML='';
+    var span=document.createElement('span');
+    span.textContent=ta('footer_have_account')+' ';
+    var a=document.createElement('a');
+    a.href='#';
+    a.textContent=ta('footer_signin');
+    a.onclick=function(){showView('login');return false;};
+    f.appendChild(span);f.appendChild(a);
+  }
+}
+
+window.addEventListener("load",function(){setAuthLang(AUTH_LANG);});
+
+var DOC_CGU='<h3 style="color:var(--text);margin-bottom:12px">CGU R3STO</h3><p style="margin-bottom:10px"><strong style="color:var(--text)">Éditeur</strong><br>Innoptim Group, Fribourg, Suisse · contact@r3sto.ch</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Objet</strong><br>R3STO fournit aux établissements de restauration des outils de gestion des réservations, tables, services et statistiques.</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Abonnement</strong><br>Abonnements annuels (1, 2 ou 3 ans), facturation en une seule fois en CHF. Aucun remboursement après activation.</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Données</strong><br>Traitement conforme RGPD et LPD suisse. Données jamais vendues à des tiers.</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Disponibilité</strong><br>99,5% de disponibilité garantie par mois.</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Résiliation</strong><br>Préavis 30 jours par email avant échéance.</p><p><strong style="color:var(--text)">Droit applicable</strong><br>Droit suisse, tribunaux de Fribourg.</p>';
+var DOC_PRIVACY='<h3 style="color:var(--text);margin-bottom:12px">Politique de Confidentialité</h3><p style="margin-bottom:10px"><strong style="color:var(--text)">Responsable</strong><br>Innoptim Group, Fribourg · contact@r3sto.ch</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Données collectées</strong><br>Inscription : nom, prénom, email, téléphone, établissement. Utilisation : réservations, statistiques.</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Finalités</strong><br>Gestion du compte, fourniture du service, facturation, support.</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Conservation</strong><br>Durée du contrat + 3 ans.</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Vos droits</strong><br>Accès, rectification, suppression, portabilité via contact@r3sto.ch.</p><p style="margin-bottom:10px"><strong style="color:var(--text)">Sous-traitants</strong><br>Hébergement : Infomaniak (CH) · Paiement : Stripe (PCI-DSS).</p><p>Dernière mise à jour : mars 2026</p>';
+
+function openDoc(type){
+  var modal=document.getElementById('doc-modal');
+  if(!modal)return;
+  document.getElementById('doc-modal-title').textContent=type==='cgu'?'Conditions G\u00e9n\u00e9rales':'Politique de Confidentialit\u00e9';
+  document.getElementById('doc-modal-body').innerHTML=type==='cgu'?DOC_CGU:DOC_PRIVACY;
+  modal.style.display='flex';
+}
+
+</script>
+
+<div id="doc-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(6,14,28,.85);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surf);border:1px solid var(--border);border-radius:16px;width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.6)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:15px;font-weight:800" id="doc-title"></div>
+      <button onclick="closeDoc()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1">&times;</button>
+    </div>
+    <div id="doc-body" style="overflow-y:auto;padding:22px;font-size:13px;line-height:1.7;color:var(--muted)"></div>
+    <div style="padding:14px 22px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--muted)">
+      Ces documents seront disponibles en ligne sur <strong style="color:var(--ac)">r3sto.ch</strong> dès le lancement officiel.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

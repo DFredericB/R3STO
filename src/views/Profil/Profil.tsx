@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import PhoneInput from '../../components/ui/PhoneInput'
 import { PLANS, type PlanId, redirectToCheckout, redirectToPortal } from '../../utils/stripe'
@@ -47,10 +49,18 @@ const GPLACES_RESULTS = [
 ]
 
 export function Profil() {
+  const navigate = useNavigate()
   const { toast } = useToast()
+  const { updateResto } = useAppStore()
   const [gplInput, setGplInput] = useState('')
   const [gplResults, setGplResults] = useState<typeof GPLACES_RESULTS>([])
   const [geoLocation, setGeoLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [passwordForm, setPasswordForm] = useState({
+    current: '',
+    new: '',
+    confirm: '',
+  })
 
   const [formData, setFormData] = useState({
     nom: 'Le Gourmet',
@@ -172,15 +182,41 @@ export function Profil() {
     setAmbiances((a) => (a.includes(amb) ? a.filter((x) => x !== amb) : [...a, amb]))
   }
 
-  const handleSave = () => {
-    toast('Profil enregistré ✓', 'success')
+  const handlePasswordSave = () => {
+    if (passwordForm.new !== passwordForm.confirm) {
+      toast('Les mots de passe ne correspondent pas', 'error')
+      return
+    }
+    if (passwordForm.new.length < 8) {
+      toast('Le mot de passe doit contenir au moins 8 caractères', 'error')
+      return
+    }
+    toast('Mot de passe changé avec succès ✓', 'success')
+    setShowPasswordForm(false)
+    setPasswordForm({ current: '', new: '', confirm: '' })
+  }
+
+  const handleSave = async () => {
+    try {
+      await updateResto({
+        name: formData.nom,
+        cuisine: formData.cuisine,
+        adresse: formData.adr,
+        tel: formData.tel,
+        email: formData.email,
+        web: formData.web,
+      })
+      toast('Profil enregistré ✓', 'success')
+    } catch (err: any) {
+      toast(`Erreur : ${err.message}`, 'error')
+    }
   }
 
   const shortcuts = [
-    { icon: '🚪', lbl: 'Salles & Services', sub: 'Créneaux de réservation', v: 'salles' },
-    { icon: '⊞', lbl: 'Tables & Combos', sub: 'Tables, capacités, combos', v: 'tables' },
-    { icon: '📐', lbl: 'Éditeur de plan', sub: 'Positionnement des tables', v: 'setup-plan' },
-    { icon: '⚙️', lbl: 'Options', sub: 'Préférences', v: 'options' },
+    { icon: '🚪', lbl: 'Salles & Services', sub: 'Créneaux de réservation', path: '/salles' },
+    { icon: '⊞', lbl: 'Éditeur de tables', sub: 'Positionnement des tables', path: '/setup-plan' },
+    { icon: '📐', lbl: 'Plan de salle', sub: 'Vue d\'ensemble', path: '/plan' },
+    { icon: '⚙️', lbl: 'Paramètres', sub: 'Préférences', path: '/options' },
   ]
 
   return (
@@ -684,38 +720,136 @@ export function Profil() {
 
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>Mot de passe</label>
-            <input
-              type="password"
-              value="••••••••"
-              style={{
-                width: '100%',
-                padding: '6px 8px',
-                borderRadius: 6,
-                border: '1px solid var(--border)',
-                background: 'var(--surf2)',
-                color: 'var(--text)',
-                fontSize: 12,
-                marginTop: 4,
-              }}
-            />
+            {!showPasswordForm ? (
+              <>
+                <input
+                  type="password"
+                  value="••••••••"
+                  readOnly
+                  style={{
+                    width: '100%',
+                    padding: '6px 8px',
+                    borderRadius: 6,
+                    border: '1px solid var(--border)',
+                    background: 'var(--surf2)',
+                    color: 'var(--text)',
+                    fontSize: 12,
+                    marginTop: 4,
+                  }}
+                />
+                <button
+                  onClick={() => setShowPasswordForm(true)}
+                  style={{
+                    marginTop: 8,
+                    fontSize: 11,
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    border: '1px solid var(--border)',
+                    background: 'var(--surf2)',
+                    color: 'var(--text)',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  🔒 Changer le mot de passe
+                </button>
+              </>
+            ) : (
+              <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8, padding: '12px 10px', background: 'rgba(68,128,216,.08)', border: '1px solid rgba(68,128,216,.2)', borderRadius: 8 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 4 }}>Mot de passe actuel</label>
+                  <input
+                    type="password"
+                    value={passwordForm.current}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, current: e.target.value }))}
+                    placeholder="••••••••"
+                    style={{
+                      width: '100%',
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: 'var(--surf2)',
+                      color: 'var(--text)',
+                      fontSize: 12,
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 4 }}>Nouveau mot de passe</label>
+                  <input
+                    type="password"
+                    value={passwordForm.new}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, new: e.target.value }))}
+                    placeholder="••••••••"
+                    style={{
+                      width: '100%',
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: 'var(--surf2)',
+                      color: 'var(--text)',
+                      fontSize: 12,
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 4 }}>Confirmer le mot de passe</label>
+                  <input
+                    type="password"
+                    value={passwordForm.confirm}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, confirm: e.target.value }))}
+                    placeholder="••••••••"
+                    style={{
+                      width: '100%',
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: 'var(--surf2)',
+                      color: 'var(--text)',
+                      fontSize: 12,
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={handlePasswordSave}
+                    style={{
+                      flex: 1,
+                      fontSize: 11,
+                      padding: '6px 12px',
+                      borderRadius: 6,
+                      border: 'none',
+                      background: 'var(--bl)',
+                      color: 'white',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Enregistrer
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPasswordForm(false)
+                      setPasswordForm({ current: '', new: '', confirm: '' })
+                    }}
+                    style={{
+                      flex: 1,
+                      fontSize: 11,
+                      padding: '6px 12px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: 'var(--surf2)',
+                      color: 'var(--text)',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-
-          <button
-            onClick={() => toast('Email de réinitialisation envoyé ✓', 'info')}
-            style={{
-              marginTop: 4,
-              fontSize: 11,
-              padding: '6px 12px',
-              borderRadius: 6,
-              border: '1px solid var(--border)',
-              background: 'var(--surf2)',
-              color: 'var(--text)',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            🔒 Changer le mot de passe
-          </button>
         </div>
       </div>
 
@@ -726,8 +860,8 @@ export function Profil() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {shortcuts.map((s) => (
             <div
-              key={s.v}
-              onClick={() => toast(`Accéder à ${s.lbl}`, 'info')}
+              key={s.path}
+              onClick={() => navigate(s.path)}
               style={{
                 background: 'var(--surf2)',
                 border: '1px solid var(--border)',

@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R3STO - La gestion de restaurant intelligente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
+            color: #e0e7ff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Utilities */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #4480d8 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4480d8 0%, #5a8ff5 100%);
+            color: white;
+            box-shadow: 0 10px 25px rgba(68, 128, 216, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(68, 128, 216, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #4480d8;
+            border: 2px solid #4480d8;
+        }
+
+        .btn-secondary:hover {
+            background: #4480d8;
+            color: white;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Header */
+        header {
+            background: rgba(10, 15, 30, 0.8);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(68, 128, 216, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo span {
+            color: #4480d8;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: #e0e7ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #4480d8;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 60px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(68, 128, 216, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(30px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .hero-logo {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero .subheadline {
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            color: #a5b4fc;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-dot {
+            width: 8px;
+            height: 8px;
+            background: #4480d8;
+            border-radius: 50%;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #a5b4fc;
+            font-size: 1.1rem;
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
+            border: 1px solid rgba(68, 128, 216, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(68, 128, 216, 0.5);
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.15) 0%, rgba(96, 165, 250, 0.1) 100%);
+            box-shadow: 0 20px 40px rgba(68, 128, 216, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4480d8 0%, #60a5fa 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            color: white;
+        }
+
+        .feature-card p {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 100px 0;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(10, 15, 30, 0.8) 100%);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step-card {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #4480d8;
+            margin-bottom: 1rem;
+        }
+
+        .step-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: white;
+        }
+
+        .step-card p {
+            color: #a5b4fc;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 0;
+        }
+
+        .pricing-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: rgba(68, 128, 216, 0.2);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 1px solid rgba(68, 128, 216, 0.3);
+        }
+
+        .toggle-switch.annual {
+            background: #4480d8;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s ease;
+        }
+
+        .toggle-switch.annual .toggle-slider {
+            left: 31px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
+            border: 1px solid rgba(68, 128, 216, 0.2);
+            border-radius: 12px;
+            padding: 2.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card.featured {
+            transform: scale(1.05);
+            border-color: #4480d8;
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.2) 0%, rgba(96, 165, 250, 0.1) 100%);
+            box-shadow: 0 20px 40px rgba(68, 128, 216, 0.2);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4480d8;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4480d8;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-currency {
+            font-size: 1rem;
+        }
+
+        .price-period {
+            color: #a5b4fc;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .discount-badge {
+            display: inline-block;
+            background: rgba(68, 128, 216, 0.2);
+            color: #60a5fa;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .feature-list li {
+            padding: 0.8rem 0;
+            color: #cbd5e1;
+            border-bottom: 1px solid rgba(68, 128, 216, 0.1);
+        }
+
+        .feature-list li:before {
+            content: '✓';
+            color: #4480d8;
+            font-weight: bold;
+            margin-right: 0.8rem;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 100px 0;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(10, 15, 30, 0.8) 100%);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .testimonial-card {
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
+            border: 1px solid rgba(68, 128, 216, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(68, 128, 216, 0.5);
+        }
+
+        .testimonial-quote {
+            color: #e0e7ff;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            line-height: 1.8;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4480d8 0%, #60a5fa 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .author-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .author-info p {
+            color: #a5b4fc;
+            font-size: 0.85rem;
+        }
+
+        /* FAQ */
+        .faq {
+            padding: 100px 0;
+        }
+
+        .faq-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid rgba(68, 128, 216, 0.2);
+            padding: 1.5rem 0;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem 0;
+            transition: color 0.3s ease;
+        }
+
+        .faq-question:hover {
+            color: #4480d8;
+        }
+
+        .faq-question h3 {
+            font-size: 1.1rem;
+            color: white;
+            flex: 1;
+        }
+
+        .faq-toggle {
+            font-size: 1.5rem;
+            color: #4480d8;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-toggle {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: #a5b4fc;
+            line-height: 1.8;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            margin-top: 1rem;
+        }
+
+        /* Final CTA */
+        .final-cta {
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.15) 0%, rgba(96, 165, 250, 0.05) 100%);
+            border: 1px solid rgba(68, 128, 216, 0.2);
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .final-cta h2 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .cta-form {
+            display: flex;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cta-form input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(68, 128, 216, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .cta-form input::placeholder {
+            color: #a5b4fc;
+        }
+
+        .cta-form input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #4480d8;
+        }
+
+        .cta-subtext {
+            color: #a5b4fc;
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(10, 15, 30, 0.6);
+            border-top: 1px solid rgba(68, 128, 216, 0.1);
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-section a {
+            display: block;
+            color: #a5b4fc;
+            text-decoration: none;
+            margin-bottom: 0.8rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #4480d8;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(68, 128, 216, 0.1);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-credit {
+            color: #a5b4fc;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding-top: 80px;
+            }
+
+            .hero-logo {
+                font-size: 2.5rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .hero-cta .btn {
+                width: 100%;
+            }
+
+            .stats-bar {
+                gap: 1rem;
+                font-size: 0.85rem;
+            }
+
+            .features-grid,
+            .testimonials-grid,
+            .steps-grid,
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .final-cta {
+                padding: 50px 20px;
+            }
+
+            .cta-form {
+                flex-direction: column;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">R<span>3</span>STO</div>
+                <nav>
+                    <a href="#features">Fonctionnalités</a>
+                    <a href="#pricing">Tarifs</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="https://demo.r3sto.ch" target="_blank">Démo</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container" style="position: relative; z-index: 10;">
+            <div class="hero-content fade-in">
+                <div class="hero-logo gradient-text">R3STO</div>
+                <h1>La gestion de restaurant intelligente</h1>
+                <p class="subheadline">Réservations, plan de salle, widget client, marketing — tout en un.</p>
+
+                <div class="hero-cta">
+                    <a href="#pricing" class="btn btn-primary">Essayer gratuitement</a>
+                    <a href="https://demo.r3sto.ch" target="_blank" class="btn btn-secondary">Voir la démo</a>
+                </div>
+
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-dot"></span>
+                        <span>500+ restaurants</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-dot"></span>
+                        <span>200'000+ réservations</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-dot"></span>
+                        <span>98% satisfaction</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title fade-in">Les fonctionnalités les plus puissantes</h2>
+            <p class="section-subtitle fade-in">Tout ce dont vous avez besoin pour optimiser votre restaurant</p>
+
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Plan de salle interactif</h3>
+                    <p>Drag & drop en temps réel. Optimisez l'occupation et gérez les couverts avec facilité.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📅</div>
+                    <h3>Widget de réservation</h3>
+                    <p>Intégrable en 2 clics sur votre site. Personnalisable à vos couleurs et services.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Gestion intelligente IA</h3>
+                    <p>Placement optimal automatique. Prédictions de no-show et recommandations intelligentes.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">👥</div>
+                    <h3>CRM & Fidélité</h3>
+                    <p>Fiches clients complètes. Programmes de fidélité pour augmenter la rétention.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📱</div>
+                    <h3>QR Code & Paiement</h3>
+                    <p>Menu numérique, addition sur mobile, intégration TWINT et cartes bancaires.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Multi-sites & Analytics</h3>
+                    <p>Gérez plusieurs établissements. Tableaux de bord et rapports détaillés en temps réel.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title fade-in">Commencer en 3 étapes</h2>
+
+            <div class="steps-grid">
+                <div class="step-card fade-in">
+                    <div class="step-number">1</div>
+                    <h3>Créez votre compte</h3>
+                    <p>En 2 minutes, configurez votre profil restaurant et activez votre essai gratuit.</p>
+                </div>
+
+                <div class="step-card fade-in">
+                    <div class="step-number">2</div>
+                    <h3>Configurez vos salles</h3>
+                    <p>Ajoutez vos espaces, services, tarifs et préférences de réservation.</p>
+                </div>
+
+                <div class="step-card fade-in">
+                    <div class="step-number">3</div>
+                    <h3>Acceptez les réservations</h3>
+                    <p>Recevez et gérez les réservations 24/7 depuis le widget ou notre plateforme.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <h2 class="section-title fade-in">Tarifs transparents et justes</h2>
+            <p class="section-subtitle fade-in">Sans contrat, sans frais cachés. Annulez à tout moment.</p>
+
+            <div class="pricing-toggle" style="margin-bottom: 3rem;">
+                <span>Mensuel</span>
+                <div class="toggle-switch" id="pricingToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span>Annuel</span>
+                <span class="discount-badge" style="margin-bottom: 0; margin-left: 1rem;">Économisez 2 mois</span>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card fade-in">
+                    <h3>Bistro</h3>
+                    <div class="price"><span class="price-currency">CHF</span> <span id="price-bistro">39</span></div>
+                    <div class="price-period">/mois</div>
+                    <ul class="feature-list">
+                        <li>Widget de réservation</li>
+                        <li>Plan de salle</li>
+                        <li>Emails automatiques</li>
+                        <li>Jusqu'à 50 réservations/mois</li>
+                    </ul>
+                    <a href="https://api.r3sto.ch" target="_blank" class="btn btn-secondary" style="width: 100%; text-align: center;">Commencer</a>
+                </div>
+
+                <div class="pricing-card featured fade-in">
+                    <div class="pricing-badge">Le plus populaire</div>
+                    <h3>Resto</h3>
+                    <div class="price"><span class="price-currency">CHF</span> <span id="price-resto">59</span></div>
+                    <div class="price-period">/mois</div>
+                    <ul class="feature-list">
+                        <li>Tout Bistro inclus</li>
+                        <li>QR Code et paiement</li>
+                        <li>SMS automatiques</li>
+                        <li>CRM et fidélité</li>
+                        <li>Réservations illimitées</li>
+                    </ul>
+                    <a href="https://api.r3sto.ch" target="_blank" class="btn btn-primary" style="width: 100%; text-align: center;">Commencer</a>
+                </div>
+
+                <div class="pricing-card fade-in">
+                    <h3>Gastro</h3>
+                    <div class="price"><span class="price-currency">CHF</span> <span id="price-gastro">79</span></div>
+                    <div class="price-period">/mois</div>
+                    <ul class="feature-list">
+                        <li>Tout Resto inclus</li>
+                        <li>Multi-sites</li>
+                        <li>IA & prédictions</li>
+                        <li>API complète</li>
+                        <li>Support prioritaire</li>
+                    </ul>
+                    <a href="https://api.r3sto.ch" target="_blank" class="btn btn-secondary" style="width: 100%; text-align: center;">Commencer</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <h2 class="section-title fade-in">Nos restaurants adorent R3STO</h2>
+            <p class="section-subtitle fade-in">Découvrez comment les restaurateurs suisses optimisent leur service</p>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-quote">"R3STO nous a permis de doubler le nombre de réservations en trois mois. L'interface est intuitive et le support répond en moins de 2 heures."</div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MR</div>
+                        <div class="author-info">
+                            <h4>Marc Rossi</h4>
+                            <p>Restaurant Milano, Genève</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-quote">"Avant R3STO, on gerait les réservations sur papier. Maintenant c'est automatisé et nos clients peuvent payer via QR Code. Un game-changer!"</div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SL</div>
+                        <div class="author-info">
+                            <h4>Sophia Laurent</h4>
+                            <p>Bistro La Table, Lausanne</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-quote">"L'IA de R3STO prédit les no-show avec une précision étonnante. Ça nous a sauvé d'énormes pertes de chiffre d'affaires."</div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JK</div>
+                        <div class="author-info">
+                            <h4>Jean Keller</h4>
+                            <p>Gastronomie Suisse, Zurich</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <h2 class="section-title fade-in">Questions fréquemment posées</h2>
+
+            <div class="faq-container">
+                <div class="faq-item fade-in">
+                    <div class="faq-question">
+                        <h3>Comment fonctionne la période d'essai ?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Vous bénéficiez de 14 jours d'accès gratuit à toutes les fonctionnalités. Aucune carte de crédit requise pour commencer. À la fin de l'essai, vous pouvez choisir un plan ou annuler sans engagement.
+                    </div>
+                </div>
+
+                <div class="faq-item fade-in">
+                    <div class="faq-question">
+                        <h3>Puis-je changer de plan ?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Oui, absolument. Vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements prennent effet immédiatement et nous ajustons votre facturation proportionnellement.
+                    </div>
+                </div>
+
+                <div class="faq-item fade-in">
+                    <div class="faq-question">
+                        <h3>R3STO fonctionne-t-il sur mobile ?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Totalement. Notre plateforme est responsive et fonctionne parfaitement sur smartphone, tablette et ordinateur. Le widget de réservation s'adapte à tous les appareils.
+                    </div>
+                </div>
+
+                <div class="faq-item fade-in">
+                    <div class="faq-question">
+                        <h3>Comment intégrer le widget sur mon site ?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        C'est très simple. Nous vous fournissons un code iframe que vous collez sur votre site. Aucune connaissance en développement requise. Le widget se met à jour automatiquement et se synchronise en temps réel avec votre planning.
+                    </div>
+                </div>
+
+                <div class="faq-item fade-in">
+                    <div class="faq-question">
+                        <h3>Mes données sont-elles sécurisées ?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Oui, nous utilisons le chiffrement SSL/TLS, les serveurs sont hébergés en Suisse, et nous respectons le RGPD et les lois de protection des données suisses. Vos données clients sont protégées avec les normes les plus strictes.
+                    </div>
+                </div>
+
+                <div class="faq-item fade-in">
+                    <div class="faq-question">
+                        <h3>Vous offrez un support en cas de problème ?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Oui, nous offrons un support par email 24/7 pour tous les plans. Les clients Gastro bénéficient d'un support prioritaire avec un temps de réponse garanti. Nous avons aussi une base de connaissances complète et des tutoriels vidéo.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta">
+        <div class="container">
+            <h2 class="fade-in">Prêt à transformer votre restaurant ?</h2>
+            <form class="cta-form fade-in" onsubmit="handleCTASubmit(event)">
+                <input type="email" placeholder="Votre email" required>
+                <button type="submit" class="btn btn-primary">Commencer</button>
+            </form>
+            <p class="cta-subtext fade-in">Essai gratuit 14 jours · Sans carte de crédit</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Produit</h3>
+                    <a href="#features">Fonctionnalités</a>
+                    <a href="#pricing">Tarifs</a>
+                    <a href="https://demo.r3sto.ch" target="_blank">Démo</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Entreprise</h3>
+                    <a href="https://r3sto.ch" target="_blank">À propos</a>
+                    <a href="https://r3sto.ch/contact" target="_blank">Contact</a>
+                    <a href="https://blog.r3sto.ch" target="_blank">Blog</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Légal</h3>
+                    <a href="https://r3sto.ch/cgv" target="_blank">CGV</a>
+                    <a href="https://r3sto.ch/confidentialite" target="_blank">Confidentialité</a>
+                    <a href="https://r3sto.ch/mentions" target="_blank">Mentions légales</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>R3STO</h3>
+                    <p style="color: #a5b4fc; font-size: 0.95rem; line-height: 1.6;">La plateforme de gestion de restaurant la plus intuitive de Suisse.</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-credit">Fait avec ❤️ en Suisse</div>
+                <div class="footer-credit">© 2026 R3STO · Tous droits réservés</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Pricing toggle
+        const toggle = document.getElementById('pricingToggle');
+        const bistroPrice = document.getElementById('price-bistro');
+        const restoPrice = document.getElementById('price-resto');
+        const gastroPrice = document.getElementById('price-gastro');
+
+        let isAnnual = false;
+
+        toggle.addEventListener('click', () => {
+            isAnnual = !isAnnual;
+            toggle.classList.toggle('annual');
+
+            if (isAnnual) {
+                bistroPrice.textContent = '429'; // 39 * 12 - 2 mois
+                restoPrice.textContent = '649'; // 59 * 12 - 2 mois
+                gastroPrice.textContent = '869'; // 79 * 12 - 2 mois
+            } else {
+                bistroPrice.textContent = '39';
+                restoPrice.textContent = '59';
+                gastroPrice.textContent = '79';
+            }
+        });
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.closest('.faq-item');
+                const isActive = item.classList.contains('active');
+
+                document.querySelectorAll('.faq-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // CTA form submission
+        function handleCTASubmit(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+
+            // Log for demo purposes - in production, this would send to a backend
+            console.log('CTA submission:', email);
+
+            // Redirect to signup
+            window.location.href = 'https://api.r3sto.ch?email=' + encodeURIComponent(email);
+        }
+
+        // Add scroll-to-top functionality
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.boxShadow = '0 10px 30px rgba(68, 128, 216, 0.1)';
+            } else {
+                header.style.boxShadow = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -9,6 +9,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
 import { Logo } from '../ui/Logo'
 import { SearchModal } from '../ui/SearchModal'
+import { computeAlerts } from '../../utils/alerts'
 import type { Resa } from '../../types'
 
 function formatTime(): string {
@@ -24,7 +25,7 @@ function todayISO(): string {
 const LANGS = ['FR', 'DE', 'IT', 'EN'] as const
 
 // ── Types notification ──────────────────────────
-type NotifType = 'new' | 'noshow' | 'cancelled' | 'widget' | 'vip' | 'allergy'
+type NotifType = 'new' | 'noshow' | 'cancelled' | 'widget' | 'vip' | 'allergy' | 'system' | 'action'
 
 interface Notif {
   id: string
@@ -142,7 +143,7 @@ function timeAgo(ts: number, t: (k: string) => string): string {
 }
 
 export function Header() {
-  const { activeDate, resas, resto, users, isDemo, theme, setTheme, toggleSidebar, sidebarCollapsed, lang, setLang, userRole, setUserRole } = useAppStore()
+  const { activeDate, resas, resto, users, isDemo, services, toggleSidebar, sidebarCollapsed, lang, setLang, userRole, setUserRole, theme, setTheme } = useAppStore()
   const sites = useAppStore(s => s.sites)
   const activeSiteId = useAppStore(s => s.activeSiteId)
   const setActiveSite = useAppStore(s => s.setActiveSite)
@@ -150,6 +151,14 @@ export function Header() {
   const { t, fmtDate } = useT()
   const [time, setTime] = useState(formatTime())
   const todayDate = todayISO()
+
+  // Service en cours
+  // Service retiré du Header — uniquement dans Dashboard
+  const _unused_currentService = useMemo(() => {
+    const nowM = new Date().getHours() * 60 + new Date().getMinutes()
+    const hmToMins = (s: string) => { const [h, m] = s.replace('h', ':').split(':').map(Number); return h * 60 + (m || 0) }
+    return services.filter(s => s.active).find(s => nowM >= hmToMins(s.open) && nowM <= hmToMins(s.close)) || null
+  }, [services, time]) // recalcule quand time change (toutes les 30s)
   const [showNotif, setShowNotif] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showSiteSwitch, setShowSiteSwitch] = useState(false)
@@ -178,6 +187,10 @@ export function Header() {
   const userName = currentUser?.n || t('general.admin')
   const initials = userName.split(' ').map(w => w[0]?.toUpperCase()).filter(Boolean).slice(0, 2).join('')
   const roleLabel = t(`role.${userRole}`)
+
+  // Alertes opérationnelles (top bar)
+  const alerts = useMemo(() => computeAlerts(resas, activeDate), [resas, activeDate])
+  const unassigned = useMemo(() => resas.filter(r => r.date === activeDate && r.s !== 'cancelled' && r.s !== 'noshow' && r.s !== 'done' && !r.tbl).length, [resas, activeDate])
 
   // Notifications dynamiques
   const notifs = useMemo(() => buildNotifs(resas, activeDate, t), [resas, activeDate, t])
@@ -386,36 +399,90 @@ export function Header() {
         )}
       </div>
 
-      {/* Badge démo */}
-      {isDemo && (
-        <div style={{
-          fontSize: 11, fontWeight: 700,
-          padding: '3px 8px',
-          background: 'var(--ap)',
-          border: '1px solid var(--ab)',
-          borderRadius: 6,
-          color: 'var(--am)',
-          display: 'flex', alignItems: 'center', gap: 5,
-          flexShrink: 0
-        }}>
-          ✏️ {t('header.demoMode')}
-        </div>
-      )}
 
-      {/* Thème toggle — accès rapide */}
-      <button
-        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        style={iconBtn}
-        title={theme === 'dark' ? t('header.lightMode') : t('header.darkMode')}
-      >
-        {theme === 'dark' ? '☀️' : '🌙'}
-      </button>
+      {/* ── Alertes opérationnelles top bar ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
+        {alerts.waitlist > 0 && (
+          <button onClick={() => navigate('/waitlist')} style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 10px', borderRadius: 20, cursor: 'pointer',
+            border: '1px solid rgba(232,165,48,.4)', background: 'rgba(232,165,48,.12)',
+            fontSize: 11, fontWeight: 800, color: '#e8a530', fontFamily: 'var(--ff)',
+            animation: 'headerAlertPulse 2s ease-in-out infinite',
+          }}>
+            ⏳ {alerts.waitlist} attente
+          </button>
+        )}
+        {alerts.groups > 0 && (
+          <button onClick={() => navigate('/groupes')} style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 10px', borderRadius: 20, cursor: 'pointer',
+            border: '1px solid rgba(144,96,224,.35)', background: 'rgba(144,96,224,.1)',
+            fontSize: 11, fontWeight: 800, color: '#b482ff', fontFamily: 'var(--ff)',
+          }}>
+            👥 {alerts.groups} groupes
+          </button>
+        )}
+        {unassigned > 0 && (
+          <button onClick={() => navigate('/reservations')} style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 10px', borderRadius: 20, cursor: 'pointer',
+            border: '1px solid rgba(220,80,80,.35)', background: 'rgba(220,80,80,.1)',
+            fontSize: 11, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--ff)',
+            animation: 'headerAlertPulse 2s ease-in-out infinite',
+          }}>
+            ⚠️ {unassigned} sans table
+          </button>
+        )}
+        {alerts.arriving > 0 && (
+          <button onClick={() => navigate('/grille')} style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 10px', borderRadius: 20, cursor: 'pointer',
+            border: '1px solid rgba(91,156,246,.35)', background: 'rgba(91,156,246,.1)',
+            fontSize: 11, fontWeight: 800, color: 'var(--bl)', fontFamily: 'var(--ff)',
+          }}>
+            🕐 {alerts.arriving} arrivent
+          </button>
+        )}
+        {alerts.noshow > 0 && (
+          <button onClick={() => navigate('/reservations')} style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 10px', borderRadius: 20, cursor: 'pointer',
+            border: '1px solid rgba(100,116,139,.3)', background: 'rgba(100,116,139,.08)',
+            fontSize: 11, fontWeight: 800, color: 'var(--t3)', fontFamily: 'var(--ff)',
+          }}>
+            👻 {alerts.noshow} no-show
+          </button>
+        )}
+      </div>
+      <style>{`@keyframes headerAlertPulse{0%,100%{opacity:1}50%{opacity:.45}}`}</style>
 
-      {/* Recherche ⌘K */}
-      <button onClick={() => setShowSearch(true)} style={{ ...iconBtn, display: 'flex', alignItems: 'center', gap: 6, padding: '0 10px', fontSize: 11 }} title="⌘K">
-        <span>🔍</span>
-        <kbd style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.15)', color: 'rgba(255,255,255,.5)', fontFamily: 'var(--fm)' }}>⌘K</kbd>
-      </button>
+      {/* ── Pastilles droite : Recherche + Clair/Foncé + Plein écran ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+        <button
+          onClick={() => setShowSearch(true)}
+          style={iconBtn}
+          title="Recherche ⌘K"
+        >🔍</button>
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          style={iconBtn}
+          title={theme === 'dark' ? 'Mode clair' : 'Mode foncé'}
+        >{theme === 'dark' ? '☀️' : '🌙'}</button>
+        <button
+          onClick={() => {
+            if (document.fullscreenElement) {
+              document.exitFullscreen()
+            } else {
+              document.documentElement.requestFullscreen?.()
+              if (!sidebarCollapsed) toggleSidebar()
+            }
+          }}
+          style={iconBtn}
+          title="Plein écran"
+        >⛶</button>
+      </div>
+
       <SearchModal open={showSearch} onClose={() => setShowSearch(false)} />
 
       {/* Notifications */}

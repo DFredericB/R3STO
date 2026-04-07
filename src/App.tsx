@@ -41,6 +41,8 @@ import { Cadeaux } from './views/Cadeaux/Cadeaux'
 import { Avis } from './views/Avis/Avis'
 import { Fidelite } from './views/Fidelite/Fidelite'
 import { MultiSite } from './views/MultiSite/MultiSite'
+import { NouvelleResa } from './views/NouvelleResa/NouvelleResa'
+import { Agenda } from './views/Agenda/Agenda'
 import { loadDemoFallback } from './utils/demoData'
 import './styles/global.css'
 
@@ -78,9 +80,11 @@ export default function App() {
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 {/* OPÉRATIONS */}
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/agenda" element={<Agenda />} />
                 <Route path="/reservations" element={<Resas />} />
                 <Route path="/grille" element={<Grille />} />
                 <Route path="/plan" element={<Plan />} />
+                <Route path="/nouvelle-resa" element={<NouvelleResa />} />
                 <Route path="/waitlist" element={<Waitlist />} />
                 <Route path="/groupes" element={<Groupes />} />
                 {/* CLIENTS & MARKETING */}

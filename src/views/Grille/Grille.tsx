@@ -29,15 +29,16 @@ interface MoveMode {
 }
 
 // ── Ligne de table ───────────────────────────────
-function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggleExpand,
+function TableRow({ table, resas, combos, svcResas, moveMode, moveTrace, expanded, onToggleExpand,
   onMarkArrived, onMarkNoshow, onMarkDone, onCancel, onRestore,
-  onClick, onPlaceResa, onPlaceCombo, onStartMove, onMoveTarget, salleColor,
+  onClick, onPlaceResa, onPlaceCombo, onStartMove, onMoveTarget, onToggleBlock, onToggleHeld, blinkResaIds, salleColor,
 }: {
   table: Table
   resas: Resa[]
   combos: Combo[]
   svcResas: Resa[]
   moveMode: MoveMode | null
+  moveTrace: { from: string; to: string; name: string; svc?: string } | null
   expanded: boolean
   onToggleExpand: () => void
   onMarkArrived: (id: string) => void
@@ -51,6 +52,9 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
   onUncombine: (tableId: string, resaId: string) => void
   onStartMove: (resa: Resa) => void
   onMoveTarget: (table: Table) => void
+  onToggleBlock: (tableId: string) => void
+  onToggleHeld: (tableId: string) => void
+  blinkResaIds: string[]
   salleColor?: string
 }) {
   const { t } = useT()
@@ -97,6 +101,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
   const isFree = occupying.length === 0 && !table.blocked && !table.held
   const mainResa = occupying[0] || resas[0]
   const sm = mainResa?.s ? STATUS[mainResa.s as keyof typeof STATUS] : null
+  const isBlinking = resas.some(r => blinkResaIds.includes(r.id))
 
   // Combos impliquant cette table
   const tableCombos = combos.filter(c => c.tables.includes(table.id))
@@ -116,6 +121,10 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
   const isSource = moveMode ? resas.some(r => r.id === moveMode.resaId) : false
   const isValidMoveTarget = moveMode && !isSource && isFree && table.capMax >= moveMode.covers
   const isValidSwapTarget = moveMode && !isSource && !isFree && occupying.length > 0
+
+  // ── Trace visuelle post-déplacement ──
+  const isTraceFrom = moveTrace && tblMatchesTable(moveTrace.from, table.n)
+  const isTraceTo = moveTrace && tblMatchesTable(moveTrace.to, table.n)
 
   // ── ÉTAT BLOQUÉ ──
   if (table.blocked) {
@@ -139,12 +148,10 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           {comboNames ? (
             <>
               {comboNames.map((tn, i) => (
-                <div key={i} style={{
-                  fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
-                  textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3,
-                  borderBottom: i < comboNames.length - 1 ? '1px solid rgba(255,255,255,.2)' : 'none',
-                  padding: '1px 0', width: '100%', textAlign: 'center',
-                }}>{tn}</div>
+                <div key={i} style={{ textAlign: 'center', width: '100%' }}>
+                  <div style={{ fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3 }}>{tn}</div>
+                  {i < comboNames.length - 1 && <div style={{ fontSize: 10, fontWeight: 900, color: 'rgba(255,255,255,.5)', lineHeight: 1 }}>+</div>}
+                </div>
               ))}
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,.6)', fontWeight: 600, marginTop: 1 }}>{table.capMax}p</div>
             </>
@@ -160,6 +167,10 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           <span style={{ fontSize: 14 }}>🚫</span>
           <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--rd)' }}>Bloquée</span>
           {table.blockedReason && <span style={{ fontSize: 12, color: 'var(--t3)', fontStyle: 'italic' }}>{table.blockedReason}</span>}
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleBlock(table.id) }}
+            style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 6, border: '1px solid rgba(60,200,112,.4)', background: 'rgba(60,200,112,.1)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: 'var(--gn)' }}
+          >🔓 Débloquer</button>
         </div>
       </div>
     )
@@ -200,12 +211,10 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           {comboNames ? (
             <>
               {comboNames.map((tn, i) => (
-                <div key={i} style={{
-                  fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
-                  textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3,
-                  borderBottom: i < comboNames.length - 1 ? '1px solid rgba(255,255,255,.2)' : 'none',
-                  padding: '1px 0', width: '100%', textAlign: 'center',
-                }}>{tn}</div>
+                <div key={i} style={{ textAlign: 'center', width: '100%' }}>
+                  <div style={{ fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3 }}>{tn}</div>
+                  {i < comboNames.length - 1 && <div style={{ fontSize: 10, fontWeight: 900, color: 'rgba(255,255,255,.5)', lineHeight: 1 }}>+</div>}
+                </div>
               ))}
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,.6)', fontWeight: 600, marginTop: 1 }}>{table.capMax}p</div>
             </>
@@ -221,8 +230,14 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           <span style={{ fontSize: 14 }}>🔒</span>
           <span style={{ fontSize: 14, fontWeight: 700, color: '#e8a530' }}>De réserve</span>
           {canTarget && <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 700, color: 'var(--gn)' }}>→ Ici</span>}
+          {!canTarget && !moveMode && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onToggleHeld(table.id) }}
+              style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 6, border: '1px solid rgba(60,200,112,.4)', background: 'rgba(60,200,112,.1)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: 'var(--gn)' }}
+            >🔓 Lever</button>
+          )}
           {!canTarget && hasCombos && (
-            <span style={{ fontSize: 12, color: 'var(--t4)', marginLeft: 'auto', fontFamily: 'var(--fm)' }}>
+            <span style={{ fontSize: 12, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>
               🔗 {tableCombos.map(c => c.label).join(' · ')}
             </span>
           )}
@@ -232,35 +247,45 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
   }
 
   // ── Couleur selon statut (ou blocked/held) ──
-  const statusColor = sm ? sm.hex
+  // Si table libre (done/noshow seulement) → couleur "libre" grise, pas la couleur du ghost
+  const activeStatus = isFree ? null : sm
+  const statusColor = activeStatus ? activeStatus.hex
     : table.blocked ? 'rgba(220,80,80,.55)'
     : table.held ? 'rgba(232,165,48,.45)'
     : 'rgba(100,116,139,.22)'
-  const borderCol = sm ? sm.border
+  const borderCol = activeStatus ? activeStatus.border
     : table.blocked ? 'rgba(220,80,80,.5)'
     : table.held ? 'rgba(232,165,48,.4)'
     : 'var(--border)'
-  const bgCol = sm ? sm.bg
+  const bgCol = activeStatus ? activeStatus.bg
     : table.blocked ? 'rgba(220,80,80,.06)'
     : table.held ? 'rgba(232,165,48,.06)'
     : 'var(--surf)'
 
-  // ── Move mode borders ──
-  const moveBorder = isSource
-    ? '2px solid rgba(91,156,246,.7)'
-    : isValidMoveTarget
-      ? '2px solid rgba(60,200,112,.6)'
-      : isValidSwapTarget
-        ? '2px solid rgba(232,165,48,.5)'
-        : `1px solid ${isInCombo ? 'rgba(255,214,102,.5)' : borderCol}`
+  // ── Move mode / trace borders ──
+  const moveBorder = isTraceFrom
+    ? '2px solid rgba(232,165,48,.7)'
+    : isTraceTo
+      ? '2px solid rgba(60,200,112,.7)'
+      : isSource
+        ? '2px solid rgba(91,156,246,.7)'
+        : isValidMoveTarget
+          ? '2px solid rgba(60,200,112,.6)'
+          : isValidSwapTarget
+            ? '2px solid rgba(232,165,48,.5)'
+            : `1px solid ${isInCombo ? 'rgba(255,214,102,.5)' : borderCol}`
 
-  const moveBgStr = isSource
-    ? 'rgba(91,156,246,.08)'
-    : isValidMoveTarget
-      ? 'rgba(60,200,112,.06)'
-      : isValidSwapTarget
-        ? 'rgba(232,165,48,.06)'
-        : bgCol
+  const moveBgStr = isTraceFrom
+    ? 'rgba(232,165,48,.12)'
+    : isTraceTo
+      ? 'rgba(60,200,112,.12)'
+      : isSource
+        ? 'rgba(91,156,246,.08)'
+        : isValidMoveTarget
+          ? 'rgba(60,200,112,.06)'
+          : isValidSwapTarget
+            ? 'rgba(232,165,48,.06)'
+            : bgCol
 
   const moveOpacity = moveMode && !isSource && !isValidMoveTarget && !isValidSwapTarget ? .35 : 1
 
@@ -274,6 +299,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
 
   return (
     <div
+      data-table-id={table.id}
       onClick={() => {
         // Move mode : clic sur toute la ligne pour cibler
         if (moveMode && !isSource && (isValidMoveTarget || isValidSwapTarget)) {
@@ -295,7 +321,8 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
         borderRadius: 9, overflow: 'visible', position: 'relative',
         border: moveBorder, background: moveBgStr,
         transition: 'all .12s',
-        boxShadow: isInCombo && !moveMode ? '0 0 0 1px rgba(255,214,102,.15)' : isSource ? '0 0 0 2px rgba(91,156,246,.3)' : 'none',
+        animation: isBlinking ? 'resaBlink 1.5s ease-in-out infinite' : undefined,
+        boxShadow: isTraceFrom ? '0 0 8px rgba(232,165,48,.35)' : isTraceTo ? '0 0 12px rgba(60,200,112,.4)' : isInCombo && !moveMode ? '0 0 0 1px rgba(255,214,102,.15)' : isSource ? '0 0 0 2px rgba(91,156,246,.3)' : 'none',
         opacity: moveOpacity,
         cursor: moveMode && (isValidMoveTarget || isValidSwapTarget) ? 'pointer' : 'pointer',
       }}
@@ -308,12 +335,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
         const badgeW = 64 // largeur uniforme pour aligner toutes les lignes
         return (
       <div style={{ display: 'flex', minHeight: lineHeight }}>
-        {/* Bande salle colorée (ou combo dorée) */}
-        {isInCombo ? (
-          <div style={{ width: 3, flexShrink: 0, background: 'linear-gradient(180deg, #ffd666, #e8a530)', borderRadius: '9px 0 0 9px' }} />
-        ) : salleColor ? (
-          <div style={{ width: 3, flexShrink: 0, background: salleColor, borderRadius: '9px 0 0 9px', opacity: .6 }} />
-        ) : null}
+        {/* Bande salle supprimée — info dans badge */}
 
         {/* ── Badge table (cliquable → dropdown actions seulement si occupée) ── */}
         <div
@@ -321,7 +343,6 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           onClick={(e) => {
             e.stopPropagation()
             if (moveMode) return
-            if (isFree) return
             setShowComboMenu(false)
             onToggleExpand()
           }}
@@ -329,22 +350,25 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
             width: badgeW, flexShrink: 0,
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center',
-            background: isValidMoveTarget ? 'rgba(60,200,112,.35)' : isValidSwapTarget ? 'rgba(232,165,48,.35)' : statusColor,
+            background: isTraceFrom ? 'rgba(232,165,48,.55)' : isTraceTo ? 'rgba(60,200,112,.55)' : isValidMoveTarget ? 'rgba(60,200,112,.35)' : isValidSwapTarget ? 'rgba(232,165,48,.35)' : statusColor,
             gap: comboNames ? 0 : 1, padding: '3px 0',
-            cursor: moveMode || isFree ? 'default' : 'pointer',
+            cursor: moveMode ? 'default' : 'pointer',
             borderRadius: isInCombo ? 0 : '9px 0 0 9px',
           }}
-          title={isFree ? table.n : expanded ? 'Fermer' : 'Actions…'}
+          title={expanded ? 'Fermer' : isFree ? 'Bloquer / Réserve…' : 'Actions…'}
         >
           {comboNames ? (
             <>
               {comboNames.map((tn, i) => (
-                <div key={i} style={{
-                  fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
-                  textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3,
-                  borderBottom: i < comboNames.length - 1 ? '1px solid rgba(255,255,255,.2)' : 'none',
-                  padding: '1px 0', width: '100%', textAlign: 'center',
-                }}>{tn}</div>
+                <div key={i} style={{ textAlign: 'center', width: '100%' }}>
+                  <div style={{
+                    fontSize: 13, fontWeight: 900, fontFamily: 'var(--fm)', color: '#fff',
+                    textShadow: '0 1px 2px rgba(0,0,0,.3)', lineHeight: 1.3,
+                  }}>{tn}</div>
+                  {i < comboNames.length - 1 && (
+                    <div style={{ fontSize: 10, fontWeight: 900, color: 'rgba(255,255,255,.5)', lineHeight: 1 }}>+</div>
+                  )}
+                </div>
               ))}
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,.6)', fontWeight: 600, marginTop: 1 }}>{table.capMax}p</div>
             </>
@@ -365,8 +389,8 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
           {resas.length === 0 && table.held && !table.blocked && (
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,.8)', lineHeight: 1, marginTop: -1 }}>🔒</div>
           )}
-          {/* Chevron — seulement sur tables occupées */}
-          {!moveMode && !isFree && resas.length > 0 && (
+          {/* Chevron */}
+          {!moveMode && (
             <div style={{ fontSize: 9, color: 'rgba(255,255,255,.5)', lineHeight: 1, marginTop: -1 }}>
               {expanded ? '▲' : '▼'}
             </div>
@@ -388,7 +412,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                   return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5, opacity: .45, fontStyle: 'italic' }}>
                       <span style={{ fontSize: 13 }}>{ghostIcon}</span>
-                      <span style={{ fontSize: 14, color: ghostCol, fontWeight: 600 }}>{ghost.nom || ghost.n?.split(' ')[0]}</span>
+                      <span style={{ fontSize: 14, color: ghostCol, fontWeight: 600 }}>{ghost.prenom ? `${ghost.nom} ${ghost.prenom}` : ghost.nom || ghost.n}</span>
                       <span style={{ fontSize: 12, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>{ghost.c}p · {ghost.t}</span>
                     </div>
                   )
@@ -400,24 +424,52 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                   </>
                 )
               })()}
-              {/* Bouton combo */}
-              {availableCombos.length > 0 && !moveMode && (
-                <button
-                  ref={comboRef}
-                  onClick={(e) => { e.stopPropagation(); if (expanded) onToggleExpand(); setShowComboMenu(!showComboMenu) }}
-                  style={{
-                    marginLeft: 'auto', padding: '2px 8px', borderRadius: 6,
-                    border: '1px solid rgba(255,214,102,.4)',
-                    background: showComboMenu ? 'rgba(255,214,102,.2)' : 'rgba(255,214,102,.08)',
-                    cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#e8a530',
-                    fontFamily: 'var(--fm)', display: 'flex', alignItems: 'center', gap: 4,
-                    height: 28, flexShrink: 0,
-                  }}
-                >
-                  🔗 {availableCombos.length > 1 ? `${availableCombos.length} combos` : availableCombos[0].label}
-                  <span style={{ fontSize: 11, color: 'rgba(255,214,102,.7)' }}>{availableCombos.length === 1 ? `${availableCombos[0].capOverride || availableCombos[0].cap}p` : ''}</span>
-                  <span style={{ fontSize: 10, marginLeft: 2 }}>{showComboMenu ? '▲' : '▼'}</span>
-                </button>
+              {/* Boutons actions table libre — combo / bloquer / réserve */}
+              {!moveMode && (
+                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                  {availableCombos.length > 0 && (
+                    <button
+                      ref={comboRef}
+                      onClick={(e) => { e.stopPropagation(); if (expanded) onToggleExpand(); setShowComboMenu(!showComboMenu) }}
+                      style={{
+                        padding: '2px 8px', borderRadius: 6,
+                        border: '1px solid rgba(255,214,102,.4)',
+                        background: showComboMenu ? 'rgba(255,214,102,.2)' : 'rgba(255,214,102,.08)',
+                        cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#e8a530',
+                        fontFamily: 'var(--fm)', display: 'flex', alignItems: 'center', gap: 4,
+                        height: 28, flexShrink: 0,
+                      }}
+                    >
+                      🔗 {availableCombos.length > 1 ? `${availableCombos.length} combos` : availableCombos[0].label}
+                      <span style={{ fontSize: 11, color: 'rgba(255,214,102,.7)' }}>{availableCombos.length === 1 ? `${availableCombos[0].capOverride || availableCombos[0].cap}p` : ''}</span>
+                      <span style={{ fontSize: 10, marginLeft: 2 }}>{showComboMenu ? '▲' : '▼'}</span>
+                    </button>
+                  )}
+                  {!table.id.startsWith('combo__') && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onToggleHeld(table.id) }}
+                        style={{
+                          padding: '2px 6px', borderRadius: 5, height: 26,
+                          border: '1px solid rgba(232,165,48,.3)', background: 'rgba(232,165,48,.08)',
+                          cursor: 'pointer', fontSize: 11, color: '#e8a530', fontWeight: 700,
+                          display: 'flex', alignItems: 'center', gap: 3,
+                        }}
+                        title="Mettre en réserve"
+                      >🔒</button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onToggleBlock(table.id) }}
+                        style={{
+                          padding: '2px 6px', borderRadius: 5, height: 26,
+                          border: '1px solid rgba(220,80,80,.3)', background: 'rgba(220,80,80,.08)',
+                          cursor: 'pointer', fontSize: 11, color: 'var(--rd)', fontWeight: 700,
+                          display: 'flex', alignItems: 'center', gap: 3,
+                        }}
+                        title="Bloquer la table"
+                      >🚫</button>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           ) : resas.length === 0 ? (
@@ -444,7 +496,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                 }}
               >
                 {/* Heure */}
-                <span style={{ fontFamily: 'var(--fm)', fontSize: 14, fontWeight: 800, color: 'var(--text)', flexShrink: 0, width: 38 }}>
+                <span style={{ fontFamily: 'var(--fm)', fontSize: 13, fontWeight: 800, color: 'var(--text)', flexShrink: 0, width: 46 }}>
                   {r.t.replace('h', ':')}
                 </span>
                 {/* Nom */}
@@ -452,7 +504,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                   fontSize: 14, fontWeight: 700, color: 'var(--text)', flex: 1, minWidth: 0,
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>
-                  {r.nom || r.n.split(' ').slice(-1)[0]}
+                  {r.prenom ? `${r.nom} ${r.prenom}` : r.nom || r.n}
                   {r.statut === 2 && ' ⭐'}
                   {r.statut === 3 && ' 👁'}
                   {r.allergie && ' ⚠️'}
@@ -497,6 +549,21 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
         )
       })()}
 
+      {/* ── Trace badge après déplacement ── */}
+      {(isTraceFrom || isTraceTo) && (
+        <div style={{
+          position: 'absolute', top: 3, right: 8, zIndex: 6,
+          display: 'flex', alignItems: 'center', gap: 5,
+          padding: '2px 8px', borderRadius: 6,
+          background: isTraceFrom ? 'rgba(232,165,48,.85)' : 'rgba(60,200,112,.85)',
+          color: '#fff', fontSize: 11, fontWeight: 800, letterSpacing: .3,
+          boxShadow: '0 2px 6px rgba(0,0,0,.2)',
+          animation: 'traceAppear .3s ease-out',
+        }}>
+          {isTraceFrom ? `⬅ ${moveTrace!.name} était ici` : `➡ ${moveTrace!.name} ici maintenant`}
+        </div>
+      )}
+
       {/* ── Dropdown actions (depuis badge) — portal pour éviter clipping overflow ── */}
       {expanded && !moveMode && badgeRect && createPortal(
         <>
@@ -516,7 +583,20 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
               boxShadow: '0 8px 24px rgba(0,0,0,.35)',
               maxHeight: '70vh', overflowY: 'auto',
             }}>
-          {/* ── Actions table occupée uniquement ── */}
+          {/* ── Actions table libre (bloquer / réserve) ── */}
+          {isFree && !table.id.startsWith('combo__') && (
+            <>
+              <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,.06)', background: 'rgba(0,0,0,.08)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, fontFamily: 'var(--fm)', color: 'var(--text)' }}>{table.n}</span>
+                  <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{table.capMax}p · {table.salle}</span>
+                </div>
+              </div>
+              <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onToggleHeld(table.id) }} style={ddItem('🔒', 'Mettre en réserve', '#e8a530')}>🔒 Mettre en réserve</button>
+              <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onToggleBlock(table.id) }} style={ddItem('🚫', 'Bloquer', 'var(--rd)')}>🚫 Bloquer</button>
+            </>
+          )}
+          {/* ── Actions résas ── */}
           <>
               {resas.filter(r => isOccupying(r) || r.s === 'waitlist' || r.s === 'noshow' || r.s === 'done' || r.s === 'cancelled').map(r => {
                 const st = STATUS[r.s as keyof typeof STATUS]
@@ -532,7 +612,7 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                         }}>
                           {st?.icon}
                         </span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{r.nom || r.n.split(' ').slice(-1)[0]}</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{r.prenom ? `${r.nom} ${r.prenom}` : r.nom || r.n}</span>
                         <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--t2)', fontFamily: 'var(--fm)' }}>{r.c}p</span>
                         <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{r.t}</span>
                       </div>
@@ -554,9 +634,10 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
                     )}
                     {r.s === 'reserved' && (
                       <>
-                        <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onCancel(r.id) }} style={ddItem('🚫', 'Annuler', 'var(--rd)')}>🚫 Annuler</button>
                         <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onMarkArrived(r.id) }} style={ddItem('✓', 'Arrivé', 'var(--gn)')}>✓ Arrivé</button>
+                        <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onMarkDone(r.id) }} style={ddItem('🪑', 'Libérer', '#e8a530')}>🪑 Libérer</button>
                         <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onMarkNoshow(r.id) }} style={ddItem('👻', 'No-show', 'var(--am)')}>👻 No-show</button>
+                        <button onClick={(e) => { e.stopPropagation(); onToggleExpand(); onCancel(r.id) }} style={ddItem('🚫', 'Annuler', 'var(--rd)')}>🚫 Annuler</button>
                       </>
                     )}
                     {r.s === 'arrived' && (
@@ -618,9 +699,9 @@ function TableRow({ table, resas, combos, svcResas, moveMode, expanded, onToggle
 }
 
 // ── Colonne service ─────────────────────────────
-function ServiceColumn({ service, tables, resas, combos, moveMode,
+function ServiceColumn({ service, tables, resas, combos, moveMode, moveTrace,
   onMarkArrived, onMarkNoshow, onMarkDone, onCancel, onRestore,
-  onClickResa, onPlaceResa, onPlaceCombo, onUncombine, onStartMove, onMoveTarget, onMoveIA, salleColorMap,
+  onClickResa, onPlaceResa, onPlaceCombo, onUncombine, onStartMove, onMoveTarget, onMoveIA, onToggleBlock, onToggleHeld, blinkResaIds, salleColorMap,
 }: {
   service: Service
   tables: Table[]
@@ -628,6 +709,7 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
   combos: Combo[]
   allTables: Table[]
   moveMode: MoveMode | null
+  moveTrace: { from: string; to: string; name: string; svc?: string } | null
   onMarkArrived: (id: string) => void
   onMarkNoshow: (id: string) => void
   onMarkDone: (id: string) => void
@@ -640,6 +722,9 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
   onStartMove: (resa: Resa) => void
   onMoveTarget: (table: Table, targetSvc: string) => void
   onMoveIA: (targetSvc?: string) => void
+  onToggleBlock: (tableId: string) => void
+  onToggleHeld: (tableId: string) => void
+  blinkResaIds: string[]
   salleColorMap: Record<string, string>
 }) {
   const { t } = useT()
@@ -648,8 +733,6 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
   const openM = timeToMins(service.open)
   const closeM = timeToMins(service.close)
   const isActive = now >= openM && now <= closeM
-  const isNext = !isActive && now < openM && now >= openM - 60
-  const isDone = now > closeM + 30
 
   const svcName = service.name.toLowerCase()
   const svcResas = resas.filter(r => r.svc === svcName)
@@ -671,7 +754,7 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
       {/* En-tête service — sticky */}
       <div style={{
         padding: '8px 12px', borderBottom: '1px solid var(--border)',
-        background: isActive ? `${service.color}15` : isNext ? 'rgba(232,165,48,.06)' : 'var(--surf)',
+        background: 'var(--surf)',
         display: 'flex', alignItems: 'center', gap: 8,
         position: 'sticky', top: 0, zIndex: 5, flexShrink: 0,
       }}>
@@ -679,9 +762,7 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 6 }}>
             {service.name}
-            {isActive && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gn)', display: 'inline-block', boxShadow: '0 0 6px rgba(60,200,112,.5)' }} title="En cours" />}
-            {isNext && <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#e8a530', display: 'inline-block', boxShadow: '0 0 6px rgba(232,165,48,.5)' }} title="Prochain" />}
-            {isDone && <span style={{ fontSize: 11, color: 'var(--t4)' }}>{t('grid.done')}</span>}
+            {isActive && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gn)', display: 'inline-block', boxShadow: '0 0 6px rgba(60,200,112,.5)', animation: 'svcPulse 2s ease-in-out infinite' }} title="En cours" />}
           </div>
           <div style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>
             {service.open} – {service.close} · LO {service.lastOrder}
@@ -782,6 +863,7 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
                     combos={combos}
                     svcResas={svcResas}
                     moveMode={moveMode}
+                    moveTrace={moveTrace}
                     expanded={expandedId === comboTable.id}
                     onToggleExpand={() => setExpandedId(expandedId === comboTable.id ? null : comboTable.id)}
                     onMarkArrived={onMarkArrived}
@@ -795,6 +877,9 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
                     onUncombine={onUncombine}
                     onStartMove={onStartMove}
                     onMoveTarget={(tbl) => onMoveTarget(tbl, svcName)}
+                    onToggleBlock={onToggleBlock}
+                    onToggleHeld={onToggleHeld}
+                    blinkResaIds={blinkResaIds}
                     salleColor={salleColorMap[comboTable.salle] || undefined}
                   />
                 )
@@ -818,6 +903,7 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
                 combos={combos}
                 svcResas={svcResas}
                 moveMode={moveMode}
+                moveTrace={moveTrace}
                 expanded={expandedId === table.id}
                 onToggleExpand={() => setExpandedId(expandedId === table.id ? null : table.id)}
                 onMarkArrived={onMarkArrived}
@@ -831,6 +917,9 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
                 onUncombine={onUncombine}
                 onStartMove={onStartMove}
                 onMoveTarget={(tbl) => onMoveTarget(tbl, svcName)}
+                onToggleBlock={onToggleBlock}
+                onToggleHeld={onToggleHeld}
+                blinkResaIds={blinkResaIds}
                 salleColor={salleColorMap[table.salle] || undefined}
               />
             )
@@ -845,38 +934,47 @@ function ServiceColumn({ service, tables, resas, combos, moveMode,
 // ── Vue principale ─────────────────────────────────
 export function Grille() {
   const { t } = useT()
-  const { resas, tables, services, salles, combos, activeDate, setActiveDate, setResaStatus, updateResa, swapTables } = useAppStore()
+  const { resas, tables, services, salles, combos, activeDate, setActiveDate, setResaStatus, updateResa, swapTables, setTables, blinkResa, blinkResaIds } = useAppStore()
   const navigate = useNavigate()
   const [selectedSalle, setSelectedSalle] = useState('toutes')
   const [svcFilter, setSvcFilter] = useState('tous')
   const [search, setSearch] = useState('')
   const [moveMode, setMoveMode] = useState<MoveMode | null>(null)
-  const [grilleMode, setGrilleMode] = useState<'grille' | 'agenda'>('grille')
+
   const [moveMsg, setMoveMsg] = useState<string | null>(null)
+  // ── Trace visuelle de déplacement ──
+  const [moveTrace, setMoveTrace] = useState<{ from: string; to: string; name: string; svc?: string } | null>(null)
+  const moveTraceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const activeServices = services.filter(s => s.active)
   const dayResas = resas.filter(r => r.date === activeDate)
 
-  // ── Auto-sélection du service : actuel (si avant Last Order) ou prochain ──
+  // ── Auto-sélection du service : actuel (si avant close) ou prochain ──
+  // Aligné avec QuickResa : on utilise close (pas lastOrder) pour la détection
+  // du service actif. Sinon entre lastOrder et close, QuickResa crée une resa
+  // "midi" mais la Grille affiche "soir" → resa invisible.
   useEffect(() => {
     if (svcFilter !== 'tous') return // user a choisi manuellement
     if (activeDate !== todayISO()) return // pas aujourd'hui → afficher tous
     if (activeServices.length === 0) return
 
     const now = nowMins()
-    // Service en cours = on est entre open et lastOrder
+    // Service en cours = on est entre open et close (cohérent avec QuickResa)
     const current = activeServices.find(s => {
       const open = timeToMins(s.open)
-      const lo = timeToMins(s.lastOrder)
-      return now >= open && now <= lo
+      const close = timeToMins(s.close)
+      return now >= open - 30 && now <= close
     })
     if (current) {
       setSvcFilter(current.name.toLowerCase())
       return
     }
-    // Prochain service = le premier dont open > now
+    // Prochain service = le premier dont open > now (dans 3h max comme QuickResa)
     const sorted = [...activeServices].sort((a, b) => timeToMins(a.open) - timeToMins(b.open))
-    const next = sorted.find(s => timeToMins(s.open) > now)
+    const next = sorted.find(s => {
+      const open = timeToMins(s.open)
+      return open > now && open - now <= 180
+    })
     if (next) {
       setSvcFilter(next.name.toLowerCase())
       return
@@ -893,6 +991,30 @@ export function Grille() {
     return m
   }, [salles])
 
+  // ── Auto-scroll global vers la table blinkée ──
+  useEffect(() => {
+    if (blinkResaIds.length === 0) return
+    const blinkR = resas.find(r => blinkResaIds.includes(r.id))
+    if (!blinkR || !blinkR.tbl) return
+    // Trouver le nom de table cible
+    const targetTableName = blinkR.tbl
+    const targetTable = tables.find(t => tblMatchesTable(targetTableName, t.n))
+    if (!targetTable) return
+
+    const doScroll = () => {
+      // Chercher dans tout le DOM l'élément avec data-table-id correspondant
+      const el = document.querySelector(`[data-table-id="${targetTable.id}"]`) as HTMLElement | null
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }
+    // Plusieurs essais pour laisser le DOM se monter (retour de navigation)
+    const t1 = setTimeout(doScroll, 300)
+    const t2 = setTimeout(doScroll, 700)
+    const t3 = setTimeout(doScroll, 1200)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+  }, [blinkResaIds, resas, tables])
+
   const displayServices = svcFilter === 'tous'
     ? activeServices
     : activeServices.filter(s => s.name.toLowerCase() === svcFilter)
@@ -908,6 +1030,14 @@ export function Grille() {
     [tables, selectedSalle, search, dayResas]
   )
 
+  function handleToggleBlock(tableId: string) {
+    setTables(tables.map(t => t.id === tableId ? { ...t, blocked: !t.blocked, held: false } : t))
+  }
+
+  function handleToggleHeld(tableId: string) {
+    setTables(tables.map(t => t.id === tableId ? { ...t, held: !t.held, blocked: false } : t))
+  }
+
   function handlePlaceResa(tableId: string, svc?: string) {
     const tbl = tables.find(t => t.id === tableId)
     if (tbl) navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel${svc ? `&svc=${svc}` : ''}&from=grille`)
@@ -920,6 +1050,13 @@ export function Grille() {
   function handleUncombine(tableId: string, resaId: string) {
     const tbl = tables.find(t => t.id === tableId)
     if (tbl) updateResa(resaId, { tbl: tbl.n })
+  }
+
+  // ── Trace visuelle : surbrillance source (orange) + destination (vert) ──
+  function showMoveTrace(from: string, to: string, name: string, svc?: string) {
+    if (moveTraceTimer.current) clearTimeout(moveTraceTimer.current)
+    setMoveTrace({ from, to, name, svc })
+    moveTraceTimer.current = setTimeout(() => setMoveTrace(null), 4000)
   }
 
   function handleStartMove(resa: Resa) {
@@ -955,7 +1092,9 @@ export function Grille() {
     if (isServiceChange) setSvcFilter('tous')
     const svcLabel = isServiceChange ? ` (→ ${effectiveSvc})` : ''
     setMoveMsg(`✅ IA → ${sourceResa.nom || sourceResa.n} placé sur ${bestTbl}${svcLabel}`)
-    setMoveMode(null); setTimeout(() => setMoveMsg(null), 2500)
+    // Trace visuelle : surbrillance source → destination
+    showMoveTrace(moveMode.fromTbl, bestTbl, sourceResa.nom || sourceResa.n, isServiceChange ? effectiveSvc : undefined)
+    setMoveMode(null); setTimeout(() => setMoveMsg(null), 4000)
   }
 
   function handleMoveTarget(targetTable: Table, targetSvc?: string) {
@@ -966,20 +1105,33 @@ export function Grille() {
     const effectiveSvc = targetSvc || moveMode.svc
     const isServiceChange = effectiveSvc !== moveMode.svc
 
+    // Exclure la résa source pour ne pas se "swap" avec soi-même
     const targetOccupying = dayResas.filter(r =>
-      r.svc === effectiveSvc && tblMatchesTable(r.tbl, targetTable.n) && isOccupying(r)
+      r.id !== moveMode.resaId && r.svc === effectiveSvc && tblMatchesTable(r.tbl, targetTable.n) && isOccupying(r)
     )
 
     if (targetOccupying.length === 0) {
-      const check = canMoveResa(sourceResa, { type: 'table', table: targetTable }, tables, combos, resas)
+      // D'abord essayer table simple
+      let check = canMoveResa(sourceResa, { type: 'table', table: targetTable }, tables, combos, resas)
+      // Si table trop petite, chercher un combo contenant cette table
+      if (!check.valid && sourceResa.c > targetTable.capMax) {
+        const fittingCombo = combos.find(c =>
+          c.tables.some(tid => { const t = tables.find(tb => tb.id === tid); return t?.n === targetTable.n }) &&
+          (c.capOverride || c.cap) >= sourceResa.c
+        )
+        if (fittingCombo) {
+          check = canMoveResa(sourceResa, { type: 'combo', combo: fittingCombo }, tables, combos, resas)
+        }
+      }
       if (!check.valid) { setMoveMsg(`❌ ${check.reason}`); setTimeout(() => setMoveMsg(null), 3000); return }
       const patch: Record<string, any> = { tbl: check.newTbl! }
       if (isServiceChange) patch.svc = effectiveSvc
       updateResa(sourceResa.id, patch)
       if (isServiceChange) setSvcFilter('tous')
       const svcLabel = isServiceChange ? ` (→ ${effectiveSvc})` : ''
-      setMoveMsg(`✅ ${sourceResa.nom || sourceResa.n} → ${targetTable.n}${svcLabel}`)
-      setMoveMode(null); setTimeout(() => setMoveMsg(null), 2500)
+      setMoveMsg(`✅ ${sourceResa.nom || sourceResa.n} → ${check.newTbl}${svcLabel}`)
+      showMoveTrace(moveMode.fromTbl, check.newTbl || targetTable.n, sourceResa.nom || sourceResa.n, isServiceChange ? effectiveSvc : undefined)
+      setMoveMode(null); setTimeout(() => setMoveMsg(null), 4000)
     } else {
       if (isServiceChange) {
         setMoveMsg('❌ Swap inter-services non supporté — la table cible est occupée')
@@ -991,6 +1143,7 @@ export function Grille() {
       if (!check.valid) { setMoveMsg(`❌ ${check.reason}`); setTimeout(() => setMoveMsg(null), 3000); return }
       swapTables(sourceResa.id, targetResa.id)
       setMoveMsg(`✅ ${sourceResa.nom || sourceResa.n} ↔ ${targetResa.nom || targetResa.n}`)
+      showMoveTrace(moveMode.fromTbl, targetTable.n, sourceResa.nom || sourceResa.n)
       setMoveMode(null); setTimeout(() => setMoveMsg(null), 2500)
     }
   }
@@ -1007,6 +1160,7 @@ export function Grille() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - var(--hh))', overflow: 'hidden' }}>
+      <style>{`@keyframes traceAppear{from{opacity:0;transform:translateY(-4px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes svcPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}@keyframes resaBlink{0%,100%{box-shadow:0 0 0 0 rgba(91,156,246,0)}50%{box-shadow:0 0 12px 3px rgba(91,156,246,.5)}}`}</style>
       <ViewToolbar
         title={t('grid.title')}
         serviceFilter={svcFilter}
@@ -1018,21 +1172,6 @@ export function Grille() {
         onNewResa={moveMode ? undefined : () => navigate('/reservations?new=1&from=grille')}
       />
 
-      {/* ── Toggle Grille / Agenda ── */}
-      {!moveMode && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '6px 14px', borderBottom: '1px solid var(--border)', background: 'var(--surf)', flexShrink: 0 }}>
-          {(['grille', 'agenda'] as const).map(mode => (
-            <button key={mode} onClick={() => setGrilleMode(mode)} style={{
-              padding: '5px 14px', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
-              background: grilleMode === mode ? 'var(--bp)' : 'transparent',
-              color: grilleMode === mode ? 'var(--bl)' : 'var(--t3)',
-              borderRadius: 6, transition: 'all .15s',
-            }}>
-              {mode === 'grille' ? '📊 Grille' : '📅 Agenda'}
-            </button>
-          ))}
-        </div>
-      )}
 
       {moveMode && (
         <div style={{
@@ -1060,175 +1199,54 @@ export function Grille() {
 
       {moveMsg && (
         <div style={{
-          padding: '6px 16px', fontSize: 13, fontWeight: 600,
+          padding: '8px 16px', fontSize: 13, fontWeight: 600,
           background: moveMsg.startsWith('✅') ? 'rgba(60,200,112,.1)' : 'rgba(220,80,80,.1)',
           color: moveMsg.startsWith('✅') ? 'var(--gn)' : 'var(--rd)',
           borderBottom: '1px solid var(--border)',
+          display: 'flex', alignItems: 'center', gap: 10,
         }}>
-          {moveMsg}
+          <span>{moveMsg}</span>
+          {moveTrace && moveMsg.startsWith('✅') && (
+            <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--t2)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ background: 'rgba(232,165,48,.2)', color: '#e8a530', padding: '1px 6px', borderRadius: 4 }}>{moveTrace.from}</span>
+              <span>→</span>
+              <span style={{ background: 'rgba(60,200,112,.2)', color: 'var(--gn)', padding: '1px 6px', borderRadius: 4 }}>{moveTrace.to}</span>
+            </span>
+          )}
         </div>
       )}
 
-      {grilleMode === 'agenda' ? (
-        /* ═══ VUE AGENDA (timeline par créneau) ═══ */
-        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-          {(() => {
-            const now = nowMins()
-            const svcSlots = activeServices.map(s => ({
-              label: s.name,
-              icon: s.icon || '',
-              open: timeToMins(s.open),
-              close: timeToMins(s.close),
-              color: s.color || 'var(--bl)',
-            }))
-
-            const allSlots: number[] = []
-            svcSlots.forEach(svc => {
-              for (let m = svc.open; m < svc.close; m += 30) {
-                if (!allSlots.includes(m)) allSlots.push(m)
-              }
-            })
-            allSlots.sort((a, b) => a - b)
-
-            const resaBySlot: Record<number, typeof dayResas> = {}
-            dayResas.forEach(r => {
-              const parts = r.t.split(/[h:]/)
-              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-              const slotKey = Math.floor(m / 30) * 30
-              if (!resaBySlot[slotKey]) resaBySlot[slotKey] = []
-              resaBySlot[slotKey].push(r)
-            })
-
-            return allSlots.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)', fontSize: 14 }}>Aucun service configuré</div>
-            ) : (
-              <div>
-                {allSlots.map(slotMin => {
-                  const hr = Math.floor(slotMin / 60)
-                  const mn = slotMin % 60
-                  const label = `${hr}h${String(mn).padStart(2, '0')}`
-                  const isNow = now >= slotMin && now < slotMin + 30
-                  const slotResas = resaBySlot[slotMin] || []
-                  const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
-                  const svc = svcSlots.find(s => slotMin >= s.open && slotMin < s.close)
-                  const isFirstSlot = svc && slotMin === svc.open
-
-                  return (
-                    <div key={slotMin}>
-                      {isFirstSlot && svc && (
-                        <div style={{
-                          padding: '7px 14px', background: svc.color + '15',
-                          borderBottom: '1px solid var(--border)',
-                          fontSize: 12, fontWeight: 800, color: svc.color,
-                          textTransform: 'uppercase', letterSpacing: .5,
-                          display: 'flex', alignItems: 'center', gap: 6,
-                        }}>
-                          <span>{svc.icon}</span> {svc.label}
-                          <span style={{ fontSize: 11, fontWeight: 600, marginLeft: 'auto', opacity: .7 }}>
-                            {dayResas.filter(r => {
-                              const parts = r.t.split(/[h:]/)
-                              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-                              return m >= svc.open && m < svc.close
-                            }).length} résas · {dayResas.filter(r => {
-                              const parts = r.t.split(/[h:]/)
-                              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-                              return m >= svc.open && m < svc.close
-                            }).reduce((s, r) => s + r.c, 0)}p
-                          </span>
-                        </div>
-                      )}
-                      <div style={{
-                        display: 'flex', borderBottom: '1px solid var(--border)',
-                        background: isNow ? 'rgba(220,80,80,.05)' : 'transparent',
-                        minHeight: slotResas.length > 0 ? 44 : 34,
-                      }}>
-                        <div style={{
-                          width: 62, flexShrink: 0, padding: '6px 8px', textAlign: 'right',
-                          fontSize: 13, fontWeight: 800, fontFamily: 'var(--fm)',
-                          color: isNow ? 'var(--rd)' : 'var(--t3)',
-                          borderRight: isNow ? '3px solid var(--rd)' : '3px solid var(--border)',
-                        }}>
-                          {label}
-                          {slotCvt > 0 && <div style={{ fontSize: 10, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
-                        </div>
-                        <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 5, padding: '5px 10px', alignItems: 'center' }}>
-                          {slotResas.length === 0 && (
-                            <span style={{ fontSize: 12, color: 'var(--t4)' }}>—</span>
-                          )}
-                          {slotResas.map(r => {
-                            const st = STATUS[r.s as keyof typeof STATUS]
-                            // Couleur de salle via la table assignée
-                            const rTbl = r.tbl ? tables.find(tb => tb.n === r.tbl || r.tbl?.split('+').some(tn => tn.trim() === tb.n)) : undefined
-                            const rSalle = rTbl ? salles.find(sl => sl.name === rTbl.salle) : undefined
-                            const salleCol = rSalle?.color || '#4480d8'
-                            return (
-                              <div key={r.id}
-                                onClick={() => navigate(`/reservations?edit=${r.id}&from=grille`)}
-                                style={{
-                                  padding: '5px 10px', borderRadius: 7, cursor: 'pointer',
-                                  background: st?.bg || 'var(--surf2)',
-                                  border: `1px solid ${st?.border || 'var(--border)'}`,
-                                  borderLeft: `3px solid ${salleCol}`,
-                                  display: 'flex', alignItems: 'center', gap: 5,
-                                }}>
-                                <span style={{ fontSize: 11 }}>{st?.icon}</span>
-                                <span style={{ fontSize: 13, fontWeight: 700, color: st?.hex || 'var(--text)' }}>
-                                  {r.nom || r.n?.split(' ')[0] || '?'}
-                                </span>
-                                <span style={{ fontSize: 12, fontFamily: 'var(--fm)', color: 'var(--t2)', fontWeight: 700 }}>{r.c}p</span>
-                                {r.tbl && <span style={{ fontSize: 11, fontFamily: 'var(--fm)', color: salleCol, fontWeight: 600, padding: '1px 5px', background: `${salleCol}18`, borderRadius: 4 }}>{r.tbl}</span>}
-                                {r.statut === 2 && <span>⭐</span>}
-                                {r.allergie && <span>⚠️</span>}
-                                {r.bebe > 0 && <span style={{ fontSize: 11 }}>👶</span>}
-                                {r.canal && CANAUX[r.canal] && <span style={{ fontSize: 10, opacity: .8 }}>{CANAUX[r.canal].icon}</span>}
-                                <span style={{
-                                  fontSize: 9, fontWeight: 800, padding: '1px 4px', borderRadius: 3,
-                                  background: r.mode === 'ia' ? 'rgba(91,156,246,.15)' : 'rgba(232,165,48,.12)',
-                                  color: r.mode === 'ia' ? '#7bb8ff' : '#e8a530',
-                                }}>
-                                  {r.mode === 'ia' ? '🤖' : '✋'}
-                                </span>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )
-          })()}
-        </div>
-      ) : (
-        /* ═══ VUE GRILLE (colonnes par service) ═══ */
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-          {displayServices.map(svc => (
-            <ServiceColumn
-              key={svc.id}
-              service={svc}
-              tables={filteredTables}
-              resas={dayResas}
-              combos={combos}
-              allTables={tables}
-              moveMode={moveMode}
-              onMarkArrived={(id) => setResaStatus(id, 'arrived')}
-              onMarkNoshow={(id) => setResaStatus(id, 'noshow')}
-              onMarkDone={(id) => setResaStatus(id, 'done')}
-              onCancel={(id) => setResaStatus(id, 'cancelled')}
-              onRestore={(id) => setResaStatus(id, 'reserved')}
-              onClickResa={(id) => moveMode ? undefined : navigate(`/reservations?edit=${id}&from=grille`)}
-              onPlaceResa={handlePlaceResa}
-              onPlaceCombo={handlePlaceCombo}
-              onUncombine={handleUncombine}
-              onStartMove={handleStartMove}
-              onMoveTarget={(tbl, svc) => handleMoveTarget(tbl, svc)}
-              onMoveIA={handleMoveIA}
-              salleColorMap={salleColorMap}
-            />
-          ))}
-        </div>
-      )}
+      {/* ═══ VUE GRILLE (colonnes par service) ═══ */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+        {displayServices.map(svc => (
+          <ServiceColumn
+            key={svc.id}
+            service={svc}
+            tables={filteredTables}
+            resas={dayResas}
+            combos={combos}
+            allTables={tables}
+            moveMode={moveMode}
+            moveTrace={moveTrace}
+            onMarkArrived={(id) => { setResaStatus(id, 'arrived'); blinkResa(id) }}
+            onMarkNoshow={(id) => { setResaStatus(id, 'noshow'); blinkResa(id) }}
+            onMarkDone={(id) => { setResaStatus(id, 'done'); blinkResa(id) }}
+            onCancel={(id) => { setResaStatus(id, 'cancelled'); blinkResa(id) }}
+            onRestore={(id) => { setResaStatus(id, 'reserved'); blinkResa(id) }}
+            onClickResa={(id) => moveMode ? undefined : navigate(`/reservations?edit=${id}&from=grille`)}
+            onPlaceResa={handlePlaceResa}
+            onPlaceCombo={handlePlaceCombo}
+            onUncombine={handleUncombine}
+            onStartMove={handleStartMove}
+            onMoveTarget={(tbl, svc) => handleMoveTarget(tbl, svc)}
+            onMoveIA={handleMoveIA}
+            onToggleBlock={handleToggleBlock}
+            onToggleHeld={handleToggleHeld}
+            blinkResaIds={blinkResaIds}
+            salleColorMap={salleColorMap}
+          />
+        ))}
+      </div>
     </div>
   )
 }

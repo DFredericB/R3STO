@@ -45,36 +45,36 @@ function planTableSvg(
   const tRef = Math.min(t.w, t.h)
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2
 
-  // Couleurs selon statut — libre = très discret, réservé = bien visible
+  // Couleurs selon statut — libre = discret, réservé/arrivé = bien contrasté
   const fills: Record<string, string> = {
     free:           'rgba(68,128,216,.06)',
-    reserved:       'rgba(91,156,246,.30)',
-    arrived:        'rgba(60,200,112,.25)',
+    reserved:       'rgba(91,156,246,.50)',
+    arrived:        'rgba(60,200,112,.45)',
     blocked:        'rgba(100,116,139,.15)',
-    combo_partial:  'rgba(144,96,224,.18)',
-    held:           'rgba(232,165,48,.12)',
+    combo_partial:  'rgba(144,96,224,.28)',
+    held:           'rgba(232,165,48,.15)',
   }
   const strokes: Record<string, string> = {
     free:           'rgba(68,128,216,.25)',
-    reserved:       'rgba(91,156,246,.85)',
-    arrived:        'rgba(60,200,112,.85)',
+    reserved:       'rgba(59,130,246,.95)',
+    arrived:        'rgba(34,197,94,.95)',
     blocked:        'rgba(100,116,139,.40)',
-    combo_partial:  'rgba(144,96,224,.55)',
-    held:           'rgba(232,165,48,.55)',
+    combo_partial:  'rgba(144,96,224,.70)',
+    held:           'rgba(232,165,48,.60)',
   }
   const textCols: Record<string, string> = {
     free:           'rgba(68,128,216,.55)',
-    reserved:       '#5b9cf6',
-    arrived:        '#3cc870',
+    reserved:       '#fff',
+    arrived:        '#fff',
     blocked:        'rgba(100,116,139,.5)',
-    combo_partial:  'rgba(144,96,224,.7)',
+    combo_partial:  'rgba(144,96,224,.85)',
     held:           '#e8a530',
   }
 
   const fill = fills[status] || fills.free
   const stroke = isSelected ? '#facc15' : (strokes[status] || strokes.free)
   const tcol = textCols[status] || textCols.free
-  const sw = isSelected ? tRef * 0.125 : (status === 'reserved' || status === 'arrived') ? tRef * 0.092 : tRef * 0.050
+  const sw = isSelected ? tRef * 0.125 : (status === 'reserved' || status === 'arrived') ? tRef * 0.11 : tRef * 0.050
 
   // ── Tables dans un combo occupé → forme fantôme, aucun texte ──
   if (isInOccupiedCombo) {
@@ -100,13 +100,13 @@ function planTableSvg(
   s += `<rect x="${t.x}" y="${t.y}" width="${t.w}" height="${t.h}" fill="transparent" style="pointer-events:all"/>`
 
   // ── 1. Chaises DERRIÈRE la table (identique éditeur) ──
-  const chairFill = status === 'arrived' ? 'rgba(60,200,112,.18)'
-    : status === 'held' ? 'rgba(232,165,48,.10)'
-    : status === 'reserved' ? 'rgba(91,156,246,.18)'
+  const chairFill = status === 'arrived' ? 'rgba(60,200,112,.30)'
+    : status === 'held' ? 'rgba(232,165,48,.12)'
+    : status === 'reserved' ? 'rgba(91,156,246,.30)'
     : 'rgba(68,128,216,.07)'
-  const chairStroke = status === 'arrived' ? 'rgba(60,200,112,.45)'
-    : status === 'held' ? 'rgba(232,165,48,.28)'
-    : status === 'reserved' ? 'rgba(91,156,246,.50)'
+  const chairStroke = status === 'arrived' ? 'rgba(34,197,94,.65)'
+    : status === 'held' ? 'rgba(232,165,48,.30)'
+    : status === 'reserved' ? 'rgba(59,130,246,.65)'
     : 'rgba(68,128,216,.18)'
   if (!t.blocked) s += spChairsSvg(t, chairFill, chairStroke)
 
@@ -222,26 +222,31 @@ function planTableSvg(
     if (resaInfo.pmr > 0) badges.push('♿')
 
     if (isSmall) {
-      // ── PETITE TABLE (round_sm, 2p) — minimal intérieur ──
-      const fsNum = (tRef * 0.28).toFixed(1)
-      const fsNom = (tRef * 0.19).toFixed(1)
-      const fsInf = (tRef * 0.15).toFixed(1)
-      const fsBdg = (tRef * 0.14).toFixed(1)
+      // ── PETITE TABLE (round_sm, 2p) — tailles rehaussées pour lisibilité ──
+      const fsNum = (tRef * 0.32).toFixed(1)
+      const fsNom = (tRef * 0.22).toFixed(1)
+      const fsInf = (tRef * 0.17).toFixed(1)
+      const fsBdg = (tRef * 0.16).toFixed(1)
 
       // Intérieur : N° + nom + couverts
-      s += `<text x="${cx}" y="${(cy - tRef*0.16).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNum}" font-family="DM Mono,monospace" font-weight="800" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
-      const maxC = Math.max(3, Math.floor(t.w / 1.8))
+      s += `<text x="${cx}" y="${(cy - tRef*0.18).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNum}" font-family="DM Mono,monospace" font-weight="900" fill="${tcol}" style="pointer-events:none">${t.n}</text>`
+      const maxC = Math.max(3, Math.floor(t.w / 1.6))
       const sName = resaInfo.name.length > maxC ? resaInfo.name.slice(0, maxC - 1) + '…' : resaInfo.name
-      s += `<text x="${cx}" y="${(cy + tRef*0.10).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNom}" font-family="DM Mono,monospace" font-weight="700" fill="${tcol}" opacity=".9" style="pointer-events:none">${sName}</text>`
-      s += `<text x="${cx}" y="${(cy + tRef*0.30).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsInf}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".55" style="pointer-events:none">${resaInfo.covers}p</text>`
+      s += `<text x="${cx}" y="${(cy + tRef*0.08).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsNom}" font-family="DM Mono,monospace" font-weight="700" fill="${tcol}" style="pointer-events:none">${sName}</text>`
+      s += `<text x="${cx}" y="${(cy + tRef*0.28).toFixed(2)}" text-anchor="middle" dominant-baseline="central" font-size="${fsInf}" font-family="DM Mono,monospace" font-weight="600" fill="${tcol}" opacity=".65" style="pointer-events:none">${resaInfo.covers}p</text>`
 
-      // Au-dessus : mode + canal + heure + badges
+      // Au-dessus : mode + canal + heure + badges — toujours affiché, plus gros
       const above = [modeIcon, canalIcon, resaInfo.time, ...badges].filter(Boolean)
       if (above.length > 0) {
         const hasTopChairs = ['round', 'round_sm', 'round_lg', 'oval'].includes(t.shape)
-        const chairCl = hasTopChairs ? tRef * 0.17 : tRef * 0.06
+        const chairCl = hasTopChairs ? tRef * 0.22 : tRef * 0.08
         const tableTop = ['round', 'round_sm', 'round_lg', 'oval'].includes(t.shape) ? (cy - t.h/2) : t.y
-        s += `<text x="${cx}" y="${(tableTop - chairCl).toFixed(2)}" text-anchor="middle" dominant-baseline="auto" font-size="${fsBdg}" font-family="DM Mono,monospace" fill="${tcol}" opacity=".7" style="pointer-events:none">${above.join(' ')}</text>`
+        // Fond semi-transparent pour lisibilité
+        const aboveText = above.join(' ')
+        const aboveY = (tableTop - chairCl).toFixed(2)
+        const bgW = aboveText.length * 1.8 + 2
+        s += `<rect x="${(cx - bgW/2).toFixed(1)}" y="${(parseFloat(aboveY) - 2).toFixed(1)}" width="${bgW.toFixed(1)}" height="4.5" rx="1.5" fill="rgba(20,20,32,.55)" style="pointer-events:none"/>`
+        s += `<text x="${cx}" y="${aboveY}" text-anchor="middle" dominant-baseline="auto" font-size="${fsBdg}" font-family="DM Mono,monospace" font-weight="600" fill="${tcol}" style="pointer-events:none">${aboveText}</text>`
       }
     } else {
       // ── TABLE MOYENNE/GRANDE — tout à l'intérieur ──
@@ -471,7 +476,7 @@ export function Plan() {
   const {
     resas, tables, combos, services, salles, roomItems,
     activeDate, setActiveDate,
-    updateResa, setResaStatus, setTables, swapTables,
+    addResa, updateResa, setResaStatus, setTables, swapTables, blinkResa,
   } = useAppStore()
   const { toast } = useToast()
   const navigate = useNavigate()
@@ -484,7 +489,7 @@ export function Plan() {
   const [popup, setPopup] = useState<{ resa: any; table?: Table; x: number; y: number; flip: boolean } | null>(null)
   // ── Move mode : déplacement visuel (cliquer table cible sur SVG) ──
   const [moveResa, setMoveResa] = useState<{ id: string; name: string; covers: number; fromTbl: string; svc: string } | null>(null)
-  const [moveDate, setMoveDate] = useState('')
+  const [moveDate, setMoveDate] = useState(activeDate)
   const [moveSvc, setMoveSvc] = useState('')
   const [moveMsg, setMoveMsg] = useState<string | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -605,9 +610,13 @@ export function Plan() {
     h += `<defs><pattern id="pl-dot" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="0" cy="0" r="0.2" fill="rgba(68,128,216,.1)"/></pattern></defs>`
     h += `<rect x="0" y="0" width="${canvasW}" height="${canvasH}" fill="url(#pl-dot)" pointer-events="none"/>`
 
-    // Room items (decorative objects — behind everything)
+    // Room items (decorative objects — behind everything, distinct from tables)
     for (const ri of salleRoomItems) {
-      h += `<g style="pointer-events:none">${spRoomBodySvg(ri)}</g>`
+      // Subtle dashed outline to distinguish objects from tables
+      h += `<g style="pointer-events:none">`
+      h += `<rect x="${(ri.x - 0.5).toFixed(1)}" y="${(ri.y - 0.5).toFixed(1)}" width="${(ri.w + 1).toFixed(1)}" height="${(ri.h + 1).toFixed(1)}" rx="1" fill="none" stroke="rgba(100,116,139,.12)" stroke-width="0.3" stroke-dasharray="1.5,1"/>`
+      h += spRoomBodySvg(ri)
+      h += `</g>`
     }
 
     // ── Pré-calcul : tables faisant partie d'un combo avec résa ──
@@ -694,6 +703,46 @@ export function Plan() {
     if (orphans.length === 0) orphansAutoShownRef.current = false
   }, [orphans])
 
+  // ── Création rapide de résa sans quitter la vue Plan ──
+  function quickResa(tableName: string, svc?: string) {
+    const effectiveSvc = svc || svcFilter || services.find(s => s.active)?.name?.toLowerCase() || ''
+    const svcObj = services.find(s => s.name.toLowerCase() === effectiveSvc)
+    const id = `r-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+    const newResa: Resa = {
+      id,
+      date: activeDate,
+      svc: effectiveSvc,
+      t: svcObj?.open || '12:00',
+      c: 2,
+      n: 'Nouvelle résa',
+      nom: '',
+      prenom: '',
+      tel: '',
+      email: '',
+      tbl: tableName,
+      s: 'reserved',
+      mode: 'manuel',
+      canal: 'telephone' as any,
+      note: '',
+      noteProfil: '',
+      bebe: 0,
+      pmr: 0,
+      statut: 0,
+      allergie: '',
+      confirmed: false,
+      createdAt: Date.now(),
+      prisPar: '—',
+    }
+    addResa(newResa)
+    blinkResa(id)
+    toast(`Résa créée sur ${tableName} — cliquez pour compléter`, 'success')
+    // Ouvrir le popup d'édition sur la nouvelle résa
+    setPopup(null)
+    setTimeout(() => {
+      navigate(`/reservations?edit=${id}&from=plan`)
+    }, 300)
+  }
+
   // ── Démarrer le mode déplacement visuel ──
   function startMoveMode(r: Resa) {
     setPopup(null)
@@ -711,11 +760,20 @@ export function Plan() {
     if (!sourceResa) return
     const dayR = resas.filter(r => r.date === activeDate)
     const targetOccupying = dayR.filter(r =>
-      r.svc === sourceResa.svc && tblMatchesTable(r.tbl, targetTbl.n) && isOccupying(r)
+      r.id !== sourceResa.id && r.svc === sourceResa.svc && tblMatchesTable(r.tbl, targetTbl.n) && isOccupying(r)
     )
     if (targetOccupying.length === 0) {
       // Table libre → déplacer
-      const check = canMoveResa(sourceResa, { type: 'table', table: targetTbl }, tables, combos, resas)
+      let check = canMoveResa(sourceResa, { type: 'table', table: targetTbl }, tables, combos, resas)
+      if (!check.valid && sourceResa.c > targetTbl.capMax) {
+        const fittingCombo = combos.find(c =>
+          c.tables.some(tid => { const t = tables.find(tb => tb.id === tid); return t?.n === targetTbl.n }) &&
+          (c.capOverride || c.cap) >= sourceResa.c
+        )
+        if (fittingCombo) {
+          check = canMoveResa(sourceResa, { type: 'combo', combo: fittingCombo }, tables, combos, resas)
+        }
+      }
       if (!check.valid) { setMoveMsg(`❌ ${check.reason}`); setTimeout(() => setMoveMsg(null), 3000); return }
       updateResa(sourceResa.id, { tbl: check.newTbl! })
       toast(`${sourceResa.nom || sourceResa.n} → ${targetTbl.n} ✓`, 'success')
@@ -818,7 +876,7 @@ export function Plan() {
     if (comboEl) {
       const comboLabel = comboEl.getAttribute('data-combo-click')!
       const comboTableNames = comboLabel.split('+').map((s: string) => s.trim())
-      const comboResa = comboTableNames.map((tn: string) => occupiedMap[tn]).find(Boolean)
+      const comboResa = comboTableNames.map((tn: string) => occupiedMap[tn] || ghostMap[tn]).find(Boolean)
       if (comboResa) {
         const rect = (comboEl as SVGElement).getBoundingClientRect()
         const flip = rect.bottom + 220 > window.innerHeight
@@ -826,7 +884,7 @@ export function Plan() {
         setPopup({ resa: comboResa, table: firstTable || undefined, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
         return
       }
-      navigate(`/reservations?new=1&table=${encodeURIComponent(comboLabel)}&mode=manuel&svc=${svcFilter}&from=plan`)
+      quickResa(comboLabel)
       return
     }
 
@@ -840,13 +898,9 @@ export function Plan() {
     const rect = (tblEl as SVGElement).getBoundingClientRect()
     const flip = rect.bottom + 220 > window.innerHeight
 
-    const resa = occupiedMap[tbl.n]
-    if (resa) {
-      setPopup({ resa, table: tbl, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
-    } else {
-      setPopup({ resa: null, table: tbl, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
-    }
-  }, [tables, occupiedMap, popup, navigate, moveResa, resas, combos])
+    const resa = occupiedMap[tbl.n] || ghostMap[tbl.n] || null
+    setPopup({ resa, table: tbl, x: rect.left + rect.width / 2, y: flip ? rect.top : rect.bottom, flip })
+  }, [tables, occupiedMap, ghostMap, popup, navigate, moveResa, resas, combos])
 
   // ── Auto-réassignation ─────────────────────────
   const handleAutoReassign = () => {
@@ -1032,16 +1086,19 @@ export function Plan() {
                 <div style={{ padding: '8px 12px', background: 'rgba(0,0,0,.08)', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {st && <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 6, background: st.bg, color: st.hex, border: `1px solid ${st.border}` }}>{st.icon}</span>}
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{r.nom || r.n}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{r.prenom ? `${r.nom} ${r.prenom}` : r.nom || r.n}</span>
                     <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--t2)', fontFamily: 'var(--fm)' }}>{r.c}p</span>
                     <span style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{r.t}</span>
                   </div>
                   <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 2 }}>{r.tbl}</div>
                 </div>
                 <button onClick={() => { setPopup(null); navigate(`/reservations?edit=${r.id}&from=plan`) }} style={btnStyle('#7bb8ff')}>✏️ Modifier</button>
-                {(r.s === 'reserved' || r.s === 'arrived') && (<>
+                {r.tel && (
+                  <a href={`tel:${r.tel}`} style={{ ...btnStyle('var(--gn)'), textDecoration: 'none' }} onClick={() => setPopup(null)}>📞 Appeler</a>
+                )}
+                {(r.s === 'reserved' || r.s === 'arrived') && (
                   <button onClick={() => startMoveMode(r)} style={btnStyle('#9f7aea')}>↔ Déplacer</button>
-                </>)}
+                )}
                 {r.s === 'waitlist' && (
                   <>
                     <button onClick={() => { setPopup(null); setResaStatus(r.id, 'reserved') }} style={btnStyle('var(--gn)')}>✅ Confirmer</button>
@@ -1061,9 +1118,12 @@ export function Plan() {
                     <button onClick={() => { setPopup(null); setResaStatus(r.id, 'noshow') }} style={btnStyle('var(--am)')}>👻 No-show</button>
                   </>
                 )}
-                {(r.s === 'noshow' || r.s === 'done' || r.s === 'cancelled') && (
+                {(r.s === 'noshow' || r.s === 'done' || r.s === 'cancelled') && (<>
                   <button onClick={() => { setPopup(null); setResaStatus(r.id, 'reserved') }} style={btnStyle('#7bb8ff')}>↩ Remettre</button>
-                )}
+                  {tbl && !tbl.blocked && (
+                    <button onClick={() => { setPopup(null); quickResa(tbl.n) }} style={btnStyle('var(--t3)')}>➕ Nouvelle résa sur {tbl.n}</button>
+                  )}
+                </>)}
               </>) : tbl ? (<>
                 {/* ── Table non-occupée — actions table ── */}
                 <div style={{ padding: '8px 12px', background: 'rgba(0,0,0,.08)', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
@@ -1078,7 +1138,7 @@ export function Plan() {
 
                 {/* Nouvelle résa */}
                 {!tbl.blocked && (
-                  <button onClick={() => { setPopup(null); navigate(`/reservations?new=1&table=${tbl.n}&mode=manuel&svc=${svcFilter}&from=plan`) }} style={btnStyle('#7bb8ff')}>➕ Nouvelle résa</button>
+                  <button onClick={() => { setPopup(null); quickResa(tbl.n) }} style={btnStyle('#7bb8ff')}>➕ Nouvelle résa</button>
                 )}
 
                 {/* Bloquer / Débloquer */}

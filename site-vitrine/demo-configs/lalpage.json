@@ -1,0 +1,130 @@
+{
+  "name": "L'Alpage",
+  "slug": "lalpage",
+  "tagline": "Traditions suisses de montagne dans une atmosphère authentique",
+  "cuisine": "Suisse Traditionnelle",
+  "description": "L'Alpage perpétue les traditions culinaires suisses depuis 1975. Spécialiste de la raclette, de la fondue et des plats régionaux du Valais, nous vous accueillons dans notre chalet rustique chauffé au feu de bois. Saveurs authentiques et générosité garanties!",
+  "primaryColor": "#C41E3A",
+  "theme": "light",
+  "phone": "+41 27 203 54 32",
+  "email": "info@lalpage.ch",
+  "address": "Rue du Marché 8, 1950 Sion",
+  "website": "https://lalpage.ch",
+  "hours": [
+    { "day": "Lundi – Mercredi", "status": "Fermé" },
+    { "day": "Jeudi – Dimanche", "lunch": "12:00 – 14:00", "dinner": "18:30 – 22:00" },
+    { "day": "Jours fériés", "lunch": "12:00 – 14:00", "dinner": "18:30 – 22:00" }
+  ],
+  "menu": [
+    {
+      "category": "Spécialités Raclette",
+      "items": [
+        {
+          "name": "Raclette du Valais",
+          "price": 32,
+          "desc": "Fromage régional AOP, pommes de terre, cornichons et oignons"
+        },
+        {
+          "name": "Raclette Mixte",
+          "price": 38,
+          "desc": "Fromage + charcuterie locale, jambon de Grindelwald et saucisse"
+        },
+        {
+          "name": "Raclette Gourmande",
+          "price": 42,
+          "desc": "Fromage premium, crevettes et fruits de mer de saison"
+        }
+      ]
+    },
+    {
+      "category": "Fondues & Pierrades",
+      "items": [
+        {
+          "name": "Fondue Moitié-Moitié",
+          "price": 28,
+          "desc": "Emmental et Gruyère AOP, kirsch et épices maison"
+        },
+        {
+          "name": "Fondue Chinoise",
+          "price": 35,
+          "desc": "Viande de bœuf premium, plusieurs sauces et accompagnements"
+        },
+        {
+          "name": "Pierrade Valaisanne",
+          "price": 38,
+          "desc": "Viande séléctionnée, cuite sur pierre chaude à votre table"
+        }
+      ]
+    },
+    {
+      "category": "Plats Régionaux",
+      "items": [
+        {
+          "name": "Viande Séchée du Valais",
+          "price": 22,
+          "desc": "AOP, en assiette avec pain de seigle et cornichons"
+        },
+        {
+          "name": "Pâtes Valaisannes",
+          "price": 24,
+          "desc": "Fromage, pommes et oignons caramélisés, sauce crème"
+        },
+        {
+          "name": "Tripes à la Vieille",
+          "price": 26,
+          "desc": "Recette traditionnelle, sauce tomate épicée et riz"
+        },
+        {
+          "name": "Escalope de Veau",
+          "price": 34,
+          "desc": "Veau suisse, légumes du jour et pommes Anna"
+        }
+      ]
+    },
+    {
+      "category": "Desserts Alpestres",
+      "items": [
+        {
+          "name": "Meringue Suisse",
+          "price": 12,
+          "desc": "Crème Chantilly et fruits rouges de saison"
+        },
+        {
+          "name": "Tarte aux Pommes",
+          "price": 11,
+          "desc": "Pâte feuilletée croustillante, pommes du verger"
+        },
+        {
+          "name": "Mousse au Chocolat",
+          "price": 10,
+          "desc": "Léger, aéré et généreusement relevé de cacao"
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "name": "Andreas S.",
+      "rating": 5,
+      "text": "Authentique, chaleureux et délicieux! La vraie ambiance des Alpes en plein Sion.",
+      "date": "2026-03-18"
+    },
+    {
+      "name": "Nathalie P.",
+      "rating": 5,
+      "text": "Raclette extraordinaire, les portions sont généreuses et la qualité irréprochable.",
+      "date": "2026-03-12"
+    },
+    {
+      "name": "Michel B.",
+      "rating": 4,
+      "text": "Excellent! Personnel sympathique, cuisine régionale de très bonne qualité. À revenir pour la fondue!",
+      "date": "2026-03-05"
+    }
+  ],
+  "bookingUrl": "https://booking.r3sto.ch/lalpage",
+  "socialMedia": {
+    "instagram": "https://instagram.com/lalpage.sion",
+    "facebook": "https://facebook.com/lalpage"
+  }
+}

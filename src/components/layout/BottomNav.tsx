@@ -4,7 +4,7 @@ const ITEMS = [
   { path: '/dashboard',    icon: '📊', label: 'Dashboard' },
   { path: '/reservations', icon: '📖', label: 'Journal' },
   { path: '/grille',       icon: '🪑', label: 'Grille' },
-  { path: '/plan',         icon: '🏠', label: 'Plan' },
+  { path: '/plan',         icon: '📐', label: 'Plan' },
 ]
 
 export function BottomNav() {

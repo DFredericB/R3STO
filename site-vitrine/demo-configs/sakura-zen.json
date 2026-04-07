@@ -1,0 +1,157 @@
+{
+  "name": "Sakura Zen",
+  "slug": "sakura-zen",
+  "tagline": "Cuisine japonaise moderne et traditionnelle au cœur de Zurich",
+  "cuisine": "Japonaise",
+  "description": "Sakura Zen fusionne la tradition culinaire japonaise avec les techniques modernes. Notre chef tokyoïte apporte l'authentique saveur du Japon à Zurich. Du sushi artisanal aux ramen maison, chaque plat raconte une histoire. Bienvenue dans notre univers zen.",
+  "primaryColor": "#D32F2F",
+  "theme": "light",
+  "phone": "+41 44 220 15 78",
+  "email": "reservations@sakura-zen.ch",
+  "address": "Bahnhofstrasse 42, 8001 Zurich",
+  "website": "https://sakura-zen.ch",
+  "hours": [
+    { "day": "Lundi", "status": "Fermé" },
+    { "day": "Mardi – Jeudi", "lunch": "11:30 – 14:00", "dinner": "17:30 – 22:30" },
+    { "day": "Vendredi – Samedi", "lunch": "11:30 – 14:00", "dinner": "17:30 – 23:00" },
+    { "day": "Dimanche", "lunch": "12:00 – 14:00", "dinner": "17:30 – 22:00" }
+  ],
+  "menu": [
+    {
+      "category": "Sushi & Sashimi",
+      "items": [
+        {
+          "name": "Assortiment Sakura",
+          "price": 28,
+          "desc": "Sélection de 8 pièces de nigiri et 6 pièces de sashimi variés"
+        },
+        {
+          "name": "Roll Tempura",
+          "price": 16,
+          "desc": "Crevette tempura, concombre, avocat et sauce épicée maison"
+        },
+        {
+          "name": "Sashimi Mixte",
+          "price": 32,
+          "desc": "Saumon, thon, daurade et poisson blanc premium du jour"
+        },
+        {
+          "name": "Maki Dragon",
+          "price": 18,
+          "desc": "Anguille grillée, avocat, concombre avec œufs de tobiko"
+        }
+      ]
+    },
+    {
+      "category": "Plats Chauds",
+      "items": [
+        {
+          "name": "Ramen Tonkotsu",
+          "price": 18,
+          "desc": "Bouillon riche au porc, nouilles ondulées, œuf mollet et germes"
+        },
+        {
+          "name": "Donburi Teriyaki",
+          "price": 19,
+          "desc": "Poulet grillé, riz blanc, œuf, épinards et sauce teriyaki"
+        },
+        {
+          "name": "Tempura Assortie",
+          "price": 22,
+          "desc": "Crevettes, légumes et poisson blanc frits, sauce dashi"
+        },
+        {
+          "name": "Gyoza Vapeur",
+          "price": 12,
+          "desc": "6 raviolis farcis au porc et crevettes, sauce soja"
+        },
+        {
+          "name": "Teppanyaki Sakura",
+          "price": 38,
+          "desc": "Viande wagyu, crevettes et légumes, cuit devant vous"
+        }
+      ]
+    },
+    {
+      "category": "Accompagnements",
+      "items": [
+        {
+          "name": "Edamame Vapeur",
+          "price": 8,
+          "desc": "Fèves de soja avec fleur de sel"
+        },
+        {
+          "name": "Salade Seaweed",
+          "price": 10,
+          "desc": "Algues marines, sésame et vinaigre de riz"
+        },
+        {
+          "name": "Riz au Gingembre",
+          "price": 6,
+          "desc": "Riz blanc garni de gingembre mariné"
+        },
+        {
+          "name": "Miso Shiru",
+          "price": 6,
+          "desc": "Soupe miso traditionnelle avec tofu et algues"
+        }
+      ]
+    },
+    {
+      "category": "Desserts Zen",
+      "items": [
+        {
+          "name": "Mochi Crème",
+          "price": 9,
+          "desc": "Pâte de riz avec crème vanille et fraises"
+        },
+        {
+          "name": "Dorayaki",
+          "price": 8,
+          "desc": "Pâte de haricots rouges entre deux petits gâteaux moelleux"
+        },
+        {
+          "name": "Glace Matcha",
+          "price": 8,
+          "desc": "Thé matcha japonais, crémeux et subtil"
+        },
+        {
+          "name": "Salade de Fruits Exotiques",
+          "price": 10,
+          "desc": "Mangue, litchi et sauce miel-citron vert"
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "name": "Yuki T.",
+      "rating": 5,
+      "text": "Exactement comme au Japon! Le chef apporte la vraie saveur. Ambiance sereine et service attentionné.",
+      "date": "2026-03-16"
+    },
+    {
+      "name": "Lars K.",
+      "rating": 5,
+      "text": "Sushi frais et savoureux, ramen délicieux. On y revient régulièrement, c'est devenu notre cantine préférée!",
+      "date": "2026-03-11"
+    },
+    {
+      "name": "Julia M.",
+      "rating": 4,
+      "text": "Très bon restaurant, nourriture de qualité. Un peu cher mais on comprend pourquoi. Ambiance zen comme prévu.",
+      "date": "2026-03-08"
+    },
+    {
+      "name": "Marco D.",
+      "rating": 5,
+      "text": "La meilleure cuisine japonaise à Zurich! Chef talentueux, service impeccable et sélection d'alcools impressionnante.",
+      "date": "2026-02-25"
+    }
+  ],
+  "bookingUrl": "https://booking.r3sto.ch/sakura-zen",
+  "socialMedia": {
+    "instagram": "https://instagram.com/sakura.zen.zurich",
+    "facebook": "https://facebook.com/sakurazenzurich"
+  }
+}

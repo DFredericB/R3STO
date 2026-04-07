@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R3STO Voice Assistant - Réservation Vocale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Container for demo page */
+        .demo-container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            padding: 40px 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .demo-header {
+            margin-bottom: 32px;
+        }
+
+        .demo-header h1 {
+            font-size: 28px;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .demo-header p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .demo-info {
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.1) 0%, rgba(147, 112, 219, 0.1) 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 32px;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Floating Microphone Button */
+        .voice-button {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4480d8 0%, #6ba3ff 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(68, 128, 216, 0.4);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 999;
+            font-size: 28px;
+        }
+
+        .voice-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 48px rgba(68, 128, 216, 0.5);
+        }
+
+        .voice-button:active {
+            transform: scale(0.95);
+        }
+
+        .voice-button svg {
+            width: 28px;
+            height: 28px;
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+        }
+
+        .voice-button.listening {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 8px 32px rgba(68, 128, 216, 0.4);
+            }
+            50% {
+                box-shadow: 0 8px 40px rgba(68, 128, 216, 0.7);
+            }
+        }
+
+        /* Voice Interface Overlay */
+        .voice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: flex-end;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .voice-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Voice Panel */
+        .voice-panel {
+            width: 100%;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            max-height: 85vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .voice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .voice-header h2 {
+            font-size: 18px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .voice-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-close:hover {
+            color: #333;
+        }
+
+        /* Conversation Transcript */
+        .voice-transcript {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 350px;
+            padding: 16px 8px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: slideInMessage 0.3s ease-out;
+        }
+
+        @keyframes slideInMessage {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.assistant {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .message.assistant .message-bubble {
+            background: #f0f0f0;
+            color: #1a1a1a;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #4480d8 0%, #6ba3ff 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.typing .message-bubble {
+            background: #f0f0f0;
+            color: #999;
+        }
+
+        /* Typing Indicator */
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Voice Wave Animation */
+        .voice-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 48px;
+            margin-bottom: 24px;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.1) 0%, rgba(147, 112, 219, 0.1) 100%);
+            border-radius: 16px;
+        }
+
+        .voice-wave.hidden {
+            display: none;
+        }
+
+        .wave-bar {
+            width: 3px;
+            height: 24px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, #4480d8 0%, #6ba3ff 100%);
+            animation: waveAnimation 0.8s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(1) {
+            animation-delay: -0.4s;
+        }
+
+        .wave-bar:nth-child(2) {
+            animation-delay: -0.2s;
+        }
+
+        .wave-bar:nth-child(3) {
+            animation-delay: 0s;
+        }
+
+        .wave-bar:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .wave-bar:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes waveAnimation {
+            0%, 100% {
+                height: 8px;
+                opacity: 0.5;
+            }
+            50% {
+                height: 32px;
+                opacity: 1;
+            }
+        }
+
+        /* Reservation Summary Card */
+        .reservation-summary {
+            background: linear-gradient(135deg, rgba(68, 128, 216, 0.05) 0%, rgba(147, 112, 219, 0.05) 100%);
+            border: 2px solid #4480d8;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: none;
+            animation: slideInCard 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .reservation-summary.visible {
+            display: block;
+        }
+
+        @keyframes slideInCard {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .reservation-summary h3 {
+            color: #1a1a1a;
+            font-size: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .reservation-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(68, 128, 216, 0.1);
+            font-size: 14px;
+        }
+
+        .reservation-detail:last-child {
+            border-bottom: none;
+        }
+
+        .reservation-detail label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .reservation-detail value {
+            color: #4480d8;
+            font-weight: 600;
+        }
+
+        /* Voice Controls */
+        .voice-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .voice-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .voice-btn.primary {
+            background: linear-gradient(135deg, #4480d8 0%, #6ba3ff 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(68, 128, 216, 0.3);
+        }
+
+        .voice-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(68, 128, 216, 0.4);
+        }
+
+        .voice-btn.primary:active {
+            transform: translateY(0);
+        }
+
+        .voice-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .voice-btn.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .voice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Status Message */
+        .voice-status {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+            min-height: 20px;
+        }
+
+        .voice-status.error {
+            color: #d32f2f;
+            padding: 12px;
+            background: rgba(211, 47, 47, 0.05);
+            border-radius: 8px;
+        }
+
+        .voice-status.success {
+            color: #388e3c;
+            padding: 12px;
+            background: rgba(56, 142, 60, 0.05);
+            border-radius: 8px;
+        }
+
+        /* Support Message */
+        .voice-support {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-container {
+                border-radius: 8px;
+            }
+
+            .voice-button {
+                bottom: 24px;
+                right: 24px;
+            }
+
+            .voice-panel {
+                max-height: 90vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+
+            .demo-container {
+                border-radius: 0;
+                padding: 24px 16px;
+                max-height: 100vh;
+                overflow-y: auto;
+            }
+
+            .demo-header h1 {
+                font-size: 24px;
+            }
+
+            .voice-button {
+                bottom: 20px;
+                right: 20px;
+                width: 52px;
+                height: 52px;
+            }
+
+            .voice-button svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .voice-panel {
+                padding: 20px;
+            }
+
+            .reservation-detail {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Container -->
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>R3STO Voice</h1>
+            <p>Assistant de réservation vocale</p>
+        </div>
+        <div class="demo-info">
+            <strong>Prêt à réserver ?</strong><br>
+            Appuyez sur le microphone en bas à droite et dites votre préférence de réservation. Notre assistant comprend le français naturel.
+        </div>
+    </div>
+
+    <!-- Floating Microphone Button -->
+    <button class="voice-button" id="voiceButton" title="Appuyez pour parler">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 16.91c-1.48 1.46-3.51 2.36-5.77 2.36-2.26 0-4.29-.9-5.77-2.36l-1.1 1.1c1.86 1.86 4.41 2.86 6.87 2.86s5.01-1 6.87-2.86l-1.1-1.1zM20 9h-1.7c0 .58-.1 1.14-.27 1.69l1.27 1.27c.44-1.52.7-3.13.7-4.96z"/>
+        </svg>
+    </button>
+
+    <!-- Voice Interface Overlay -->
+    <div class="voice-overlay" id="voiceOverlay">
+        <div class="voice-panel">
+            <div class="voice-header">
+                <h2>Assistant R3STO</h2>
+                <button class="voice-close" id="voiceClose">&times;</button>
+            </div>
+
+            <!-- Voice Wave Animation -->
+            <div class="voice-wave" id="voiceWave">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+
+            <!-- Status Message -->
+            <div class="voice-status" id="voiceStatus"></div>
+
+            <!-- Conversation Transcript -->
+            <div class="voice-transcript" id="voiceTranscript"></div>
+
+            <!-- Reservation Summary -->
+            <div class="reservation-summary" id="reservationSummary">
+                <h3>Résumé de votre réservation</h3>
+                <div class="reservation-detail">
+                    <label>Date</label>
+                    <value id="summaryDate">—</value>
+                </div>
+                <div class="reservation-detail">
+                    <label>Heure</label>
+                    <value id="summaryTime">—</value>
+                </div>
+                <div class="reservation-detail">
+                    <label>Personnes</label>
+                    <value id="summaryGuests">—</value>
+                </div>
+                <div class="reservation-detail">
+                    <label>Nom</label>
+                    <value id="summaryName">—</value>
+                </div>
+            </div>
+
+            <!-- Voice Controls -->
+            <div class="voice-controls">
+                <button class="voice-btn secondary" id="voiceCancelBtn">Annuler</button>
+                <button class="voice-btn primary" id="voiceConfirmBtn" style="display: none;">Confirmer</button>
+            </div>
+
+            <div class="voice-support">
+                Vous pouvez parler naturellement : "Demain à 19h pour 2 personnes, au nom de Dupont"
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Voice Assistant Configuration
+        const ASSISTANT_STATE = {
+            isListening: false,
+            isProcessing: false,
+            conversationPhase: 'greeting', // greeting, date, guests, time, name, confirmation, completed
+            reservation: {
+                date: null,
+                time: null,
+                guests: null,
+                name: null
+            },
+            messages: [],
+            lastTranscript: ''
+        };
+
+        // Web Speech API Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechSynthesis = window.speechSynthesis;
+        let recognition = null;
+        let isSpeaking = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+        }
+
+        // DOM Elements
+        const voiceButton = document.getElementById('voiceButton');
+        const voiceOverlay = document.getElementById('voiceOverlay');
+        const voiceClose = document.getElementById('voiceClose');
+        const voiceTranscript = document.getElementById('voiceTranscript');
+        const voiceWave = document.getElementById('voiceWave');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const voiceCancelBtn = document.getElementById('voiceCancelBtn');
+        const voiceConfirmBtn = document.getElementById('voiceConfirmBtn');
+        const reservationSummary = document.getElementById('reservationSummary');
+
+        // Event Listeners
+        voiceButton.addEventListener('click', startVoiceAssistant);
+        voiceClose.addEventListener('click', closeVoiceAssistant);
+        voiceCancelBtn.addEventListener('click', closeVoiceAssistant);
+        voiceConfirmBtn.addEventListener('click', confirmReservation);
+
+        if (recognition) {
+            recognition.onstart = () => {
+                ASSISTANT_STATE.isListening = true;
+                voiceButton.classList.add('listening');
+                voiceWave.classList.remove('hidden');
+                updateStatus('');
+            };
+
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        ASSISTANT_STATE.lastTranscript = transcript;
+                    }
+                }
+                if (transcript) {
+                    updateTranscriptPreview(transcript, !event.results[event.results.length - 1].isFinal);
+                }
+            };
+
+            recognition.onend = () => {
+                ASSISTANT_STATE.isListening = false;
+                voiceButton.classList.remove('listening');
+                voiceWave.classList.add('hidden');
+                if (ASSISTANT_STATE.lastTranscript) {
+                    processUserInput(ASSISTANT_STATE.lastTranscript);
+                }
+                ASSISTANT_STATE.lastTranscript = '';
+            };
+
+            recognition.onerror = (event) => {
+                voiceButton.classList.remove('listening');
+                voiceWave.classList.add('hidden');
+                if (event.error === 'no-speech') {
+                    updateStatus('Pas de son détecté. Essayez à nouveau.', 'error');
+                    setTimeout(() => startListening(), 2000);
+                } else if (event.error === 'network') {
+                    updateStatus('Erreur réseau. Vérifiez votre connexion.', 'error');
+                } else {
+                    updateStatus('Erreur: ' + event.error, 'error');
+                }
+            };
+        }
+
+        function startVoiceAssistant() {
+            if (!SpeechRecognition) {
+                alert('Web Speech API non supportée sur ce navigateur. Veuillez utiliser Chrome ou Edge.');
+                return;
+            }
+
+            ASSISTANT_STATE.conversationPhase = 'greeting';
+            ASSISTANT_STATE.reservation = { date: null, time: null, guests: null, name: null };
+            ASSISTANT_STATE.messages = [];
+            voiceTranscript.innerHTML = '';
+            voiceOverlay.classList.add('active');
+            reservationSummary.classList.remove('visible');
+            voiceConfirmBtn.style.display = 'none';
+
+            addMessage('Bonjour ! Je suis l\'assistant R3STO. Pour quelle date souhaitez-vous réserver ?', 'assistant');
+            speakMessage('Bonjour ! Je suis l\'assistant R3STO. Pour quelle date souhaitez-vous réserver ?');
+
+            setTimeout(() => startListening(), 1000);
+        }
+
+        function startListening() {
+            if (recognition && !ASSISTANT_STATE.isListening && !ASSISTANT_STATE.isProcessing) {
+                ASSISTANT_STATE.lastTranscript = '';
+                recognition.start();
+            }
+        }
+
+        function updateTranscriptPreview(text, isInterim) {
+            let lastMessage = voiceTranscript.lastElementChild;
+            if (!lastMessage || !lastMessage.classList.contains('user')) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message user';
+                const bubble = document.createElement('div');
+                bubble.className = isInterim ? 'message-bubble' : 'message-bubble';
+                bubble.textContent = text;
+                msgDiv.appendChild(bubble);
+                voiceTranscript.appendChild(msgDiv);
+            } else {
+                lastMessage.querySelector('.message-bubble').textContent = text;
+            }
+            voiceTranscript.scrollTop = voiceTranscript.scrollHeight;
+        }
+
+        function processUserInput(transcript) {
+            if (!transcript.trim()) return;
+
+            ASSISTANT_STATE.isProcessing = true;
+            const finalMessage = document.createElement('div');
+            finalMessage.className = 'message user';
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = transcript;
+            finalMessage.appendChild(bubble);
+            voiceTranscript.innerHTML = '';
+            voiceTranscript.appendChild(finalMessage);
+            voiceTranscript.scrollTop = voiceTranscript.scrollHeight;
+
+            switch (ASSISTANT_STATE.conversationPhase) {
+                case 'greeting':
+                    handleDateInput(transcript);
+                    break;
+                case 'date':
+                    handleGuestCountInput(transcript);
+                    break;
+                case 'guests':
+                    handleTimeInput(transcript);
+                    break;
+                case 'time':
+                    handleNameInput(transcript);
+                    break;
+                case 'name':
+                    handleConfirmation(transcript);
+                    break;
+            }
+        }
+
+        function handleDateInput(transcript) {
+            const date = parseFrenchDate(transcript);
+            if (date) {
+                ASSISTANT_STATE.reservation.date = date;
+                ASSISTANT_STATE.conversationPhase = 'date';
+                const response = `Parfait, pour ${formatDateForSpeech(date)}. Combien de personnes ?`;
+                addMessage(response, 'assistant');
+                speakMessage(response);
+                setTimeout(() => startListening(), 1000);
+            } else {
+                updateStatus('Je n\'ai pas bien compris. Dites une date: aujourd\'hui, demain, lundi, etc.', 'error');
+                setTimeout(() => startListening(), 2000);
+            }
+            ASSISTANT_STATE.isProcessing = false;
+        }
+
+        function handleGuestCountInput(transcript) {
+            const count = parseGuestCount(transcript);
+            if (count && count > 0 && count <= 20) {
+                ASSISTANT_STATE.reservation.guests = count;
+                ASSISTANT_STATE.conversationPhase = 'guests';
+                const response = `${count} personne${count > 1 ? 's' : ''}, noté. À quelle heure ?`;
+                addMessage(response, 'assistant');
+                speakMessage(response);
+                setTimeout(() => startListening(), 1000);
+            } else {
+                updateStatus('Je n\'ai pas bien compris le nombre. Dites: 2 personnes, pour 4, six, etc.', 'error');
+                setTimeout(() => startListening(), 2000);
+            }
+            ASSISTANT_STATE.isProcessing = false;
+        }
+
+        function handleTimeInput(transcript) {
+            const time = parseTime(transcript);
+            if (time) {
+                ASSISTANT_STATE.reservation.time = time;
+                ASSISTANT_STATE.conversationPhase = 'time';
+                const response = `${time}, c\'est noté. À quel nom ?`;
+                addMessage(response, 'assistant');
+                speakMessage(response);
+                setTimeout(() => startListening(), 1000);
+            } else {
+                updateStatus('Je n\'ai pas bien compris l\'heure. Dites: 19h, sept heures du soir, 20h30, etc.', 'error');
+                setTimeout(() => startListening(), 2000);
+            }
+            ASSISTANT_STATE.isProcessing = false;
+        }
+
+        function handleNameInput(transcript) {
+            const name = extractName(transcript);
+            if (name) {
+                ASSISTANT_STATE.reservation.name = name;
+                ASSISTANT_STATE.conversationPhase = 'name';
+                updateReservationSummary();
+                const response = `Réservation pour ${ASSISTANT_STATE.reservation.guests} personne${ASSISTANT_STATE.reservation.guests > 1 ? 's' : ''}, ${formatDateForSpeech(ASSISTANT_STATE.reservation.date)} à ${ASSISTANT_STATE.reservation.time} au nom de ${name}. Je confirme ?`;
+                addMessage(response, 'assistant');
+                speakMessage(response);
+                voiceConfirmBtn.style.display = 'flex';
+                setTimeout(() => startListening(), 1000);
+            } else {
+                updateStatus('Je n\'ai pas bien compris le nom. Pouvez-vous répéter ?', 'error');
+                setTimeout(() => startListening(), 2000);
+            }
+            ASSISTANT_STATE.isProcessing = false;
+        }
+
+        function handleConfirmation(transcript) {
+            const isConfirmed = /^(oui|oui|confirme|c\'est bon|correct|d\'accord|ok)/i.test(transcript.trim());
+            if (isConfirmed) {
+                ASSISTANT_STATE.conversationPhase = 'completed';
+                const response = 'Votre réservation est confirmée ! À demain !';
+                addMessage(response, 'assistant');
+                speakMessage(response);
+                reservationSummary.classList.add('visible');
+                voiceConfirmBtn.style.display = 'none';
+                updateStatus('Réservation confirmée !', 'success');
+            } else {
+                const response = 'Pas de problème. Réessayons. Pour quelle date souhaitez-vous réserver ?';
+                ASSISTANT_STATE.conversationPhase = 'greeting';
+                addMessage(response, 'assistant');
+                speakMessage(response);
+                setTimeout(() => startListening(), 1000);
+            }
+            ASSISTANT_STATE.isProcessing = false;
+        }
+
+        function parseFrenchDate(text) {
+            const t = text.toLowerCase().trim();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (/aujourd[\'h]?ui/.test(t) || /ce soir|ce midi|maintenant/.test(t)) {
+                return today.toISOString().split('T')[0];
+            }
+
+            if (/demain/.test(t)) {
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                return tomorrow.toISOString().split('T')[0];
+            }
+
+            const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+            for (let i = 0; i < 7; i++) {
+                const checkDate = new Date(today);
+                checkDate.setDate(checkDate.getDate() + i);
+                if (t.includes(days[checkDate.getDay()])) {
+                    return checkDate.toISOString().split('T')[0];
+                }
+            }
+
+            const dateRegex = /(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/;
+            const match = t.match(dateRegex);
+            if (match) {
+                const day = parseInt(match[1]);
+                const month = parseInt(match[2]) - 1;
+                const year = match[3] ? parseInt(match[3]) : today.getFullYear();
+                const date = new Date(year, month, day);
+                if (date >= today) {
+                    return date.toISOString().split('T')[0];
+                }
+            }
+
+            return null;
+        }
+
+        function parseGuestCount(text) {
+            const t = text.toLowerCase();
+            const words = ['zéro', 'un', 'une', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf', 'vingt'];
+            const nums = [0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
+            for (let i = 0; i < words.length; i++) {
+                if (t.includes(words[i])) return nums[i];
+            }
+
+            const numRegex = /(\d+)/;
+            const match = t.match(numRegex);
+            if (match) return parseInt(match[1]);
+
+            return null;
+        }
+
+        function parseTime(text) {
+            const t = text.toLowerCase();
+
+            const timeRegex = /(\d{1,2})(?:h|:|\s*heures?)(?:\s*(\d{1,2}))?/;
+            const match = t.match(timeRegex);
+            if (match) {
+                let hours = parseInt(match[1]);
+                const minutes = match[2] ? parseInt(match[2]) : 0;
+                if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+                    return `${String(hours).padStart(2, '0')}h${String(minutes).padStart(2, '0')}`;
+                }
+            }
+
+            const afternoon = /midi|13|14|15|16|17|18|19|20|21|22|soir/.test(t);
+            const morning = /matin|7|8|9|10|11|12/.test(t);
+
+            if (afternoon) {
+                return '19h00';
+            } else if (morning) {
+                return '12h00';
+            }
+
+            return null;
+        }
+
+        function extractName(text) {
+            const t = text.trim();
+            const words = t.split(/\s+/);
+            if (words.length > 0) {
+                return words[words.length - 1].charAt(0).toUpperCase() + words[words.length - 1].slice(1).toLowerCase();
+            }
+            return null;
+        }
+
+        function formatDateForSpeech(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+            const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+            if (dateStr === today.toISOString().split('T')[0]) {
+                return 'aujourd\'hui';
+            }
+
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            if (dateStr === tomorrow.toISOString().split('T')[0]) {
+                return 'demain';
+            }
+
+            return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
+        }
+
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = text;
+            msgDiv.appendChild(bubble);
+            voiceTranscript.appendChild(msgDiv);
+            voiceTranscript.scrollTop = voiceTranscript.scrollHeight;
+            ASSISTANT_STATE.messages.push({ text, sender });
+        }
+
+        function speakMessage(text) {
+            if (!SpeechSynthesis) return;
+
+            while (SpeechSynthesis.speaking) {
+                SpeechSynthesis.cancel();
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 1;
+            utterance.pitch = 1;
+
+            isSpeaking = true;
+            utterance.onend = () => {
+                isSpeaking = false;
+            };
+
+            SpeechSynthesis.speak(utterance);
+        }
+
+        function updateReservationSummary() {
+            document.getElementById('summaryDate').textContent = ASSISTANT_STATE.reservation.date || '—';
+            document.getElementById('summaryTime').textContent = ASSISTANT_STATE.reservation.time || '—';
+            document.getElementById('summaryGuests').textContent = ASSISTANT_STATE.reservation.guests || '—';
+            document.getElementById('summaryName').textContent = ASSISTANT_STATE.reservation.name || '—';
+            reservationSummary.classList.add('visible');
+        }
+
+        function updateStatus(message, type = '') {
+            voiceStatus.textContent = message;
+            voiceStatus.className = 'voice-status';
+            if (type) voiceStatus.classList.add(type);
+        }
+
+        function closeVoiceAssistant() {
+            if (recognition && ASSISTANT_STATE.isListening) {
+                recognition.stop();
+            }
+            if (SpeechSynthesis.speaking) {
+                SpeechSynthesis.cancel();
+            }
+            voiceOverlay.classList.remove('active');
+            voiceButton.classList.remove('listening');
+            ASSISTANT_STATE.isListening = false;
+            ASSISTANT_STATE.isProcessing = false;
+        }
+
+        function confirmReservation() {
+            const response = 'Votre réservation est confirmée ! À demain !';
+            addMessage(response, 'assistant');
+            speakMessage(response);
+            updateStatus('Réservation confirmée !', 'success');
+            voiceConfirmBtn.style.display = 'none';
+
+            setTimeout(() => {
+                closeVoiceAssistant();
+            }, 3000);
+        }
+
+        // Check browser support on load
+        window.addEventListener('load', () => {
+            if (!SpeechRecognition) {
+                voiceButton.style.opacity = '0.5';
+                voiceButton.style.cursor = 'not-allowed';
+                voiceButton.title = 'Non supporté sur ce navigateur';
+            }
+        });
+    </script>
+</body>
+</html>

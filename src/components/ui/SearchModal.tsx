@@ -21,7 +21,7 @@ const NAV_ROUTES: { path: string; icon: string; labelKey: string }[] = [
   { path: '/dashboard',    icon: '📊', labelKey: 'nav.dashboard' },
   { path: '/reservations', icon: '📖', labelKey: 'nav.journal' },
   { path: '/grille',       icon: '🪑', labelKey: 'nav.grid' },
-  { path: '/plan',         icon: '🏠', labelKey: 'nav.floorplan' },
+  { path: '/plan',         icon: '📐', labelKey: 'nav.floorplan' },
   { path: '/waitlist',     icon: '⏳', labelKey: 'nav.waitlist' },
   { path: '/groupes',      icon: '👥', labelKey: 'nav.groups' },
   { path: '/clients',      icon: '👤', labelKey: 'nav.clients' },

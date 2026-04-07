@@ -54,6 +54,16 @@ const today = (): string => {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
 }
 
+// ── Transitions de statut autorisées ────────────────
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  reserved:  ['arrived', 'noshow', 'cancelled', 'done'],
+  arrived:   ['done', 'noshow'],
+  waitlist:  ['reserved', 'cancelled'],
+  done:      [],           // état final
+  noshow:    ['reserved'], // réactivation possible
+  cancelled: ['reserved'], // réactivation possible
+}
+
 // ── Interface du store ─────────────────────────────
 interface AppStore {
   // Données
@@ -83,6 +93,8 @@ interface AppStore {
   lang: 'fr' | 'en' | 'de' | 'it'
   theme: 'dark' | 'light'
   sidebarCollapsed: boolean
+  showQuickResa: boolean
+  blinkResaIds: string[]
 
   // Actions — Réservations
   addResa: (resa: Resa) => void
@@ -90,6 +102,7 @@ interface AppStore {
   deleteResa: (id: string) => void
   setResaStatus: (id: string, status: Resa['s']) => void
   swapTables: (idA: string, idB: string) => void
+  blinkResa: (id: string) => void
 
   // Actions — Navigation
   setActiveDate: (date: string) => void
@@ -137,6 +150,7 @@ interface AppStore {
   setLang: (lang: 'fr' | 'en' | 'de' | 'it') => void
   setTheme: (theme: 'dark' | 'light') => void
   toggleSidebar: () => void
+  toggleQuickResa: () => void
 
   // Actions — Demo
   loadDemoData: (data: Partial<AppStore>) => void
@@ -179,6 +193,8 @@ export const useAppStore = create<AppStore>()(
       lang: 'fr',
       theme: 'dark',
       sidebarCollapsed: false,
+      showQuickResa: true,
+      blinkResaIds: [],
 
       // Réservations
       addResa: (resa) => set((s) => {
@@ -199,9 +215,16 @@ export const useAppStore = create<AppStore>()(
         resas: s.resas.map((r) => r.id === id ? { ...r, ...patch } : r)
       })),
       deleteResa: (id) => set((s) => ({ resas: s.resas.filter((r) => r.id !== id) })),
-      setResaStatus: (id, status) => set((s) => ({
-        resas: s.resas.map((r) => r.id === id ? { ...r, s: status } : r)
-      })),
+      setResaStatus: (id, status) => set((s) => {
+        const resa = s.resas.find(r => r.id === id)
+        if (!resa) return s
+        const allowed = (VALID_TRANSITIONS[resa.s] || [])
+        if (!allowed.includes(status)) {
+          console.warn(`[R3STO] Transition refusée : ${resa.s} → ${status}`)
+          return s
+        }
+        return { resas: s.resas.map((r) => r.id === id ? { ...r, s: status } : r) }
+      }),
       swapTables: (idA, idB) => set((s) => {
         const a = s.resas.find(r => r.id === idA)
         const b = s.resas.find(r => r.id === idB)
@@ -213,6 +236,10 @@ export const useAppStore = create<AppStore>()(
           )
         }
       }),
+      blinkResa: (id) => {
+        // Remplacer les anciens blinks par le nouveau — persiste jusqu'à la prochaine résa
+        set({ blinkResaIds: [id] })
+      },
 
       // Navigation
       setActiveDate: (date) => set({ activeDate: date }),
@@ -310,6 +337,7 @@ export const useAppStore = create<AppStore>()(
         set({ theme })
       },
       toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+      toggleQuickResa: () => set((s) => ({ showQuickResa: !s.showQuickResa })),
 
       // Demo
       loadDemoData: (data) => set((s) => ({ ...s, ...data, isDemo: true })),
@@ -323,6 +351,16 @@ export const useAppStore = create<AppStore>()(
     }),
     {
       name: 'r3sto-app-data',
+      // ── Corruption detection : si le JSON est invalide, reset propre ──
+      onRehydrateStorage: () => {
+        return (_state, error) => {
+          if (error) {
+            console.error('[R3STO] Données localStorage corrompues — reset automatique', error)
+            try { localStorage.removeItem('r3sto-app-data') } catch (_) {}
+            window.location.reload()
+          }
+        }
+      },
       partialize: (state) => ({
         resas: state.resas,
         tables: state.tables,
@@ -344,6 +382,7 @@ export const useAppStore = create<AppStore>()(
         lang: state.lang,
         theme: state.theme,
         sidebarCollapsed: state.sidebarCollapsed,
+        showQuickResa: state.showQuickResa,
         isDemo: state.isDemo,
         _demoVersion: state._demoVersion,
       })
@@ -360,3 +399,19 @@ export const selectActiveServices = (s: AppStore) =>
 
 export const selectActiveTables = (s: AppStore) =>
   s.tables.filter((t) => t.active)
+
+// ── Validation helpers ──────────────────────────────
+
+/** Vérifie si une table est déjà occupée pour un créneau donné */
+export function isDoubleBooked(tbl: string, date: string, svc: string): boolean {
+  const state = useAppStore.getState()
+  return state.resas.some(r =>
+    r.date === date && r.svc === svc && r.tbl === tbl &&
+    (r.s === 'reserved' || r.s === 'arrived')
+  )
+}
+
+/** Vérifie si une transition de statut est valide */
+export function isValidTransition(from: string, to: string): boolean {
+  return (VALID_TRANSITIONS[from] || []).includes(to)
+}

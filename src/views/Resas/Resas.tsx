@@ -6,6 +6,8 @@ import type { Resa, ResaCanal } from '../../types'
 import PhoneInput, { toE164, displayPhone } from '../../components/ui/PhoneInput'
 import { useT } from '../../i18n/useTranslation'
 import { STATUS, CANAUX } from '../../utils/design'
+import { useToast } from '../../components/ui/Toast'
+import { useConfirm } from '../../components/ui/ConfirmDialog'
 import { todayISO, timeToMins, shiftISO, nowMins } from '../../utils/date'
 import { getFreeTables, getFreeCombos, getMaxCapacity, detectTablePref as detectTablePrefCentral, smartPlacement } from '../../utils/placementRules'
 
@@ -22,7 +24,8 @@ const T = 44
 const SEL   = { bg: 'rgba(91,156,246,.22)', border: 'rgba(91,156,246,.6)', color: '#7bb8ff' }
 const UNSEL = { bg: 'rgba(255,255,255,.03)', border: 'var(--border)', color: 'var(--t3)' }
 
-const STATUS_CYCLE: Record<string, string> = { reserved: 'arrived', arrived: 'done', done: 'reserved' }
+// Cycle principal : reserved → arrived → done (s'arrête)
+const STATUS_CYCLE: Record<string, string> = { reserved: 'arrived', arrived: 'done' }
 // STATUS_META unifié via design system
 const STATUS_META: Record<string, { label: string; color: string; bg: string; border: string }> = Object.fromEntries(
   Object.entries(STATUS).map(([k, v]) => [k, { label: v.label, color: v.color, bg: v.bg, border: v.border }])
@@ -36,6 +39,8 @@ const CANAUX_OTHER: { id: ResaCanal; label: string; icon: string }[] = [
   { id: 'email', label: 'Email', icon: '📧' },
   { id: 'widget', label: 'Widget', icon: '🌐' },
   { id: 'google', label: 'Google', icon: '🔍' },
+  { id: 'whatsapp', label: 'WhatsApp', icon: '💬' },
+  { id: 'sms', label: 'SMS', icon: '📱' },
 ]
 
 const STATUT_CLIENT: { value: 0|1|2|3; label: string; icon: string }[] = [
@@ -113,9 +118,9 @@ function StatusPill({ status, onClick }: { status: string; onClick: () => void }
   return (
     <button type="button" onClick={onClick} title="Changer statut" style={{
       background: m.bg, color: m.color, border: `1px solid ${m.border}`,
-      borderRadius: 20, padding: '4px 10px', fontSize: 11, fontWeight: 700,
-      cursor: 'pointer', fontFamily: 'var(--fm)', whiteSpace: 'nowrap', minHeight: 30,
-      display: 'flex', alignItems: 'center', gap: 4,
+      borderRadius: 14, padding: '3px 7px', fontSize: 10, fontWeight: 700,
+      cursor: 'pointer', fontFamily: 'var(--fm)', whiteSpace: 'nowrap',
+      display: 'inline-flex', alignItems: 'center', gap: 3, lineHeight: 1.3,
     }}>{sm?.icon} {label}</button>
   )
 }
@@ -124,7 +129,9 @@ function StatusPill({ status, onClick }: { status: string; onClick: () => void }
 
 export function Resas() {
   const { t, fmtDate } = useT()
-  const { resas, services, tables, combos, users, activeDate, setActiveDate, setResaStatus, addResa, updateResa, resto } = useAppStore()
+  const { toast } = useToast()
+  const { confirm: confirmAction, dialog: confirmDialog } = useConfirm()
+  const { resas, services, tables, combos, users, activeDate, setActiveDate, setResaStatus, addResa, updateResa, resto, blinkResa, blinkResaIds } = useAppStore()
   const pays = resto.pays || 'CH'
   const [searchParams, setSearchParams] = useSearchParams()
   const navigateTo = useNavigate()
@@ -136,7 +143,6 @@ export function Resas() {
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<'heure' | 'table' | 'client' | 'couverts' | 'statut'>('heure')
   const [sortAsc, setSortAsc] = useState(true)
-  const [viewMode, setViewMode] = useState<'journal' | 'agenda'>('journal')
   const [showModal, setShowModal] = useState(false)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const dateRefModal = useRef<HTMLInputElement>(null)
@@ -192,12 +198,13 @@ export function Resas() {
       }
     })
 
-  const total    = resas.filter(r => r.date === activeDate).length
-  const totalCvt = resas.filter(r => r.date === activeDate).reduce((s, r) => s + r.c, 0)
-  const noshows  = resas.filter(r => r.date === activeDate && r.s === 'noshow').length
+  // KPI stats – reserved for future toolbar display
+  // const total    = resas.filter(r => r.date === activeDate).length
+  // const totalCvt = resas.filter(r => r.date === activeDate).reduce((s, r) => s + r.c, 0)
+  // const noshows  = resas.filter(r => r.date === activeDate && r.s === 'noshow').length
 
   const curSvc   = activeServices.find(s => s.name.toLowerCase() === svcId)
-  const svcOcc   = resas.filter(r => r.date === activeDate && r.svc === svcId).reduce((s, r) => s + r.c, 0)
+  const svcOcc   = resas.filter(r => r.date === activeDate && r.svc === svcId && (r.s === 'reserved' || r.s === 'arrived')).reduce((s, r) => s + r.c, 0)
   const totalCapMax = tables.filter(t => t.active && !t.blocked && !t.held).reduce((s, tb) => s + tb.capMax, 0)
   const svcLimit = curSvc?.maxCouverts || totalCapMax
   const capPct   = svcLimit > 0 ? Math.min(100, Math.round(svcOcc / svcLimit * 100)) : 0
@@ -225,7 +232,7 @@ export function Resas() {
   useEffect(() => {
     if (tel.length >= 8) {
       const n = tel.replace(/\s/g, '')
-      const f = resas.find(r => r.tel.replace(/\s/g, '') === n && r.nom && r.nom !== 'Anonyme')
+      const f = resas.find(r => r.tel && r.tel.replace(/\s/g, '') === n && r.nom && r.nom !== 'Anonyme')
       setMatchedProfile(f ?? null)
     } else setMatchedProfile(null)
   }, [tel, resas])
@@ -302,7 +309,7 @@ export function Resas() {
     setCanal((r.canal as ResaCanal) ?? 'telephone')
     setNom(r.nom ?? ''); setPrenom(r.prenom ?? ''); setTel(r.tel ?? ''); setEmail(r.email ?? '')
     setTbl(r.tbl ?? ''); setNoteResa(r.note ?? ''); setNoteProfil(r.noteProfil ?? '')
-    setModeIA(!r.tbl); setStatutClient(r.statut ?? 0)
+    setModeIA(r.mode === 'ia'); setStatutClient(r.statut ?? 0)
     setAllergieTags(r.allergie ? [r.allergie as any] : []); setIntolerance('')
     setTablePref(detectTablePref(r.tel, r.nom, r.prenom))
     setShowProfil(false)
@@ -339,7 +346,7 @@ export function Resas() {
             return
           }
         }
-        alert(`Impossible : ${couverts}p dépasse la capacité de ${tbl} (max ${cap}p)`)
+        toast(`⛔ ${couverts}p dépasse la capacité de ${tbl} (max ${cap}p)`, 'error')
         return
       }
     }
@@ -371,9 +378,9 @@ export function Resas() {
     const resaData = {
       n: dn, nom: nom || 'Anonyme', prenom,
       c: couverts, bebe, pmr, tbl: assignedTbl || '',
-      t: heure.replace(':', 'h'), svc: svcId, s: (isServiceFull ? 'waitlist' : 'reserved') as any, note: fullNote,
+      t: heure.replace(':', 'h'), svc: svcId, s: (isServiceFull ? 'waitlist' : 'reserved') as Resa['s'], note: fullNote,
       date: activeDate, statut: statutClient,
-      mode: (modeIA ? 'ia' : 'manuel') as any, tel: toE164(tel, pays), email, canal,
+      mode: (modeIA ? 'ia' : 'manuel') as Resa['mode'], tel: toE164(tel, pays), email, canal,
       prisPar: prisPar === '—' ? '' : prisPar, allergie: allergieTags.length > 0,
       tablePref: tablePref || undefined,
       noteProfil: noteProfil || undefined,
@@ -381,6 +388,7 @@ export function Resas() {
     if (editingId) {
       updateResa(editingId, resaData)
       setLastEditedId(editingId)
+      blinkResa(editingId)
     } else {
       // ── Nettoyage : libérer les anciennes résas noshow/done/cancelled sur cette table ──
       const assignedTable = resaData.tbl
@@ -401,6 +409,7 @@ export function Resas() {
       const newId = Date.now().toString()
       addResa({ ...resaData, id: newId, createdAt: Date.now() })
       setLastEditedId(newId)
+      blinkResa(newId)
     }
     try { localStorage.setItem('r3sto_lastPrisPar', prisPar) } catch {}
     closeModal()
@@ -414,23 +423,52 @@ export function Resas() {
   }
 
   function handlePrint() {
-    const printResas = resas.filter(r => r.date === activeDate).sort((a, b) => a.t < b.t ? -1 : 1)
+    const printResas = resas.filter(r => r.date === activeDate && r.s !== 'cancelled').sort((a, b) => a.t < b.t ? -1 : 1)
+    const cancelled = resas.filter(r => r.date === activeDate && r.s === 'cancelled').length
     const w = window.open('', '_blank')
     if (!w) return
-    w.document.write(`<!DOCTYPE html><html><head><title>R3STO — Réservations ${activeDate}</title>
-    <style>body{font-family:Arial,sans-serif;padding:20px;color:#1a2332}
-    .print-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-    .print-logo{width:32px;height:32px;object-fit:cover;box-shadow:0 1px 4px rgba(45,92,184,.3)}
-    h1{font-size:18px;margin:0}h2{font-size:13px;color:#666;margin:2px 0 0}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    th{text-align:left;padding:8px 10px;border-bottom:2px solid #333;font-size:11px;text-transform:uppercase;color:#666}
-    td{padding:8px 10px;border-bottom:1px solid #ddd}
-    .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
-    @media print{body{padding:0}}</style></head><body>
-    <div class="print-header"><img src="/logo-r3sto.jpg" class="print-logo" alt="R3STO"><div><h1>Réservations — ${fmtDate(activeDate)}</h1>
-    <h2>${printResas.length} réservations · ${printResas.reduce((s,r)=>s+r.c,0)} couverts</h2></div></div>
-    <table><thead><tr><th>Heure</th><th>Client</th><th>Cvts</th><th>Table</th><th>Service</th><th>Statut</th><th>Tél</th></tr></thead><tbody>
-    ${printResas.map(r => `<tr><td><strong>${r.t}</strong></td><td>${r.n}${r.statut===2?' ⭐':''}${r.allergie?' ⚠️':''}</td><td>${r.c}p${r.bebe>0?` +👶${r.bebe}`:''}${r.pmr>0?` +♿${r.pmr}`:''}</td><td>${r.tbl||'—'}</td><td>${r.svc}</td><td>${STATUS_META[r.s]?.label??r.s}</td><td>${r.tel ? displayPhone(r.tel, pays) : ''}</td></tr>`).join('')}
+    w.document.write(`<!DOCTYPE html><html><head><title>R3STO — Journal ${activeDate}</title>
+    <style>
+      body{font-family:'Segoe UI',Arial,sans-serif;padding:24px 28px;color:#1a2332;font-size:12px;line-height:1.4}
+      .print-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #1a2332}
+      .print-logo{width:36px;height:36px;object-fit:cover;border-radius:6px}
+      h1{font-size:16px;margin:0;letter-spacing:-.02em}
+      h2{font-size:11px;color:#666;margin:2px 0 0;font-weight:400}
+      table{width:100%;border-collapse:collapse;font-size:11px}
+      th{text-align:left;padding:6px 8px;border-bottom:2px solid #333;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#666}
+      td{padding:8px 8px;border-bottom:1px solid #e5e5e5;vertical-align:top}
+      tr:nth-child(even){background:#fafafa}
+      .name{font-weight:700;font-size:12px}
+      .sub{font-size:10px;color:#888;margin-top:1px}
+      .badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600}
+      .svc{font-size:10px;color:#888}
+      @media print{body{padding:12px}@page{margin:12mm}}
+    </style></head><body>
+    <div class="print-header">
+      <img src="/logo-r3sto.jpg" class="print-logo" alt="R3STO">
+      <div style="flex:1">
+        <h1>Journal — ${fmtDate(activeDate)}</h1>
+        <h2>${printResas.length} réservations · ${printResas.reduce((s,r)=>s+r.c,0)} couverts${cancelled > 0 ? ` · ${cancelled} annulées` : ''}</h2>
+      </div>
+      <div style="text-align:right;font-size:10px;color:#999">${resto.name || 'R3STO'}<br>${new Date().toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+    <table><thead><tr>
+      <th style="width:60px">Heure</th><th>Client</th><th style="width:50px">Cvt</th>
+      <th style="width:70px">Table</th><th style="width:70px">Statut</th><th style="width:90px">Tél</th>
+    </tr></thead><tbody>
+    ${printResas.map(r => {
+      const svcM = activeServices.find(s => s.name.toLowerCase() === r.svc)
+      const tbObj = tables.find(t => t.n === r.tbl || t.id === r.tbl)
+      return `<tr>
+        <td><strong>${r.t}</strong><br><span class="svc">${svcM?.icon || ''} ${r.svc}</span></td>
+        <td><span class="name">${r.n || 'Anonyme'}</span>${r.statut===2?' ⭐':''}${r.allergie?' ⚠️':''}<br>
+          <span class="sub">${[r.canal === 'walkin' ? '🚶 Walk-in' : '', r.mode === 'ia' ? '🤖 IA' : '✋ Manuel', r.bebe > 0 ? `👶${r.bebe}` : '', r.pmr > 0 ? `♿${r.pmr}` : ''].filter(Boolean).join(' · ')}</span></td>
+        <td><strong>${r.c}p</strong>${tbObj ? `<span class="sub">/${tbObj.capMax}</span>` : ''}</td>
+        <td>${r.tbl || '—'}</td>
+        <td><span class="badge" style="background:${STATUS_META[r.s]?.bg || '#f0f0f0'};color:${STATUS_META[r.s]?.color || '#333'}">${STATUS[r.s as keyof typeof STATUS]?.icon || ''} ${STATUS_META[r.s]?.label ?? r.s}</span></td>
+        <td style="font-size:10px;font-family:monospace">${r.tel ? displayPhone(r.tel, pays) : '—'}</td>
+      </tr>`
+    }).join('')}
     </tbody></table></body></html>`)
     w.document.close()
     w.print()
@@ -454,10 +492,11 @@ export function Resas() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - var(--hh))', overflow: 'hidden' }}>
+      {confirmDialog}
+      <style>{`@keyframes resaBlink{0%,100%{box-shadow:0 0 0 0 rgba(91,156,246,0)}50%{box-shadow:0 0 12px 3px rgba(91,156,246,.5)}}`}</style>
 
       <ViewToolbar
-        title={t('resa.title')}
-        subtitle={`${total} ${t('resa.short')} · ${totalCvt}p${noshows > 0 ? ` · ${noshows} ${t('resa.noshow')}` : ''}`}
+        title="Journal"
         serviceFilter={filter}
         onServiceFilter={setFilter}
         salleFilter={salleFilter}
@@ -471,178 +510,36 @@ export function Resas() {
         onPrint={handlePrint}
       />
 
-      {/* ── Toggle Journal / Agenda ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '6px 14px', borderBottom: '1px solid var(--border)', background: 'var(--surf)', flexShrink: 0 }}>
-        {(['journal', 'agenda'] as const).map(mode => (
-          <button key={mode} onClick={() => setViewMode(mode)} style={{
-            padding: '5px 14px', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
-            background: viewMode === mode ? 'var(--bp)' : 'transparent',
-            color: viewMode === mode ? 'var(--bl)' : 'var(--t3)',
-            borderRadius: 6, transition: 'all .15s',
-          }}>
-            {mode === 'journal' ? '📋 Journal' : '📅 Agenda'}
-          </button>
-        ))}
-      </div>
-
-      {/* ═══ VUE AGENDA (timeline par créneau) ═══ */}
-      {viewMode === 'agenda' ? (
-        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-          {(() => {
-            const now = nowMins()
-            const svcSlots = activeServices.map(s => ({
-              label: s.name,
-              icon: s.icon || '',
-              open: timeToMins(s.open),
-              close: timeToMins(s.close),
-              color: s.color || 'var(--bl)',
-            }))
-
-            const allSlots: number[] = []
-            svcSlots.forEach(svc => {
-              for (let m = svc.open; m < svc.close; m += 30) {
-                if (!allSlots.includes(m)) allSlots.push(m)
-              }
-            })
-            allSlots.sort((a, b) => a - b)
-
-            const resaBySlot: Record<number, typeof dayResas> = {}
-            dayResas.forEach(r => {
-              const parts = r.t.split(/[h:]/)
-              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-              const slotKey = Math.floor(m / 30) * 30
-              if (!resaBySlot[slotKey]) resaBySlot[slotKey] = []
-              resaBySlot[slotKey].push(r)
-            })
-
-            return allSlots.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)', fontSize: 14 }}>Aucun service configuré</div>
-            ) : (
-              <div>
-                {allSlots.map(slotMin => {
-                  const hr = Math.floor(slotMin / 60)
-                  const mn = slotMin % 60
-                  const label = `${hr}h${String(mn).padStart(2, '0')}`
-                  const isNow = now >= slotMin && now < slotMin + 30
-                  const slotResas = resaBySlot[slotMin] || []
-                  const slotCvt = slotResas.reduce((s, r) => s + r.c, 0)
-                  const svc = svcSlots.find(s => slotMin >= s.open && slotMin < s.close)
-                  const isFirstSlot = svc && slotMin === svc.open
-
-                  return (
-                    <div key={slotMin}>
-                      {isFirstSlot && svc && (
-                        <div style={{
-                          padding: '7px 14px', background: svc.color + '15',
-                          borderBottom: '1px solid var(--border)',
-                          fontSize: 12, fontWeight: 800, color: svc.color,
-                          textTransform: 'uppercase', letterSpacing: .5,
-                          display: 'flex', alignItems: 'center', gap: 6,
-                        }}>
-                          <span>{svc.icon}</span> {svc.label}
-                          <span style={{ fontSize: 11, fontWeight: 600, marginLeft: 'auto', opacity: .7 }}>
-                            {dayResas.filter(r => {
-                              const parts = r.t.split(/[h:]/)
-                              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-                              return m >= svc.open && m < svc.close
-                            }).length} résas · {dayResas.filter(r => {
-                              const parts = r.t.split(/[h:]/)
-                              const m = parseInt(parts[0]) * 60 + parseInt(parts[1] || '0')
-                              return m >= svc.open && m < svc.close
-                            }).reduce((s, r) => s + r.c, 0)}p
-                          </span>
-                        </div>
-                      )}
-                      <div style={{
-                        display: 'flex', borderBottom: '1px solid var(--border)',
-                        background: isNow ? 'rgba(220,80,80,.05)' : 'transparent',
-                        minHeight: slotResas.length > 0 ? 44 : 34,
-                      }}>
-                        {/* Colonne heure */}
-                        <div style={{
-                          width: 62, flexShrink: 0, padding: '6px 8px', textAlign: 'right',
-                          fontSize: 13, fontWeight: 800, fontFamily: 'var(--fm)',
-                          color: isNow ? 'var(--rd)' : 'var(--t3)',
-                          borderRight: isNow ? '3px solid var(--rd)' : '3px solid var(--border)',
-                        }}>
-                          {label}
-                          {slotCvt > 0 && <div style={{ fontSize: 10, color: 'var(--t4)', fontWeight: 600 }}>{slotCvt}p</div>}
-                        </div>
-                        {/* Résas du créneau */}
-                        <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 5, padding: '5px 10px', alignItems: 'center' }}>
-                          {slotResas.length === 0 && (
-                            <span style={{ fontSize: 12, color: 'var(--t4)' }}>—</span>
-                          )}
-                          {slotResas.map(r => {
-                            const st = STATUS[r.s as keyof typeof STATUS]
-                            return (
-                              <div key={r.id}
-                                onClick={() => openEdit(r)}
-                                style={{
-                                  padding: '5px 10px', borderRadius: 7, cursor: 'pointer',
-                                  background: st?.bg || 'var(--surf2)',
-                                  border: `1px solid ${st?.border || 'var(--border)'}`,
-                                  display: 'flex', alignItems: 'center', gap: 5,
-                                  transition: 'transform .1s',
-                                }}
-                                onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
-                                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
-                                <span style={{ fontSize: 11 }}>{st?.icon}</span>
-                                <span style={{ fontSize: 13, fontWeight: 700, color: st?.hex || 'var(--text)' }}>
-                                  {r.nom || r.n.split(' ')[0]}
-                                </span>
-                                <span style={{ fontSize: 12, fontFamily: 'var(--fm)', color: 'var(--t2)', fontWeight: 700 }}>
-                                  {r.c}p
-                                </span>
-                                {r.tbl && <span style={{ fontSize: 11, fontFamily: 'var(--fm)', color: 'var(--t3)', fontWeight: 600, padding: '1px 5px', background: 'rgba(68,128,216,.1)', borderRadius: 4 }}>{r.tbl}</span>}
-                                {r.statut === 2 && <span>⭐</span>}
-                                {r.allergie && <span>⚠️</span>}
-                                {r.bebe > 0 && <span style={{ fontSize: 11 }}>👶</span>}
-                                {r.canal && CANAUX[r.canal] && (
-                                  <span style={{ fontSize: 10, opacity: .8 }}>{CANAUX[r.canal].icon}</span>
-                                )}
-                                <span style={{
-                                  fontSize: 9, fontWeight: 800, padding: '1px 4px', borderRadius: 3,
-                                  background: r.mode === 'ia' ? 'rgba(91,156,246,.15)' : 'rgba(232,165,48,.12)',
-                                  color: r.mode === 'ia' ? '#7bb8ff' : '#e8a530',
-                                }}>{r.mode === 'ia' ? '🤖' : '✋'}</span>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )
-          })()}
-        </div>
-      ) : (
-
-      /* ═══ VUE JOURNAL (liste tableau) ═══ */
+      {/* ═══ VUE JOURNAL (liste tableau) ═══ */}
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {dayResas.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)', fontSize: 14 }}>{t('resa.noResa')}</div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: 66 }} />
+              <col />
+              <col style={{ width: 48 }} />
+              <col style={{ width: 70 }} />
+              <col style={{ width: 82 }} />
+              <col style={{ width: 130 }} />
+            </colgroup>
             <thead style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--surf)' }}><tr style={{ borderBottom: '1px solid var(--border)' }}>
               {([
                 { key: 'heure' as const,    label: t('resa.hour') },
                 { key: 'client' as const,   label: t('resa.client') },
-                { key: 'couverts' as const, label: t('resa.covers') },
+                { key: 'couverts' as const, label: 'Cvt' },
                 { key: 'table' as const,    label: t('resa.table') },
-                { key: null,                label: t('resa.service') },
                 { key: 'statut' as const,   label: t('resa.status') },
                 { key: null,                label: '' },
               ]).map(({ key, label }, i) => (
                 <th key={i}
                   onClick={key ? () => { if (sortBy === key) setSortAsc(!sortAsc); else { setSortBy(key); setSortAsc(true) } } : undefined}
                   style={{
-                    padding: '10px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
+                    padding: '8px 8px', textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
                     color: key && sortBy === key ? 'var(--bl)' : 'var(--t3)',
                     cursor: key ? 'pointer' : 'default',
-                    userSelect: 'none',
+                    userSelect: 'none', whiteSpace: 'nowrap', overflow: 'hidden',
                   }}>
                   {label}{key && sortBy === key ? (sortAsc ? ' ▲' : ' ▼') : ''}
                 </th>
@@ -651,85 +548,111 @@ export function Resas() {
             <tbody>
               {dayResas.map(r => {
                 const isLast = r.id === lastEditedId
+                const isBlink = blinkResaIds.includes(r.id)
                 const svcMeta = activeServices.find(s => s.name.toLowerCase() === r.svc)
+                const tb = tables.find(t => t.id === r.tbl || t.n === r.tbl)
                 return (
                 <tr key={r.id}
                   style={{
                     borderBottom: '1px solid var(--border)',
-                    background: isLast ? 'rgba(91,156,246,.08)' : hoveredId === r.id ? 'var(--surf2)' : 'transparent',
+                    background: isLast || isBlink ? 'rgba(91,156,246,.08)' : hoveredId === r.id ? 'var(--surf2)' : 'transparent',
                     cursor: 'pointer',
-                    borderLeft: isLast ? '3px solid rgba(91,156,246,.6)' : '3px solid transparent',
+                    boxShadow: isLast || isBlink ? 'inset 3px 0 0 rgba(91,156,246,.6)' : 'none',
+                    animation: isBlink ? 'resaBlink 1s ease-in-out 3' : undefined,
                   }}
                   onMouseEnter={() => setHoveredId(r.id)} onMouseLeave={() => setHoveredId(null)}
                   onClick={() => openEdit(r)}>
-                  <td style={{ padding: '10px 12px', fontSize: 14, fontFamily: 'var(--fm)', fontWeight: 600, color: 'var(--t2)' }}>{r.t}</td>
-                  <td style={{ padding: '10px 12px' }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 5 }}>
-                      {r.n}
-                      {r.statut === 1 && <span title="Habitué">🔄</span>}
-                      {r.statut === 2 && <span title="VIP">⭐</span>}
-                      {r.statut === 3 && <span title="Surveillé">👁</span>}
-                      {r.allergie && <span title="Allergie">⚠️</span>}
-                      {r.canal && <span title={r.canal} style={{ fontSize: 9, opacity: .7 }}>{r.canal === 'telephone' ? '📞' : r.canal === 'walkin' ? '🚶' : r.canal === 'widget' ? '🌐' : r.canal === 'google' ? '🔍' : r.canal === 'email' ? '✉️' : ''}</span>}
-                      <span title={r.mode === 'ia' ? 'Placé par IA' : 'Placement manuel'} style={{
-                        fontSize: 8, fontWeight: 800, padding: '1px 4px', borderRadius: 3,
+                  {/* Heure + service dessous */}
+                  <td style={{ padding: '6px 8px' }}>
+                    <div style={{ fontSize: 13, fontFamily: 'var(--fm)', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2 }}>{r.t}</div>
+                    <div style={{ fontSize: 10, color: svcMeta?.color || 'var(--t4)', fontWeight: 600, marginTop: 1 }}>
+                      {svcMeta?.icon} {r.svc}
+                    </div>
+                  </td>
+                  {/* Client */}
+                  <td style={{ padding: '6px 8px', overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: r.nom ? 'var(--text)' : 'var(--t4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: r.nom ? 'normal' : 'italic' }}>{r.n || 'Anonyme'}</span>
+                      <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center', flexShrink: 0 }}>
+                        {r.statut === 1 && <span title="Habitué" style={{ fontSize: 10 }}>🔄</span>}
+                        {r.statut === 2 && <span title="VIP" style={{ fontSize: 10 }}>⭐</span>}
+                        {r.statut === 3 && <span title="Surveillé" style={{ fontSize: 10 }}>👁</span>}
+                        {r.allergie && <span title="Allergie" style={{ fontSize: 10 }}>⚠️</span>}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 1 }}>
+                      {r.tel && <span style={{ fontSize: 10, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{displayPhone(r.tel, pays)}</span>}
+                      {r.canal && <span title={r.canal} style={{ fontSize: 9, opacity: .6 }}>{CANAUX[r.canal]?.icon}</span>}
+                      <span title={r.mode === 'ia' ? 'IA' : 'Manuel'} style={{
+                        fontSize: 8, fontWeight: 800, padding: '1px 3px', borderRadius: 3,
                         background: r.mode === 'ia' ? 'rgba(91,156,246,.15)' : 'rgba(232,165,48,.12)',
                         color: r.mode === 'ia' ? '#7bb8ff' : '#e8a530',
-                        border: `1px solid ${r.mode === 'ia' ? 'rgba(91,156,246,.3)' : 'rgba(232,165,48,.25)'}`,
-                      }}>{r.mode === 'ia' ? '🤖 IA' : '✋'}</span>
-                      {(Date.now() - r.createdAt) < 15 * 60 * 1000 && <span title="Nouvelle réservation" style={{ fontSize: 8, fontWeight: 900, color: '#a78bfa', background: 'rgba(167,139,250,.15)', padding: '1px 4px', borderRadius: 4, letterSpacing: .5 }}>NEW</span>}
-                    </div>
-                    {r.tel && <div style={{ fontSize: 11, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{displayPhone(r.tel, pays)}</div>}
-                  </td>
-                  <td style={{ padding: '10px 12px', fontSize: 14, color: 'var(--t2)' }}>
-                    {r.c}p
-                    {r.bebe > 0 && <span style={{ marginLeft: 4, fontSize: 12, color: 'var(--am)' }}>👶{r.bebe}</span>}
-                    {r.pmr > 0 && <span style={{ marginLeft: 4, fontSize: 12, color: 'var(--ac)' }}>♿{r.pmr}</span>}
-                  </td>
-                  <td style={{ padding: '10px 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      {r.tbl ? (() => {
-                        const tb = tables.find(t => t.id === r.tbl || t.n === r.tbl)
-                        const isPref = r.tablePref && r.tbl === r.tablePref
-                        const isBlocked = tb?.blocked
-                        const isHeld = tb?.held && !isBlocked
-                        return (
-                          <span style={{
-                            fontSize: 12, fontWeight: 800, padding: '3px 8px', borderRadius: 6, fontFamily: 'var(--fm)',
-                            background: isBlocked ? 'rgba(220,80,80,.12)' : isHeld ? 'rgba(232,165,48,.12)' : isPref ? 'rgba(232,165,48,.15)' : SEL.bg,
-                            color: isBlocked ? 'var(--rd)' : isHeld ? '#e8a530' : isPref ? '#e8a530' : SEL.color,
-                            border: `1px solid ${isBlocked ? 'rgba(220,80,80,.4)' : isHeld ? 'rgba(232,165,48,.4)' : isPref ? 'rgba(232,165,48,.4)' : SEL.border}`,
-                            textDecoration: isBlocked ? 'line-through' : 'none',
-                          }}>
-                            {isBlocked ? '🚫 ' : isHeld ? '🔒 ' : isPref ? '★ ' : ''}{r.tbl}{tb ? <span style={{ fontWeight: 500, opacity: .65, fontSize: 10 }}>/{tb.capMax}p</span> : ''}
-                          </span>
-                        )
-                      })() : <span style={{ color: 'var(--t4)' }}>—</span>}
-                      {r.tablePref && r.tbl !== r.tablePref && (
-                        <span title={`Table préférée: ${r.tablePref}`} style={{ fontSize: 10, color: 'var(--am)', opacity: .7 }}>★{r.tablePref}</span>
-                      )}
+                      }}>{r.mode === 'ia' ? '🤖' : '✋'}</span>
+                      {(Date.now() - r.createdAt) < 15 * 60 * 1000 && <span style={{ fontSize: 7, fontWeight: 900, color: '#a78bfa', background: 'rgba(167,139,250,.15)', padding: '1px 4px', borderRadius: 3 }}>NEW</span>}
+                      {r.confirmed === false && r.canal === 'email' && <span title="Modifié par client" style={{ fontSize: 7, fontWeight: 900, color: 'var(--am)', background: 'rgba(232,165,48,.12)', padding: '1px 4px', borderRadius: 3 }}>MODIF</span>}
                     </div>
                   </td>
-                  <td style={{ padding: '10px 12px', fontSize: 13, color: 'var(--t3)' }}>
-                    {svcMeta && <span style={{ marginRight: 4 }}>{svcMeta.icon}</span>}{r.svc}
+                  {/* Couverts */}
+                  <td style={{ padding: '6px 8px' }}>
+                    <div style={{ fontSize: 13, fontFamily: 'var(--fm)', fontWeight: 700, color: 'var(--t2)', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
+                      {r.c}p{tb ? <span style={{ fontWeight: 500, opacity: .5, fontSize: 10 }}>/{tb.capMax}</span> : ''}
+                    </div>
+                    {(r.bebe > 0 || r.pmr > 0) && (
+                      <div style={{ fontSize: 9, marginTop: 1, whiteSpace: 'nowrap' }}>
+                        {r.bebe > 0 && <span style={{ color: 'var(--am)' }}>👶{r.bebe}</span>}
+                        {r.pmr > 0 && <span style={{ marginLeft: r.bebe > 0 ? 2 : 0 }}>♿{r.pmr}</span>}
+                      </div>
+                    )}
                   </td>
-                  <td style={{ padding: '10px 8px' }} onClick={e => e.stopPropagation()}>
-                    <StatusPill status={r.s} onClick={() => setResaStatus(r.id, (STATUS_CYCLE[r.s] ?? 'reserved') as any)} />
+                  {/* Table */}
+                  <td style={{ padding: '6px 8px', overflow: 'hidden' }}>
+                    {r.tbl ? (() => {
+                      const isPref = r.tablePref && r.tbl === r.tablePref
+                      const isBlocked = tb?.blocked
+                      const isHeld = tb?.held && !isBlocked
+                      return (
+                        <span style={{
+                          display: 'inline-block', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis',
+                          fontSize: 11, fontWeight: 800, padding: '2px 5px', borderRadius: 5, fontFamily: 'var(--fm)',
+                          background: isBlocked ? 'rgba(220,80,80,.12)' : isHeld ? 'rgba(232,165,48,.12)' : isPref ? 'rgba(232,165,48,.15)' : SEL.bg,
+                          color: isBlocked ? 'var(--rd)' : isHeld ? '#e8a530' : isPref ? '#e8a530' : SEL.color,
+                          border: `1px solid ${isBlocked ? 'rgba(220,80,80,.4)' : isHeld ? 'rgba(232,165,48,.4)' : isPref ? 'rgba(232,165,48,.4)' : SEL.border}`,
+                          textDecoration: isBlocked ? 'line-through' : 'none', whiteSpace: 'nowrap',
+                        }}>
+                          {isBlocked ? '🚫' : isHeld ? '🔒' : isPref ? '★' : ''}{r.tbl}
+                        </span>
+                      )
+                    })() : <span style={{ color: 'var(--t4)', fontSize: 11 }}>—</span>}
                   </td>
-                  <td style={{ padding: '10px 8px', minWidth: 140 }} onClick={e => e.stopPropagation()}>
-                    <div style={{ display: 'flex', gap: 4 }}>
+                  {/* Statut */}
+                  <td style={{ padding: '6px 2px 6px 6px' }} onClick={e => e.stopPropagation()}>
+                    <StatusPill status={r.s} onClick={() => { const next = STATUS_CYCLE[r.s]; if (next) setResaStatus(r.id, next as Resa['s']); else toast(`${r.s} est un état final`, 'info') }} />
+                  </td>
+                  {/* Actions */}
+                  <td style={{ padding: '6px 4px 6px 2px' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', gap: 2 }}>
                       {r.tel && (
                         <a href={`tel:${toE164(r.tel, pays) || r.tel}`} title={`Appeler ${displayPhone(r.tel, pays)}`}
-                          style={{ width: 34, height: 34, borderRadius: 7, border: '1px solid rgba(60,200,112,.3)', background: 'rgba(60,200,112,.1)', color: 'var(--gn)', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>📞</a>
+                          style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(60,200,112,.3)', background: 'rgba(60,200,112,.1)', color: 'var(--gn)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>📞</a>
+                      )}
+                      {r.s === 'arrived' && (
+                        <button title="Libérer la table" onClick={() => setResaStatus(r.id, 'done')}
+                          style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(60,200,112,.4)', background: 'rgba(60,200,112,.12)', color: 'var(--gn)', cursor: 'pointer', fontSize: 12 }}>🏁</button>
                       )}
                       {(r.s === 'reserved' || r.s === 'arrived') && (
                         <button title="No-show" onClick={() => setResaStatus(r.id, 'noshow')}
-                          style={{ width: 34, height: 34, borderRadius: 7, border: '1px solid rgba(220,80,80,.4)', background: 'rgba(220,80,80,.16)', color: 'var(--rd)', cursor: 'pointer', fontSize: 15 }}>🚫</button>
+                          style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(220,80,80,.4)', background: 'rgba(220,80,80,.16)', color: 'var(--rd)', cursor: 'pointer', fontSize: 12 }}>🚫</button>
                       )}
-                      {r.s !== 'cancelled' && (
-                        <button title="Annuler" onClick={() => { if (confirm('Annuler cette réservation ?')) setResaStatus(r.id, 'cancelled') }}
-                          style={{ width: 34, height: 34, borderRadius: 7, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t4)', cursor: 'pointer', fontSize: 13 }}>✕</button>
-                      )}
+                      {r.s === 'cancelled' ? (
+                        <button title="Réactiver" onClick={() => setResaStatus(r.id, 'reserved')}
+                          style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(91,156,246,.4)', background: 'rgba(91,156,246,.1)', color: 'var(--bl)', cursor: 'pointer', fontSize: 11 }}>↩️</button>
+                      ) : r.s === 'noshow' ? (
+                        <button title="Réactiver" onClick={() => setResaStatus(r.id, 'reserved')}
+                          style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(91,156,246,.4)', background: 'rgba(91,156,246,.1)', color: 'var(--bl)', cursor: 'pointer', fontSize: 11 }}>↩️</button>
+                      ) : r.s !== 'done' ? (
+                        <button title="Annuler" onClick={async () => { if (await confirmAction({ title: 'Annuler la réservation', message: `Annuler la réservation de ${r.n || 'Anonyme'} (${r.c}p à ${r.t}) ?`, danger: true, confirmLabel: 'Annuler la résa' })) setResaStatus(r.id, 'cancelled') }}
+                          style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t4)', cursor: 'pointer', fontSize: 11 }}>✕</button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>
@@ -738,7 +661,6 @@ export function Resas() {
           </table>
         )}
       </div>
-      )}
 
       {/* ═══════ MODALE COMPACTE ═══════ */}
       {showModal && (
@@ -1036,7 +958,7 @@ export function Resas() {
                 const activeTables = tables.filter(t => t.active)
                 // Filtrer les tables qui correspondent au nb couverts
                 const fittingTables = activeTables.filter(tb => tb.capMax >= couverts && !tb.blocked)
-                const fittingCombos = combos.filter(c => c.cap >= couverts)
+                const fittingCombos = combos.filter(c => (c.capOverride || c.cap) >= couverts)
                 // Set des tables libres pour marquer les occupées
                 const freeTableNames = new Set(freeTables.map(t => t.n))
                 const freeComboLabels = new Set(freeCombosList.map(c => c.label))
@@ -1059,31 +981,36 @@ export function Resas() {
                         }}
                       >
                         <option value="">— {t('modal.toAssign')}</option>
-                        <optgroup label={`Tables (${fittingTables.length} libres pour ${couverts}p)`}>
-                          {activeTables.map(tb => {
+                        {/* Tables libres qui ont la capacité */}
+                        <optgroup label={`✅ Libres pour ${couverts}p`}>
+                          {fittingTables.filter(tb => freeTableNames.has(tb.n)).map(tb => {
                             const isPref = tablePref === tb.id || tablePref === tb.n
-                            const fits = tb.capMax >= couverts && !tb.blocked
-                            const isFree = freeTableNames.has(tb.n)
-                            const occupied = !isFree && !tb.blocked
                             return (
-                              <option key={tb.id} value={tb.n} disabled={!fits || occupied}
-                                style={{ color: occupied ? '#888' : undefined, fontStyle: occupied ? 'italic' : undefined }}>
-                                {tb.n} ({tb.capMin}-{tb.capMax}p){isPref ? ' ★ préf.' : ''}{tb.blocked ? ' 🚫' : ''}{occupied ? ' — occupée' : ''}{!fits && !occupied ? ' — trop petite' : ''}
+                              <option key={tb.id} value={tb.n}>
+                                {tb.n} ({tb.capMin}-{tb.capMax}p){isPref ? ' ★ préf.' : ''} · {tb.salle}
                               </option>
                             )
                           })}
                         </optgroup>
-                        {combos.length > 0 && (
-                          <optgroup label={`Combos (${fittingCombos.length} pour ${couverts}p)`}>
-                            {combos.map(c => {
-                              const comboFree = freeComboLabels.has(c.label)
-                              return (
-                                <option key={c.id} value={c.label} disabled={!comboFree && c.cap < couverts}
-                                  style={{ color: !comboFree ? '#888' : undefined, fontStyle: !comboFree ? 'italic' : undefined }}>
-                                  🔗 {c.label} ({c.cap}p){!comboFree ? ' — occupée' : ''}
-                                </option>
-                              )
-                            })}
+                        {/* Combos libres qui ont la capacité */}
+                        {fittingCombos.filter(c => freeComboLabels.has(c.label)).length > 0 && (
+                          <optgroup label={`🔗 Combos pour ${couverts}p`}>
+                            {fittingCombos.filter(c => freeComboLabels.has(c.label)).map(c => (
+                              <option key={c.id} value={c.label}>
+                                🔗 {c.label} ({c.cap}p)
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                        {/* Tables occupées (capacité OK mais prises) */}
+                        {fittingTables.filter(tb => !freeTableNames.has(tb.n)).length > 0 && (
+                          <optgroup label={`⛔ Occupées`}>
+                            {fittingTables.filter(tb => !freeTableNames.has(tb.n)).map(tb => (
+                              <option key={tb.id} value={tb.n} disabled
+                                style={{ color: '#888', fontStyle: 'italic' }}>
+                                {tb.n} ({tb.capMax}p) — occupée
+                              </option>
+                            ))}
                           </optgroup>
                         )}
                       </select>
@@ -1235,7 +1162,7 @@ export function Resas() {
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 {editingId && (
                   <div style={{ display: 'flex', gap: 4, marginRight: 'auto' }}>
-                    <button className="btn btn-danger" onClick={() => { if (confirm('Annuler cette réservation ?')) { setResaStatus(editingId, 'cancelled'); closeModal() } }}
+                    <button className="btn btn-danger" onClick={async () => { if (await confirmAction({ title: 'Annuler la réservation', message: 'Êtes-vous sûr de vouloir annuler cette réservation ?', danger: true, confirmLabel: 'Annuler la résa' })) { setResaStatus(editingId, 'cancelled'); closeModal() } }}
                       style={{ minHeight: T, padding: '0 16px', fontSize: 13 }}>🚫 Annuler</button>
                   </div>
                 )}

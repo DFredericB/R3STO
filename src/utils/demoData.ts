@@ -344,5 +344,5 @@ export function loadDemoFallback() {
     },
   ]
 
-  return { resas, tables, combos, services, salles, resto, roomItems, sites, activeSiteId: null, isDemo: true, activeDate: t, _demoVersion: 15 }
+  return { resas, tables, combos, services, salles, resto, roomItems, sites, activeSiteId: null, isDemo: true, activeDate: t, _demoVersion: 16 }
 }
