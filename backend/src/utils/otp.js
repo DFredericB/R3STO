@@ -6,7 +6,7 @@
 
 const { sendMail } = require('./mailer');
 
-const TTL_MS = 10 * 60 * 1000; // 10 minutes
+const TTL_MS = 5 * 60 * 1000; // 5 minutes
 const store = new Map(); // email -> { code, expires }
 
 function generate() {
@@ -39,17 +39,37 @@ async function sendOTPEmail(email, code) {
 }
 
 function buildOtpHtml(code) {
+  const digits = code.split('').map(d =>
+    `<td style="width:44px;height:52px;background:#111e35;border:2px solid #2b5ba0;border-radius:8px;text-align:center;font-family:'DM Mono',Consolas,monospace;font-size:28px;font-weight:700;color:#fff;letter-spacing:0;">${d}</td>`
+  ).join('<td style="width:8px;"></td>');
+
   return `
-    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#0d1829;color:#e8edf5;border-radius:16px;">
-      <div style="text-align:center;margin-bottom:24px;">
-        <div style="background:#1c4f90;display:inline-block;padding:12px 24px;border-radius:10px;font-size:24px;font-weight:800;letter-spacing:2px;color:white;">R3STO</div>
+    <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif;max-width:500px;margin:0 auto;background:#0b1525;border-radius:16px;overflow:hidden;">
+      <!-- Header avec logo -->
+      <div style="background:linear-gradient(135deg,#0d1d38 0%,#1a3a6e 100%);padding:28px 32px;text-align:center;">
+        <img src="https://r3sto.ch/logo-r3sto.jpg" alt="R3STO" width="140" style="display:inline-block;max-width:140px;height:auto;" />
       </div>
-      <h2 style="text-align:center;color:#4480d8;margin-bottom:8px;">Vérification de votre compte</h2>
-      <p style="text-align:center;color:#6b82a8;font-size:14px;margin-bottom:24px;">Entrez ce code dans l'application pour confirmer votre identité.</p>
-      <div style="text-align:center;background:#111e35;border:2px solid #2b5ba0;border-radius:12px;padding:20px;margin:0 auto 24px;max-width:280px;">
-        <span style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;letter-spacing:8px;color:#fff;">${code}</span>
+
+      <!-- Corps -->
+      <div style="padding:32px 32px 24px;">
+        <h2 style="text-align:center;color:#4a8fe7;font-size:20px;font-weight:700;margin:0 0 8px;">Vérification de votre compte</h2>
+        <p style="text-align:center;color:#7b94b8;font-size:14px;line-height:1.5;margin:0 0 28px;">Entrez ce code dans l'application pour confirmer votre identité.</p>
+
+        <!-- Code OTP en 6 cases -->
+        <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 28px;" role="presentation">
+          <tr>${digits}</tr>
+        </table>
+
+        <p style="text-align:center;color:#7b94b8;font-size:12px;line-height:1.6;margin:0;">
+          Ce code expire dans <strong style="color:#4a8fe7;">5 minutes</strong>.<br>
+          Si vous n'avez pas demandé ce code, ignorez cet email.
+        </p>
       </div>
-      <p style="text-align:center;color:#6b82a8;font-size:12px;">Ce code expire dans 10 minutes.<br>Si vous n'avez pas demandé ce code, ignorez cet email.</p>
+
+      <!-- Footer -->
+      <div style="border-top:1px solid #1a2a45;padding:16px 32px;text-align:center;">
+        <p style="color:#4a5f80;font-size:11px;margin:0;">© ${new Date().getFullYear()} R3STO — La plateforme de gestion pour restaurateurs</p>
+      </div>
     </div>
   `;
 }

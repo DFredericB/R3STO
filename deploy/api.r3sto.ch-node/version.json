@@ -1,0 +1,13 @@
+{
+  "name": "api",
+  "version": "3.3.0",
+  "build": "2026-04-03T10:00:00Z",
+  "env": "production",
+  "depends": [],
+  "changelog": [
+    "3.3.0 — Endpoint réservations amélioré, gestion cache Redis optimisée",
+    "3.2.5 — Fix validation email, retry logic authentification",
+    "3.2.4 — Performance queries base données, index optimisation"
+  ],
+  "compatibility": {}
+}

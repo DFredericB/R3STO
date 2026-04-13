@@ -18,6 +18,10 @@ const UPDATABLE_FIELDS = [
   'name', 'type', 'address', 'city', 'postal_code', 'canton', 'country',
   'phone', 'email', 'website', 'capacity', 'logo_url', 'cover_url',
   'description', 'currency', 'timezone', 'status', 'settings',
+  // Marketplace fields
+  'cuisine_tag', 'photo', 'avg_price', 'price_range', 'rating', 'reviews_count',
+  'features', 'promos', 'boost_score', 'client_score', 'marketplace',
+  'booking_url', 'vitrine_url',
 ];
 
 async function create(userId, data) {

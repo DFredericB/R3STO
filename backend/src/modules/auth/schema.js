@@ -7,14 +7,14 @@ const { z } = require('zod');
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, 'Mot de passe trop court (8 caractères minimum)'),
-  name: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  phone: z.string().optional(),
-  restaurantName: z.string().optional(),
-  address: z.string().optional(),
-  plan: z.enum(['free', 'bistro', 'resto', 'gastro']).optional(),
-  placeId: z.string().optional(),
+  name: z.string().optional().nullable(),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  phone: z.string().optional().nullable(),
+  restaurantName: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+  plan: z.enum(['free', 'bistro', 'resto', 'gastro']).optional().nullable(),
+  placeId: z.string().optional().nullable(),
 });
 
 const loginSchema = z.object({

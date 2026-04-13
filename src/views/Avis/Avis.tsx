@@ -112,8 +112,10 @@ export function Avis() {
   // ── Settings state (extended from options) ──
   const reviewsEnabled = (options as any).reviews_enabled ?? true
   const reviewsDelay = (options as any).reviews_delay_hours ?? 2
-  const reviewsRedirectGoogle = (options as any).reviews_redirect_google ?? false
+  const reviewsMode: 'internal' | 'google' | 'both' = (options as any).reviews_mode ?? 'both'
   const reviewsGoogleUrl = (options as any).reviews_google_url ?? ''
+  const reviewsAutoReminder = (options as any).reviews_auto_reminder ?? true
+  const reviewsReminderSms = (options as any).reviews_reminder_sms ?? false
 
   // ── KPIs ──
   const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0
@@ -376,7 +378,9 @@ export function Avis() {
 
       {/* ═══════ TAB SETTINGS ═══════ */}
       {tab === 'settings' && (
-        <div style={{ maxWidth: 600, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ maxWidth: 640, display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* ── Collecte d'avis ── */}
           <div style={cardS}>
             <div style={sectionTitle}>Collecte d'avis</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 10 }}>
@@ -421,58 +425,193 @@ export function Avis() {
             </div>
           </div>
 
+          {/* ── Mode : interne / Google / les deux ── */}
           <div style={cardS}>
-            <div style={sectionTitle}>Redirection Google Reviews</div>
+            <div style={sectionTitle}>Mode de collecte</div>
+            <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4, marginBottom: 10 }}>
+              Choisissez où vos clients laissent leurs avis. Le mode "Les deux" envoie un email avec deux boutons : un pour votre formulaire interne R3STO et un pour Google.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {([
+                { key: 'internal', label: '🏪 Interne uniquement', desc: 'Formulaire R3STO' },
+                { key: 'google', label: '🔍 Google uniquement', desc: 'Redirige vers Google' },
+                { key: 'both', label: '🏪+🔍 Les deux', desc: 'Double CTA' },
+              ] as const).map(m => (
+                <button key={m.key}
+                  onClick={() => updateOptions({ ...options, reviews_mode: m.key } as any)}
+                  style={{
+                    flex: 1, padding: '10px 8px', borderRadius: RADIUS.sm,
+                    border: reviewsMode === m.key ? '2px solid var(--bl)' : '1px solid var(--border)',
+                    background: reviewsMode === m.key ? 'var(--bp)' : 'var(--surf2)',
+                    cursor: 'pointer', textAlign: 'center',
+                  }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: reviewsMode === m.key ? 'var(--bl)' : 'var(--text)' }}>
+                    {m.label}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2 }}>{m.desc}</div>
+                </button>
+              ))}
+            </div>
+
+            {/* Google URL — visible si google ou both */}
+            {(reviewsMode === 'google' || reviewsMode === 'both') && (
+              <div style={{ marginTop: 12 }}>
+                <span style={labelStyle}>URL Google Reviews</span>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input
+                    value={reviewsGoogleUrl}
+                    onChange={e => updateOptions({ ...options, reviews_google_url: e.target.value } as any)}
+                    placeholder="https://g.page/r/votre-restaurant/review"
+                    style={{ ...inputStyle, flex: 1 }}
+                  />
+                  {reviewsGoogleUrl && (
+                    <a href={reviewsGoogleUrl} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: 11, fontWeight: 700, color: 'var(--bl)', whiteSpace: 'nowrap', textDecoration: 'none' }}>
+                      Tester ↗
+                    </a>
+                  )}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 4 }}>
+                  Google Business Profile → Accueil → Demander des avis → Copier le lien
+                </div>
+              </div>
+            )}
+
+            {/* Preview email */}
+            <div style={{
+              marginTop: 14, padding: '12px 16px', background: 'var(--surf2)', borderRadius: RADIUS.sm,
+              border: '1px dashed var(--border)',
+            }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--t3)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: .5 }}>Aperçu email post-visite</div>
+              <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5 }}>
+                "Merci pour votre visite ! Votre avis compte beaucoup…"
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                {(reviewsMode === 'internal' || reviewsMode === 'both') && (
+                  <span style={{ padding: '6px 14px', borderRadius: 6, background: '#f59e0b', color: '#fff', fontSize: 11, fontWeight: 700 }}>
+                    ⭐ Laisser un avis
+                  </span>
+                )}
+                {(reviewsMode === 'google' || reviewsMode === 'both') && (
+                  <span style={{ padding: '6px 14px', borderRadius: 6, background: '#4285f4', color: '#fff', fontSize: 11, fontWeight: 700 }}>
+                    🔍 Avis Google
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Campagne de rappel ── */}
+          <div style={cardS}>
+            <div style={sectionTitle}>Campagne rappel d'avis</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 10 }}>
+              {/* Auto reminder 48h */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700 }}>Rediriger vers Google</div>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>Rappel automatique (48h)</div>
                   <div style={{ fontSize: 11, color: 'var(--t3)' }}>
-                    Au lieu du formulaire interne, rediriger les clients vers votre page Google Reviews.
-                    <br />Beaucoup de restaurateurs préfèrent les avis Google pour la visibilité.
+                    Si le client n'a pas laissé d'avis, relancer par email 48h après la visite.
+                    <br />Pas de relance si l'avis a déjà été donné.
                   </div>
                 </div>
                 <button
-                  onClick={() => updateOptions({ ...options, reviews_redirect_google: !reviewsRedirectGoogle } as any)}
+                  onClick={() => updateOptions({ ...options, reviews_auto_reminder: !reviewsAutoReminder } as any)}
                   style={{
                     width: 44, height: 24, borderRadius: 12, border: 'none',
-                    background: reviewsRedirectGoogle ? 'var(--gn)' : 'var(--surf3)',
+                    background: reviewsAutoReminder ? 'var(--gn)' : 'var(--surf3)',
                     cursor: 'pointer', position: 'relative', transition: 'background .2s',
                   }}
                 >
                   <div style={{
                     width: 18, height: 18, borderRadius: '50%', background: '#fff',
                     position: 'absolute', top: 3,
-                    left: reviewsRedirectGoogle ? 23 : 3,
+                    left: reviewsAutoReminder ? 23 : 3,
                     transition: 'left .2s',
                   }} />
                 </button>
               </div>
 
-              {reviewsRedirectGoogle && (
+              {/* SMS reminder */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <span style={labelStyle}>URL Google Reviews</span>
-                  <input
-                    value={reviewsGoogleUrl}
-                    onChange={e => updateOptions({ ...options, reviews_google_url: e.target.value } as any)}
-                    placeholder="https://g.page/r/votre-restaurant/review"
-                    style={inputStyle}
-                  />
-                  <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 4 }}>
-                    Trouvez votre lien dans Google Business Profile → Demander des avis
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>Rappel SMS (7 jours)</div>
+                  <div style={{ fontSize: 11, color: 'var(--t3)' }}>
+                    Dernier rappel par SMS 7 jours après. Court et direct.
+                    <br />Uniquement si aucun avis reçu. Plan Gastro requis.
                   </div>
                 </div>
-              )}
+                <button
+                  onClick={() => updateOptions({ ...options, reviews_reminder_sms: !reviewsReminderSms } as any)}
+                  style={{
+                    width: 44, height: 24, borderRadius: 12, border: 'none',
+                    background: reviewsReminderSms ? 'var(--gn)' : 'var(--surf3)',
+                    cursor: 'pointer', position: 'relative', transition: 'background .2s',
+                  }}
+                >
+                  <div style={{
+                    width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                    position: 'absolute', top: 3,
+                    left: reviewsReminderSms ? 23 : 3,
+                    transition: 'left .2s',
+                  }} />
+                </button>
+              </div>
+
+              {/* Flow visualization */}
+              <div style={{
+                padding: '12px 16px', background: 'var(--surf2)', borderRadius: RADIUS.sm,
+                border: '1px solid var(--border)',
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--t3)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: .5 }}>Flow automatique</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'var(--gn)', color: '#fff', fontWeight: 700 }}>✅ Repas terminé</span>
+                  <span style={{ color: 'var(--t4)' }}>→</span>
+                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: '#8b5cf6', color: '#fff', fontWeight: 700 }}>📧 Merci + avis ({reviewsDelay}h)</span>
+                  {reviewsAutoReminder && <>
+                    <span style={{ color: 'var(--t4)' }}>→</span>
+                    <span style={{ fontSize: 10, color: 'var(--t3)' }}>pas d'avis ?</span>
+                    <span style={{ color: 'var(--t4)' }}>→</span>
+                    <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: '#f59e0b', color: '#fff', fontWeight: 700 }}>📧 Rappel (48h)</span>
+                  </>}
+                  {reviewsReminderSms && <>
+                    <span style={{ color: 'var(--t4)' }}>→</span>
+                    <span style={{ fontSize: 10, color: 'var(--t3)' }}>toujours rien ?</span>
+                    <span style={{ color: 'var(--t4)' }}>→</span>
+                    <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: '#3b82f6', color: '#fff', fontWeight: 700 }}>💬 SMS (7j)</span>
+                  </>}
+                </div>
+              </div>
             </div>
           </div>
 
+          {/* ── Site Vitrine ── */}
+          <div style={cardS}>
+            <div style={sectionTitle}>Affichage sur le Site Vitrine</div>
+            <div style={{ fontSize: 12, color: 'var(--t2)', lineHeight: 1.6, marginTop: 8 }}>
+              Les meilleurs avis (4-5 étoiles, visibles, non signalés) sont automatiquement affichés dans la section "Avis clients" de votre site vitrine.
+              Vous pouvez contrôler la visibilité de chaque avis depuis l'onglet "Tous les avis".
+            </div>
+            {reviews.filter(r => r.visible && !r.flagged && r.rating >= 4).length > 0 ? (
+              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--gn)', fontWeight: 700 }}>
+                ✅ {reviews.filter(r => r.visible && !r.flagged && r.rating >= 4).length} avis éligibles pour le site
+              </div>
+            ) : (
+              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--am)', fontWeight: 700 }}>
+                ⚠️ Aucun avis éligible — les premiers avis 4-5⭐ apparaîtront automatiquement
+              </div>
+            )}
+          </div>
+
+          {/* ── Info ── */}
           <div style={cardS}>
             <div style={sectionTitle}>Informations</div>
             <div style={{ fontSize: 12, color: 'var(--t2)', lineHeight: 1.6, marginTop: 8 }}>
               Les avis sont envoyés par email après que le statut de la réservation passe à "Terminé".
-              Le client reçoit un lien vers un formulaire simple (note 1-5 + commentaire).
+              Le client reçoit un lien vers un formulaire simple (note 1-5 + commentaire)
+              {reviewsMode !== 'internal' && ' et/ou un lien direct vers votre page Google'}.
               Vous pouvez répondre aux avis depuis l'onglet "Tous les avis" — votre réponse sera visible par le client.
               Les avis signalés sont masqués automatiquement en attendant votre modération.
+              Les rappels ne sont jamais envoyés si le client a déjà laissé un avis.
             </div>
           </div>
         </div>

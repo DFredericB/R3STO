@@ -16,6 +16,21 @@ const healthRoutes = require('./modules/health/routes');
 const authRoutes = require('./modules/auth/routes');
 const restaurantRoutes = require('./modules/restaurants/routes');
 const reservationRoutes = require('./modules/reservations/routes');
+const newsletterRoutes = require('./modules/newsletter/routes');
+const usersRoutes = require('./modules/users/routes');
+const adminRoutes = require('./modules/admin/routes');
+const publicRoutes = require('./modules/public/routes');
+
+// Round 2 modules (CRUD via factory)
+const sallesModule = require('./modules/salles');
+const tablesModule = require('./modules/tables');
+const combosModule = require('./modules/combos');
+const servicesModule = require('./modules/services');
+const fermeturesModule = require('./modules/fermetures');
+const optionsRestaurantModule = require('./modules/options_restaurant');
+const clientsModule = require('./modules/clients');
+const waitlistModule = require('./modules/waitlist');
+const actionLogsModule = require('./modules/action_logs');
 
 async function createApp() {
   const app = express();
@@ -40,6 +55,9 @@ async function createApp() {
     next();
   });
 
+  // ─── Routes publiques (SANS auth) ───
+  app.use('/public', publicRoutes);
+
   // ─── Routes ───
   app.use('/health', healthRoutes);
   app.use('/auth', authRoutes);
@@ -51,6 +69,28 @@ async function createApp() {
   // Réservations : disponibles sous /resas (front) ET /reservations (compat)
   app.use('/resas', reservationRoutes);
   app.use('/reservations', reservationRoutes);
+
+  // ─── Round 2 modules ───
+  app.use('/salles', sallesModule.router);
+  app.use('/tables', tablesModule.router);
+  app.use('/combos', combosModule.router);
+  app.use('/services', servicesModule.router);
+  app.use('/fermetures', fermeturesModule.router);
+  app.use('/options-restaurant', optionsRestaurantModule.router);
+  app.use('/options_restaurant', optionsRestaurantModule.router); // alias snake_case
+  app.use('/clients', clientsModule.router);
+  app.use('/waitlist', waitlistModule.router);
+  app.use('/logs', actionLogsModule.router);
+  app.use('/action-logs', actionLogsModule.router);
+
+  // ─── CRM + Newsletter (routes préfixées /crm et /newsletter en interne) ───
+  app.use('/', newsletterRoutes);
+
+  // ─── Users (plateforme) — admin console ───
+  app.use('/users', usersRoutes);
+
+  // ─── Admin (migrations, diagnostics) — superadmin uniquement ───
+  app.use('/admin', adminRoutes);
 
   // ─── Root ───
   app.get('/', (req, res) => {

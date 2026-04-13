@@ -4,7 +4,7 @@
 //  Création auto depuis les résas (lookup par tél)
 // ══════════════════════════════════════════════════
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useNavigate } from 'react-router-dom'
 import { useT } from '../../i18n/useTranslation'
@@ -33,10 +33,27 @@ export function Clients() {
   const { confirm: confirmAction, dialog: confirmDialog } = useConfirm()
   const { t } = useT()
 
+  // Spotlight: auto-select client from ⌘K search
+  const spotlight = null as any
+  const setSpotlight = (_v: any) => {}
+
   const [search, setSearch] = useState('')
   const [filterStatut, setFilterStatut] = useState<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+
+  // Consume spotlight on mount
+  useEffect(() => {
+    if (spotlight?.type === 'client' && spotlight.id) {
+      setSelectedId(spotlight.id)
+      setSpotlight(null)
+    }
+  }, [spotlight, setSpotlight])
+  const [showWarning, setShowWarning] = useState(false)
+
+  // ── Batch reassignment state ──
+  const [reassignMap, setReassignMap] = useState<Record<string, string>>({})   // clientId → new tablePref
+  const [commentMap, setCommentMap] = useState<Record<string, string>>({})     // clientId → comment
 
   // Form state
   const [fNom, setFNom] = useState('')
@@ -158,6 +175,107 @@ export function Clients() {
     return created
   }
 
+  // ── Auto-sync : créer les clients automatiquement depuis les résas ──
+  const lastResaCount = useRef(resas.length)
+  useEffect(() => {
+    if (resas.length !== lastResaCount.current) {
+      lastResaCount.current = resas.length
+      syncFromResas()
+    }
+  }, [resas.length])
+
+  // ── Check tablePref valide ──────────────────────
+  const tables = useAppStore(s => s.tables)
+  const activeTableNames = new Set(tables.filter(t => t.active).map(t => t.n))
+  const isTablePrefValid = (pref: string) => {
+    if (!pref) return true
+    return pref.split('+').every(t => activeTableNames.has(t.trim()))
+  }
+
+  // ── Clients avec tablePref invalide ──────────
+  const invalidClients = useMemo(() =>
+    clients.filter(c => c.tablePref && !isTablePrefValid(c.tablePref)),
+    [clients, tables]
+  )
+
+  // Active table names pour le select
+  const activeTableList = useMemo(() =>
+    tables.filter(t => t.active).map(t => t.n).sort(),
+    [tables]
+  )
+
+  function applyBatchReassign() {
+    let count = 0
+    for (const c of invalidClients) {
+      const newPref = reassignMap[c.id]
+      const comment = commentMap[c.id] || ''
+      if (newPref !== undefined) {
+        const existingNotes = c.notes || ''
+        const reassignNote = comment
+          ? `[Réassignement ${new Date().toLocaleDateString('fr-CH')}: ${c.tablePref} → ${newPref || '—'} — ${comment}]`
+          : `[Réassignement ${new Date().toLocaleDateString('fr-CH')}: ${c.tablePref} → ${newPref || '—'}]`
+        const updatedNotes = existingNotes
+          ? `${existingNotes}\n${reassignNote}`
+          : reassignNote
+        updateClient(c.id, { tablePref: newPref, notes: updatedNotes })
+        count++
+      }
+    }
+    if (count > 0) {
+      toast(`${count} client${count > 1 ? 's' : ''} réassigné${count > 1 ? 's' : ''}`, 'success')
+      setReassignMap({})
+      setCommentMap({})
+    }
+  }
+
+  // ── Suggestion IA table préférée ────────────
+  const suggestTablePref = useMemo(() => {
+    if (!selectedId && !fTel) return null
+    // Find matching resas for this client
+    const sel = selectedId ? clients.find(c => c.id === selectedId) : null
+    const matchResas = resas.filter(r => {
+      if (sel) return (sel.tel && r.tel === sel.tel) || (r.nom === sel.nom && r.prenom === sel.prenom)
+      if (fTel) return r.tel === fTel
+      if (fNom) return r.nom === fNom && r.prenom === fPrenom
+      return false
+    }).filter(r => r.tbl && r.s !== 'cancelled')
+
+    if (matchResas.length === 0) return null
+
+    // Count table frequency
+    const freq: Record<string, number> = {}
+    for (const r of matchResas) {
+      freq[r.tbl] = (freq[r.tbl] || 0) + 1
+    }
+
+    // Sort by frequency
+    const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1])
+    const topTable = sorted[0]?.[0]
+    const topCount = sorted[0]?.[1] || 0
+    const totalResas = matchResas.length
+
+    // Average covers
+    const avgCovers = Math.round(matchResas.reduce((s, r) => s + r.c, 0) / matchResas.length)
+
+    // Check if top table is still active
+    const isActive = topTable ? activeTableNames.has(topTable) : false
+
+    // Find best table by capacity match if top isn't active
+    let bestAlt: string | null = null
+    if (!isActive && avgCovers > 0) {
+      const matching = tables
+        .filter(t => t.active && t.capMin <= avgCovers && t.capMax >= avgCovers)
+        .sort((a, b) => a.priority - b.priority)
+      bestAlt = matching[0]?.n || null
+    }
+
+    return {
+      topTable, topCount, totalResas, avgCovers,
+      isActive, bestAlt,
+      allTables: sorted.slice(0, 3).map(([n, c]) => ({ name: n, count: c })),
+    }
+  }, [selectedId, fTel, fNom, fPrenom, resas, clients, tables, activeTableNames])
+
   // ── Styles ────────────────────────────────────
   const inp: React.CSSProperties = {
     padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
@@ -170,7 +288,7 @@ export function Clients() {
       {confirmDialog}
 
       {/* ── COLONNE GAUCHE : liste ── */}
-      <div style={{ width: 380, flexShrink: 0, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: 420, flexShrink: 0, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
 
         {/* Header */}
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -178,10 +296,6 @@ export function Clients() {
             <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>👥 Clients</div>
             <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{clients.length}</span>
             <div style={{ flex: 1 }} />
-            <button onClick={() => { const n = syncFromResas(); toast(`✓ ${n} client(s) créé(s) depuis les résas`, 'success') }}
-              style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t2)', cursor: 'pointer' }}>
-              🔄 Sync résas
-            </button>
             <button onClick={openNew}
               style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--bl)', background: 'var(--bp)', color: 'var(--bl)', cursor: 'pointer' }}>
               ➕ Nouveau
@@ -192,13 +306,13 @@ export function Clients() {
             value={search} onChange={e => setSearch(e.target.value)}
             style={{ ...inp, fontSize: 12, padding: '6px 10px' }}
           />
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {[null, 0, 1, 2, 3].map(s => {
               const on = filterStatut === s
               const meta = s !== null ? STATUT_META[s] : null
               return (
                 <button key={String(s)} onClick={() => setFilterStatut(s)}
-                  style={filterChip(on)}>
+                  style={{ ...filterChip(on), fontSize: 11, padding: '4px 10px' }}>
                   {s === null ? 'Tous' : `${meta!.icon} ${meta!.label}`}
                 </button>
               )
@@ -210,7 +324,7 @@ export function Clients() {
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {filtered.length === 0 ? (
             <div style={{ padding: 24, textAlign: 'center', color: 'var(--t4)', fontSize: 13 }}>
-              {clients.length === 0 ? 'Aucun client — cliquez "Sync résas" pour importer depuis vos réservations' : 'Aucun résultat'}
+              {clients.length === 0 ? 'Aucun client — les profils se créent automatiquement depuis les réservations' : 'Aucun résultat'}
             </div>
           ) : filtered.map(c => {
             const meta = STATUT_META[c.statut]
@@ -254,6 +368,112 @@ export function Clients() {
 
       {/* ── COLONNE DROITE : fiche ou formulaire ── */}
       <div style={{ flex: 1, overflowY: 'auto', background: 'var(--surf)' }}>
+
+        {/* ── BANDEAU WARNING : tables à réassigner ── */}
+        {invalidClients.length > 0 && (
+          <div style={{
+            margin: '12px 16px 0', borderRadius: 10, border: '1px solid rgba(220,80,80,.25)',
+            background: 'rgba(220,80,80,.04)', overflow: 'hidden',
+          }}>
+            <button onClick={() => setShowWarning(v => !v)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                padding: '10px 14px', border: 'none', background: 'transparent',
+                cursor: 'pointer', textAlign: 'left',
+              }}>
+              <span style={{ fontSize: 14 }}>⚠️</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--rd)' }}>
+                {invalidClients.length} client{invalidClients.length > 1 ? 's' : ''} — table préférée inactive
+              </span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--t3)', transform: showWarning ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>▼</span>
+            </button>
+
+            {showWarning && (
+              <div style={{ padding: '0 14px 14px' }}>
+                <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 10 }}>
+                  Réassignez les tables préférées ou videz-les. Un commentaire optionnel sera ajouté aux notes du client.
+                </div>
+
+                {invalidClients.map(c => {
+                  const meta = STATUT_META[c.statut]
+                  return (
+                    <div key={c.id} style={{
+                      display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 0',
+                      borderTop: '1px solid var(--border)', flexWrap: 'wrap',
+                    }}>
+                      {/* Nom + ancien */}
+                      <div style={{ minWidth: 140, flex: '0 0 auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 10, padding: '1px 4px', borderRadius: 3, background: meta.bg, color: meta.color, fontWeight: 700 }}>{meta.icon}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', cursor: 'pointer' }}
+                            onClick={() => { setSelectedId(c.id); setShowForm(false) }}>
+                            {c.prenom} {c.nom}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 10, color: 'var(--rd)', marginTop: 2, fontFamily: 'var(--fm)' }}>
+                          ✕ {c.tablePref}
+                        </div>
+                      </div>
+
+                      {/* Nouvelle table */}
+                      <div style={{ flex: '0 0 auto' }}>
+                        <select
+                          value={reassignMap[c.id] ?? ''}
+                          onChange={e => setReassignMap(m => ({ ...m, [c.id]: e.target.value }))}
+                          style={{
+                            padding: '5px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                            border: '2px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)',
+                            fontFamily: 'inherit', minWidth: 100,
+                          }}>
+                          <option value="">— Vider —</option>
+                          {activeTableList.map(n => (
+                            <option key={n} value={n}>{n}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Commentaire */}
+                      <div style={{ flex: 1, minWidth: 160 }}>
+                        <input
+                          placeholder="Commentaire (optionnel)"
+                          value={commentMap[c.id] || ''}
+                          onChange={e => setCommentMap(m => ({ ...m, [c.id]: e.target.value }))}
+                          style={{
+                            width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 11,
+                            border: '2px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)',
+                            fontFamily: 'inherit', outline: 'none',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+
+                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                  <button onClick={applyBatchReassign}
+                    style={{
+                      fontSize: 11, fontWeight: 700, padding: '6px 14px', borderRadius: 6,
+                      border: 'none', background: 'var(--bl)', color: '#fff', cursor: 'pointer',
+                    }}>
+                    ✅ Appliquer ({Object.keys(reassignMap).length}/{invalidClients.length})
+                  </button>
+                  <button onClick={() => {
+                    // Select all to empty
+                    const all: Record<string, string> = {}
+                    for (const c of invalidClients) all[c.id] = ''
+                    setReassignMap(all)
+                  }}
+                    style={{
+                      fontSize: 11, fontWeight: 600, padding: '6px 12px', borderRadius: 6,
+                      border: '1px solid var(--border)', background: 'transparent', color: 'var(--t2)', cursor: 'pointer',
+                    }}>
+                    Tout vider
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {showForm ? (
           /* ── FORMULAIRE ── */
@@ -299,9 +519,105 @@ export function Clients() {
                   ))}
                 </select>
               </div>
-              <div>
+              <div style={{ gridColumn: '1 / -1' }}>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Table préférée</label>
-                <input value={fTablePref} onChange={e => setFTablePref(e.target.value)} style={inp} placeholder="T5, T12+T13…" />
+
+                {/* Current selection + clear */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, minHeight: 34 }}>
+                  {fTablePref ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{
+                        fontSize: 12, fontWeight: 800, padding: '4px 10px', borderRadius: 6,
+                        background: isTablePrefValid(fTablePref) ? 'var(--bp)' : 'rgba(220,80,80,.1)',
+                        color: isTablePrefValid(fTablePref) ? 'var(--bl)' : 'var(--rd)',
+                        border: `1px solid ${isTablePrefValid(fTablePref) ? 'var(--bl)' : 'var(--rd)'}`,
+                        fontFamily: 'var(--fm)',
+                      }}>
+                        🪑 {fTablePref}
+                      </span>
+                      <button onClick={() => setFTablePref('')}
+                        style={{ padding: '2px 6px', borderRadius: 4, border: 'none', background: 'var(--surf3)', color: 'var(--t3)', fontSize: 10, cursor: 'pointer', fontWeight: 700 }}>
+                        ✕
+                      </button>
+                      {!isTablePrefValid(fTablePref) && (
+                        <span style={{ fontSize: 10, color: 'var(--rd)', fontWeight: 700 }}>⚠️ inactive</span>
+                      )}
+                    </div>
+                  ) : (
+                    <span style={{ fontSize: 11, color: 'var(--t4)' }}>Aucune — cliquez pour choisir</span>
+                  )}
+                </div>
+
+                {/* IA suggestion */}
+                {suggestTablePref && (
+                  <div style={{
+                    marginTop: 6, padding: '6px 10px', borderRadius: 6,
+                    background: 'rgba(99,102,241,.06)', border: '1px solid rgba(99,102,241,.15)',
+                    fontSize: 10, color: 'var(--t2)',
+                  }}>
+                    <span style={{ fontWeight: 800, color: 'var(--bl)' }}>🤖 Suggestion IA</span>
+                    <span style={{ marginLeft: 6 }}>
+                      {suggestTablePref.isActive ? (
+                        <>
+                          <strong>{suggestTablePref.topTable}</strong> ({suggestTablePref.topCount}/{suggestTablePref.totalResas} résas, ~{suggestTablePref.avgCovers}p moy.)
+                          <button onClick={() => setFTablePref(suggestTablePref.topTable!)}
+                            style={{ marginLeft: 6, padding: '1px 6px', borderRadius: 4, border: '1px solid var(--bl)', background: 'var(--bp)', color: 'var(--bl)', fontSize: 9, fontWeight: 700, cursor: 'pointer' }}>
+                            Appliquer
+                          </button>
+                        </>
+                      ) : suggestTablePref.bestAlt ? (
+                        <>
+                          <span style={{ textDecoration: 'line-through', color: 'var(--rd)' }}>{suggestTablePref.topTable}</span> inactive →{' '}
+                          <strong>{suggestTablePref.bestAlt}</strong> (capacité ~{suggestTablePref.avgCovers}p)
+                          <button onClick={() => setFTablePref(suggestTablePref.bestAlt!)}
+                            style={{ marginLeft: 6, padding: '1px 6px', borderRadius: 4, border: '1px solid var(--bl)', background: 'var(--bp)', color: 'var(--bl)', fontSize: 9, fontWeight: 700, cursor: 'pointer' }}>
+                            Appliquer
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          Historique : <span style={{ textDecoration: 'line-through', color: 'var(--rd)' }}>{suggestTablePref.topTable}</span> (inactive, pas d'alternative trouvée)
+                        </>
+                      )}
+                    </span>
+                  </div>
+                )}
+
+                {/* Table chips grid */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                  {activeTableList.map(n => {
+                    const tbl = tables.find(t => t.n === n)
+                    const isSelected = fTablePref === n || fTablePref.split('+').map(s => s.trim()).includes(n)
+                    return (
+                      <button key={n}
+                        onClick={() => {
+                          if (!fTablePref || fTablePref === n) {
+                            setFTablePref(isSelected ? '' : n)
+                          } else if (isSelected) {
+                            // Remove from combo
+                            const parts = fTablePref.split('+').map(s => s.trim()).filter(s => s !== n)
+                            setFTablePref(parts.join('+'))
+                          } else {
+                            // Add to combo
+                            setFTablePref(fTablePref + '+' + n)
+                          }
+                        }}
+                        style={{
+                          padding: '3px 8px', borderRadius: 5, fontSize: 10, fontWeight: 700,
+                          fontFamily: 'var(--fm)', cursor: 'pointer',
+                          border: isSelected ? '2px solid var(--bl)' : '1px solid var(--border)',
+                          background: isSelected ? 'var(--bp)' : 'var(--surf2)',
+                          color: isSelected ? 'var(--bl)' : 'var(--t2)',
+                        }}>
+                        {n}
+                        {tbl && <span style={{ fontSize: 8, marginLeft: 2, opacity: .6 }}>{tbl.capMin}-{tbl.capMax}p</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div style={{ fontSize: 9, color: 'var(--t4)', marginTop: 3 }}>
+                  Cliquez plusieurs tables pour créer un combo (ex: T12+T13)
+                </div>
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Allergies / Intolérances</label>
@@ -398,7 +714,32 @@ export function Clients() {
                 <div style={{ ...sectionTitle, marginBottom: 8 }}>Préférences</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
                   {selected.allergies && <div style={{ color: 'var(--am)', fontWeight: 700 }}>⚠️ Allergies : {selected.allergies}</div>}
-                  {selected.tablePref && <div>🪑 Table préférée : <strong>{selected.tablePref}</strong></div>}
+                  {selected.tablePref && (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>🪑 Table préférée :</span>
+                        <span style={{
+                          fontWeight: 800, fontFamily: 'var(--fm)', padding: '2px 8px', borderRadius: 5,
+                          background: isTablePrefValid(selected.tablePref) ? 'var(--bp)' : 'rgba(220,80,80,.1)',
+                          color: isTablePrefValid(selected.tablePref) ? 'var(--bl)' : 'var(--rd)',
+                          border: `1px solid ${isTablePrefValid(selected.tablePref) ? 'var(--bl)' : 'var(--rd)'}`,
+                        }}>
+                          {selected.tablePref}
+                        </span>
+                        {!isTablePrefValid(selected.tablePref) && (
+                          <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--rd)' }}>⚠️ inactive</span>
+                        )}
+                      </div>
+                      {/* IA source info */}
+                      {suggestTablePref && suggestTablePref.allTables.length > 0 && (
+                        <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 3, paddingLeft: 24 }}>
+                          📊 Historique : {suggestTablePref.allTables.map(t =>
+                            `${t.name} (${t.count}×)`
+                          ).join(', ')} — ~{suggestTablePref.avgCovers}p moy.
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {selected.notes && <div style={{ color: 'var(--t2)' }}>📝 {selected.notes}</div>}
                   {selected.tags.length > 0 && (
                     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>

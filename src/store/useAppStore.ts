@@ -181,7 +181,7 @@ export const useAppStore = create<AppStore>()(
         cashbackPercent: 5,
         rewardName: 'Dessert offert', rewardValue: 15, rewardThreshold: 10,
         welcomeBonus: 1, birthdayBonus: 2, expirationMonths: 12,
-        doublePointsDays: []
+        doublePointsDays: [], autoEnroll: false, autoEarnOnDone: false, tiersEnabled: false, tiers: []
       },
       loyaltyCards: [],
       sites: [],

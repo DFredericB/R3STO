@@ -169,6 +169,33 @@ class APIRouter {
             return;
         }
 
+        // All admin endpoints — auth + admin role required
+        $adminRoutes = [
+            '/admin/users'              => 'handleAdminUsers',
+            '/admin/financials'         => 'handleAdminFinancials',
+            '/admin/activities'         => 'handleAdminActivities',
+            '/admin/invoices'           => 'handleAdminInvoices',
+            '/admin/reservations/stats' => 'handleAdminReservationStats',
+            '/admin/onboarding'         => 'handleAdminOnboarding',
+            '/admin/audit-log'          => 'handleAdminAuditLog',
+            '/admin/monitoring'         => 'handleAdminMonitoring',
+            '/admin/crm'                => 'handleAdminCRM',
+            '/admin/newsletters'        => 'handleAdminNewsletters',
+            '/admin/blacklist'          => 'handleAdminBlacklist',
+            '/admin/tickets'            => 'handleAdminTickets',
+            '/admin/suggestions'        => 'handleAdminSuggestions',
+            '/admin/alerts'             => 'handleAdminAlerts',
+            '/admin/surveys'            => 'handleAdminSurveys',
+        ];
+
+        if (isset($adminRoutes[$this->path]) && $this->method === 'GET') {
+            $this->requireAuth();
+            $this->requireAdmin();
+            $method = $adminRoutes[$this->path];
+            $this->$method();
+            return;
+        }
+
         // Not found
         $this->respond(['error' => 'Endpoint not found'], 404);
     }
@@ -259,6 +286,28 @@ class APIRouter {
         unset($result['code']);
         $this->respond($result, $code);
     }
+
+    private function _adminRespond($result) {
+        $code = isset($result['code']) ? $result['code'] : 200;
+        unset($result['code']);
+        $this->respond($result, $code);
+    }
+
+    private function handleAdminUsers()            { $this->_adminRespond(AdminHandler::getUsers()); }
+    private function handleAdminFinancials()        { $this->_adminRespond(AdminHandler::getFinancials()); }
+    private function handleAdminActivities()        { $this->_adminRespond(AdminHandler::getActivities()); }
+    private function handleAdminInvoices()          { $this->_adminRespond(AdminHandler::getInvoices()); }
+    private function handleAdminReservationStats()  { $this->_adminRespond(AdminHandler::getReservationStats()); }
+    private function handleAdminOnboarding()        { $this->_adminRespond(AdminHandler::getOnboarding()); }
+    private function handleAdminAuditLog()          { $this->_adminRespond(AdminHandler::getAuditLog()); }
+    private function handleAdminMonitoring()        { $this->_adminRespond(AdminHandler::getMonitoring()); }
+    private function handleAdminCRM()               { $this->_adminRespond(AdminHandler::getCRM()); }
+    private function handleAdminNewsletters()        { $this->_adminRespond(AdminHandler::getNewsletters()); }
+    private function handleAdminBlacklist()          { $this->_adminRespond(AdminHandler::getBlacklist()); }
+    private function handleAdminTickets()            { $this->_adminRespond(AdminHandler::getTickets()); }
+    private function handleAdminSuggestions()         { $this->_adminRespond(AdminHandler::getSuggestions()); }
+    private function handleAdminAlerts()              { $this->_adminRespond(AdminHandler::getAlerts()); }
+    private function handleAdminSurveys()             { $this->_adminRespond(AdminHandler::getSurveys()); }
 }
 
 $router = new APIRouter();

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/useTranslation';
 
 interface ServedOrder {
   id: string;
@@ -9,6 +10,7 @@ interface ServedOrder {
 }
 
 export function CaisseView() {
+  const { t } = useT();
   const [servedOrders] = useState<ServedOrder[]>([
     {
       id: 'cmd1',
@@ -62,14 +64,14 @@ export function CaisseView() {
   const ticketMoyen = totalCmd ? totalCA / totalCmd : 0;
 
   const modules = [
-    { icon: '💳', label: 'Paiements manuels' },
-    { icon: '🖨', label: 'Impression reçu' },
-    { icon: '📊', label: 'Z de caisse' },
-    { icon: '💰', label: 'Gestion espèces' },
-    { icon: '🔗', label: 'Intégration Stripe' },
-    { icon: '📑', label: 'Rapport TVA' },
-    { icon: '📦', label: 'Lien stock' },
-    { icon: '👥', label: 'Tips équipe' },
+    { icon: '💳', label: t('caisse.paiManuel') },
+    { icon: '🖨', label: t('caisse.impRecu') },
+    { icon: '📊', label: t('caisse.zCaisse') },
+    { icon: '💰', label: t('caisse.gestEspeces') },
+    { icon: '🔗', label: t('caisse.integStripe') },
+    { icon: '📑', label: t('caisse.rapTva') },
+    { icon: '📦', label: t('caisse.lienStock') },
+    { icon: '👥', label: t('caisse.tipsEquipe') },
   ];
 
   return (
@@ -86,10 +88,10 @@ export function CaisseView() {
         flexShrink: 0,
       }}>
         <div style={{ fontSize: '16px', fontWeight: 900, marginBottom: '4px', color: 'var(--text)' }}>
-          💰 Caisse
+          💰 {t('caisse.title')}
         </div>
         <div style={{ fontSize: '12px', color: 'var(--t3)' }}>
-          Paiements, Z de caisse & rapports financiers
+          {t('caisse.subtitle')}
         </div>
       </div>
 
@@ -118,7 +120,7 @@ export function CaisseView() {
               letterSpacing: '0.06em',
               marginBottom: '6px',
             }}>
-              CA du service
+              {t('caisse.caService')}
             </div>
             <div style={{
               fontSize: '28px',
@@ -143,7 +145,7 @@ export function CaisseView() {
               letterSpacing: '0.06em',
               marginBottom: '6px',
             }}>
-              Commandes servies
+              {t('caisse.cmdServies')}
             </div>
             <div style={{
               fontSize: '28px',
@@ -168,7 +170,7 @@ export function CaisseView() {
               letterSpacing: '0.06em',
               marginBottom: '6px',
             }}>
-              Ticket moyen
+              {t('caisse.ticketMoyen')}
             </div>
             <div style={{
               fontSize: '28px',
@@ -209,7 +211,7 @@ export function CaisseView() {
                   {module.label}
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--t3)' }}>
-                  Bientôt disponible
+                  {t('caisse.bientot')}
                 </div>
               </div>
               <span style={{ marginLeft: 'auto', fontSize: '14px' }}>🔒</span>
@@ -228,7 +230,7 @@ export function CaisseView() {
             color: 'var(--text)',
             marginBottom: '12px',
           }}>
-            📋 Détail des commandes servies
+            📋 {t('caisse.detailCmd')}
           </div>
           <div style={{
             display: 'grid',

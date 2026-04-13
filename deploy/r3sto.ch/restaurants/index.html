@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="page_title">Restaurants R3STO — Réservez une table en Suisse</title>
+<meta name="description" data-i18n="page_description" content="Trouvez et réservez un restaurant en Suisse. Réservation en ligne instantanée, 0 commission, confirmée en temps réel.">
+<link rel="icon" type="image/jpeg" href="/logo-r3sto.jpg">
+<link rel="canonical" href="https://r3sto.ch/restaurants/">
+<link rel="alternate" hreflang="fr" href="https://r3sto.ch/restaurants/">
+<link rel="alternate" hreflang="x-default" href="https://r3sto.ch/restaurants/">
+<meta property="og:title" content="Restaurants R3STO — Réservez une table en Suisse">
+<meta property="og:description" content="Trouvez et réservez un restaurant en Suisse. Réservation en ligne instantanée, 0 commission, confirmée en temps réel.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://r3sto.ch/restaurants/">
+<meta property="og:image" content="https://r3sto.ch/logo-r3sto.jpg">
+<meta property="og:locale" content="fr_CH">
+<meta property="og:site_name" content="R3STO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Restaurants R3STO — Réservez une table en Suisse">
+<meta name="twitter:description" content="Trouvez et réservez un restaurant en Suisse. Réservation instantanée, 0 commission.">
+<meta name="twitter:image" content="https://r3sto.ch/logo-r3sto.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fafbfd;--surf:#ffffff;--surf2:#f3f5f8;
+  --text:#1a2332;--t2:#3d4f66;--t3:#6b7d94;--t4:#94a3b8;
+  --bl:#2b5ba0;--bl2:#3b7dd8;--gn:#1a9e6e;--gn2:#15825a;--rd:#dc5050;--am:#e89420;--pu:#7c5cbe;
+  --border:rgba(30,50,80,.1);--shadow:0 2px 12px rgba(30,50,80,.06);
+  --ff:'DM Sans',system-ui,-apple-system,sans-serif;
+  --max:1100px;--r:14px
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--bl2);text-decoration:none}
+
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;gap:12px}
+.nav-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-left img{height:32px;width:32px;border-radius:0;object-fit:cover}
+.nav-left .page-title{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.2px}
+.nav-center{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.nav-center a{font-size:13px;font-weight:600;color:var(--t2);transition:.2s;white-space:nowrap}
+.nav-center a:hover{color:var(--bl)}
+.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.lang-sw{display:flex;gap:3px}
+.lp{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surf);color:var(--t3);transition:.15s}
+.lp:hover{border-color:var(--bl);color:var(--bl)}
+.lp.on{border-color:var(--bl);background:rgba(43,91,160,.06);color:var(--bl)}
+.btn-pro{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;border:none;background:var(--bl);color:#fff;transition:.15s;white-space:nowrap}
+.btn-pro:hover{background:#224d8a;color:#fff}
+
+/* ── HERO ── */
+.hero{padding:48px 24px 28px;text-align:center}
+.hero h1{font-size:clamp(24px,4vw,36px);font-weight:900;letter-spacing:-.8px;margin-bottom:8px}
+.hero h1 em{font-style:normal;color:var(--bl)}
+.hero p{font-size:15px;color:var(--t2);max-width:500px;margin:0 auto 24px}
+
+/* ── SEARCH ── */
+.search-bar{max-width:700px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap}
+.search-bar input,.search-bar select{
+  flex:1;min-width:140px;padding:12px 16px;border:1.5px solid var(--border);
+  border-radius:12px;font-size:14px;font-family:var(--ff);color:var(--text);
+  background:var(--surf);outline:none;transition:border-color .2s
+}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--bl)}
+.search-bar .btn-search{
+  padding:12px 24px;border-radius:12px;border:none;
+  background:var(--gn);color:#fff;font-size:14px;font-weight:700;
+  cursor:pointer;transition:.15s;white-space:nowrap
+}
+.search-bar .btn-search:hover{background:var(--gn2)}
+
+/* ── FILTERS ── */
+.filters{max-width:var(--max);margin:20px auto 0;padding:0 24px;display:flex;gap:6px;flex-wrap:wrap}
+.filter-chip{
+  padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;
+  border:1.5px solid var(--border);background:var(--surf);color:var(--t2);
+  cursor:pointer;transition:.15s;white-space:nowrap
+}
+.filter-chip:hover,.filter-chip.on{border-color:var(--bl);color:var(--bl);background:rgba(43,91,160,.05)}
+
+/* ── SORT BAR ── */
+.sort-bar{max-width:var(--max);margin:16px auto 0;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.results-count{font-size:13px;color:var(--t3)}
+.sort-select{padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--ff);color:var(--t2);background:var(--surf);outline:none;cursor:pointer}
+
+/* ── GRID ── */
+.grid-section{max-width:var(--max);margin:0 auto;padding:16px 24px 60px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+
+/* ── CARD ── */
+.card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:pointer;
+  display:flex;flex-direction:column;position:relative
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(30,50,80,.1)}
+.card.featured{border:2px solid var(--gn);box-shadow:0 4px 16px rgba(26,158,110,.12)}
+.card.boosted{border:2px solid var(--am);box-shadow:0 4px 16px rgba(232,148,32,.12)}
+.card-img{height:180px;background-size:cover;background-position:center;position:relative}
+.card-img .badge-open{
+  position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:6px;
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em
+}
+.badge-open.open{background:rgba(26,158,110,.9);color:#fff}
+.badge-open.closed{background:rgba(220,80,80,.9);color:#fff}
+.badge-featured{
+  position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:6px;
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  background:rgba(26,158,110,.92);color:#fff;display:flex;align-items:center;gap:4px
+}
+.badge-boost{
+  position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:6px;
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  background:rgba(232,148,32,.92);color:#fff;display:flex;align-items:center;gap:4px
+}
+.card-body{padding:16px 18px;flex:1}
+.card-name{font-size:16px;font-weight:800;margin-bottom:3px}
+.card-cuisine{font-size:12px;color:var(--bl);font-weight:600;margin-bottom:6px}
+.card-meta{display:flex;gap:12px;font-size:12px;color:var(--t3);margin-bottom:8px;flex-wrap:wrap}
+.card-meta span{display:flex;align-items:center;gap:4px}
+.card-rating{display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.card-rating .stars{color:var(--am);font-size:13px;letter-spacing:1px}
+.card-rating .score{font-size:13px;font-weight:800;color:var(--text)}
+.card-rating .count{font-size:11px;color:var(--t4)}
+
+/* ── PROMOS BAR ── */
+.card-promos{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.promo-tag{
+  padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;
+  display:inline-flex;align-items:center;gap:4px
+}
+.promo-tag.discount{background:rgba(220,80,80,.08);color:var(--rd);border:1px solid rgba(220,80,80,.15)}
+.promo-tag.special{background:rgba(232,148,32,.08);color:var(--am);border:1px solid rgba(232,148,32,.15)}
+.promo-tag.fidelity{background:rgba(124,92,190,.08);color:var(--pu);border:1px solid rgba(124,92,190,.15)}
+.promo-tag.gift{background:rgba(26,158,110,.08);color:var(--gn);border:1px solid rgba(26,158,110,.15)}
+
+/* ── CARD FOOTER ── */
+.card-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border);gap:8px}
+.card-price{font-size:12px;color:var(--t3)}
+.card-price b{color:var(--text);font-weight:800}
+.card-btns{display:flex;gap:6px;align-items:center}
+.card-site{
+  padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;
+  border:1.5px solid var(--border);background:var(--surf);color:var(--t2);
+  cursor:pointer;transition:.15s;white-space:nowrap
+}
+.card-site:hover{border-color:var(--bl);color:var(--bl)}
+.card-book{
+  padding:8px 18px;border-radius:8px;border:none;
+  background:var(--gn);color:#fff;font-size:13px;font-weight:800;
+  cursor:pointer;transition:.15s;white-space:nowrap;letter-spacing:.02em
+}
+.card-book:hover{background:var(--gn2)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:60px 24px;color:var(--t3)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+
+/* ── CTA PRO ── */
+.cta-pro{max-width:var(--max);margin:0 auto 60px;padding:0 24px}
+.cta-pro-inner{
+  background:var(--surf);border:1.5px solid var(--border);border-radius:16px;
+  padding:32px 40px;display:flex;align-items:center;justify-content:space-between;
+  gap:24px;flex-wrap:wrap
+}
+.cta-pro-inner h3{font-size:18px;font-weight:900}
+.cta-pro-inner p{font-size:13px;color:var(--t2);margin-top:4px}
+.btn-cta{
+  padding:12px 24px;border-radius:10px;border:none;
+  background:var(--bl);color:#fff;font-size:14px;font-weight:700;
+  cursor:pointer;transition:.15s;white-space:nowrap
+}
+.btn-cta:hover{background:#224d8a}
+
+/* ── FOOTER ── */
+.footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-size:12px;color:var(--t4)}
+.footer a{color:var(--t3)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:880px){
+  .nav-center{display:none}
+}
+@media(max-width:640px){
+  .search-bar{flex-direction:column}
+  .search-bar input,.search-bar select,.search-bar .btn-search{width:100%;min-width:0}
+  .grid{grid-template-columns:1fr}
+  .cta-pro-inner{flex-direction:column;text-align:center}
+  .sort-bar{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-left">
+      <img src="/logo-r3sto.jpg" alt="R3STO">
+      <span class="page-title" data-i18n="nav_title">Restaurants</span>
+    </a>
+    <div class="nav-center">
+      <a href="https://r3sto.ch" data-i18n="nav_for_restaurateurs">Pour les restaurateurs</a>
+      <a href="https://r3sto.ch/#tarifs" data-i18n="nav_pricing">Tarifs</a>
+      <a href="https://r3sto.ch/#fonctionnalités" data-i18n="nav_features">Fonctionnalités</a>
+    </div>
+    <div class="nav-right">
+      <div class="lang-sw">
+        <span class="lp on" data-lang="fr" onclick="setLanguage('fr')">FR</span>
+        <span class="lp" data-lang="de" onclick="setLanguage('de')">DE</span>
+        <span class="lp" data-lang="it" onclick="setLanguage('it')">IT</span>
+        <span class="lp" data-lang="en" onclick="setLanguage('en')">EN</span>
+      </div>
+      <a href="https://auth.r3sto.ch" class="btn-pro" data-i18n="nav_pro_login">Espace pro</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1 data-i18n="hero_title">Trouvez votre table en <em>Suisse</em></h1>
+  <p data-i18n="hero_subtitle">Réservation en ligne confirmée en temps réel. Gratuit pour les clients, sans commission.</p>
+  <div class="search-bar">
+    <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Nom, cuisine, ville, terrasse, parking..." oninput="filterCards()">
+    <select id="regionSelect" onchange="filterCards()">
+      <option value="" data-i18n="region_all">Toute la Suisse</option>
+      <optgroup label="Suisse romande">
+        <option value="lausanne">Lausanne</option>
+        <option value="geneve">Genève</option>
+        <option value="montreux">Montreux</option>
+        <option value="sion">Sion</option>
+        <option value="fribourg">Fribourg</option>
+        <option value="neuchatel">Neuchâtel</option>
+        <option value="nyon">Nyon</option>
+      </optgroup>
+      <optgroup label="Suisse alémanique">
+        <option value="zurich">Zürich</option>
+        <option value="bern">Bern</option>
+        <option value="basel">Basel</option>
+        <option value="luzern">Luzern</option>
+        <option value="st-gallen">St. Gallen</option>
+      </optgroup>
+      <optgroup label="Tessin">
+        <option value="lugano">Lugano</option>
+        <option value="locarno">Locarno</option>
+      </optgroup>
+    </select>
+    <button class="btn-search" onclick="filterCards()" data-i18n="btn_search">Rechercher</button>
+  </div>
+</div>
+
+<!-- FILTERS — aligned with app CUISINE_TYPES -->
+<div class="filters" id="filters">
+  <span class="filter-chip on" data-cuisine="" data-i18n="f_all" onclick="setCuisine(this)">Tous</span>
+  <span class="filter-chip" data-cuisine="française" data-i18n="f_fr" onclick="setCuisine(this)">Française</span>
+  <span class="filter-chip" data-cuisine="italienne" data-i18n="f_it" onclick="setCuisine(this)">Italienne</span>
+  <span class="filter-chip" data-cuisine="suisse" data-i18n="f_ch" onclick="setCuisine(this)">Suisse</span>
+  <span class="filter-chip" data-cuisine="méditerranéenne" data-i18n="f_med" onclick="setCuisine(this)">Méditerranéenne</span>
+  <span class="filter-chip" data-cuisine="japonaise" data-i18n="f_jp" onclick="setCuisine(this)">Japonaise</span>
+  <span class="filter-chip" data-cuisine="asiatique" data-i18n="f_as" onclick="setCuisine(this)">Asiatique</span>
+  <span class="filter-chip" data-cuisine="thaïlandaise" data-i18n="f_th" onclick="setCuisine(this)">Thaïlandaise</span>
+  <span class="filter-chip" data-cuisine="indienne" data-i18n="f_in" onclick="setCuisine(this)">Indienne</span>
+  <span class="filter-chip" data-cuisine="mexicaine" data-i18n="f_mx" onclick="setCuisine(this)">Mexicaine</span>
+  <span class="filter-chip" data-cuisine="américaine" data-i18n="f_us" onclick="setCuisine(this)">Américaine</span>
+  <span class="filter-chip" data-cuisine="libanaise" data-i18n="f_lb" onclick="setCuisine(this)">Libanaise</span>
+  <span class="filter-chip" data-cuisine="fusion" data-i18n="f_fu" onclick="setCuisine(this)">Fusion</span>
+  <span class="filter-chip" data-cuisine="végétarienne" data-i18n="f_vg" onclick="setCuisine(this)">Végétarienne</span>
+  <span class="filter-chip" data-cuisine="fruits de mer" data-i18n="f_fm" onclick="setCuisine(this)">Fruits de mer</span>
+  <span class="filter-chip" data-cuisine="gastronomique" data-i18n="f_ga" onclick="setCuisine(this)">Gastronomique</span>
+  <span class="filter-chip" data-cuisine="brasserie" data-i18n="f_br" onclick="setCuisine(this)">Brasserie</span>
+  <span class="filter-chip" data-cuisine="pizzeria" data-i18n="f_pz" onclick="setCuisine(this)">Pizzeria</span>
+  <span class="filter-chip" data-cuisine="steakhouse" data-i18n="f_sk" onclick="setCuisine(this)">Steakhouse</span>
+</div>
+
+<!-- SORT BAR -->
+<div class="sort-bar">
+  <div class="results-count" id="resultsCount"></div>
+  <select class="sort-select" id="sortSelect" onchange="filterCards()">
+    <option value="smart" data-i18n="sort_smart">Tri intelligent</option>
+    <option value="rating" data-i18n="sort_rating">Meilleures notes</option>
+    <option value="price_asc" data-i18n="sort_price_asc">Prix croissant</option>
+    <option value="price_desc" data-i18n="sort_price_desc">Prix décroissant</option>
+    <option value="reviews" data-i18n="sort_reviews">Plus d'avis</option>
+  </select>
+</div>
+
+<!-- GRID -->
+<div class="grid-section">
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">
+    <div class="empty-icon">🍽️</div>
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px" data-i18n="empty_title">Aucun restaurant trouvé</div>
+    <div data-i18n="empty_subtitle">Essayez un autre terme ou une autre région</div>
+  </div>
+</div>
+
+<!-- CTA PRO -->
+<div class="cta-pro">
+  <div class="cta-pro-inner">
+    <div>
+      <h3 data-i18n="cta_title">Vous êtes restaurateur ?</h3>
+      <p data-i18n="cta_subtitle">Vos clients vous trouvent ici. 0% commission, placement intelligent, promotions ciblées. Hébergé en Suisse.</p>
+    </div>
+    <a href="https://r3sto.ch" class="btn-cta" data-i18n="cta_button">Découvrir R3STO →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>© 2026 R3STO · <a href="https://r3sto.ch">r3sto.ch</a> · Hébergé en Suisse · <a href="https://r3sto.ch/#tarifs">Tarifs</a> · <a href="https://r3sto.ch/legal/cgu.html">CGU</a> · <a href="https://r3sto.ch/legal/confidentialite.html">Confidentialité</a> · <a href="mailto:contact@r3sto.ch">contact@r3sto.ch</a></div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════
+// TRANSLATIONS (4 languages)
+// ══════════════════════════════════════════════════
+var I18N = {
+  fr: {
+    page_title:'Restaurants R3STO — Réservez une table en Suisse',
+    page_description:'Trouvez et réservez un restaurant en Suisse. Réservation en ligne instantanée, 0 commission.',
+    hero_title:'Trouvez votre table en <em>Suisse</em>',
+    hero_subtitle:'Réservation en ligne confirmée en temps réel. Gratuit pour les clients, sans commission.',
+    search_placeholder:'Nom, cuisine, ville, terrasse, parking...',
+    region_all:'Toute la Suisse', btn_search:'Rechercher',
+    nav_title:'Restaurants', nav_for_restaurateurs:'Pour les restaurateurs',
+    nav_pricing:'Tarifs', nav_features:'Fonctionnalités', nav_pro_login:'Espace pro',
+    f_all:'Tous',f_fr:'Française',f_it:'Italienne',f_ch:'Suisse',f_med:'Méditerranéenne',
+    f_jp:'Japonaise',f_as:'Asiatique',f_th:'Thaïlandaise',f_in:'Indienne',f_mx:'Mexicaine',
+    f_us:'Américaine',f_lb:'Libanaise',f_fu:'Fusion',f_vg:'Végétarienne',f_fm:'Fruits de mer',
+    f_ga:'Gastronomique',f_br:'Brasserie',f_pz:'Pizzeria',f_sk:'Steakhouse',
+    sort_smart:'Tri intelligent',sort_rating:'Meilleures notes',
+    sort_price_asc:'Prix croissant',sort_price_desc:'Prix décroissant',sort_reviews:'Plus d\'avis',
+    empty_title:'Aucun restaurant trouvé',empty_subtitle:'Essayez un autre terme ou une autre région',
+    cta_title:'Vous êtes restaurateur ?',
+    cta_subtitle:'Vos clients vous trouvent ici. 0% commission, placement intelligent, promotions ciblées. Hébergé en Suisse.',
+    cta_button:'Découvrir R3STO →',
+    card_book:'Réserver',card_site:'Voir le site',card_avg:'Menu moyen',
+    card_reviews:'avis',card_open:'Ouvert',card_closed:'Fermé',
+    card_featured:'Coup de coeur',card_boosted:'En vedette',
+    results_found:'trouvé',results_found_p:'trouvés',results_label:'restaurant',
+    promo_discount:'Réduction',promo_special:'Menu spécial',promo_fidelity:'Points fidélité',promo_gift:'Bon cadeau'
+  },
+  de: {
+    page_title:'Restaurants R3STO — Reservieren Sie einen Tisch in der Schweiz',
+    page_description:'Finden und reservieren Sie ein Restaurant in der Schweiz. Sofortige Online-Reservierung, 0 Gebühren.',
+    hero_title:'Finden Sie Ihren Tisch in der <em>Schweiz</em>',
+    hero_subtitle:'Online-Reservierung bestätigt in Echtzeit. Kostenlos für Kunden, ohne Gebühren.',
+    search_placeholder:'Name, Küche, Stadt, Terrasse, Parkplatz...',
+    region_all:'Ganze Schweiz', btn_search:'Suchen',
+    nav_title:'Restaurants', nav_for_restaurateurs:'Für Restaurateure',
+    nav_pricing:'Preise', nav_features:'Funktionen', nav_pro_login:'Profi-Bereich',
+    f_all:'Alle',f_fr:'Französisch',f_it:'Italienisch',f_ch:'Schweizerisch',f_med:'Mediterran',
+    f_jp:'Japanisch',f_as:'Asiatisch',f_th:'Thailändisch',f_in:'Indisch',f_mx:'Mexikanisch',
+    f_us:'Amerikanisch',f_lb:'Libanesisch',f_fu:'Fusion',f_vg:'Vegetarisch',f_fm:'Fisch & Meeresfrüchte',
+    f_ga:'Gastronomisch',f_br:'Brasserie',f_pz:'Pizzeria',f_sk:'Steakhouse',
+    sort_smart:'Intelligente Sortierung',sort_rating:'Beste Bewertungen',
+    sort_price_asc:'Preis aufsteigend',sort_price_desc:'Preis absteigend',sort_reviews:'Meiste Bewertungen',
+    empty_title:'Kein Restaurant gefunden',empty_subtitle:'Versuchen Sie einen anderen Begriff oder eine andere Region',
+    cta_title:'Sind Sie Restaurateur?',
+    cta_subtitle:'Ihre Kunden finden Sie hier. 0% Gebühren, intelligente Platzierung, gezielte Aktionen. Gehostet in der Schweiz.',
+    cta_button:'R3STO entdecken →',
+    card_book:'Reservieren',card_site:'Webseite',card_avg:'Durchschnittliches Menü',
+    card_reviews:'Bewertungen',card_open:'Offen',card_closed:'Geschlossen',
+    card_featured:'Empfehlung',card_boosted:'Im Fokus',
+    results_found:'gefunden',results_found_p:'gefunden',results_label:'Restaurant',
+    promo_discount:'Rabatt',promo_special:'Spezialmenü',promo_fidelity:'Treuepunkte',promo_gift:'Gutschein'
+  },
+  it: {
+    page_title:'Ristoranti R3STO — Prenota un tavolo in Svizzera',
+    page_description:'Trova e prenota un ristorante in Svizzera. Prenotazione online istantanea, 0 commissioni.',
+    hero_title:'Trova il tuo tavolo in <em>Svizzera</em>',
+    hero_subtitle:'Prenotazione online confermata in tempo reale. Gratuito per i clienti, senza commissioni.',
+    search_placeholder:'Nome, cucina, città, terrazza, parcheggio...',
+    region_all:'Tutta la Svizzera', btn_search:'Cerca',
+    nav_title:'Ristoranti', nav_for_restaurateurs:'Per i ristoratori',
+    nav_pricing:'Prezzi', nav_features:'Funzionalità', nav_pro_login:'Area pro',
+    f_all:'Tutti',f_fr:'Francese',f_it:'Italiana',f_ch:'Svizzera',f_med:'Mediterranea',
+    f_jp:'Giapponese',f_as:'Asiatico',f_th:'Tailandese',f_in:'Indiano',f_mx:'Messicano',
+    f_us:'Americano',f_lb:'Libanese',f_fu:'Fusion',f_vg:'Vegetariano',f_fm:'Pesce & frutti di mare',
+    f_ga:'Gastronomico',f_br:'Brasserie',f_pz:'Pizzeria',f_sk:'Steakhouse',
+    sort_smart:'Ordinamento intelligente',sort_rating:'Migliori voti',
+    sort_price_asc:'Prezzo crescente',sort_price_desc:'Prezzo decrescente',sort_reviews:'Più recensioni',
+    empty_title:'Nessun ristorante trovato',empty_subtitle:'Prova un altro termine o un\'altra regione',
+    cta_title:'Sei un ristoratore?',
+    cta_subtitle:'I tuoi clienti ti trovano qui. 0% commissioni, posizionamento intelligente, promozioni mirate. Ospitato in Svizzera.',
+    cta_button:'Scopri R3STO →',
+    card_book:'Prenota',card_site:'Sito web',card_avg:'Menu medio',
+    card_reviews:'recensioni',card_open:'Aperto',card_closed:'Chiuso',
+    card_featured:'Consigliato',card_boosted:'In evidenza',
+    results_found:'trovato',results_found_p:'trovati',results_label:'ristorante',
+    promo_discount:'Sconto',promo_special:'Menu speciale',promo_fidelity:'Punti fedeltà',promo_gift:'Buono regalo'
+  },
+  en: {
+    page_title:'Restaurants R3STO — Book a table in Switzerland',
+    page_description:'Find and book a restaurant in Switzerland. Instant online booking, 0 commission.',
+    hero_title:'Find your table in <em>Switzerland</em>',
+    hero_subtitle:'Online booking confirmed in real time. Free for customers, no commission.',
+    search_placeholder:'Name, cuisine, city, terrace, parking...',
+    region_all:'All of Switzerland', btn_search:'Search',
+    nav_title:'Restaurants', nav_for_restaurateurs:'For restaurateurs',
+    nav_pricing:'Pricing', nav_features:'Features', nav_pro_login:'Pro area',
+    f_all:'All',f_fr:'French',f_it:'Italian',f_ch:'Swiss',f_med:'Mediterranean',
+    f_jp:'Japanese',f_as:'Asian',f_th:'Thai',f_in:'Indian',f_mx:'Mexican',
+    f_us:'American',f_lb:'Lebanese',f_fu:'Fusion',f_vg:'Vegetarian',f_fm:'Fish & seafood',
+    f_ga:'Gastronomic',f_br:'Brasserie',f_pz:'Pizzeria',f_sk:'Steakhouse',
+    sort_smart:'Smart sort',sort_rating:'Top rated',
+    sort_price_asc:'Price: low to high',sort_price_desc:'Price: high to low',sort_reviews:'Most reviews',
+    empty_title:'No restaurant found',empty_subtitle:'Try another search term or region',
+    cta_title:'Are you a restaurateur?',
+    cta_subtitle:'Your customers find you here. 0% commission, smart placement, targeted promotions. Hosted in Switzerland.',
+    cta_button:'Discover R3STO →',
+    card_book:'Book',card_site:'Website',card_avg:'Average menu',
+    card_reviews:'reviews',card_open:'Open',card_closed:'Closed',
+    card_featured:'Featured',card_boosted:'Spotlight',
+    results_found:'found',results_found_p:'found',results_label:'restaurant',
+    promo_discount:'Discount',promo_special:'Special menu',promo_fidelity:'Loyalty points',promo_gift:'Gift card'
+  }
+};
+
+var lang = localStorage.getItem('r3sto_lang') || 'fr';
+function t(k){ return (I18N[lang]&&I18N[lang][k]) || I18N.fr[k] || k; }
+
+function applyI18n(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k=el.getAttribute('data-i18n');
+    if(el.tagName==='TITLE'||el.tagName==='META')return;
+    if(el.tagName==='H1') el.innerHTML=t(k); else el.textContent=t(k);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    el.setAttribute('placeholder',t(el.getAttribute('data-i18n-placeholder')));
+  });
+  document.querySelectorAll('.lp').forEach(function(el){
+    el.classList.toggle('on',el.getAttribute('data-lang')===lang);
+  });
+  // Sort select options
+  document.querySelectorAll('#sortSelect option[data-i18n]').forEach(function(el){
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+}
+
+function setLanguage(l){ lang=l; localStorage.setItem('r3sto_lang',l); applyI18n(); filterCards(); }
+
+// ══════════════════════════════════════════════════
+// API + DEMO DATA
+// ══════════════════════════════════════════════════
+var API_URL = 'https://api.r3sto.ch/public/restaurants';
+
+// Demo data — shown when API is unavailable
+var RESTAURANTS = [
+  {
+    id:'comptoir-du-lac', name:'Le Comptoir du Lac',
+    cuisine:'Poissons du lac & cuisine locale', cuisineTag:'fruits de mer',
+    ville:'Montpreveyres', region:'lausanne',
+    photo:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=400&fit=crop',
+    rating:4.7, reviews:128, priceRange:'$$', avgPrice:55, open:true,
+    features:['Terrasse','Vue lac','Parking'],
+    promos:[{type:'special',label:'Menu midi 29 CHF'},{type:'gift',label:'Bons cadeaux disponibles'}],
+    bookingUrl:'https://booking.r3sto.ch/?r=Le%20Comptoir%20du%20Lac',
+    vitrineUrl:'https://menu.r3sto.ch/lecomptoirdulac/',
+    plan:'gastro', boostScore:90, clientScore:95
+  },
+  {
+    id:'bistro-sion', name:'Le Bistro de Sion',
+    cuisine:'Cuisine française traditionnelle', cuisineTag:'française',
+    ville:'Sion', region:'sion',
+    photo:'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=400&fit=crop',
+    rating:4.5, reviews:87, priceRange:'$', avgPrice:35, open:true,
+    features:['Terrasse','Animaux bienvenus'],
+    promos:[{type:'discount',label:'-20% avant 18h30'}],
+    bookingUrl:'https://booking.r3sto.ch/?r=Le%20Bistro%20de%20Sion',
+    vitrineUrl:null, plan:'resto', boostScore:0, clientScore:72
+  },
+  {
+    id:'terrasse-montreux', name:'La Terrasse du Lac',
+    cuisine:'Cuisine méditerranéenne & grillades', cuisineTag:'méditerranéenne',
+    ville:'Montreux', region:'montreux',
+    photo:'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&h=400&fit=crop',
+    rating:4.8, reviews:203, priceRange:'$$$', avgPrice:78, open:true,
+    features:['Vue panoramique','Salle privée','Valet parking'],
+    promos:[{type:'special',label:'Menu dégustation 5 plats 89 CHF'},{type:'fidelity',label:'2x points fidélité'}],
+    bookingUrl:'https://booking.r3sto.ch/?r=La%20Terrasse%20du%20Lac',
+    vitrineUrl:null, plan:'gastro', boostScore:85, clientScore:98
+  },
+  {
+    id:'chez-marcel', name:'Chez Marcel',
+    cuisine:'Brasserie & plats du jour', cuisineTag:'brasserie',
+    ville:'Lausanne', region:'lausanne',
+    photo:'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=600&h=400&fit=crop',
+    rating:4.3, reviews:64, priceRange:'$', avgPrice:28, open:false,
+    features:['WiFi','Terrasse'],
+    promos:[{type:'special',label:'Plat du jour 16.50 CHF'}],
+    bookingUrl:'https://booking.r3sto.ch/?r=Chez%20Marcel',
+    vitrineUrl:null, plan:'bistro', boostScore:0, clientScore:60
+  },
+  {
+    id:'sakura-geneve', name:'Sakura',
+    cuisine:'Japonais & sushi bar', cuisineTag:'japonaise',
+    ville:'Genève', region:'geneve',
+    photo:'https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=600&h=400&fit=crop',
+    rating:4.6, reviews:156, priceRange:'$$', avgPrice:50, open:true,
+    features:['Climatisation','Bar','Accessible PMR'],
+    promos:[{type:'discount',label:'-15% sur take-away'},{type:'special',label:'Menu sushi 2 pers. 79 CHF'}],
+    bookingUrl:'https://booking.r3sto.ch/?r=Sakura',
+    vitrineUrl:null, plan:'gastro', boostScore:70, clientScore:88
+  },
+  {
+    id:'jardin-vert', name:'Le Jardin Vert',
+    cuisine:'Végétarien & bio', cuisineTag:'végétarienne',
+    ville:'Fribourg', region:'fribourg',
+    photo:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=400&fit=crop',
+    rating:4.4, reviews:92, priceRange:'$$', avgPrice:38, open:true,
+    features:['Bio','Terrasse','Sans gluten'],
+    promos:[{type:'special',label:'Brunch bio dimanche 35 CHF'},{type:'fidelity',label:'10e repas offert'}],
+    bookingUrl:'https://booking.r3sto.ch/?r=Le%20Jardin%20Vert',
+    vitrineUrl:null, plan:'resto', boostScore:40, clientScore:80
+  },
+  {
+    id:'auberge-neuchatel', name:"L'Auberge du Château",
+    cuisine:'Cuisine française raffinée', cuisineTag:'gastronomique',
+    ville:'Neuchâtel', region:'neuchatel',
+    photo:'https://images.unsplash.com/photo-1550966871-3ed3cdb51f3a?w=600&h=400&fit=crop',
+    rating:4.9, reviews:241, priceRange:'$$$', avgPrice:85, open:true,
+    features:['Cave à vins','Salle privée','Gastronomique'],
+    promos:[{type:'special',label:'Accord mets & vins offert'},{type:'gift',label:'Bons cadeaux en ligne'}],
+    bookingUrl:'https://booking.r3sto.ch/?r=L%27Auberge%20du%20Chateau',
+    vitrineUrl:null, plan:'gastro', boostScore:95, clientScore:99
+  },
+  {
+    id:'trattoria-nyon', name:'Trattoria Bella',
+    cuisine:'Italien authentique & pizzas au feu de bois', cuisineTag:'italienne',
+    ville:'Nyon', region:'nyon',
+    photo:'https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=600&h=400&fit=crop',
+    rating:4.5, reviews:178, priceRange:'$$', avgPrice:42, open:true,
+    features:['Four à bois','Terrasse','Enfants bienvenus'],
+    promos:[{type:'discount',label:'-10% le mardi'},{type:'special',label:'Menu famiglia 4 pers. 99 CHF'}],
+    bookingUrl:'https://booking.r3sto.ch/?r=Trattoria%20Bella',
+    vitrineUrl:null, plan:'resto', boostScore:30, clientScore:75
+  }
+];
+
+// ══════════════════════════════════════════════════
+// SMART PLACEMENT ALGORITHM
+// ══════════════════════════════════════════════════
+// Ranking logic:
+// 1. Plan weight: gastro=30, resto=15, bistro=5
+// 2. boostScore: paid promotion 0-100 (TheFork-like visibility boost)
+// 3. clientScore: restaurant engagement (reservations, reviews, loyalty) 0-100
+// 4. Open bonus: +50 if currently open
+// 5. Promo bonus: +10 per active promo
+// 6. Rating bonus: rating * 8
+// Manual sort overrides smart sort.
+
+function smartScore(r){
+  var planW = r.plan==='gastro'?30 : r.plan==='resto'?15 : 5;
+  var boost = (r.boostScore||0) * 0.4;
+  var client = (r.clientScore||0) * 0.2;
+  var openB = r.open ? 50 : 0;
+  var promoB = (r.promos||[]).length * 10;
+  var ratingB = (r.rating||0) * 8;
+  return planW + boost + client + openB + promoB + ratingB;
+}
+
+// ══════════════════════════════════════════════════
+// RENDERING
+// ══════════════════════════════════════════════════
+var activeCuisine = '';
+
+function stars(r){
+  var f=Math.floor(r),h=r%1>=.3,s='';
+  for(var i=0;i<f;i++) s+='★';
+  if(h) s+='½';
+  return s;
+}
+
+function renderCard(r){
+  var isFeatured = r.plan==='gastro';
+  var isBoosted = (r.boostScore||0) >= 60 && !isFeatured;
+
+  // Badge top-left
+  var topBadge = '';
+  if(isFeatured) topBadge='<span class="badge-featured">⭐ '+t('card_featured')+'</span>';
+  else if(isBoosted) topBadge='<span class="badge-boost">🔥 '+t('card_boosted')+'</span>';
+
+  // Promos
+  var promosHtml = '';
+  if(r.promos && r.promos.length){
+    promosHtml = '<div class="card-promos">';
+    r.promos.forEach(function(p){
+      var cls = p.type==='discount'?'discount' : p.type==='fidelity'?'fidelity' : p.type==='gift'?'gift' : 'special';
+      var icon = p.type==='discount'?'🏷️' : p.type==='fidelity'?'⭐' : p.type==='gift'?'🎁' : '🍽️';
+      promosHtml += '<span class="promo-tag '+cls+'">'+icon+' '+p.label+'</span>';
+    });
+    promosHtml += '</div>';
+  }
+
+  // Buttons
+  var siteBtn = r.vitrineUrl ? '<button class="card-site" onclick="event.stopPropagation();window.open(\''+r.vitrineUrl+'\',\'_blank\')">'+t('card_site')+'</button>' : '';
+  var bookBtn = '<button class="card-book" onclick="event.stopPropagation();window.open(\''+r.bookingUrl+'\',\'_blank\')">'+t('card_book')+'</button>';
+
+  var cls = 'card';
+  if(isFeatured) cls+=' featured';
+  else if(isBoosted) cls+=' boosted';
+
+  return '<div class="'+cls+'">'
+    +'<div class="card-img" style="background-image:url('+r.photo+')">'
+    +'<span class="badge-open '+(r.open?'open':'closed')+'">'+(r.open?t('card_open'):t('card_closed'))+'</span>'
+    +topBadge
+    +'</div>'
+    +'<div class="card-body">'
+    +'<div class="card-name">'+r.name+'</div>'
+    +'<div class="card-cuisine">'+r.cuisine+'</div>'
+    +'<div class="card-meta"><span>📍 '+r.ville+'</span><span>'+r.features.slice(0,3).join(' · ')+'</span></div>'
+    +'<div class="card-rating"><span class="stars">'+stars(r.rating)+'</span><span class="score">'+r.rating+'</span><span class="count">('+r.reviews+' '+t('card_reviews')+')</span></div>'
+    +promosHtml
+    +'</div>'
+    +'<div class="card-foot">'
+    +'<span class="card-price">'+t('card_avg')+' <b>'+r.avgPrice+' CHF</b></span>'
+    +'<div class="card-btns">'+siteBtn+bookBtn+'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+function filterCards(){
+  var q = document.getElementById('searchInput').value.toLowerCase().trim();
+  var region = document.getElementById('regionSelect').value;
+  var sortMode = document.getElementById('sortSelect').value;
+
+  var results = RESTAURANTS.filter(function(r){
+    if(activeCuisine && r.cuisineTag !== activeCuisine) return false;
+    if(region && r.region !== region) return false;
+    if(q){
+      var hay = (r.name+' '+r.cuisine+' '+r.cuisineTag+' '+r.ville+' '+r.features.join(' ')).toLowerCase();
+      var words = q.split(/\s+/);
+      for(var i=0;i<words.length;i++){
+        if(words[i] && hay.indexOf(words[i])===-1) return false;
+      }
+    }
+    return true;
+  });
+
+  // Sort
+  if(sortMode==='smart'){
+    results.sort(function(a,b){ return smartScore(b)-smartScore(a); });
+  } else if(sortMode==='rating'){
+    results.sort(function(a,b){ return b.rating-a.rating; });
+  } else if(sortMode==='price_asc'){
+    results.sort(function(a,b){ return a.avgPrice-b.avgPrice; });
+  } else if(sortMode==='price_desc'){
+    results.sort(function(a,b){ return b.avgPrice-a.avgPrice; });
+  } else if(sortMode==='reviews'){
+    results.sort(function(a,b){ return b.reviews-a.reviews; });
+  }
+
+  var grid = document.getElementById('grid');
+  var empty = document.getElementById('empty');
+  var count = document.getElementById('resultsCount');
+
+  if(results.length===0){
+    grid.innerHTML=''; empty.style.display='block'; count.textContent='';
+  } else {
+    empty.style.display='none';
+    var n=results.length;
+    var found = n===1 ? t('results_found') : t('results_found_p');
+    count.textContent = n+' '+t('results_label')+(n>1?'s':'')+' '+found;
+    grid.innerHTML = results.map(renderCard).join('');
+  }
+}
+
+function setCuisine(el){
+  activeCuisine = el.getAttribute('data-cuisine');
+  document.querySelectorAll('.filter-chip').forEach(function(c){
+    c.classList.toggle('on',c.getAttribute('data-cuisine')===activeCuisine);
+  });
+  filterCards();
+}
+
+// ── API Load ──
+async function loadFromAPI(){
+  try {
+    var resp = await fetch(API_URL);
+    if(!resp.ok) throw new Error('API '+resp.status);
+    var data = await resp.json();
+    if(data.restaurants && data.restaurants.length>0){
+      RESTAURANTS = data.restaurants.map(function(r){
+        return {
+          id: r.id||r.slug, name: r.name,
+          cuisine: r.cuisine||'Restaurant',
+          cuisineTag: (r.cuisineTag||r.cuisine||'').toLowerCase(),
+          ville: r.city||'', region: (r.city||'').toLowerCase().replace(/[éèê]/g,'e').replace(/[àâ]/g,'a'),
+          photo: r.photo||'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=400&fit=crop',
+          rating: r.rating||0, reviews: r.reviews||0,
+          priceRange: r.priceRange||'$$', avgPrice: r.avgPrice||40,
+          open: r.open!==undefined ? r.open : true,
+          features: r.features||[],
+          promos: r.promos||[],
+          bookingUrl: r.bookingUrl||'https://booking.r3sto.ch/?r='+encodeURIComponent(r.name),
+          vitrineUrl: r.vitrineUrl||null,
+          plan: r.plan||'resto',
+          boostScore: r.boostScore||0,
+          clientScore: r.clientScore||0
+        };
+      });
+    }
+  } catch(e){
+    console.log('API unavailable, using demo data:', e.message);
+  }
+  filterCards();
+}
+
+// ── Init ──
+applyI18n();
+filterCards();
+loadFromAPI();
+</script>
+</body>
+</html>

@@ -846,7 +846,6 @@ export function Prepaiement() {
             `}</style>
             <div style={{
               fontSize: 80,
-              className: 'checkmark',
             }}>
               ✓
             </div>

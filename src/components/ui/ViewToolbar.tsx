@@ -202,14 +202,26 @@ export function ViewToolbar({
       {(onServiceFilter || onSalleFilter) && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '0 16px 6px', flexWrap: 'wrap' }}>
           {/* Services — avec horaires dessous */}
-          {onServiceFilter && <>
+          {onServiceFilter && (() => {
+            // Pré-calculer quel service unique est "en cours" (le plus spécifique = fenêtre la plus courte)
+            const now = nowMins()
+            const svcItems = [...(hideAllFilter ? [] : [{ id: 'tous', label: t('toolbar.all'), sub: '', open: '', close: '' }]), ...activeServices.map(s => ({ id: s.name.toLowerCase(), label: `${s.icon} ${s.name}`, sub: `${s.open}–${s.lastOrder}`, open: s.open, close: s.close }))]
+            let greenId: string | null = null
+            let greenSpan = Infinity
+            for (const f of svcItems) {
+              if (!f.open || !f.close || f.id === 'tous') continue
+              const oM = timeToMins(f.open), cM = timeToMins(f.close)
+              if (now >= oM && now <= cM && (cM - oM) < greenSpan) {
+                greenSpan = cM - oM; greenId = f.id
+              }
+            }
+            return <>
             <span style={labelS}>Svc</span>
-            {[...(hideAllFilter ? [] : [{ id: 'tous', label: t('toolbar.all'), sub: '', open: '', close: '' }]), ...activeServices.map(s => ({ id: s.name.toLowerCase(), label: `${s.icon} ${s.name}`, sub: `${s.open}–${s.lastOrder}`, open: s.open, close: s.close }))].map(f => {
+            {svcItems.map(f => {
               const cnt = f.id === 'tous' ? total : resas.filter(r => r.date === activeDate && r.svc === f.id).length
-              const now = nowMins()
               const openM = f.open ? timeToMins(f.open) : 0
               const closeM = f.close ? timeToMins(f.close) : 0
-              const svcActive = f.open && now >= openM && now <= closeM
+              const svcActive = f.id === greenId
               const svcNext = f.open && !svcActive && now < openM && now >= openM - 60
               const svcDone = f.close && now > closeM + 30
               const dotColor = svcActive ? 'var(--gn)' : svcNext ? '#e8a530' : null
@@ -218,16 +230,17 @@ export function ViewToolbar({
                 <button key={f.id} style={{ ...chipS(serviceFilter === f.id), opacity: svcDone ? .45 : 1, position: 'relative' as const, flexDirection: 'column' as const, padding: '4px 12px', height: 'auto', minHeight: 32, gap: 1 }} onClick={() => onServiceFilter(f.id)}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     {dotColor && <span style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor, display: 'inline-block', boxShadow: dotShadow, flexShrink: 0 }} />}
-                    <span style={svcDone ? { filter: 'blur(1.5px)', WebkitFilter: 'blur(1.5px)' } : undefined}>
+                    <span style={svcDone ? { opacity: .55 } : undefined}>
                       {f.label}{cnt > 0 ? ` (${cnt})` : ''}
                     </span>
                     {svcDone && <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--t4)', textTransform: 'uppercase' as const, letterSpacing: '.04em', flexShrink: 0 }}>✓</span>}
                   </div>
-                  {f.sub && <div style={{ fontSize: 9, opacity: .55, fontWeight: 500, lineHeight: 1, ...(svcDone ? { filter: 'blur(1px)' } : {}) }}>{f.sub}</div>}
+                  {f.sub && <div style={{ fontSize: 9, opacity: .55, fontWeight: 500, lineHeight: 1, ...(svcDone ? { opacity: .45 } : {}) }}>{f.sub}</div>}
                 </button>
               )
             })}
-          </>}
+          </>
+          })()}
 
           {/* Séparateur visuel léger */}
           {onServiceFilter && onSalleFilter && (

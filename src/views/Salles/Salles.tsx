@@ -405,7 +405,7 @@ export function Salles() {
               const loM = timeToMins(svc.lastOrder)
               const closeM = timeToMins(svc.close)
               const slotCount = Math.floor((closeM - openM) / 15) + 1
-              const slotsPreview = []
+              const slotsPreview: string[] = []
               for (let m = openM; m <= loM && slotsPreview.length < 4; m += 15) {
                 slotsPreview.push(minsToSlot(m).replace('h', ':'))
               }

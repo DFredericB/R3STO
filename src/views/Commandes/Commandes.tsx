@@ -147,7 +147,7 @@ export function Commandes() {
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const [tableFilter, setTableFilter] = useState<string | null>(null);
   const [statusFilterMulti, setStatusFilterMulti] = useState<Set<string>>(new Set(['pending', 'preparing', 'ready']));
-  const notificationSoundTimeout = useRef<NodeJS.Timeout | null>(null);
+  const notificationSoundTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Available tables (demo data)
   const tables = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10'];

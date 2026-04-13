@@ -15,6 +15,25 @@ const { authMiddleware } = require('../../middleware/auth');
 const router = express.Router();
 router.use(authMiddleware);
 
+// ═══ Middleware de compat : mappe champs FR (app legacy) → EN (schema Zod)
+// Sans ça, app.r3sto.ch (bundle minifié) envoie {nom, tel, couverts, heure}
+// et la validation Zod rejette. On traduit avant validate().
+router.use((req, res, next) => {
+  if (!req.body || typeof req.body !== 'object') return next();
+  const b = req.body;
+  if (b.nom && !b.guest_name) b.guest_name = b.nom;
+  if (b.n && !b.guest_name) b.guest_name = b.n;
+  if (b.tel && !b.guest_phone) b.guest_phone = b.tel;
+  if (b.telephone && !b.guest_phone) b.guest_phone = b.telephone;
+  if (b.email && !b.guest_email) b.guest_email = b.email;
+  if (b.couverts != null && b.party_size == null) b.party_size = b.couverts;
+  if (b.pax != null && b.party_size == null) b.party_size = b.pax;
+  if (b.heure && !b.time) b.time = b.heure;
+  if (b.h && !b.time) b.time = b.h;
+  if (b.notes_client && !b.notes) b.notes = b.notes_client;
+  next();
+});
+
 // Routes statiques d'abord
 router.get('/search', controller.search);
 router.get('/stats', controller.stats);

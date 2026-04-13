@@ -1,0 +1,6 @@
+{
+  "name": "r3sto-bundle",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.mjs"
+}

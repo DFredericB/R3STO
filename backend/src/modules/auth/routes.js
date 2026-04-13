@@ -15,6 +15,8 @@ router.post('/register', validate(schema.registerSchema), controller.register);
 router.post('/login', validate(schema.loginSchema), controller.login);
 router.post('/send-otp', validate(schema.sendOtpSchema), controller.sendOtp);
 router.post('/verify-otp', validate(schema.verifyOtpSchema), controller.verifyOtp);
+router.post('/forgot-password', controller.forgotPassword);
+router.post('/reset-password', controller.resetPassword);
 router.get('/me', authMiddleware, controller.me);
 
 module.exports = router;

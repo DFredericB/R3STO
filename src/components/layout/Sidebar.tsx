@@ -15,48 +15,71 @@ interface NavItem {
   labelKey: string
   badge?: 'count' | 'pending' | 'waitlist' | number
   locked?: boolean
+  moduleId?: string   // Si défini, verrouillé sauf si enabledModules contient ce moduleId
   groupKey?: string
 }
 
 const NAV_ITEMS: NavItem[] = [
-  // OPÉRATIONS
-  { path: '/dashboard',     icon: '📊', labelKey: 'nav.dashboard', badge: 'count', groupKey: 'operations' },
-  { path: '/nouvelle-resa', icon: '➕', labelKey: 'nav.nouvelleResa', groupKey: 'operations' },
-  { path: '/agenda',        icon: '📅', labelKey: 'nav.agenda', groupKey: 'operations' },
-  { path: '/reservations',  icon: '📖', labelKey: 'nav.journal', groupKey: 'operations' },
-  { path: '/grille',        icon: '🪑', labelKey: 'nav.grid', groupKey: 'operations' },
-  { path: '/plan',          icon: '📐', labelKey: 'nav.floorplan', groupKey: 'operations' },
-  { path: '/waitlist',      icon: '⏳', labelKey: 'nav.waitlist', badge: 'waitlist', groupKey: 'operations' },
-  { path: '/groupes',       icon: '👥', labelKey: 'nav.groups', badge: 'pending', groupKey: 'operations' },
-  // CLIENTS & MARKETING
-  { path: '/clients',       icon: '👥', labelKey: 'nav.clients', groupKey: 'clients' },
+  // ── RÉSERVATIONS (cœur du quotidien) ──
+  { path: '/dashboard',     icon: '📊', labelKey: 'nav.dashboard', badge: 'count', groupKey: 'reservations' },
+  { path: '/nouvelle-resa', icon: '➕', labelKey: 'nav.nouvelleResa', groupKey: 'reservations' },
+  { path: '/agenda',        icon: '📅', labelKey: 'nav.agenda', groupKey: 'reservations' },
+  { path: '/reservations',  icon: '📖', labelKey: 'nav.journal', groupKey: 'reservations' },
+  { path: '/grille',        icon: '🪑', labelKey: 'nav.grid', groupKey: 'reservations' },
+  { path: '/plan',          icon: '📐', labelKey: 'nav.floorplan', groupKey: 'reservations' },
+  { path: '/waitlist',      icon: '⏳', labelKey: 'nav.waitlist', badge: 'waitlist', groupKey: 'reservations' },
+  { path: '/groupes',       icon: '👥', labelKey: 'nav.groups', badge: 'pending', groupKey: 'reservations' },
+  // ── CLIENTS (CRM + fidélisation) ──
+  { path: '/clients',       icon: '👤', labelKey: 'nav.clients', groupKey: 'clients' },
+  { path: '/avis',          icon: '⭐', labelKey: 'nav.reviews', groupKey: 'clients' },
+  { path: '/fidelite',      icon: '🏆', labelKey: 'nav.loyalty', groupKey: 'clients' },
   { path: '/marketing',     icon: '📣', labelKey: 'nav.campaigns', groupKey: 'clients' },
   { path: '/blacklist',     icon: '🚫', labelKey: 'nav.blacklist', groupKey: 'clients' },
-  { path: '/avis',          icon: '⭐', labelKey: 'nav.reviews', groupKey: 'clients' },
-  { path: '/fidelite',     icon: '🏆', labelKey: 'nav.loyalty', groupKey: 'clients' },
-  // CANAUX & REVENUS
-  { path: '/widget',        icon: '🔌', labelKey: 'nav.widget', groupKey: 'channels' },
-  { path: '/qrcode',        icon: '📱', labelKey: 'nav.qrcode', groupKey: 'channels' },
+  // ── CANAUX (présence en ligne + revenus) ──
+  { path: '/site-vitrine',  icon: '🖥️', labelKey: 'nav.siteVitrine', groupKey: 'channels' },
+  { path: '/widget',        icon: '🌐', labelKey: 'nav.widget', groupKey: 'channels' },
   { path: '/menu',          icon: '📋', labelKey: 'nav.menu', groupKey: 'channels' },
-  { path: '/commandes',     icon: '🔔', labelKey: 'nav.orders', groupKey: 'channels' },
-  { path: '/prepaiement',   icon: '💳', labelKey: 'nav.prepayment', groupKey: 'channels' },
+  { path: '/qrcode',        icon: '📱', labelKey: 'nav.qrcode', groupKey: 'channels' },
   { path: '/cadeaux',       icon: '🎁', labelKey: 'nav.giftCards', groupKey: 'channels' },
-  // R3STO ORDER (BÊTA) — flouté / bientôt disponible
-  { path: '/kds-cuisine',   icon: '🍳', labelKey: 'nav.kdsCuisine', groupKey: 'r3sto-order', locked: true },
-  { path: '/kds-bar',       icon: '🍸', labelKey: 'nav.kdsBar', groupKey: 'r3sto-order', locked: true },
-  { path: '/service',       icon: '🧑‍💼', labelKey: 'nav.service', groupKey: 'r3sto-order', locked: true },
-  { path: '/caisse',        icon: '💰', labelKey: 'nav.register', groupKey: 'r3sto-order', locked: true },
-  // CONFIGURATION
-  { path: '/profil',        icon: '🍽️', labelKey: 'nav.myRestaurant', groupKey: 'config' },
-  { path: '/salles',        icon: '🚪', labelKey: 'nav.roomsServices', groupKey: 'config' },
-  { path: '/fermetures',    icon: '📅', labelKey: 'nav.closures', groupKey: 'config' },
-  { path: '/setup-plan',    icon: '📐', labelKey: 'nav.planTables', groupKey: 'config' },
-  { path: '/options',       icon: '⚙️', labelKey: 'nav.options', groupKey: 'config' },
-  { path: '/multisite',     icon: '🏢', labelKey: 'nav.multisite', groupKey: 'config' },
-  // ADMINISTRATION
-  { path: '/acces-roles',   icon: '🔐', labelKey: 'nav.teamAccess', groupKey: 'admin' },
-  { path: '/historique',    icon: '📜', labelKey: 'nav.history', groupKey: 'admin' },
-  { path: '/support',       icon: '💬', labelKey: 'nav.support', groupKey: 'admin' },
+  { path: '/prepaiement',   icon: '💳', labelKey: 'nav.prepayment', groupKey: 'channels' },
+  { path: '/marketplace',   icon: '🛒', labelKey: 'nav.marketplace', groupKey: 'channels' },
+  { path: '/modules',       icon: '🧩', labelKey: 'nav.modules', groupKey: 'channels' },
+  // ── R3STO ORDER ──
+  { path: '/commandes',     icon: '🔔', labelKey: 'nav.orders', groupKey: 'r3sto-order' },
+  { path: '/kds-cuisine',   icon: '🍳', labelKey: 'nav.kdsCuisine', groupKey: 'r3sto-order', moduleId: 'order' },
+  { path: '/kds-bar',       icon: '🍸', labelKey: 'nav.kdsBar', groupKey: 'r3sto-order', moduleId: 'order' },
+  { path: '/service',       icon: '🧑‍💼', labelKey: 'nav.service', groupKey: 'r3sto-order', moduleId: 'order' },
+  { path: '/caisse',        icon: '💰', labelKey: 'nav.register', groupKey: 'r3sto-order', moduleId: 'order' },
+  // ── R3STO DELIVERY ──
+  { path: '/delivery',          icon: '🛵', labelKey: 'nav.delivery', groupKey: 'r3sto-delivery' },
+  { path: '/delivery-orders',   icon: '📦', labelKey: 'nav.deliveryOrders', groupKey: 'r3sto-delivery' },
+  { path: '/delivery-tracking', icon: '📍', labelKey: 'nav.deliveryTracking', groupKey: 'r3sto-delivery', moduleId: 'delivery' },
+  { path: '/delivery-zones',    icon: '🗺️', labelKey: 'nav.deliveryZones', groupKey: 'r3sto-delivery', moduleId: 'delivery' },
+  // ── R3STO CRM (prospects + newsletter) ──
+  { path: '/crm',          icon: '📇', labelKey: 'nav.crm', groupKey: 'r3sto-crm' },
+  { path: '/newsletter',   icon: '📧', labelKey: 'nav.newsletter', groupKey: 'r3sto-crm' },
+  // ── ADMIN MARKETPLACE (visible uniquement dans admin.r3sto.ch) ──
+  // ── ADMIN ERP (gestion complete) ──
+  { path: '/admin-dashboard', icon: '📊', labelKey: 'nav.adminDashboard', groupKey: 'admin-erp' },
+  { path: '/equipes',         icon: '👷', labelKey: 'nav.equipes', groupKey: 'admin-erp' },
+  { path: '/finance',         icon: '💶', labelKey: 'nav.finance', groupKey: 'admin-erp' },
+  { path: '/plateforme',      icon: '🖥️', labelKey: 'nav.plateforme', groupKey: 'admin-erp' },
+  { path: '/admin-marketplace', icon: '🏪', labelKey: 'nav.adminMarketplace', groupKey: 'admin-marketplace' },
+  // ── RÉGLAGES (toute la configuration) ──
+  { path: '/profil',        icon: '🍽️', labelKey: 'nav.myRestaurant', groupKey: 'settings' },
+  { path: '/salles',        icon: '🚪', labelKey: 'nav.roomsServices', groupKey: 'settings' },
+  { path: '/tables',        icon: '🪑', labelKey: 'nav.tablesCombos', groupKey: 'settings' },
+  { path: '/setup-plan',    icon: '🔧', labelKey: 'nav.tablesPlan', groupKey: 'settings' },
+  { path: '/fermetures',    icon: '🔒', labelKey: 'nav.closures', groupKey: 'settings' },
+  { path: '/options',       icon: '⚙️', labelKey: 'nav.options', groupKey: 'settings' },
+  { path: '/acces-roles',   icon: '🔐', labelKey: 'nav.teamAccess', groupKey: 'settings' },
+  { path: '/multisite',     icon: '🏢', labelKey: 'nav.multisite', groupKey: 'settings' },
+  // ── AIDE ──
+  { path: '/historique',    icon: '📜', labelKey: 'nav.history', groupKey: 'help' },
+  { path: '/admin-tickets', icon: '🎫', labelKey: 'nav.tickets', groupKey: 'help' },
+  { path: '/support',       icon: '💬', labelKey: 'nav.support', groupKey: 'help' },
+  { path: '/audit',         icon: '🔍', labelKey: 'nav.audit', groupKey: 'admin-erp' },
+  { path: '/alertes',       icon: '⚠️', labelKey: 'nav.alertes', groupKey: 'admin-erp' },
 ]
 
 export function Sidebar() {
@@ -65,9 +88,12 @@ export function Sidebar() {
   const { sidebarCollapsed, resas, activeDate } = useAppStore()
   const { t } = useT()
 
+  const isAdmin = window.location.hostname.startsWith('admin.')
   const collapsed = sidebarCollapsed
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQ, setSearchQ] = useState('')
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({})
+  const toggleGroup = (gk: string) => setCollapsedGroups(prev => ({ ...prev, [gk]: !prev[gk] }))
   const searchRef = useRef<HTMLInputElement>(null)
   useEffect(() => { if (searchOpen && searchRef.current) searchRef.current.focus() }, [searchOpen])
   // ⌘K shortcut
@@ -83,7 +109,7 @@ export function Sidebar() {
   return (
     <>
     <style>{`@keyframes sidebarPulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
-    <nav style={{
+    <nav className="sidebar" style={{
       width: w,
       minWidth: collapsed ? 56 : 230,
       background: 'var(--surf)',
@@ -97,30 +123,56 @@ export function Sidebar() {
       transition: 'width .2s ease, min-width .2s ease',
     }}>
       <div style={{ padding: collapsed ? '8px 4px' : '8px 6px', flex: 1 }}>
-        {(searchOpen && searchQ ? NAV_ITEMS.filter(n => t(n.labelKey).toLowerCase().includes(searchQ.toLowerCase())) : NAV_ITEMS).map((item, i) => {
+        {(() => {
+          const filtered = (searchOpen && searchQ ? NAV_ITEMS.filter(n => t(n.labelKey).toLowerCase().includes(searchQ.toLowerCase())) : NAV_ITEMS).filter(item => {
+            // Admin panel : ne montrer que CRM, Newsletter, aide
+            if (isAdmin) return item.groupKey === 'r3sto-crm' || item.groupKey === 'admin-marketplace' || item.groupKey === 'admin-erp' || item.groupKey === 'help'
+            // App normale : cacher le groupe r3sto-crm
+            return item.groupKey !== 'r3sto-crm' && item.groupKey !== 'admin-marketplace' && item.groupKey !== 'admin-erp'
+          })
+          return filtered.map((item, i) => {
+          // Module-gated: verrouillé sauf si le module est activé
+          const isLocked = item.locked || false
           const isActive = location.pathname === item.path
-          const showGroup = item.groupKey && (i === 0 || item.groupKey !== NAV_ITEMS[i-1]?.groupKey)
+          const showGroup = item.groupKey && (i === 0 || item.groupKey !== filtered[i-1]?.groupKey)
+          const isGroupCollapsed = item.groupKey ? collapsedGroups[item.groupKey] : false
           const groupKeyMap: Record<string, { label: string; badge?: string }> = {
-            operations: { label: 'nav.operations' },
-            clients: { label: 'nav.clientsMarketing' },
-            channels: { label: 'nav.channelsRevenue' },
-            'r3sto-order': { label: 'R3STO Order', badge: 'BÊTA' },
-            config: { label: 'nav.config' },
-            admin: { label: 'nav.admin' },
+            reservations: { label: 'nav.reservations' },
+            clients: { label: 'nav.clients_section' },
+            channels: { label: 'nav.channels' },
+            'r3sto-order': { label: 'R3STO Order' },
+            'r3sto-delivery': { label: 'R3STO Delivery' },
+            'r3sto-crm': { label: 'R3STO CRM' },
+            settings: { label: 'nav.settings' },
+            help: { label: 'nav.help' },
+            'admin-erp': { label: 'R3STO ERP' },
+            'admin-marketplace': { label: 'Marketplace' },
           }
           const displayLabel = t(item.labelKey)
           const groupConfig = item.groupKey ? groupKeyMap[item.groupKey] : undefined
           const displayGroup = groupConfig ? (groupConfig.label.startsWith('nav.') ? t(groupConfig.label) : groupConfig.label) : undefined
 
+          // Hide items if their group is collapsed (but always show active item)
+          if (isGroupCollapsed && !showGroup && !isActive) return null
+
           return (
             <div key={item.path}>
               {showGroup && !collapsed && (
-                <div style={{
-                  fontSize: 10, fontWeight: 700,
-                  letterSpacing: '.1em', textTransform: 'uppercase',
-                  color: 'var(--t4)', padding: '10px 9px 3px',
-                  display: 'flex', alignItems: 'center', gap: 6
-                }}>
+                <div
+                  onClick={() => item.groupKey && toggleGroup(item.groupKey)}
+                  style={{
+                    fontSize: 10, fontWeight: 700,
+                    letterSpacing: '.1em', textTransform: 'uppercase',
+                    color: 'var(--t4)', padding: '10px 9px 3px',
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    cursor: 'pointer', userSelect: 'none',
+                  }}
+                >
+                  <span style={{
+                    fontSize: 8, transition: 'transform .15s',
+                    transform: isGroupCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                    opacity: 0.5,
+                  }}>▼</span>
                   <span>{displayGroup}</span>
                   {groupConfig?.badge && (
                     <span style={{
@@ -131,13 +183,18 @@ export function Sidebar() {
                       {groupConfig.badge}
                     </span>
                   )}
+                  {isGroupCollapsed && (
+                    <span style={{ fontSize: 8, color: 'var(--t4)', fontFamily: 'var(--fm)', fontWeight: 400, letterSpacing: 0, textTransform: 'none' }}>
+                      …
+                    </span>
+                  )}
                 </div>
               )}
               {showGroup && collapsed && i > 0 && (
                 <div style={{ borderTop: '1px solid var(--border)', margin: '4px 6px' }} />
               )}
               <button
-                onClick={() => !item.locked && navigate(item.path)}
+                onClick={() => !isLocked && navigate(item.path)}
                 title={collapsed ? displayLabel : undefined}
                 style={{
                   position: 'relative',
@@ -147,13 +204,13 @@ export function Sidebar() {
                   background: isActive ? 'var(--bp)' : 'transparent',
                   border: `1px solid ${isActive ? 'var(--b2)' : 'transparent'}`,
                   borderRadius: 8,
-                  color: isActive ? 'var(--bl)' : item.locked ? 'var(--t4)' : 'var(--t2)',
-                  cursor: item.locked ? 'default' : 'pointer',
+                  color: isActive ? 'var(--bl)' : isLocked ? 'var(--t4)' : 'var(--t2)',
+                  cursor: isLocked ? 'default' : 'pointer',
                   textAlign: 'left',
                   fontSize: 12, fontWeight: 600,
                   fontFamily: 'var(--ff)',
                   marginBottom: 2,
-                  opacity: item.locked ? 0.55 : 1,
+                  opacity: isLocked ? 0.55 : 1,
                   transition: 'all .1s',
                 }}
               >
@@ -163,7 +220,9 @@ export function Sidebar() {
                     {displayLabel}
                   </span>
                 )}
-                {!collapsed && item.locked && <span style={{ fontSize: 11 }}>🔒</span>}
+                {!collapsed && isLocked && (
+                  <span style={{ fontSize: 8, fontWeight: 700, padding: '2px 5px', borderRadius: 4, background: 'rgba(245,158,11,.12)', color: 'var(--am)', letterSpacing: '.03em' }}>BIENTÔT</span>
+                )}
                 {(() => {
                   // Live badge counts
                   let badgeCount = 0
@@ -213,7 +272,8 @@ export function Sidebar() {
               </button>
             </div>
           )
-        })}
+        })
+        })()}
       </div>
 
       {/* Footer Section */}
@@ -277,7 +337,7 @@ export function Sidebar() {
         {/* Role Badge */}
         {!collapsed && (
           <button
-            onClick={() => navigate('/acces')}
+            onClick={() => navigate('/acces-roles')}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               width: '100%', padding: '6px 8px',

@@ -82,7 +82,7 @@ function CanalBadge({ label, count, icon }: { label: string; count: number; icon
 
 // ═════════════════════════════════════════════════
 export function Dashboard() {
-  const { resas, tables, services, salles, resto, activeDate } = useAppStore()
+  const { resas, tables, services, salles, resto, activeDate, setActiveDate } = useAppStore()
   const navigate = useNavigate()
   const { t, fmtDate } = useT()
   const todayDate = todayISO()
@@ -132,7 +132,7 @@ export function Dashboard() {
     }
     if (period === 'year') {
       // Année complète sélectionnée
-      const days: typeof periodDays = []
+      const days: { iso: string; count: number; cvt: number; noshow: number; total: number }[] = []
       for (let m = 0; m < 12; m++) {
         const numDays = daysInMonth(selYear, m)
         for (let d = 1; d <= numDays; d++) {
@@ -426,13 +426,13 @@ export function Dashboard() {
           {period === 'day' && (
             <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginLeft: 4 }}>
               <button onClick={() => {
-                const d = new Date(selDay + 'T12:00:00'); d.setDate(d.getDate() - 1); setSelDay(toISO(d))
+                const d = new Date(selDay + 'T12:00:00'); d.setDate(d.getDate() - 1); const iso = toISO(d); setSelDay(iso); setActiveDate(iso)
               }} style={{ border: '1px solid var(--border)', background: 'var(--surf3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, fontWeight: 700, color: 'var(--t2)' }}>◀</button>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', minWidth: 140, textAlign: 'center' }}>
                 {periodLabel}
               </span>
               <button onClick={() => {
-                const d = new Date(selDay + 'T12:00:00'); d.setDate(d.getDate() + 1); setSelDay(toISO(d))
+                const d = new Date(selDay + 'T12:00:00'); d.setDate(d.getDate() + 1); const iso = toISO(d); setSelDay(iso); setActiveDate(iso)
               }} style={{ border: '1px solid var(--border)', background: 'var(--surf3)', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, fontWeight: 700, color: 'var(--t2)' }}>▶</button>
             </div>
           )}

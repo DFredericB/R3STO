@@ -51,15 +51,17 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     stripePriceId: 'price_1TFWg9906pQ0p9GXfDcLAi20',
     color: 'var(--gn)',
     features: [
+      'Vue Grille',
+      'Vue Agenda',
+      'Vue Journal',
       'Widget de réservation en ligne',
       'Confirmations & rappels email auto',
-      'Plan de salle interactif',
-      'Salles illimitées',
       'Services multiples (midi, soir…)',
       'Fermeture exceptionnelle',
+      'Salles illimitées',
       'Taux de remplissage',
       'Export CSV',
-      '2 utilisateurs',
+      '1 utilisateur',
       'Support email',
     ],
   },
@@ -71,15 +73,16 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     color: 'var(--bl)',
     features: [
       'Tout Bistro +',
+      'Plan de salle 2D interactif',
       'QR code de réservation',
       'Rappels SMS automatiques',
       'Gestion no-shows & blacklist',
       'Fiche client & préférences',
       'Score fidélité client',
-      'SMS rappel J-1',
-      'SmartScan (IA photo)',
+      "Liste d'attente automatique",
+      'Widget personnalisable',
       'Utilisateurs illimités',
-      'Chat support & onboarding',
+      'Chat support & onboarding accompagné',
     ],
   },
   gastro: {
@@ -99,6 +102,74 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       'Optimisation créneaux IA',
       'API REST publique',
       'Support prioritaire + SLA',
+    ],
+  },
+}
+
+// ── Module Add-on definitions ──
+export type ModuleId = 'order' | 'cash' | 'delivery'
+
+export interface ModuleConfig {
+  name: string
+  priceMonthly: number
+  priceAnnual: number
+  stripePriceId: string   // TODO: create in Stripe and replace
+  color: string
+  icon: string
+  description: string
+  features: string[]
+}
+
+export const MODULES: Record<ModuleId, ModuleConfig> = {
+  order: {
+    name: 'Order',
+    priceMonthly: 25,
+    priceAnnual: 300,
+    stripePriceId: '', // TODO: Stripe Price ID à créer
+    color: 'var(--am)',
+    icon: '📋',
+    description: 'Commandes QR code à table',
+    features: [
+      'Menu digital multi-langues',
+      'QR code à table',
+      'Envoi en cuisine en temps réel',
+      'Paiement à table',
+      'Supplément & commentaires',
+      'Historique commandes',
+    ],
+  },
+  cash: {
+    name: 'Cash',
+    priceMonthly: 19,
+    priceAnnual: 228,
+    stripePriceId: '', // TODO: Stripe Price ID à créer
+    color: 'var(--gn)',
+    icon: '💳',
+    description: 'Bons cadeaux & fidélité',
+    features: [
+      'Bons cadeaux personnalisés',
+      'Programme fidélité par points',
+      'Facturation complète',
+      'Export comptable',
+      'Paiement en ligne',
+      'Tableau de bord financier',
+    ],
+  },
+  delivery: {
+    name: 'Delivery',
+    priceMonthly: 29,
+    priceAnnual: 348,
+    stripePriceId: '', // TODO: Stripe Price ID à créer
+    color: 'var(--rd)',
+    icon: '🛵',
+    description: 'Click & collect + livraison',
+    features: [
+      'Click & collect',
+      'Livraison avec zones',
+      'Frais de livraison par zone',
+      'Suivi temps réel',
+      'Intégration livreurs',
+      'Créneaux horaires',
     ],
   },
 }

@@ -4,10 +4,10 @@
 //  Modes : Tampons · Points · Cashback
 // ══════════════════════════════════════════════════
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
-import type { LoyaltyCard, LoyaltyEvent, LoyaltyMode } from '../../types'
+import type { LoyaltyCard, LoyaltyEvent, LoyaltyMode, LoyaltyTier } from '../../types'
 
 // ── Design tokens ────────────────────────────────
 const R  = 10
@@ -60,10 +60,10 @@ const MODE_LABELS: Record<LoyaltyMode, { fr: string; icon: string; unit: string 
 }
 
 export function Fidelite() {
-  const { t } = useT()
+  const { t, days } = useT()
   const {
-    loyaltyConfig, loyaltyCards, clients,
-    updateLoyaltyConfig, addLoyaltyCard, deleteLoyaltyCard, addLoyaltyEvent
+    loyaltyConfig, loyaltyCards, clients, resas,
+    updateLoyaltyConfig, addLoyaltyCard, deleteLoyaltyCard, addLoyaltyEvent, updateLoyaltyCard
   } = useAppStore()
 
   type Tab = 'dashboard' | 'members' | 'config'
@@ -77,6 +77,119 @@ export function Fidelite() {
   const cfg = loyaltyConfig
   const mode = cfg.mode
   const modeInfo = MODE_LABELS[mode]
+
+  // ── Tier helper ───────────────────────────────
+  const getTier = (totalEarned: number): LoyaltyTier | null => {
+    if (!cfg.tiersEnabled || !cfg.tiers?.length) return null
+    const sorted = [...cfg.tiers].sort((a, b) => b.minEarned - a.minEarned)
+    return sorted.find(t => totalEarned >= t.minEarned) || null
+  }
+
+  // ── Auto-enrollment : inscrire les clients auto depuis les résas done ──
+  const lastResaSnapshot = useRef(resas.filter(r => r.s === 'done').length)
+  useEffect(() => {
+    if (!cfg.active || !cfg.autoEnroll) return
+    const doneResas = resas.filter(r => r.s === 'done')
+    if (doneResas.length === lastResaSnapshot.current) return
+    lastResaSnapshot.current = doneResas.length
+
+    const enrolledClientIds = new Set(loyaltyCards.map(lc => lc.clientId))
+    const enrolledTels = new Set(
+      loyaltyCards.map(lc => {
+        const cl = clients.find(c => c.id === lc.clientId)
+        return cl?.tel || ''
+      }).filter(Boolean)
+    )
+
+    for (const r of doneResas) {
+      // Find matching client
+      const client = clients.find(c =>
+        (c.tel && c.tel === r.tel) || (c.nom === r.nom && c.prenom === r.prenom)
+      )
+      if (!client) continue
+      if (enrolledClientIds.has(client.id)) continue
+      if (client.tel && enrolledTels.has(client.tel)) continue
+
+      // Auto-enroll
+      const newCard: LoyaltyCard = {
+        id: uid(),
+        clientId: client.id,
+        clientName: `${client.prenom} ${client.nom}`,
+        clientEmail: client.email,
+        points: cfg.welcomeBonus,
+        stamps: mode === 'stamps' ? cfg.welcomeBonus : 0,
+        cashbackBalance: 0,
+        totalEarned: cfg.welcomeBonus,
+        rewardsUsed: 0,
+        joinedAt: Date.now(),
+        lastActivity: today(),
+        tier: getTier(cfg.welcomeBonus)?.name,
+        history: cfg.welcomeBonus > 0 ? [{
+          id: uid(), date: today(), type: 'bonus',
+          amount: cfg.welcomeBonus, label: 'Bonus bienvenue (auto)'
+        }] : []
+      }
+      addLoyaltyCard(newCard)
+      enrolledClientIds.add(client.id)
+    }
+  }, [resas, cfg.active, cfg.autoEnroll])
+
+  // ── Auto-earn : ajouter points/tampons quand résa → done ──
+  const processedResaIds = useRef(new Set<string>())
+  useEffect(() => {
+    if (!cfg.active || !cfg.autoEarnOnDone) return
+    const doneResas = resas.filter(r => r.s === 'done' && !processedResaIds.current.has(r.id))
+
+    for (const r of doneResas) {
+      processedResaIds.current.add(r.id)
+      // Find matching loyalty card
+      const client = clients.find(c =>
+        (c.tel && c.tel === r.tel) || (c.nom === r.nom && c.prenom === r.prenom)
+      )
+      if (!client) continue
+      const card = loyaltyCards.find(lc => lc.clientId === client.id)
+      if (!card) continue
+
+      // Check if this resa was already credited
+      if (card.history.some(ev => ev.resaId === r.id)) continue
+
+      const isDouble = cfg.doublePointsDays.includes(new Date(r.date).getDay())
+      const multiplier = isDouble ? 2 : 1
+
+      let amount = 0
+      let labelText = ''
+      if (mode === 'stamps') {
+        amount = 1 * multiplier
+        labelText = `+${amount} tampon${amount > 1 ? 's' : ''} (visite${isDouble ? ' x2' : ''})`
+      } else if (mode === 'points') {
+        // Estimate CHF from covers (avg 40 CHF/cover in demo)
+        const estimatedChf = r.c * 40
+        amount = Math.round(estimatedChf * cfg.pointsPerChf) * multiplier
+        labelText = `+${amount} pts (${r.c}p${isDouble ? ' x2' : ''})`
+      } else {
+        const estimatedChf = r.c * 40
+        amount = Math.round(estimatedChf * cfg.cashbackPercent / 100 * 100) / 100 * multiplier
+        labelText = `+${amount.toFixed(2)} CHF cashback (${r.c}p${isDouble ? ' x2' : ''})`
+      }
+
+      const event: LoyaltyEvent = {
+        id: uid(), date: r.date, type: 'earn',
+        amount, label: labelText, resaId: r.id
+      }
+      addLoyaltyEvent(card.id, event)
+    }
+  }, [resas, loyaltyCards, cfg.active, cfg.autoEarnOnDone])
+
+  // ── Update tiers on cards ──
+  useEffect(() => {
+    if (!cfg.tiersEnabled || !cfg.tiers?.length) return
+    for (const card of loyaltyCards) {
+      const tier = getTier(card.totalEarned)
+      if (tier && tier.name !== card.tier) {
+        updateLoyaltyCard(card.id, { tier: tier.name })
+      }
+    }
+  }, [loyaltyCards, cfg.tiersEnabled, cfg.tiers])
 
   // ── KPI calculations ──────────────────────────
   const totalMembers = loyaltyCards.length
@@ -182,27 +295,27 @@ export function Fidelite() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--t1)', fontFamily: FF, margin: 0 }}>
-            🏆 Programme Fidélité
+            🏆 {t('fid.title')}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--t3)', marginTop: 4, fontFamily: FF }}>
             {cfg.active
-              ? `Mode ${modeInfo.fr} — ${totalMembers} membre${totalMembers > 1 ? 's' : ''}`
-              : 'Programme désactivé — configurez et activez ci-dessous'
+              ? `Mode ${modeInfo.fr} — ${totalMembers} ${t('fid.members').toLowerCase()}${cfg.autoEnroll ? ' · Auto' : ''}`
+              : t('fid.disabled')
             }
           </p>
         </div>
         {cfg.active && (
           <button style={btn('primary')} onClick={() => setShowAdd(true)}>
-            + Inscrire client
+            {t('fid.addMember')}
           </button>
         )}
       </div>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {(['dashboard', 'members', 'config'] as Tab[]).map(t => (
-          <button key={t} style={pill(tab === t)} onClick={() => { setTab(t); setSelectedCard(null) }}>
-            {t === 'dashboard' ? '📊 Tableau de bord' : t === 'members' ? '👥 Membres' : '⚙️ Configuration'}
+        {(['dashboard', 'members', 'config'] as Tab[]).map(tb => (
+          <button key={tb} style={pill(tab === tb)} onClick={() => { setTab(tb); setSelectedCard(null) }}>
+            {tb === 'dashboard' ? `📊 ${t('fid.dashboard')}` : tb === 'members' ? `👥 ${t('fid.members')}` : `⚙️ ${t('fid.config')}`}
           </button>
         ))}
       </div>
@@ -213,11 +326,11 @@ export function Fidelite() {
           {/* KPIs */}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
             <div style={kpiBox}>
-              <div style={label}>Membres inscrits</div>
+              <div style={label}>{t('fid.totalMembers')}</div>
               <div style={bigNum}>{totalMembers}</div>
             </div>
             <div style={kpiBox}>
-              <div style={label}>Actifs (90j)</div>
+              <div style={label}>{t('fid.members')} (90j)</div>
               <div style={{ ...bigNum, color: 'var(--gn)' }}>{activeMembers}</div>
             </div>
             <div style={kpiBox}>
@@ -227,10 +340,30 @@ export function Fidelite() {
               </div>
             </div>
             <div style={kpiBox}>
-              <div style={label}>Récompenses utilisées</div>
+              <div style={label}>{t('fid.rewardsUsed')}</div>
               <div style={{ ...bigNum, color: '#f59e0b' }}>{totalRewardsUsed}</div>
             </div>
           </div>
+
+          {/* Tier breakdown */}
+          {cfg.tiersEnabled && (cfg.tiers || []).length > 0 && loyaltyCards.length > 0 && (
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
+              {(cfg.tiers || []).map(tier => {
+                const count = loyaltyCards.filter(c => c.tier === tier.name).length
+                return (
+                  <div key={tier.name} style={{
+                    ...card({ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 140 }),
+                  }}>
+                    <span style={{ fontSize: 24 }}>{tier.icon}</span>
+                    <div>
+                      <div style={{ fontSize: 18, fontWeight: 800, fontFamily: FM, color: tier.color }}>{count}</div>
+                      <div style={{ fontSize: 10, color: 'var(--t4)', fontFamily: FF }}>{tier.name}</div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
           {/* Mode summary card */}
           <div style={{ ...card(), marginBottom: 16 }}>
@@ -306,13 +439,13 @@ export function Fidelite() {
             <div style={{ ...card(), textAlign: 'center', padding: 40 }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>🏆</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--t2)', fontFamily: FF }}>
-                Aucun membre encore
+                {t('fid.noMembers')}
               </div>
               <div style={{ fontSize: 12, color: 'var(--t3)', fontFamily: FF, marginTop: 4 }}>
-                Inscrivez votre premier client au programme
+                {t('fid.enrollFirst')}
               </div>
               <button style={{ ...btn('primary'), marginTop: 16 }} onClick={() => setShowAdd(true)}>
-                + Inscrire un client
+                {t('fid.addMember')}
               </button>
             </div>
           )}
@@ -341,7 +474,7 @@ export function Fidelite() {
           <div style={{ marginBottom: 16 }}>
             <input
               style={input}
-              placeholder="🔍 Rechercher un membre…"
+              placeholder={`🔍 ${t('fid.search')}`}
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -377,6 +510,15 @@ export function Fidelite() {
                       <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--t1)', fontFamily: FF }}>
                         {c.clientName}
                       </span>
+                      {(() => {
+                        const tier = getTier(c.totalEarned)
+                        return tier ? (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
+                            background: `${tier.color}22`, color: tier.color,
+                          }}>{tier.icon} {tier.name}</span>
+                        ) : null
+                      })()}
                       {canRedeem && (
                         <span style={{
                           fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
@@ -416,7 +558,7 @@ export function Fidelite() {
                     {canRedeem && (
                       <button style={{ ...btn('primary'), background: '#f59e0b' }}
                         onClick={() => handleRedeem(c.id)}
-                        title="Utiliser récompense">
+                        title={t('fid.useReward')}>
                         🎁
                       </button>
                     )}
@@ -438,7 +580,7 @@ export function Fidelite() {
       {tab === 'members' && detail && (
         <div>
           <button style={{ ...btn('ghost'), marginBottom: 16 }} onClick={() => setSelectedCard(null)}>
-            ← Retour à la liste
+            ← {t('fid.members')}
           </button>
           <div style={{ ...card(), marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -454,19 +596,30 @@ export function Fidelite() {
                 <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--t1)', fontFamily: FF }}>
                   {detail.clientName}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--t3)', fontFamily: FF }}>
-                  {detail.clientEmail}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 12, color: 'var(--t3)', fontFamily: FF }}>
+                    {detail.clientEmail}
+                  </span>
+                  {(() => {
+                    const tier = getTier(detail.totalEarned)
+                    return tier ? (
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5,
+                        background: `${tier.color}22`, color: tier.color, border: `1px solid ${tier.color}44`,
+                      }}>{tier.icon} {tier.name} — {tier.perks}</span>
+                    ) : null
+                  })()}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button style={btn('primary')} onClick={() => { setShowStamp(detail.id); setStampAmount(1) }}>
-                  + Ajouter {modeInfo.unit}
+                  + {t('fid.addUnit')} {modeInfo.unit}
                 </button>
                 {(() => {
                   const val = mode === 'stamps' ? detail.stamps : mode === 'cashback' ? detail.cashbackBalance : detail.points
                   return val >= cfg.rewardThreshold ? (
                     <button style={{ ...btn('primary'), background: '#f59e0b' }} onClick={() => handleRedeem(detail.id)}>
-                      🎁 Utiliser récompense
+                      🎁 {t('fid.useReward')}
                     </button>
                   ) : null
                 })()}
@@ -477,9 +630,9 @@ export function Fidelite() {
             <div style={{ display: 'flex', gap: 16, marginTop: 20, flexWrap: 'wrap' }}>
               {[
                 { label: modeInfo.fr, value: mode === 'stamps' ? detail.stamps : mode === 'cashback' ? detail.cashbackBalance : detail.points, color: 'var(--bl)' },
-                { label: 'Total gagné', value: detail.totalEarned, color: 'var(--gn)' },
-                { label: 'Récompenses', value: detail.rewardsUsed, color: '#f59e0b' },
-                { label: 'Dernière activité', value: detail.lastActivity, color: 'var(--t2)', isDate: true },
+                { label: t('fid.totalEarned'), value: detail.totalEarned, color: 'var(--gn)' },
+                { label: t('fid.rewardsUsed'), value: detail.rewardsUsed, color: '#f59e0b' },
+                { label: t('fid.lastActivity'), value: detail.lastActivity, color: 'var(--t2)', isDate: true },
               ].map((s, i) => (
                 <div key={i} style={{ ...card({ background: 'var(--bg2)', flex: 1, minWidth: 120, textAlign: 'center' }) }}>
                   <div style={label}>{s.label}</div>
@@ -511,11 +664,11 @@ export function Fidelite() {
           {/* History */}
           <div style={card()}>
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--t1)', fontFamily: FF, marginBottom: 12 }}>
-              📜 Historique
+              📜 {t('fid.history')}
             </div>
             {detail.history.length === 0 && (
               <div style={{ textAlign: 'center', padding: 20, color: 'var(--t4)', fontSize: 13 }}>
-                Aucun événement
+                {t('fid.noHistory')}
               </div>
             )}
             {[...detail.history].reverse().map(ev => (
@@ -556,7 +709,7 @@ export function Fidelite() {
                 setSelectedCard(null)
               }
             }}>
-              Supprimer du programme
+              {t('fid.delete')}
             </button>
           </div>
         </div>
@@ -570,7 +723,7 @@ export function Fidelite() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--t1)', fontFamily: FF }}>
-                  Activer le programme
+                  {t('fid.activate')} {t('fid.title').toLowerCase()}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--t3)', fontFamily: FF, marginTop: 2 }}>
                   Les clients pourront accumuler des {modeInfo.unit} et obtenir des récompenses
@@ -713,7 +866,7 @@ export function Fidelite() {
               Jours double {modeInfo.unit}
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'].map((d, i) => {
+              {days.map((d, i) => {
                 const isOn = cfg.doublePointsDays.includes(i)
                 return (
                   <button key={i} onClick={() => {
@@ -736,6 +889,207 @@ export function Fidelite() {
             </div>
             <div style={{ fontSize: 11, color: 'var(--t4)', fontFamily: FF, marginTop: 8 }}>
               Les {modeInfo.unit} sont doublés ces jours-là
+            </div>
+          </div>
+
+          {/* Automatisation */}
+          <div style={card()}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--t1)', fontFamily: FF, marginBottom: 12 }}>
+              🤖 Automatisation
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Auto-enroll */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, fontFamily: FF, color: 'var(--t1)' }}>Inscription automatique</div>
+                  <div style={{ fontSize: 11, color: 'var(--t3)', fontFamily: FF }}>
+                    Inscrire automatiquement chaque client après sa 1ère réservation terminée
+                  </div>
+                </div>
+                <button onClick={() => updateLoyaltyConfig({ autoEnroll: !cfg.autoEnroll })}
+                  style={{
+                    width: 44, height: 24, borderRadius: 12, border: 'none',
+                    background: cfg.autoEnroll ? 'var(--gn)' : 'var(--bg3)',
+                    cursor: 'pointer', position: 'relative', transition: 'background .2s',
+                  }}>
+                  <div style={{
+                    width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                    position: 'absolute', top: 3, left: cfg.autoEnroll ? 23 : 3,
+                    transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.2)',
+                  }} />
+                </button>
+              </div>
+
+              {/* Auto-earn */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, fontFamily: FF, color: 'var(--t1)' }}>Accumulation automatique</div>
+                  <div style={{ fontSize: 11, color: 'var(--t3)', fontFamily: FF }}>
+                    Ajouter les {modeInfo.unit} automatiquement quand une réservation passe à "Terminé"
+                  </div>
+                </div>
+                <button onClick={() => updateLoyaltyConfig({ autoEarnOnDone: !cfg.autoEarnOnDone })}
+                  style={{
+                    width: 44, height: 24, borderRadius: 12, border: 'none',
+                    background: cfg.autoEarnOnDone ? 'var(--gn)' : 'var(--bg3)',
+                    cursor: 'pointer', position: 'relative', transition: 'background .2s',
+                  }}>
+                  <div style={{
+                    width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                    position: 'absolute', top: 3, left: cfg.autoEarnOnDone ? 23 : 3,
+                    transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.2)',
+                  }} />
+                </button>
+              </div>
+
+              {/* Flow visual */}
+              <div style={{
+                padding: '10px 14px', background: 'var(--bg2)', borderRadius: 8, border: '1px solid var(--border)',
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--t4)', fontFamily: FF, marginBottom: 6, textTransform: 'uppercase', letterSpacing: .5 }}>Flow automatique</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', fontSize: 11, fontFamily: FF }}>
+                  <span style={{ padding: '3px 8px', borderRadius: 4, background: 'var(--gn)', color: '#fff', fontWeight: 700 }}>✅ Résa terminée</span>
+                  <span style={{ color: 'var(--t4)' }}>→</span>
+                  {cfg.autoEnroll && <>
+                    <span style={{ padding: '3px 8px', borderRadius: 4, background: 'var(--bl)', color: '#fff', fontWeight: 700 }}>📝 Auto-inscription</span>
+                    <span style={{ color: 'var(--t4)' }}>→</span>
+                  </>}
+                  {cfg.autoEarnOnDone && (
+                    <span style={{ padding: '3px 8px', borderRadius: 4, background: '#f59e0b', color: '#fff', fontWeight: 700 }}>
+                      {modeInfo.icon} +{modeInfo.unit}
+                    </span>
+                  )}
+                  {!cfg.autoEnroll && !cfg.autoEarnOnDone && (
+                    <span style={{ color: 'var(--t4)', fontStyle: 'italic' }}>Tout est manuel</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Niveaux / Tiers */}
+          <div style={card()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--t1)', fontFamily: FF }}>
+                🏅 Niveaux de fidélité
+              </div>
+              <button onClick={() => updateLoyaltyConfig({ tiersEnabled: !cfg.tiersEnabled })}
+                style={{
+                  width: 44, height: 24, borderRadius: 12, border: 'none',
+                  background: cfg.tiersEnabled ? 'var(--gn)' : 'var(--bg3)',
+                  cursor: 'pointer', position: 'relative', transition: 'background .2s',
+                }}>
+                <div style={{
+                  width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                  position: 'absolute', top: 3, left: cfg.tiersEnabled ? 23 : 3,
+                  transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.2)',
+                }} />
+              </button>
+            </div>
+
+            {cfg.tiersEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {(cfg.tiers || []).map((tier, idx) => {
+                  const membersInTier = loyaltyCards.filter(c => c.tier === tier.name).length
+                  return (
+                    <div key={idx} style={{
+                      display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                      borderRadius: 8, border: `1px solid ${tier.color}44`, background: `${tier.color}08`,
+                    }}>
+                      <span style={{ fontSize: 24 }}>{tier.icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <input value={tier.name} style={{ ...input, padding: '4px 8px', fontSize: 13, fontWeight: 700, background: 'transparent', border: 'none', color: tier.color }}
+                          onChange={e => {
+                            const tiers = [...(cfg.tiers || [])]
+                            tiers[idx] = { ...tiers[idx], name: e.target.value }
+                            updateLoyaltyConfig({ tiers })
+                          }}
+                        />
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 2 }}>
+                          <span style={{ fontSize: 10, color: 'var(--t4)', fontFamily: FF }}>Dès</span>
+                          <input type="number" value={tier.minEarned} min={0}
+                            style={{ ...input, width: 60, padding: '2px 6px', fontSize: 11 }}
+                            onChange={e => {
+                              const tiers = [...(cfg.tiers || [])]
+                              tiers[idx] = { ...tiers[idx], minEarned: +e.target.value }
+                              updateLoyaltyConfig({ tiers })
+                            }}
+                          />
+                          <span style={{ fontSize: 10, color: 'var(--t4)', fontFamily: FF }}>{modeInfo.unit} gagnés</span>
+                          <span style={{ fontSize: 10, color: 'var(--t4)', fontFamily: FF }}>·</span>
+                          <input value={tier.perks} placeholder="Avantages…"
+                            style={{ ...input, flex: 1, padding: '2px 6px', fontSize: 11 }}
+                            onChange={e => {
+                              const tiers = [...(cfg.tiers || [])]
+                              tiers[idx] = { ...tiers[idx], perks: e.target.value }
+                              updateLoyaltyConfig({ tiers })
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'center', minWidth: 40 }}>
+                        <div style={{ fontSize: 16, fontWeight: 800, fontFamily: FM, color: tier.color }}>{membersInTier}</div>
+                        <div style={{ fontSize: 9, color: 'var(--t4)' }}>membres</div>
+                      </div>
+                    </div>
+                  )
+                })}
+                <button onClick={() => {
+                  const tiers = [...(cfg.tiers || []), { name: 'Platine', icon: '💎', minEarned: 300, color: '#06b6d4', perks: 'Service premium' }]
+                  updateLoyaltyConfig({ tiers })
+                }} style={{ ...btn('ghost'), fontSize: 12, alignSelf: 'flex-start' }}>
+                  + Ajouter un niveau
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Carte digitale */}
+          <div style={card()}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--t1)', fontFamily: FF, marginBottom: 8 }}>
+              📱 Carte digitale client
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--t2)', fontFamily: FF, lineHeight: 1.5 }}>
+              Chaque membre reçoit un lien unique vers sa carte de fidélité digitale.
+              Le QR code peut être scanné en salle pour créditer les {modeInfo.unit} automatiquement.
+            </div>
+            <div style={{
+              marginTop: 12, padding: '16px 20px', borderRadius: 12,
+              background: 'linear-gradient(135deg, var(--bl), #8b5cf6)',
+              color: '#fff', textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 10, opacity: .7, fontFamily: FF, letterSpacing: 1, textTransform: 'uppercase' }}>Carte fidélité</div>
+              <div style={{ fontSize: 18, fontWeight: 800, fontFamily: FF, marginTop: 4 }}>Jean Dupont</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 12 }}>
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 800, fontFamily: FM }}>127</div>
+                  <div style={{ fontSize: 9, opacity: .7 }}>{modeInfo.unit}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 800, fontFamily: FM }}>🥈</div>
+                  <div style={{ fontSize: 9, opacity: .7 }}>Argent</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 800, fontFamily: FM }}>3</div>
+                  <div style={{ fontSize: 9, opacity: .7 }}>récompenses</div>
+                </div>
+              </div>
+              <div style={{
+                marginTop: 12, padding: 10, background: '#fff', borderRadius: 8,
+                display: 'inline-block',
+              }}>
+                <div style={{
+                  width: 80, height: 80, background: '#000', borderRadius: 4,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontSize: 10, fontFamily: FM,
+                }}>QR</div>
+              </div>
+              <div style={{ fontSize: 10, opacity: .6, marginTop: 8, fontFamily: FM }}>
+                fidelite.r3sto.ch/c/abc123
+              </div>
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--t4)', fontFamily: FF, marginTop: 8 }}>
+              Le lien est envoyé automatiquement dans l'email de bienvenue et rappelé après chaque visite.
             </div>
           </div>
         </div>
@@ -772,9 +1126,9 @@ export function Fidelite() {
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-                  <button style={btn('ghost')} onClick={() => setShowAdd(false)}>Annuler</button>
+                  <button style={btn('ghost')} onClick={() => setShowAdd(false)}>{t('fid.cancel')}</button>
                   <button style={btn('primary')} onClick={handleAddMember}
-                    disabled={!addClientId}>Inscrire</button>
+                    disabled={!addClientId}>{t('fid.confirm')}</button>
                 </div>
               </>
             )}
@@ -798,9 +1152,9 @@ export function Fidelite() {
             <input type="number" style={input} value={stampAmount} min={1}
               onChange={e => setStampAmount(+e.target.value)} />
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <button style={btn('ghost')} onClick={() => setShowStamp(null)}>Annuler</button>
+              <button style={btn('ghost')} onClick={() => setShowStamp(null)}>{t('fid.cancel')}</button>
               <button style={btn('primary')} onClick={() => handleEarn(showStamp)}>
-                Confirmer
+                {t('fid.confirm')}
               </button>
             </div>
           </div>

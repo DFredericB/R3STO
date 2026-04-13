@@ -1,0 +1,15 @@
+{
+  "name": "bill",
+  "version": "1.1.0",
+  "build": "2026-04-03T10:00:00Z",
+  "env": "production",
+  "depends": ["api"],
+  "changelog": [
+    "1.1.0 — Intégration Stripe API, export factures PDF",
+    "1.0.3 — Fix calcul TVA, format devises multiples",
+    "1.0.2 — Historique paiements, reçus numériques"
+  ],
+  "compatibility": {
+    "api": ">=3.0.0"
+  }
+}

@@ -1,0 +1,3 @@
+cat > ~/sites/api.r3sto.ch/server.js << 'BOOT'
+await import('./_app.mjs')
+BOOT

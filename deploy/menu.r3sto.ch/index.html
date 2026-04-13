@@ -3,28 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#0d1520">
+<meta name="theme-color" content="#f5f5f3">
 <title>Menu — R3STO</title>
+<link rel="icon" type="image/jpeg" href="logo-r3sto.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0d1520;
-  --surf: #131f30;
-  --surf2: #1a2a3f;
-  --surf3: #243449;
-  --border: rgba(255,255,255,.08);
-  --text: #f0f4ff;
-  --t2: rgba(240,244,255,.65);
-  --t3: rgba(240,244,255,.38);
-  --t4: rgba(240,244,255,.18);
+  --bg: #f5f5f3;
+  --surf: #ffffff;
+  --surf2: #f0eeea;
+  --surf3: #e5e2dd;
+  --border: rgba(30,50,80,.10);
+  --text: #1a1a1a;
+  --t2: #555;
+  --t3: #888;
+  --t4: #bbb;
   --ac: #4480d8;
   --ac2: #2d5cb8;
-  --acp: rgba(68,128,216,.12);
-  --gn: #3cc870;
-  --am: #f0a020;
-  --rd: #e05050;
-  --gold: #c9a84c;
+  --acp: rgba(68,128,216,.08);
+  --gn: #1e8f4e;
+  --am: #c08000;
+  --rd: #c53030;
+  --gold: #a8892a;
   --hh: 64px;
   --r: 14px;
 }
@@ -35,13 +36,14 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 .hdr {
   position:sticky; top:0; z-index:200;
   height:var(--hh);
-  background:rgba(13,21,32,.92);
+  background:rgba(245,245,243,.92);
   backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);
   display:flex; align-items:center; gap:12px;
   padding:0 18px;
 }
-.hdr-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; color:var(--text); letter-spacing:.02em; flex:1; }
+.hdr-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; color:var(--text); letter-spacing:.02em; flex:1; display:flex; align-items:center; gap:8px; }
+.hdr-logo img { width:40px; height:40px; object-fit:cover; border-radius:0; }
 .hdr-table { font-family:'DM Mono',monospace; font-size:11px; color:var(--ac); background:var(--acp); border:1px solid rgba(68,128,216,.3); border-radius:20px; padding:3px 10px; font-weight:600; }
 .bell-btn {
   width:40px; height:40px; border-radius:50%; border:1.5px solid var(--border);
@@ -49,7 +51,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
   font-size:18px; transition:.15s; position:relative;
 }
 .bell-btn:active { transform:scale(.92); background:var(--surf3); }
-.bell-badge { position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--rd); border:1.5px solid var(--bg); display:none; }
+.bell-badge { position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--rd); border:1.5px solid var(--surf); display:none; }
 .bell-badge.on { display:block; animation:pulse 1.5s infinite; }
 
 /* ── Welcome banner ── */
@@ -64,9 +66,9 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 /* ── Category tabs ── */
 .cat-tabs {
   position:sticky; top:var(--hh); z-index:100;
-  background:rgba(13,21,32,.95); backdrop-filter:blur(16px);
+  background:rgba(245,245,243,.95); backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
-  display:flex; gap:0; overflow-x:auto; padding:0 14px;
+  display:flex; gap:0; flex-wrap:wrap; overflow-x:hidden; padding:0 14px;
   scrollbar-width:none;
 }
 .cat-tabs::-webkit-scrollbar { display:none; }
@@ -145,7 +147,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 .cart-bar {
   position:fixed; bottom:0; left:0; right:0; z-index:300;
   padding:12px 18px 24px;
-  background:linear-gradient(to top, var(--bg) 70%, transparent);
+  background:linear-gradient(to top, var(--bg) 60%, transparent);
   transform:translateY(100%); transition:transform .3s cubic-bezier(.22,1,.36,1);
 }
 .cart-bar.show { transform:translateY(0); }
@@ -169,7 +171,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 /* ── Order modal ── */
 .ov {
   position:fixed; inset:0; z-index:400;
-  background:rgba(6,12,24,.85); backdrop-filter:blur(6px);
+  background:rgba(0,0,0,.45); backdrop-filter:blur(6px);
   display:flex; align-items:flex-end;
   opacity:0; pointer-events:none; transition:opacity .25s;
 }
@@ -227,7 +229,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 
 /* ── Success overlay ── */
 .success-ov {
-  position:fixed; inset:0; z-index:500; background:rgba(6,12,24,.9);
+  position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.5);
   display:flex; align-items:center; justify-content:center;
   opacity:0; pointer-events:none; transition:opacity .3s;
 }
@@ -251,6 +253,17 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 @keyframes slideUp { from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1} }
 @keyframes ring { 0%,100%{transform:rotate(0)}20%{transform:rotate(-15deg)}40%{transform:rotate(15deg)}60%{transform:rotate(-10deg)}80%{transform:rotate(10deg)} }
 .ring-anim { animation:ring .5s ease; }
+
+/* ── Language switcher ── */
+.lang-sw { display:flex; gap:4px; align-items:center; }
+.lang-sw button {
+  padding:4px 9px; border-radius:10px; border:1.5px solid var(--border);
+  background:var(--surf2); color:var(--t2); font-size:10px; font-weight:700;
+  cursor:pointer; transition:.15s; font-family:'DM Sans',sans-serif;
+  text-transform:uppercase; letter-spacing:.05em;
+}
+.lang-sw button:hover { opacity:.85; }
+.lang-sw button.on { border-color:var(--ac); background:var(--acp); color:var(--ac); }
 </style>
 <style id="pay-styles">
 /* ── Payment sheet ── */
@@ -322,7 +335,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 
 /* TWINT */
 .twint-box { background:var(--surf2); border-radius:var(--r); padding:20px; text-align:center; margin-bottom:16px; }
-.twint-logo { font-size:13px; font-weight:900; letter-spacing:.05em; color:#006DC6; background:#fff; border-radius:10px; padding:8px 16px; display:inline-block; margin-bottom:14px; }
+.twint-logo { font-size:13px; font-weight:900; letter-spacing:.05em; color:#006DC6; background:#f0f4ff; border-radius:10px; padding:8px 16px; display:inline-block; margin-bottom:14px; }
 .twint-qr-wrap { background:#fff; border-radius:14px; padding:16px; display:inline-block; margin-bottom:12px; }
 .twint-qr-wrap img { display:block; border-radius:8px; }
 .twint-amount { font-family:'DM Mono',monospace; font-size:28px; font-weight:900; color:var(--text); margin-bottom:4px; }
@@ -360,7 +373,13 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 
 <!-- Header -->
 <header class="hdr">
-  <div class="hdr-logo" id="resto-name">Mon Restaurant</div>
+  <div class="hdr-logo" id="resto-name"><img src="logo-r3sto.jpg" alt="R3STO">Mon Restaurant</div>
+  <div class="lang-sw" id="lang-sw">
+    <button class="on" data-l="fr" onclick="setMenuLang('fr')">FR</button>
+    <button data-l="de" onclick="setMenuLang('de')">DE</button>
+    <button data-l="it" onclick="setMenuLang('it')">IT</button>
+    <button data-l="en" onclick="setMenuLang('en')">EN</button>
+  </div>
   <div class="hdr-table" id="table-badge">Table —</div>
   <button class="bell-btn" id="bell-btn" onclick="openBell()" title="Appeler un serveur">
     🔔
@@ -406,7 +425,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
       <textarea class="note-input" id="order-note" placeholder="Notes pour la cuisine (allergies, cuisson, demandes spéciales…)"></textarea>
     </div>
     <button class="confirm-btn" id="confirm-btn" onclick="sendOrder()">Envoyer la commande →</button>
-    <button onclick="openPay()" style="width:100%;padding:12px;margin-top:8px;border:1.5px solid var(--gn);border-radius:var(--r);background:transparent;color:var(--gn);font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">💳 Régler ma note</button>
+    <button id="btn-pay-order" onclick="openPay()" style="width:100%;padding:12px;margin-top:8px;border:1.5px solid var(--gn);border-radius:var(--r);background:transparent;color:var(--gn);font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">💳 Régler ma note</button>
   </div>
 </div>
 
@@ -430,7 +449,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
       </div>
       <div class="bell-option" onclick="callServer('Eau')">
         <div class="bell-option-ico">💧</div>
-        <div><div class="bell-option-label">Eau / boisson</div><div class="bell-option-sub">Resservir en eau ou boissons</div></div>
+        <div><div class="bell-option-label">Eau / boisson</div><div class="bell-option-sub">Se resservir en eau ou boissons</div></div>
       </div>
       <div class="bell-option" onclick="callServer('Problème')">
         <div class="bell-option-ico">⚠️</div>
@@ -451,6 +470,408 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 
 <script>
 /* ═══════════════════════════════════════════
+   i18n — Menu labels + item translations
+═══════════════════════════════════════════ */
+var MN_LANG = 'fr';
+var MN_T = {
+  fr: {
+    greeting_morning: 'Bonjour !',
+    greeting_afternoon: 'Bon après-midi !',
+    greeting_evening: 'Bonsoir !',
+    welcome_msg: 'Bienvenue ! Commandez directement depuis votre table.',
+    view_order: 'Voir ma commande',
+    my_order: 'Ma commande',
+    total: 'Total',
+    notes_placeholder: 'Notes pour la cuisine (allergies, cuisson, demandes spéciales…)',
+    send_order: 'Envoyer la commande →',
+    pay_my_bill: '💳 Régler ma note',
+    call_server: 'Appeler un serveur',
+    what_need: 'Que souhaitez-vous ?',
+    bell_service: 'Service',
+    bell_service_sub: 'Un serveur passe à votre table',
+    bell_bill: 'Addition',
+    bell_bill_sub: "Demander l'addition",
+    bell_water: 'Eau / boisson',
+    bell_water_sub: 'Se resservir en eau ou boissons',
+    bell_problem: 'Signaler un problème',
+    bell_problem_sub: 'Quelque chose ne va pas',
+    order_sent_title: 'Commande envoyée !',
+    order_sent_sub: 'Votre commande a été transmise en cuisine.\nUn serveur passera très bientôt.',
+    call_sent_title: 'Appel envoyé !',
+    call_sent_sub: 'Un serveur va passer à votre table dans quelques instants.',
+    unavailable: 'Indisponible',
+    subtotal: 'Sous-total',
+    tip_label: 'Pourboire',
+    tip_none: 'Sans',
+    tip_custom: 'Libre',
+    split_title: 'Diviser',
+    pay_btn: 'Payer',
+    equal_split: 'Parts égales',
+    equal_split_sub: 'Diviser en N parts',
+    item_split: 'Par article',
+    item_split_sub: 'Je choisis mes plats',
+    n_persons: 'Nombre de personnes',
+    you_pay: 'Vous payez',
+    persons: 'pers.',
+    your_share: 'Votre part',
+    select_items: 'Sélectionnez vos articles :',
+    amount_to_pay: 'Montant à régler',
+    twint_label: 'TWINT',
+    twint_title: 'Payer avec TWINT',
+    twint_sub: 'Scannez le QR depuis votre app',
+    ask_server: 'Addition au serveur',
+    ask_server_sub: "Un serveur passe avec l'addition",
+    card_label: 'Carte bancaire',
+    card_sub: 'Bientôt disponible',
+    back: '← Retour',
+    other_method: '← Autre mode de paiement',
+    payment_done: "✅ J'ai payé",
+    payment_received: 'Paiement reçu !',
+    payment_thanks: 'Merci pour votre visite. À très bientôt !',
+    pay_settle: '💳 Régler ma note',
+    settle_title: 'Régler ma note',
+    twint_step1: '1. Ouvrez votre app TWINT',
+    twint_step2: '2. Appuyez sur l\'icône QR / Scanner',
+    twint_step3: '3. Scannez ce code — le montant est pré-rempli',
+    twint_step4: '4. Confirmez le paiement',
+    twint_scan: 'Scannez avec votre app TWINT',
+    twint_account: 'Compte',
+    rate_title: 'Comment était votre repas ?',
+    rate_sub: 'Votre avis nous aide à nous améliorer',
+    rate_submit: 'Envoyer mon avis',
+    rate_skip: 'Passer',
+    rate_comment: 'Un commentaire ? (optionnel)',
+    rate_thanks: 'Merci !',
+    rate_google: 'Partagez votre expérience sur Google pour nous aider à grandir.',
+    rate_google_btn: 'Laisser un avis Google',
+    rate_no: 'Non merci',
+    rate_1: 'Désolé...', rate_2: 'Pas terrible...', rate_3: 'Correct, merci !', rate_4: 'Très bien !', rate_5: 'Excellent ! 🎉',
+    table_prefix: 'Table',
+  },
+  de: {
+    greeting_morning: 'Guten Morgen!',
+    greeting_afternoon: 'Guten Tag!',
+    greeting_evening: 'Guten Abend!',
+    welcome_msg: 'Willkommen! Bestellen Sie direkt von Ihrem Tisch.',
+    view_order: 'Bestellung ansehen',
+    my_order: 'Meine Bestellung',
+    total: 'Total',
+    notes_placeholder: 'Hinweise für die Küche (Allergien, Gargrad, Sonderwünsche…)',
+    send_order: 'Bestellung senden →',
+    pay_my_bill: '💳 Rechnung bezahlen',
+    call_server: 'Kellner rufen',
+    what_need: 'Was wünschen Sie?',
+    bell_service: 'Service',
+    bell_service_sub: 'Ein Kellner kommt an Ihren Tisch',
+    bell_bill: 'Rechnung',
+    bell_bill_sub: 'Die Rechnung anfordern',
+    bell_water: 'Wasser / Getränk',
+    bell_water_sub: 'Wasser oder Getränke nachfüllen',
+    bell_problem: 'Problem melden',
+    bell_problem_sub: 'Etwas stimmt nicht',
+    order_sent_title: 'Bestellung gesendet!',
+    order_sent_sub: 'Ihre Bestellung wurde an die Küche übermittelt.\nEin Kellner kommt gleich.',
+    call_sent_title: 'Ruf gesendet!',
+    call_sent_sub: 'Ein Kellner kommt in Kürze an Ihren Tisch.',
+    unavailable: 'Nicht verfügbar',
+    subtotal: 'Zwischensumme',
+    tip_label: 'Trinkgeld',
+    tip_none: 'Ohne',
+    tip_custom: 'Frei',
+    split_title: 'Teilen',
+    pay_btn: 'Bezahlen',
+    equal_split: 'Gleiche Teile',
+    equal_split_sub: 'In N Teile aufteilen',
+    item_split: 'Nach Artikel',
+    item_split_sub: 'Ich wähle meine Gerichte',
+    n_persons: 'Anzahl Personen',
+    you_pay: 'Sie bezahlen',
+    persons: 'Pers.',
+    your_share: 'Ihr Anteil',
+    select_items: 'Wählen Sie Ihre Artikel:',
+    amount_to_pay: 'Zu zahlender Betrag',
+    twint_label: 'TWINT',
+    twint_title: 'Mit TWINT bezahlen',
+    twint_sub: 'Scannen Sie den QR-Code mit Ihrer App',
+    ask_server: 'Rechnung beim Kellner',
+    ask_server_sub: 'Ein Kellner bringt die Rechnung',
+    card_label: 'Kreditkarte',
+    card_sub: 'Bald verfügbar',
+    back: '← Zurück',
+    other_method: '← Andere Zahlungsart',
+    payment_done: '✅ Ich habe bezahlt',
+    payment_received: 'Zahlung erhalten!',
+    payment_thanks: 'Danke für Ihren Besuch. Bis bald!',
+    pay_settle: '💳 Rechnung bezahlen',
+    settle_title: 'Rechnung bezahlen',
+    twint_step1: '1. Öffnen Sie Ihre TWINT-App',
+    twint_step2: '2. Tippen Sie auf das QR-/Scanner-Symbol',
+    twint_step3: '3. Scannen Sie diesen Code — der Betrag ist vorausgefüllt',
+    twint_step4: '4. Bestätigen Sie die Zahlung',
+    twint_scan: 'Mit Ihrer TWINT-App scannen',
+    twint_account: 'Konto',
+    rate_title: 'Wie war Ihr Essen?',
+    rate_sub: 'Ihre Meinung hilft uns, besser zu werden',
+    rate_submit: 'Bewertung senden',
+    rate_skip: 'Überspringen',
+    rate_comment: 'Ein Kommentar? (optional)',
+    rate_thanks: 'Danke!',
+    rate_google: 'Teilen Sie Ihre Erfahrung auf Google, um uns zu unterstützen.',
+    rate_google_btn: 'Google-Bewertung schreiben',
+    rate_no: 'Nein danke',
+    rate_1: 'Schade...', rate_2: 'Nicht so gut...', rate_3: 'In Ordnung, danke!', rate_4: 'Sehr gut!', rate_5: 'Ausgezeichnet! 🎉',
+    table_prefix: 'Tisch',
+  },
+  it: {
+    greeting_morning: 'Buongiorno!',
+    greeting_afternoon: 'Buon pomeriggio!',
+    greeting_evening: 'Buonasera!',
+    welcome_msg: 'Benvenuti! Ordinate direttamente dal vostro tavolo.',
+    view_order: 'Vedere il mio ordine',
+    my_order: 'Il mio ordine',
+    total: 'Totale',
+    notes_placeholder: 'Note per la cucina (allergie, cottura, richieste speciali…)',
+    send_order: 'Inviare l\'ordine →',
+    pay_my_bill: '💳 Pagare il conto',
+    call_server: 'Chiamare il cameriere',
+    what_need: 'Cosa desiderate?',
+    bell_service: 'Servizio',
+    bell_service_sub: 'Un cameriere viene al vostro tavolo',
+    bell_bill: 'Conto',
+    bell_bill_sub: 'Richiedere il conto',
+    bell_water: 'Acqua / bevande',
+    bell_water_sub: 'Rifornirsi di acqua o bevande',
+    bell_problem: 'Segnalare un problema',
+    bell_problem_sub: 'Qualcosa non va',
+    order_sent_title: 'Ordine inviato!',
+    order_sent_sub: 'Il vostro ordine è stato trasmesso in cucina.\nUn cameriere passerà molto presto.',
+    call_sent_title: 'Chiamata inviata!',
+    call_sent_sub: 'Un cameriere arriverà al vostro tavolo tra poco.',
+    unavailable: 'Non disponibile',
+    subtotal: 'Subtotale',
+    tip_label: 'Mancia',
+    tip_none: 'Senza',
+    tip_custom: 'Libero',
+    split_title: 'Dividere',
+    pay_btn: 'Pagare',
+    equal_split: 'Parti uguali',
+    equal_split_sub: 'Dividere in N parti',
+    item_split: 'Per articolo',
+    item_split_sub: 'Scelgo i miei piatti',
+    n_persons: 'Numero di persone',
+    you_pay: 'Voi pagate',
+    persons: 'pers.',
+    your_share: 'La vostra parte',
+    select_items: 'Selezionate i vostri articoli:',
+    amount_to_pay: 'Importo da pagare',
+    twint_label: 'TWINT',
+    twint_title: 'Pagare con TWINT',
+    twint_sub: 'Scansionate il QR dalla vostra app',
+    ask_server: 'Conto al cameriere',
+    ask_server_sub: 'Un cameriere porta il conto',
+    card_label: 'Carta di credito',
+    card_sub: 'Presto disponibile',
+    back: '← Indietro',
+    other_method: '← Altro metodo di pagamento',
+    payment_done: '✅ Ho pagato',
+    payment_received: 'Pagamento ricevuto!',
+    payment_thanks: 'Grazie per la vostra visita. A presto!',
+    pay_settle: '💳 Pagare il conto',
+    settle_title: 'Pagare il conto',
+    twint_step1: '1. Aprite la vostra app TWINT',
+    twint_step2: '2. Toccate l\'icona QR / Scanner',
+    twint_step3: '3. Scansionate questo codice — l\'importo è precompilato',
+    twint_step4: '4. Confermate il pagamento',
+    twint_scan: 'Scansionate con la vostra app TWINT',
+    twint_account: 'Conto',
+    rate_title: 'Come è stato il vostro pasto?',
+    rate_sub: 'La vostra opinione ci aiuta a migliorare',
+    rate_submit: 'Inviare la valutazione',
+    rate_skip: 'Saltare',
+    rate_comment: 'Un commento? (opzionale)',
+    rate_thanks: 'Grazie!',
+    rate_google: 'Condividete la vostra esperienza su Google per aiutarci a crescere.',
+    rate_google_btn: 'Lasciare una recensione Google',
+    rate_no: 'No grazie',
+    rate_1: 'Spiacenti...', rate_2: 'Non ottimo...', rate_3: 'Corretto, grazie!', rate_4: 'Molto bene!', rate_5: 'Eccellente! 🎉',
+    table_prefix: 'Tavolo',
+  },
+  en: {
+    greeting_morning: 'Good morning!',
+    greeting_afternoon: 'Good afternoon!',
+    greeting_evening: 'Good evening!',
+    welcome_msg: 'Welcome! Order directly from your table.',
+    view_order: 'View my order',
+    my_order: 'My order',
+    total: 'Total',
+    notes_placeholder: 'Notes for the kitchen (allergies, cooking, special requests…)',
+    send_order: 'Send order →',
+    pay_my_bill: '💳 Settle my bill',
+    call_server: 'Call a server',
+    what_need: 'What do you need?',
+    bell_service: 'Service',
+    bell_service_sub: 'A server comes to your table',
+    bell_bill: 'Bill',
+    bell_bill_sub: 'Request the bill',
+    bell_water: 'Water / drinks',
+    bell_water_sub: 'Refill water or drinks',
+    bell_problem: 'Report a problem',
+    bell_problem_sub: 'Something is wrong',
+    order_sent_title: 'Order sent!',
+    order_sent_sub: 'Your order has been sent to the kitchen.\nA server will come by shortly.',
+    call_sent_title: 'Call sent!',
+    call_sent_sub: 'A server will come to your table shortly.',
+    unavailable: 'Unavailable',
+    subtotal: 'Subtotal',
+    tip_label: 'Tip',
+    tip_none: 'None',
+    tip_custom: 'Custom',
+    split_title: 'Split',
+    pay_btn: 'Pay',
+    equal_split: 'Equal split',
+    equal_split_sub: 'Split into N parts',
+    item_split: 'By item',
+    item_split_sub: 'I choose my dishes',
+    n_persons: 'Number of people',
+    you_pay: 'You pay',
+    persons: 'pers.',
+    your_share: 'Your share',
+    select_items: 'Select your items:',
+    amount_to_pay: 'Amount to pay',
+    twint_label: 'TWINT',
+    twint_title: 'Pay with TWINT',
+    twint_sub: 'Scan the QR from your app',
+    ask_server: 'Bill from server',
+    ask_server_sub: 'A server brings the bill',
+    card_label: 'Credit card',
+    card_sub: 'Coming soon',
+    back: '← Back',
+    other_method: '← Other payment method',
+    payment_done: "✅ I've paid",
+    payment_received: 'Payment received!',
+    payment_thanks: 'Thank you for your visit. See you soon!',
+    pay_settle: '💳 Settle my bill',
+    settle_title: 'Settle my bill',
+    twint_step1: '1. Open your TWINT app',
+    twint_step2: '2. Tap the QR / Scanner icon',
+    twint_step3: '3. Scan this code — the amount is pre-filled',
+    twint_step4: '4. Confirm the payment',
+    twint_scan: 'Scan with your TWINT app',
+    twint_account: 'Account',
+    rate_title: 'How was your meal?',
+    rate_sub: 'Your opinion helps us improve',
+    rate_submit: 'Send my review',
+    rate_skip: 'Skip',
+    rate_comment: 'A comment? (optional)',
+    rate_thanks: 'Thank you!',
+    rate_google: 'Share your experience on Google to help us grow.',
+    rate_google_btn: 'Leave a Google review',
+    rate_no: 'No thanks',
+    rate_1: 'Sorry...', rate_2: 'Not great...', rate_3: 'OK, thanks!', rate_4: 'Very good!', rate_5: 'Excellent! 🎉',
+    table_prefix: 'Table',
+  }
+};
+
+function mt(k){ return (MN_T[MN_LANG]||MN_T.fr)[k] || MN_T.fr[k] || k; }
+function ml(v){ return typeof v === 'object' ? (v[MN_LANG] || v.fr || '') : v; }
+
+function setMenuLang(l){
+  MN_LANG = l;
+  try{ localStorage.setItem('r3sto_lang', l); }catch(e){}
+  document.querySelectorAll('.lang-sw button').forEach(function(b){
+    b.classList.toggle('on', b.dataset.l === l);
+  });
+  document.documentElement.lang = l;
+  applyMenuLang();
+  renderMenu();
+}
+
+function applyMenuLang(){
+  // Greeting
+  var h = new Date().getHours();
+  var gk = h < 12 ? 'greeting_morning' : h < 17 ? 'greeting_afternoon' : 'greeting_evening';
+  document.getElementById('welcome-name').textContent = mt(gk);
+  document.getElementById('welcome-msg').textContent = mt('welcome_msg');
+
+  // Static labels
+  document.querySelector('.cart-btn-label').textContent = mt('view_order');
+  document.querySelector('.sheet-title').textContent = mt('my_order');
+  document.querySelector('.order-total-lbl').textContent = mt('total');
+  document.getElementById('order-note').placeholder = mt('notes_placeholder');
+  document.getElementById('confirm-btn').textContent = mt('send_order');
+  document.getElementById('table-badge').textContent = mt('table_prefix') + ' ' + TABLE_NM;
+
+  // Bell sheet
+  var bellTitle = document.querySelector('.bell-title');
+  if(bellTitle) bellTitle.textContent = mt('what_need');
+  var bellHdr = document.querySelectorAll('.sheet-title');
+  if(bellHdr[1]) bellHdr[1].textContent = mt('call_server');
+
+  // Pay button in order sheet
+  var payBtn = document.getElementById('btn-pay-order');
+  if(payBtn) payBtn.textContent = mt('pay_my_bill');
+
+  // Bell options
+  var bellOpts = document.querySelectorAll('.bell-option');
+  var bellKeys = [
+    ['bell_service','bell_service_sub'],
+    ['bell_bill','bell_bill_sub'],
+    ['bell_water','bell_water_sub'],
+    ['bell_problem','bell_problem_sub']
+  ];
+  bellOpts.forEach(function(opt, i){
+    if(bellKeys[i]){
+      var lbl = opt.querySelector('.bell-option-label');
+      var sub = opt.querySelector('.bell-option-sub');
+      if(lbl) lbl.textContent = mt(bellKeys[i][0]);
+      if(sub) sub.textContent = mt(bellKeys[i][1]);
+    }
+  });
+
+  // Payment sheet title
+  var pst = document.getElementById('pay-sheet-title');
+  if(pst) pst.textContent = mt('settle_title');
+
+  // Bell button title
+  var bellBtn = document.getElementById('bell-btn');
+  if(bellBtn) bellBtn.title = mt('call_server');
+
+  // Satisfaction sheet
+  var satisTitle = document.querySelector('#ov-satis .sheet-title');
+  if(satisTitle) satisTitle.textContent = mt('rate_title');
+  var satisSub = document.getElementById('satis-sub');
+  if(satisSub) satisSub.textContent = mt('rate_sub');
+  var satisNote = document.getElementById('satis-note');
+  if(satisNote) satisNote.placeholder = mt('rate_comment');
+  var satisSubmit = document.getElementById('satis-submit');
+  if(satisSubmit) satisSubmit.textContent = mt('rate_submit');
+  var satisSkip = document.getElementById('satis-skip');
+  if(satisSkip) satisSkip.textContent = mt('rate_skip');
+
+  // TWINT sheet
+  var twintTitle = document.querySelector('#ov-twint .sheet-title');
+  if(twintTitle) twintTitle.textContent = mt('twint_title');
+  var twintScan = document.getElementById('twint-scan');
+  if(twintScan) twintScan.textContent = mt('twint_scan');
+  var twintSteps = document.getElementById('twint-steps');
+  if(twintSteps) twintSteps.innerHTML = mt('twint_step1')+'<br>'+mt('twint_step2')+'<br>'+mt('twint_step3')+'<br>'+mt('twint_step4');
+  var twintDone = document.getElementById('twint-done');
+  if(twintDone) twintDone.textContent = mt('payment_done');
+  var twintOther = document.getElementById('twint-other');
+  if(twintOther) twintOther.textContent = mt('other_method');
+}
+// Init lang
+(function(){
+  var saved = null;
+  try{ saved = localStorage.getItem('r3sto_lang'); }catch(e){}
+  if(saved && MN_T[saved]){ MN_LANG = saved; }
+  // Update buttons
+  document.querySelectorAll('.lang-sw button').forEach(function(b){
+    b.classList.toggle('on', b.dataset.l === MN_LANG);
+  });
+})();
+
+/* ═══════════════════════════════════════════
    MENU DATA — injecté dynamiquement via API
    En démo : données statiques
 ═══════════════════════════════════════════ */
@@ -463,25 +884,25 @@ var MENU = {
   showAllergens: true,
   allowOrders: true,
   categories: [
-    {id:'c1', name:'Entrées', icon:'🥗'},
-    {id:'c2', name:'Plats', icon:'🍽️'},
-    {id:'c3', name:'Desserts', icon:'🍰'},
-    {id:'c4', name:'Boissons', icon:'🥤'},
-    {id:'c5', name:'Vins', icon:'🍷'}
+    {id:'c1', name:{fr:'Entrées',de:'Vorspeisen',it:'Antipasti',en:'Starters'}, icon:'🥗'},
+    {id:'c2', name:{fr:'Plats',de:'Hauptgerichte',it:'Piatti',en:'Main Courses'}, icon:'🍽️'},
+    {id:'c3', name:{fr:'Desserts',de:'Desserts',it:'Dolci',en:'Desserts'}, icon:'🍰'},
+    {id:'c4', name:{fr:'Boissons',de:'Getränke',it:'Bevande',en:'Drinks'}, icon:'🥤'},
+    {id:'c5', name:{fr:'Vins',de:'Weine',it:'Vini',en:'Wines'}, icon:'🍷'}
   ],
   items: [
-    {id:'m1', cat:'c1', name:'Salade César', desc:'Romaine, parmesan, croûtons maison', price:16, available:true, allergens:['gluten','lait']},
-    {id:'m2', cat:'c1', name:'Carpaccio de bœuf', desc:'Roquette, copeaux parmesan, câpres', price:22, available:true, allergens:['lait']},
-    {id:'m3', cat:'c2', name:'Filet de perche', desc:'Pommes grenaille, sauce aux câpres', price:38, available:true, allergens:['poisson']},
-    {id:'m4', cat:'c2', name:'Entrecôte 250g', desc:'Frites maison, salade verte', price:46, available:true, allergens:[]},
-    {id:'m5', cat:'c2', name:'Risotto aux champignons', desc:'Champignons des bois, parmesan', price:32, available:true, allergens:['lait','gluten']},
-    {id:'m6', cat:'c3', name:'Crème brûlée', desc:'Vanille Bourbon, caramel croustillant', price:12, available:true, allergens:['lait','oeufs']},
-    {id:'m7', cat:'c3', name:'Fondant au chocolat', desc:'Coulant, glace vanille', price:14, available:true, allergens:['lait','oeufs','gluten']},
-    {id:'m8', cat:'c4', name:'Eau minérale 50cl', desc:'Plate ou gazeuse', price:5, available:true, allergens:[]},
-    {id:'m9', cat:'c4', name:'Jus de fruits', desc:'Orange, pomme ou raisin', price:6, available:true, allergens:[]},
-    {id:'m10', cat:'c4', name:'Café', desc:'Espresso, noisette ou allongé', price:4, available:true, allergens:[]},
-    {id:'m11', cat:'c5', name:'Pinot Noir Valais', desc:'Domaine du Mont d\'Or · 75cl', price:52, available:true, allergens:['sulfites']},
-    {id:'m12', cat:'c5', name:'Chasselas Lavaux AOP', desc:'Clos des Abbayes · 75cl', price:58, available:true, allergens:['sulfites']}
+    {id:'m1', cat:'c1', name:{fr:'Salade César',de:'Caesar Salat',it:'Insalata Caesar',en:'Caesar Salad'}, desc:{fr:'Romaine, parmesan, croûtons maison',de:'Romana, Parmesan, hausgemachte Croutons',it:'Romana, parmigiano, crostini fatti in casa',en:'Romaine, parmesan, homemade croutons'}, price:16, available:true, allergens:['gluten','lait']},
+    {id:'m2', cat:'c1', name:{fr:'Carpaccio de bœuf',de:'Rindscarpaccio',it:'Carpaccio di manzo',en:'Beef Carpaccio'}, desc:{fr:'Roquette, copeaux parmesan, câpres',de:'Rucola, Parmesanspäne, Kapern',it:'Rucola, scaglie di parmigiano, capperi',en:'Rocket, parmesan shavings, capers'}, price:22, available:true, allergens:['lait']},
+    {id:'m3', cat:'c2', name:{fr:'Filet de perche',de:'Egli-Filet',it:'Filetto di pesce persico',en:'Perch Fillet'}, desc:{fr:'Pommes grenaille, sauce aux câpres',de:'Grenaille-Kartoffeln, Kapernsauce',it:'Patate grenaille, salsa ai capperi',en:'Grenaille potatoes, caper sauce'}, price:38, available:true, allergens:['poisson']},
+    {id:'m4', cat:'c2', name:{fr:'Entrecôte 250g',de:'Entrecôte 250g',it:'Entrecôte 250g',en:'Rib-eye Steak 250g'}, desc:{fr:'Frites maison, salade verte',de:'Hausgemachte Pommes, grüner Salat',it:'Patatine fatte in casa, insalata verde',en:'Homemade fries, green salad'}, price:46, available:true, allergens:[]},
+    {id:'m5', cat:'c2', name:{fr:'Risotto aux champignons',de:'Pilzrisotto',it:'Risotto ai funghi',en:'Mushroom Risotto'}, desc:{fr:'Champignons des bois, parmesan',de:'Waldpilze, Parmesan',it:'Funghi di bosco, parmigiano',en:'Wild mushrooms, parmesan'}, price:32, available:true, allergens:['lait','gluten']},
+    {id:'m6', cat:'c3', name:{fr:'Crème brûlée',de:'Crème brûlée',it:'Crème brûlée',en:'Crème brûlée'}, desc:{fr:'Vanille Bourbon, caramel croustillant',de:'Bourbon-Vanille, knuspriges Karamell',it:'Vaniglia Bourbon, caramello croccante',en:'Bourbon vanilla, crispy caramel'}, price:12, available:true, allergens:['lait','oeufs']},
+    {id:'m7', cat:'c3', name:{fr:'Fondant au chocolat',de:'Schokoladen-Fondant',it:'Fondente al cioccolato',en:'Chocolate Fondant'}, desc:{fr:'Coulant, glace vanille',de:'Flüssiger Kern, Vanilleeis',it:'Cuore morbido, gelato alla vaniglia',en:'Melting center, vanilla ice cream'}, price:14, available:true, allergens:['lait','oeufs','gluten']},
+    {id:'m8', cat:'c4', name:{fr:'Eau minérale 50cl',de:'Mineralwasser 50cl',it:'Acqua minerale 50cl',en:'Mineral Water 50cl'}, desc:{fr:'Plate ou gazeuse',de:'Still oder mit Kohlensäure',it:'Naturale o frizzante',en:'Still or sparkling'}, price:5, available:true, allergens:[]},
+    {id:'m9', cat:'c4', name:{fr:'Jus de fruits',de:'Fruchtsaft',it:'Succo di frutta',en:'Fruit Juice'}, desc:{fr:'Orange, pomme ou raisin',de:'Orange, Apfel oder Traube',it:'Arancia, mela o uva',en:'Orange, apple or grape'}, price:6, available:true, allergens:[]},
+    {id:'m10', cat:'c4', name:{fr:'Café',de:'Kaffee',it:'Caffè',en:'Coffee'}, desc:{fr:'Espresso, noisette ou allongé',de:'Espresso, Haselnuss oder verlängert',it:'Espresso, nocciola o lungo',en:'Espresso, hazelnut or long'}, price:4, available:true, allergens:[]},
+    {id:'m11', cat:'c5', name:{fr:'Pinot Noir Valais',de:'Pinot Noir Wallis',it:'Pinot Noir Vallese',en:'Pinot Noir Valais'}, desc:{fr:"Domaine du Mont d'Or · 75cl",de:"Domaine du Mont d'Or · 75cl",it:"Domaine du Mont d'Or · 75cl",en:"Domaine du Mont d'Or · 75cl"}, price:52, available:true, allergens:['sulfites']},
+    {id:'m12', cat:'c5', name:{fr:'Chasselas Lavaux AOP',de:'Chasselas Lavaux AOP',it:'Chasselas Lavaux AOP',en:'Chasselas Lavaux AOP'}, desc:{fr:'Clos des Abbayes · 75cl',de:'Clos des Abbayes · 75cl',it:'Clos des Abbayes · 75cl',en:'Clos des Abbayes · 75cl'}, price:58, available:true, allergens:['sulfites']}
   ]
 };
 
@@ -497,14 +918,14 @@ var API_BASE = 'https://api.r3sto.ch';
   RESTO_ID = p.get('id') || p.get('resto') || '';
 
   // Mettre à jour l'UI
-  document.getElementById('table-badge').textContent = 'Table ' + TABLE_NM;
+  document.getElementById('table-badge').textContent = mt('table_prefix') + ' ' + TABLE_NM;
   document.getElementById('resto-name').textContent = MENU.resto;
 
   // Heure → salutation
   var h = new Date().getHours();
-  var greeting = h < 12 ? 'Bonjour !' : h < 17 ? 'Bon après-midi !' : 'Bonsoir !';
-  document.getElementById('welcome-name').textContent = greeting;
-  document.getElementById('welcome-msg').textContent = MENU.welcomeMsg;
+  var gk = h < 12 ? 'greeting_morning' : h < 17 ? 'greeting_afternoon' : 'greeting_evening';
+  document.getElementById('welcome-name').textContent = mt(gk);
+  document.getElementById('welcome-msg').textContent = mt('welcome_msg');
 
   // Charger les données depuis l'API si disponible
   if(RESTO_ID) loadMenuFromAPI();
@@ -536,7 +957,7 @@ function renderMenu() {
     var count = items.filter(function(x){return x.cat===cat.id && x.available;}).length;
     if(!count) return '';
     return '<button class="cat-tab'+(i===0?' on':'')+'" data-cat="'+cat.id+'" onclick="scrollToSection(\'sec-'+cat.id+'\')">'
-      + '<span class="cat-tab-ico">'+cat.icon+'</span>' + cat.name
+      + '<span class="cat-tab-ico">'+cat.icon+'</span>' + ml(cat.name)
       + '</button>';
   }).join('');
   document.getElementById('cat-tabs').innerHTML = tabsHtml;
@@ -547,7 +968,7 @@ function renderMenu() {
     var catItems = items.filter(function(x){return x.cat===cat.id;});
     if(!catItems.length) return;
     bodyHtml += '<section class="cat-section" id="sec-'+cat.id+'">';
-    bodyHtml += '<div class="cat-title"><span class="cat-title-ico">'+cat.icon+'</span>'+cat.name+'</div>';
+    bodyHtml += '<div class="cat-title"><span class="cat-title-ico">'+cat.icon+'</span>'+ml(cat.name)+'</div>';
     catItems.forEach(function(item){
       var qty = CART[item.id] || 0;
       var addBtn = qty > 0
@@ -561,15 +982,15 @@ function renderMenu() {
           : '';
       bodyHtml += '<div class="item'+(item.available?'':' unavailable')+'" onclick="'+(item.available?'addItem(\''+item.id+'\')':'')+'">';
       bodyHtml += '<div class="item-body">';
-      bodyHtml += '<div class="item-name">'+item.name+'</div>';
-      if(item.desc && MENU.showDesc !== false) bodyHtml += '<div class="item-desc">'+item.desc+'</div>';
+      bodyHtml += '<div class="item-name">'+ml(item.name)+'</div>';
+      if(item.desc && MENU.showDesc !== false) bodyHtml += '<div class="item-desc">'+ml(item.desc)+'</div>';
       bodyHtml += '<div class="item-tags">';
-      if(!item.available) bodyHtml += '<span class="item-unavail">⚫ Indisponible</span>';
+      if(!item.available) bodyHtml += '<span class="item-unavail">⚫ '+mt('unavailable')+'</span>';
       if(item.allergens && item.allergens.length && MENU.showAllergens !== false) {
         item.allergens.forEach(function(a){ bodyHtml += '<span class="item-allergen">'+a+'</span>'; });
       }
       bodyHtml += '</div></div>';
-      if(MENU.showPrices !== false) bodyHtml += '<div class="item-price"><small>CHF </small>'+item.price+'</div>';
+      if(MENU.showPrices !== false) bodyHtml += '<div class="item-price"><small>CHF </small>'+item.price.toFixed(2)+'</div>';
       bodyHtml += addBtn;
       bodyHtml += '</div>';
     });
@@ -612,7 +1033,7 @@ function updateCartBar() {
   var totalEl = document.getElementById('cart-total');
   if(bar) bar.classList.toggle('show', count > 0);
   if(countEl) countEl.textContent = count;
-  if(totalEl) totalEl.textContent = 'CHF ' + total;
+  if(totalEl) totalEl.textContent = 'CHF ' + total.toFixed(2);
 }
 
 /* ── Order sheet ── */
@@ -630,13 +1051,13 @@ function openCart() {
     html += '<div class="qty-num" style="font-size:13px">'+e.qty+'</div>';
     html += '<button class="qty-btn" style="width:26px;height:26px;font-size:14px;background:var(--ac)" onclick="changeQty(\''+e.item.id+'\',1);updateOrderSheet()">+</button>';
     html += '</div>';
-    html += '<div class="order-item-name">'+e.item.name+'</div>';
-    html += '<div class="order-item-price">CHF '+(e.item.price*e.qty)+'</div>';
+    html += '<div class="order-item-name">'+ml(e.item.name)+'</div>';
+    html += '<div class="order-item-price">CHF '+(e.item.price*e.qty).toFixed(2)+'</div>';
     html += '</div>';
   });
 
   document.getElementById('order-items').innerHTML = html;
-  document.getElementById('order-total-val').textContent = 'CHF ' + cartTotal();
+  document.getElementById('order-total-val').textContent = 'CHF ' + cartTotal().toFixed(2);
   document.getElementById('confirm-btn').textContent = 'Envoyer la commande →';
   document.getElementById('confirm-btn').className = 'confirm-btn';
   document.getElementById('ov-order').classList.add('on');
@@ -648,7 +1069,7 @@ function updateOrderSheet() { if(document.getElementById('ov-order').classList.c
 function sendOrder() {
   var items = Object.keys(CART).map(function(id){
     var item = MENU.items.find(function(x){return x.id===id;});
-    return item ? {id:id, name:item.name, qty:CART[id], price:item.price} : null;
+    return item ? {id:id, name:ml(item.name), qty:CART[id], price:item.price} : null;
   }).filter(Boolean);
   if(!items.length) return;
   var note = document.getElementById('order-note').value;
@@ -664,7 +1085,7 @@ function sendOrder() {
   // Reset
   CART = {};
   closeCart();
-  showSuccess('✅', 'Commande envoyée !', 'Votre commande a été transmise en cuisine.\nUn serveur passera très bientôt.');
+  showSuccess('✅', mt('order_sent_title'), mt('order_sent_sub'));
   updateCartBar();
   renderMenu();
 }
@@ -687,7 +1108,7 @@ function callServer(reason) {
     body:JSON.stringify({table:TABLE_NM, reason:reason, restoId:RESTO_ID})
   }).catch(function(){});
 
-  showSuccess('🔔', 'Appel envoyé !', 'Un serveur va passer à votre table dans quelques instants.');
+  showSuccess('🔔', mt('call_sent_title'), mt('call_sent_sub'));
   // Badge sur la cloche
   var badge = document.getElementById('bell-badge');
   if(badge) { badge.classList.add('on'); setTimeout(function(){badge.classList.remove('on');},10000); }
@@ -769,7 +1190,7 @@ function buildSummary(){
   }).filter(Boolean);
 
   var rows = items.map(function(i){
-    return '<div class="pay-row"><span class="pay-row-name">&times;'+i.qty+' '+i.name+'</span>'
+    return '<div class="pay-row"><span class="pay-row-name">×'+i.qty+' '+i.name+'</span>'
       +'<span class="pay-row-price">CHF '+(i.price*i.qty).toFixed(2)+'</span></div>';
   }).join('');
 
@@ -779,10 +1200,10 @@ function buildSummary(){
     var on = s.tipPct===p;
     return '<div class="tip-btn'+(on?' on':'')+'" onclick="setTip('+p+')">'
       +'<span class="tip-btn-pct">'+(p===0?'Sans':p+'%')+'</span>'
-      +'<span class="tip-btn-amt">'+(p===0?'&mdash;':'CHF '+amt.toFixed(2))+'</span></div>';
+      +'<span class="tip-btn-amt">'+(p===0?'—':'CHF '+amt.toFixed(2))+'</span></div>';
   }).join('');
   tipBtns += '<div class="tip-btn'+(s.tipPct==='custom'?' on':'')+'" onclick="setTipCustom()">'
-    +'<span class="tip-btn-pct">&#9998;</span><span class="tip-btn-amt">Libre</span></div>';
+    +'<span class="tip-btn-pct">✎</span><span class="tip-btn-amt">Libre</span></div>';
 
   var customRow = s.tipPct==='custom'
     ? '<div class="tip-custom-row"><span style="font-size:13px;color:var(--t2)">CHF</span>'
@@ -792,20 +1213,20 @@ function buildSummary(){
   return '<div class="pay-section">'
     +'<div class="pay-summary">'+rows
     +'<div class="pay-divider"></div>'
-    +'<div class="pay-row"><span class="pay-row-name">Sous-total</span>'
+    +'<div class="pay-row"><span class="pay-row-name">'+mt('subtotal')+'</span>'
     +'<span class="pay-row-price">CHF '+s.subtotal.toFixed(2)+'</span></div>'
-    +'<div class="pay-row"><span class="pay-row-name" style="color:var(--gn)">Pourboire</span>'
+    +'<div class="pay-row"><span class="pay-row-name" style="color:var(--gn)">'+mt('tip_label')+'</span>'
     +'<span class="pay-row-price" style="color:var(--gn)">+ CHF '+s.tip.toFixed(2)+'</span></div>'
     +'<div class="pay-divider"></div>'
-    +'<div class="pay-total-row"><span class="pay-total-label">Total</span>'
+    +'<div class="pay-total-row"><span class="pay-total-label">'+mt('total')+'</span>'
     +'<span class="pay-total-amount">CHF '+s.total.toFixed(2)+'</span></div></div>'
-    +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:10px">Pourboire</div>'
+    +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:10px">'+mt('tip_label')+'</div>'
     +'<div class="tip-grid">'+tipBtns+'</div>'+customRow
     +'<div style="display:flex;gap:8px;margin-top:16px;padding-bottom:30px">'
     +'<button class="confirm-btn" style="margin:0;flex:1;background:var(--surf3);color:var(--text)" '
-    +'onclick="PAY_STEP=\'split\';renderPaySheet()">Diviser &rarr;</button>'
+    +'onclick="PAY_STEP=\'split\';renderPaySheet()">'+mt('split_title')+' →</button>'
     +'<button class="confirm-btn" style="margin:0;flex:2" '
-    +'onclick="PAY_STEP=\'method\';renderPaySheet()">Payer CHF '+s.total.toFixed(2)+' &rarr;</button>'
+    +'onclick="PAY_STEP=\'method\';renderPaySheet()">'+mt('pay_btn')+' CHF '+s.total.toFixed(2)+' →</button>'
     +'</div></div>';
 }
 
@@ -834,13 +1255,13 @@ function buildSplit(){
   var html='<div class="pay-section">'
     +'<div class="split-toggle">'
     +'<div class="split-btn'+(mode==='equal'?' on':'')+'" onclick="setSplitMode(\'equal\')">'
-    +'<span class="split-btn-ico">&#9878;</span>'
-    +'<div class="split-btn-label">Parts &eacute;gales</div>'
-    +'<div class="split-btn-sub">Diviser en N parts</div></div>'
+    +'<span class="split-btn-ico">⚖</span>'
+    +'<div class="split-btn-label">'+mt('equal_split')+'</div>'
+    +'<div class="split-btn-sub">'+mt('equal_split_sub')+'</div></div>'
     +'<div class="split-btn'+(mode==='items'?' on':'')+'" onclick="setSplitMode(\'items\')">'
-    +'<span class="split-btn-ico">&#127869;</span>'
-    +'<div class="split-btn-label">Par article</div>'
-    +'<div class="split-btn-sub">Je choisis mes plats</div></div>'
+    +'<span class="split-btn-ico">🍽</span>'
+    +'<div class="split-btn-label">'+mt('item_split')+'</div>'
+    +'<div class="split-btn-sub">'+mt('item_split_sub')+'</div></div>'
     +'</div>';
 
   var payAmt = s.total;
@@ -849,14 +1270,14 @@ function buildSplit(){
     var perPerson=s.total/s.splitN;
     payAmt=perPerson;
     html+='<div class="split-n-row">'
-      +'<span class="split-n-label">Nombre de personnes</span>'
+      +'<span class="split-n-label">'+mt('n_persons')+'</span>'
       +'<div class="stepper-row">'
-      +'<button class="step-btn" onclick="setSplitN(-1)">&#8722;</button>'
+      +'<button class="step-btn" onclick="setSplitN(-1)">−</button>'
       +'<span class="step-num">'+s.splitN+'</span>'
       +'<button class="step-btn" onclick="setSplitN(1)">+</button>'
       +'</div></div>'
       +'<div style="background:var(--acp);border:1.5px solid var(--ac);border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">'
-      +'<div style="font-size:12px;color:var(--t3);margin-bottom:4px">Vous payez</div>'
+      +'<div style="font-size:12px;color:var(--t3);margin-bottom:4px">'+mt('you_pay')+'</div>'
       +'<div style="font-family:\'DM Mono\',monospace;font-size:28px;font-weight:900;color:var(--ac)">CHF '+perPerson.toFixed(2)+'</div>'
       +'<div style="font-size:10px;color:var(--t3)">sur CHF '+s.total.toFixed(2)+' ('+s.splitN+' pers.)</div>'
       +'</div>';
@@ -867,20 +1288,20 @@ function buildSplit(){
     var myTotal=selTotal+tipShare;
     payAmt=myTotal;
 
-    html+='<div style="font-size:11px;color:var(--t3);margin-bottom:10px">S&eacute;lectionnez vos articles :</div>'
+    html+='<div style="font-size:11px;color:var(--t3);margin-bottom:10px">Sélectionnez vos articles :</div>'
       +'<div class="split-items">';
     items.forEach(function(item){
       var sel=!!s.splitItems[item.id];
       html+='<div class="split-item-row'+(sel?' selected':'')+'" onclick="toggleSplitItem(\''+item.id+'\')">'
-        +'<div class="split-item-check">'+(sel?'&#10003;':'')+'</div>'
-        +'<div class="split-item-name">&times;'+item.qty+' '+item.name+'</div>'
+        +'<div class="split-item-check">'+(sel?'✓':'')+'</div>'
+        +'<div class="split-item-name">×'+item.qty+' '+item.name+'</div>'
         +'<div class="split-item-price">CHF '+(item.price*item.qty).toFixed(2)+'</div>'
         +'</div>';
     });
     html+='</div>';
     if(myTotal>0){
       html+='<div style="background:var(--acp);border:1.5px solid var(--ac);border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">'
-        +'<div style="font-size:12px;color:var(--t3);margin-bottom:4px">Votre part</div>'
+        +'<div style="font-size:12px;color:var(--t3);margin-bottom:4px">'+mt('your_share')+'</div>'
         +'<div style="font-family:\'DM Mono\',monospace;font-size:28px;font-weight:900;color:var(--ac)">CHF '+myTotal.toFixed(2)+'</div>'
         +'</div>';
     }
@@ -888,9 +1309,9 @@ function buildSplit(){
 
   html+='<div style="display:flex;gap:8px;padding-bottom:30px">'
     +'<button class="confirm-btn" style="margin:0;flex:1;background:var(--surf3);color:var(--text)" '
-    +'onclick="PAY_STEP=\'summary\';renderPaySheet()">&larr; Retour</button>'
+    +'onclick="PAY_STEP=\'summary\';renderPaySheet()">'+mt('back')+'</button>'
     +'<button class="confirm-btn" style="margin:0;flex:2" '
-    +'onclick="setSplitAmount('+payAmt.toFixed(2)+')">Payer CHF '+payAmt.toFixed(2)+' &rarr;</button>'
+    +'onclick="setSplitAmount('+payAmt.toFixed(2)+')">Payer CHF '+payAmt.toFixed(2)+' →</button>'
     +'</div></div>';
   return html;
 }
@@ -909,26 +1330,26 @@ function buildMethod(){
   var amt='CHF '+s.total.toFixed(2);
   return '<div class="pay-section">'
     +'<div style="text-align:center;margin-bottom:20px">'
-    +'<div style="font-size:13px;color:var(--t3)">Montant &agrave; r&eacute;gler</div>'
+    +'<div style="font-size:13px;color:var(--t3)">'+mt('amount_to_pay')+'</div>'
     +'<div style="font-family:\'DM Mono\',monospace;font-size:32px;font-weight:900;color:var(--text)">'+amt+'</div>'
     +'</div>'
     +'<div class="pay-methods">'
     +'<div class="pay-method-btn" onclick="openTwintSheet()">'
-    +'<div class="pay-method-ico">&#128153;</div>'
-    +'<div><div class="pay-method-label">TWINT</div>'
-    +'<div class="pay-method-sub">Scannez le QR depuis votre app</div></div>'
+    +'<div class="pay-method-ico">💙</div>'
+    +'<div><div class="pay-method-label">'+mt('twint_label')+'</div>'
+    +'<div class="pay-method-sub">'+mt('twint_sub')+'</div></div>'
     +'<div class="pay-method-amount">'+amt+'</div></div>'
     +'<div class="pay-method-btn" onclick="callServer(\'Addition\');closePay()">'
-    +'<div class="pay-method-ico">&#129534;</div>'
-    +'<div><div class="pay-method-label">Addition au serveur</div>'
+    +'<div class="pay-method-ico">🧾</div>'
+    +'<div><div class="pay-method-label">'+mt('ask_server')+'</div>'
     +'<div class="pay-method-sub">Un serveur passe avec l\'addition</div></div></div>'
     +'<div class="pay-method-btn" style="opacity:.5;pointer-events:none">'
-    +'<div class="pay-method-ico">&#128179;</div>'
-    +'<div><div class="pay-method-label">Carte bancaire</div>'
-    +'<div class="pay-method-sub">Bient&ocirc;t disponible</div></div></div>'
+    +'<div class="pay-method-ico">💳</div>'
+    +'<div><div class="pay-method-label">'+mt('card_label')+'</div>'
+    +'<div class="pay-method-sub">'+mt('card_sub')+'</div></div></div>'
     +'</div>'
     +'<button class="confirm-btn" style="margin:0;width:100%;background:var(--surf3);color:var(--text)" '
-    +'onclick="PAY_STEP=\'summary\';renderPaySheet()">&larr; Retour</button>'
+    +'onclick="PAY_STEP=\'summary\';renderPaySheet()">'+mt('back')+'</button>'
     +'<div style="height:30px"></div></div>';
 }
 
@@ -953,7 +1374,7 @@ function paymentDone(){
   fetch(API_BASE+'/payment',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({table:TABLE_NM,amount:PAY_STATE.total,method:'twint',restoId:RESTO_ID})
   }).catch(function(){});
-  showSuccess('&#128179;','Paiement re&ccedil;u !','Merci pour votre visite. &Agrave; tr&egrave;s bient&ocirc;t !');
+  showSuccess('💳','Paiement reçu !','Merci pour votre visite. &Agrave; très bientôt !');
   setTimeout(function(){ openSatis(); },2200);
 }
 
@@ -967,7 +1388,7 @@ function openSatis(){
 function closeSatis(){ document.getElementById('ov-satis').classList.remove('on'); }
 function rateStar(n){
   PAY_STATE.rating=n;
-  var msgs=['','D&eacute;sol&eacute;...','Pas terrible...','Correct, merci !','Tr&egrave;s bien !','Excellent ! &#127881;'];
+  var msgs=['','Désolé...','Pas terrible...','Correct, merci !','Très bien !','Excellent ! 🎉'];
   document.querySelectorAll('.star-btn').forEach(function(b){
     b.classList.toggle('on',+b.dataset.v<=n);
   });
@@ -982,11 +1403,11 @@ function submitRating(){
   if(PAY_STATE.rating>=4&&MENU.googleUrl){
     setTimeout(function(){
       var m=document.createElement('div');
-      m.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(6,12,24,.85);display:flex;align-items:center;justify-content:center';
+      m.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center';
       m.innerHTML='<div style="background:var(--surf);border-radius:22px;padding:28px;max-width:300px;width:90%;text-align:center;border:1px solid var(--border)">'
-        +'<div style="font-size:36px;margin-bottom:10px">&#127775;</div>'
+        +'<div style="font-size:36px;margin-bottom:10px">🌟</div>'
         +'<div style="font-family:Cormorant Garamond,serif;font-size:22px;font-weight:600;margin-bottom:8px">Merci !</div>'
-        +'<div style="font-size:13px;color:var(--t3);margin-bottom:20px;line-height:1.6">Partagez votre exp&eacute;rience sur Google pour nous aider &agrave; grandir.</div>'
+        +'<div style="font-size:13px;color:var(--t3);margin-bottom:20px;line-height:1.6">Partagez votre expérience sur Google pour nous aider à grandir.</div>'
         +'<button class="google-btn" onclick="window.open(\''+MENU.googleUrl+'\',\'_blank\');this.closest(\'div\').parentNode.remove()">'
         +'<span class="google-logo">G</span> Laisser un avis Google</button>'
         +'<button onclick="this.closest(\'div\').parentNode.remove()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:\'DM Sans\',sans-serif">Non merci</button>'
@@ -1006,8 +1427,8 @@ function showPayButton(){
     +'border-radius:50px;padding:12px 18px;box-shadow:0 6px 24px rgba(60,200,112,.4);'
     +'cursor:pointer;display:flex;align-items:center;gap:8px;'
     +'animation:slideUp .3s cubic-bezier(.22,1,.36,1)';
-  fab.innerHTML='<span style="font-size:18px">&#128179;</span>'
-    +'<span style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:700;color:#fff">R&eacute;gler ma note</span>';
+  fab.innerHTML='<span style="font-size:18px">💳</span>'
+    +'<span style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:700;color:#fff">'+mt('pay_settle')+'</span>';
   fab.onclick=openPay;
   document.body.appendChild(fab);
 }
@@ -1050,7 +1471,7 @@ window.sendOrder=function(){
     <div style="padding:20px 20px 40px;text-align:center">
       <div style="font-size:40px;margin-bottom:8px">🍽️</div>
       <div style="font-size:16px;font-weight:600;margin-bottom:4px" id="satis-resto">Mon Restaurant</div>
-      <div style="font-size:12px;color:var(--t3);margin-bottom:20px">Votre avis nous aide à nous améliorer</div>
+      <div id="satis-sub" style="font-size:12px;color:var(--t3);margin-bottom:20px">Votre avis nous aide à nous améliorer</div>
       <div class="stars-row" id="stars-row">
         <button class="star-btn" data-v="1" onclick="rateStar(1)">⭐</button>
         <button class="star-btn" data-v="2" onclick="rateStar(2)">⭐</button>
@@ -1060,8 +1481,8 @@ window.sendOrder=function(){
       </div>
       <div id="satis-msg" style="font-size:13px;color:var(--t3);min-height:20px;margin-bottom:16px"></div>
       <textarea class="note-input" id="satis-note" placeholder="Un commentaire ? (optionnel)" style="height:60px;margin-bottom:12px"></textarea>
-      <button class="confirm-btn" onclick="submitRating()" style="margin:0;width:100%">Envoyer mon avis</button>
-      <button onclick="closeSatis()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Passer</button>
+      <button id="satis-submit" class="confirm-btn" onclick="submitRating()" style="margin:0;width:100%">Envoyer mon avis</button>
+      <button id="satis-skip" onclick="closeSatis()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Passer</button>
     </div>
   </div>
 </div>
@@ -1081,17 +1502,17 @@ window.sendOrder=function(){
           <img id="twint-qr-img" src="" width="180" height="180" alt="QR TWINT">
         </div>
         <div class="twint-amount" id="twint-amount">CHF 0.00</div>
-        <div class="twint-sub">Scannez avec votre app TWINT</div>
+        <div class="twint-sub" id="twint-scan">Scannez avec votre app TWINT</div>
         <div class="twint-alias" id="twint-alias"></div>
       </div>
-      <div style="background:rgba(0,109,198,.08);border:1px solid rgba(0,109,198,.2);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:16px">
+      <div id="twint-steps" style="background:rgba(0,109,198,.08);border:1px solid rgba(0,109,198,.2);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:16px">
         1. Ouvrez votre app TWINT<br>
         2. Appuyez sur l'icône QR / Scanner<br>
         3. Scannez ce code — le montant est pré-rempli<br>
         4. Confirmez le paiement
       </div>
-      <button class="confirm-btn" onclick="paymentDone()" style="margin:0;width:100%">✅ J'ai payé</button>
-      <button onclick="closeTwint();openPaySheet()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">← Autre mode de paiement</button>
+      <button id="twint-done" class="confirm-btn" onclick="paymentDone()" style="margin:0;width:100%">✅ J'ai payé</button>
+      <button id="twint-other" onclick="closeTwint();openPaySheet()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">← Autre mode de paiement</button>
     </div>
   </div>
 </div>

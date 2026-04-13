@@ -1,0 +1,28 @@
+{
+  "name": "R3STO — Gestion de restaurant",
+  "short_name": "R3STO",
+  "description": "Plateforme de gestion complète pour restaurants suisses : réservations, plan de salle, CRM, commandes, livraison.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#3cc870",
+  "lang": "fr",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/logo-r3sto.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-r3sto.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "food", "productivity"],
+  "prefer_related_applications": false
+}

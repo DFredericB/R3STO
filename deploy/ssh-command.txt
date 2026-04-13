@@ -1,0 +1,12 @@
+python3 -c "
+from ftplib import FTP
+import io
+ftp = FTP('pl7wy9.ftp.infomaniak.com')
+ftp.login('pl7wy9_r3sto', 'RueNeuve20#1081')
+data = io.BytesIO()
+ftp.retrbinary('RETR sites/api.r3sto.ch/_app.mjs', data.write)
+ftp.quit()
+open('sites/api.r3sto.ch/_app.mjs','wb').write(data.getvalue())
+open('sites/api.r3sto.ch/server.js','w').write(\"await import('./_app.mjs')\n\")
+print('OK:',len(data.getvalue()),'bytes')
+"

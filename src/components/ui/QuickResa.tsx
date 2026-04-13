@@ -111,6 +111,7 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
   const [salleId, setSalleId] = useState(defaultSalle?.id || '')
   const [showCvtPop, setShowCvtPop] = useState(false)
   const [cvtPopVal, setCvtPopVal] = useState(9)
+  const [manualTable, setManualTable] = useState<string | null>(null)
 
   // ── Client detection ──
   const [clientMatch, setClientMatch] = useState<{ nom: string; tel: string; email: string; count: number } | null>(null)
@@ -269,24 +270,24 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
     if (!nom.trim()) { toast(t('modal.nameRequired'), 'error'); return }
     if (!slot) { toast(t('modal.selectSlot'), 'error'); return }
     if (!svc) { toast(t('modal.selectService'), 'error'); return }
-    const finalTbl = suggestedTable || t('modal.toAssign')
+    const finalTbl = modeIA ? (suggestedTable || '') : (manualTable || '')
     const newResa: Resa = {
       id: 'r' + Date.now(), n: nom.trim(), nom: nom.trim(), prenom: '',
-      c: cvt, tbl: finalTbl, t: slot, svc, s: 'reserved', note: '', date: activeDate,
+      c: cvt, tbl: finalTbl, t: slot, svc, s: finalTbl ? 'reserved' : 'waitlist', note: '', date: activeDate,
       createdAt: Date.now(), statut: 0, mode: modeIA ? 'ia' : 'manuel',
       tel: toE164(tel.trim(), pays), email: '', canal: 'telephone', prisPar: '',
       bebe: 0, pmr: 0, allergie: false,
     }
     // Garde-fou double-booking avec feedback visible
-    if (finalTbl && finalTbl !== t('modal.toAssign') && isDoubleBooked(finalTbl, activeDate, svc)) {
+    if (finalTbl && isDoubleBooked(finalTbl, activeDate, svc)) {
       toast(`⛔ ${finalTbl} déjà occupée pour ce service`, 'error')
       return
     }
     addResa(newResa)
-    toast(`✓ ${nom.trim()} · ${cvt}p · ${slot.replace('h', ':')} · ${finalTbl}`, 'success')
+    toast(`✓ ${nom.trim()} · ${cvt}p · ${slot.replace('h', ':')} · ${finalTbl || 'liste attente'}`, 'success')
     setNom(''); setTel(''); setCvt(2); setClientMatch(null)
-    navigate('/reservations')
-  }, [nom, tel, cvt, svc, slot, modeIA, suggestedTable, activeDate, t, navigate])
+    navigate(`/reservations?edit=${newResa.id}`)
+  }, [nom, tel, cvt, svc, slot, modeIA, suggestedTable, manualTable, activeDate, t, navigate])
 
   if (activeServices.length === 0) {
     return (<div className="card" style={{ padding: '14px 16px', opacity: .5 }}>
@@ -320,7 +321,7 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
               display: 'flex', background: 'var(--surf3)', borderRadius: 8,
               border: '1px solid var(--border)', overflow: 'hidden',
             }}>
-              <button onClick={() => setModeIA(true)} style={{
+              <button onClick={() => { setModeIA(true); setManualTable(null) }} style={{
                 padding: '6px 14px', fontSize: 11, fontWeight: 700, border: 'none',
                 cursor: 'pointer', fontFamily: 'var(--ff)', transition: '.15s',
                 background: modeIA ? 'linear-gradient(135deg,#6b3fa0,#a855f7)' : 'transparent',
@@ -695,11 +696,8 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
         tables={tables} combos={combos} resas={resas}
         activeDate={activeDate} svc={svc} cvt={cvt}
         salles={activeSalles} salleId={salleId} selSalleName={selSalleName}
-        modeIA={modeIA} suggestedTable={suggestedTable}
-        onSelectTable={(_tblName) => {
-          // En mode manuel, on pourrait permettre la sélection
-          // Pour l'instant, on affiche juste la grille
-        }}
+        modeIA={modeIA} suggestedTable={modeIA ? suggestedTable : manualTable}
+        onSelectTable={(tblName) => { if (!modeIA) setManualTable(prev => prev === tblName ? null : tblName) }}
       />
     </div>
   )

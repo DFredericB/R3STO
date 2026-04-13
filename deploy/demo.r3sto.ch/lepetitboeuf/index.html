@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark-elegant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Restaurant</title>
+<meta name="description" id="meta-desc" content="">
+<!-- Open Graph -->
+<meta property="og:type" content="restaurant">
+<meta property="og:title" id="og-title" content="">
+<meta property="og:description" id="og-desc" content="">
+<meta property="og:image" id="og-image" content="">
+<!-- Schema.org Restaurant -->
+<script type="application/ld+json" id="schema-json"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@200;300;400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ THEME PALETTES ═══ */
+[data-theme="dark-elegant"]{
+  --bg:#060404;--bg2:#0f0d0c;--bg-deep:#130a04;--bg-card:#1c1008;
+  --accent:#e8201a;--accent-dk:#be180e;--accent-glow:rgba(232,32,26,.18);
+  --text-primary:#f2ece0;--text-body:rgba(242,236,224,.72);--text-muted:rgba(242,236,224,.35);
+  --gold:#c8a050;--gold-light:#dfc070;--border:rgba(242,236,224,.06);
+  --ff-display:'Cormorant Garamond',serif;--ff-body:'Jost',sans-serif;
+  --nav-bg:rgba(6,4,4,.97);--overlay-start:.18;--overlay-end:.94
+}
+[data-theme="light-fresh"]{
+  --bg:#f7f5f0;--bg2:#ffffff;--bg-deep:#eee9df;--bg-card:#ffffff;
+  --accent:#1a6b4a;--accent-dk:#145a3d;--accent-glow:rgba(26,107,74,.12);
+  --text-primary:#1a2033;--text-body:#4a5568;--text-muted:#a0aec0;
+  --gold:#8b7355;--gold-light:#a08968;--border:rgba(0,0,0,.08);
+  --ff-display:'Cormorant Garamond',serif;--ff-body:'DM Sans',sans-serif;
+  --nav-bg:rgba(255,255,255,.97);--overlay-start:.05;--overlay-end:.75
+}
+[data-theme="warm-bistro"]{
+  --bg:#1a1310;--bg2:#261d14;--bg-deep:#0f0b08;--bg-card:#2a2018;
+  --accent:#c45c3c;--accent-dk:#a84a31;--accent-glow:rgba(196,92,60,.15);
+  --text-primary:#f5e6d3;--text-body:rgba(245,230,211,.7);--text-muted:rgba(245,230,211,.35);
+  --gold:#d4a574;--gold-light:#e4c070;--border:rgba(245,230,211,.08);
+  --ff-display:'Cormorant Garamond',serif;--ff-body:'Jost',sans-serif;
+  --nav-bg:rgba(26,19,16,.97);--overlay-start:.15;--overlay-end:.92
+}
+[data-theme="modern-minimal"]{
+  --bg:#0c0c0c;--bg2:#161616;--bg-deep:#080808;--bg-card:#1e1e1e;
+  --accent:#4480d8;--accent-dk:#2d66b8;--accent-glow:rgba(68,128,216,.12);
+  --text-primary:#f0f0f0;--text-body:rgba(240,240,240,.65);--text-muted:rgba(240,240,240,.3);
+  --gold:#888;--gold-light:#aaa;--border:rgba(255,255,255,.06);
+  --ff-display:'DM Sans',sans-serif;--ff-body:'DM Sans',sans-serif;
+  --nav-bg:rgba(12,12,12,.97);--overlay-start:.2;--overlay-end:.95
+}
+[data-theme="zen-japanese"]{
+  --bg:#0d1210;--bg2:#141e1a;--bg-deep:#080e0c;--bg-card:#1a2822;
+  --accent:#8fae5a;--accent-dk:#728c48;--accent-glow:rgba(143,174,90,.12);
+  --text-primary:#e8ede4;--text-body:rgba(232,237,228,.65);--text-muted:rgba(232,237,228,.3);
+  --gold:#c4a76c;--gold-light:#d8c088;--border:rgba(232,237,228,.06);
+  --ff-display:'Cormorant Garamond',serif;--ff-body:'Jost',sans-serif;
+  --nav-bg:rgba(13,18,16,.97);--overlay-start:.15;--overlay-end:.92
+}
+
+/* ═══ BASE ═══ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text-primary);font-family:var(--ff-body);font-weight:300;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit}
+.section{padding:100px 56px;max-width:1400px;margin:0 auto}
+.tag{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:16px}
+.h2{font-family:var(--ff-display);font-size:clamp(2rem,4.5vw,3.2rem);font-weight:300;line-height:1.15;margin-bottom:24px}
+.h2 em{font-style:italic;color:var(--accent)}
+.corpo{font-size:.92rem;line-height:1.8;color:var(--text-body);max-width:520px}
+.btn-accent{display:inline-block;background:var(--accent);color:#fff;padding:14px 36px;font-size:.7rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;transition:all .25s;border:none;cursor:pointer}
+.btn-accent:hover{background:var(--accent-dk);transform:translateY(-1px)}
+.btn-outline{display:inline-block;border:1px solid var(--border);color:var(--text-body);padding:12px 28px;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:all .25s}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.hidden{display:none !important}
+
+/* ═══ CLOSURE BANNER ═══ */
+.closure-banner{position:fixed;top:0;left:0;right:0;z-index:1001;background:var(--accent);color:#fff;text-align:center;padding:10px 56px;font-size:.78rem;font-weight:500;transform:translateY(-100%);transition:transform .4s}
+.closure-banner.visible{transform:translateY(0)}
+.closure-banner .close-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;opacity:.6}
+.closure-banner .close-btn:hover{opacity:1}
+
+/* ═══ DISCOUNT BANNER ═══ */
+.discount-banner{position:fixed;bottom:20px;left:20px;z-index:998;background:var(--bg-card);border:1px solid var(--accent);padding:16px 20px;max-width:340px;border-radius:0;transform:translateY(120%);transition:transform .5s}
+.discount-banner.visible{transform:translateY(0)}
+.discount-banner-title{font-family:var(--ff-display);font-size:1.1rem;margin-bottom:6px;color:var(--accent)}
+.discount-banner-text{font-size:.78rem;color:var(--text-body);line-height:1.5}
+.discount-banner .close-btn{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.9rem}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;justify-content:space-between;align-items:center;padding:14px 56px;transition:all .4s}
+nav.scrolled{background:var(--nav-bg);backdrop-filter:blur(24px);padding:8px 56px;border-bottom:1px solid var(--border);box-shadow:0 4px 48px rgba(0,0,0,.6)}
+nav.has-closure{top:40px}
+.nav-logo a{display:flex;align-items:center}
+.nav-logo img{height:56px;width:auto;transition:height .35s;border-radius:0}
+nav.scrolled .nav-logo img{height:44px}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-links{display:flex;gap:30px;list-style:none;align-items:center}
+.nav-links a{color:var(--text-primary);text-decoration:none;font-size:.67rem;letter-spacing:.18em;text-transform:uppercase;opacity:.6;transition:opacity .2s,color .2s}
+.nav-links a:hover{opacity:1;color:var(--accent)}
+.nav-cta{background:var(--accent) !important;color:#fff !important;opacity:1 !important;padding:12px 30px;font-size:.78rem !important;font-weight:600 !important;letter-spacing:.12em !important;transition:all .2s !important}
+.nav-cta:hover{background:var(--accent-dk) !important;transform:translateY(-1px)}
+.lang-switch{display:flex;gap:0;border:1px solid var(--border)}
+.lang-switch button{background:transparent;border:none;color:var(--text-muted);font-size:.58rem;letter-spacing:.1em;padding:6px 10px;cursor:pointer;transition:all .2s;font-family:var(--ff-body)}
+.lang-switch button.active{background:var(--accent);color:#fff}
+.nav-mobile-btn{display:none;background:none;border:none;color:var(--text-primary);font-size:1.5rem;cursor:pointer}
+
+/* ═══ HERO ═══ */
+#hero{height:100vh;min-height:720px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 35%}
+.hero-overlay{position:absolute;inset:0}
+.hero-content{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;padding:0 24px}
+.hero-logo{width:min(400px,70vw);margin-bottom:24px;border-radius:0}
+.hero-tagline{font-family:var(--ff-display);font-size:clamp(1.3rem,3vw,1.8rem);font-weight:300;font-style:italic;letter-spacing:.04em;margin-bottom:14px;color:var(--text-primary)}
+.hero-sub{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:30px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.hero-scroll{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;gap:3px}
+.hero-scroll span{width:2px;height:16px;background:var(--text-muted);animation:tickAnim 1.4s ease infinite}
+.hero-scroll span:nth-child(2){animation-delay:.2s}
+.hero-scroll span:nth-child(3){animation-delay:.4s}
+@keyframes tickAnim{0%,100%{transform:scaleY(.2);opacity:.2}50%{transform:scaleY(1);opacity:.8}}
+
+/* ═══ STORY ═══ */
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.story-img{position:relative;overflow:hidden}
+.story-img img{width:100%;aspect-ratio:3/4;object-fit:cover}
+.story-badge{position:absolute;bottom:40px;left:40px;background:var(--accent);padding:16px 24px;z-index:2}
+.story-badge .badge-n{font-family:var(--ff-display);font-size:2.8rem;font-weight:600;color:#fff;line-height:1}
+.story-badge .badge-l{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:4px}
+
+/* ═══ SPECIALTIES ═══ */
+.spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:40px}
+.spec-card{background:var(--bg-card);border:1px solid var(--border);padding:28px;transition:border-color .3s}
+.spec-card:hover{border-color:var(--accent)}
+.spec-icon{font-size:2rem;margin-bottom:14px}
+.spec-name{font-family:var(--ff-display);font-size:1.2rem;margin-bottom:8px;color:var(--text-primary)}
+.spec-desc{font-size:.82rem;color:var(--text-body);line-height:1.6}
+.spec-price{font-size:.78rem;color:var(--accent);margin-top:10px;font-weight:500}
+
+/* ═══ MENU EMBED ═══ */
+.menu-embed{margin-top:40px}
+.menu-cats{display:flex;gap:0;border:1px solid var(--border);margin-bottom:30px;flex-wrap:wrap}
+.menu-cat{flex:1;min-width:120px;padding:12px;text-align:center;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;color:var(--text-muted);background:transparent;border:none;transition:all .2s;font-family:var(--ff-body)}
+.menu-cat.active{background:var(--accent);color:#fff}
+.menu-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.menu-item{display:flex;justify-content:space-between;align-items:flex-start;padding:16px;border-bottom:1px solid var(--border)}
+.menu-item-name{font-family:var(--ff-display);font-size:1.05rem;color:var(--text-primary)}
+.menu-item-desc{font-size:.78rem;color:var(--text-muted);margin-top:4px}
+.menu-item-price{font-family:var(--ff-display);font-size:1.1rem;color:var(--accent);white-space:nowrap;margin-left:20px}
+.menu-link{margin-top:30px;text-align:center}
+
+/* ═══ EVENTS ═══ */
+.events-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:40px}
+.event-card{background:var(--bg-card);border:1px solid var(--border);overflow:hidden;transition:border-color .3s}
+.event-card:hover{border-color:var(--accent)}
+.event-img{height:180px;background-size:cover;background-position:center;position:relative}
+.event-date{position:absolute;top:16px;left:16px;background:var(--accent);color:#fff;padding:8px 14px;font-size:.65rem;font-weight:600;letter-spacing:.08em}
+.event-body{padding:20px}
+.event-name{font-family:var(--ff-display);font-size:1.15rem;margin-bottom:8px}
+.event-desc{font-size:.82rem;color:var(--text-body);line-height:1.5}
+
+/* ═══ SPACES ═══ */
+.spaces-masonry{columns:3;column-gap:16px;margin-top:40px}
+.space-item{break-inside:avoid;margin-bottom:16px;position:relative;overflow:hidden}
+.space-item img{width:100%;display:block;transition:transform .6s}
+.space-item:hover img{transform:scale(1.03)}
+.space-label{position:absolute;bottom:0;left:0;right:0;padding:16px 20px;background:linear-gradient(transparent,rgba(0,0,0,.8));font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#fff}
+
+/* ═══ REVIEWS ═══ */
+.reviews-header{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:center;margin-bottom:40px}
+.score-box{background:var(--bg-card);border:1px solid var(--border);padding:24px;text-align:center;min-width:160px}
+.score-n{font-family:var(--ff-display);font-size:3rem;font-weight:300;color:var(--text-primary)}
+.score-s{color:var(--gold);font-size:.9rem;margin:4px 0}
+.score-l{font-size:.65rem;color:var(--text-muted);letter-spacing:.08em}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.review-card{background:var(--bg-card);border:1px solid var(--border);padding:24px}
+.review-quote{font-size:2.5rem;color:var(--accent);font-family:var(--ff-display);line-height:1;margin-bottom:8px}
+.review-text{font-size:.88rem;color:var(--text-body);line-height:1.7;font-style:italic}
+.review-meta{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.review-stars{color:var(--gold);font-size:.8rem}
+.review-who{font-size:.72rem;color:var(--text-muted)}
+.review-src{font-size:.62rem;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase}
+
+/* ═══ RESERVATION ═══ */
+.resa-section{display:grid;grid-template-columns:1fr 1fr;min-height:600px;position:relative}
+.resa-img{background-size:cover;background-position:center;position:relative}
+.resa-img::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 30%,var(--bg) 100%)}
+.resa-content{display:flex;flex-direction:column;justify-content:center;padding:60px}
+/* Widget R3STO intégré */
+.widget-frame{border:none;width:100%;min-height:500px;background:transparent}
+.widget-embed{background:var(--bg-card);border:1px solid var(--border);padding:28px}
+.widget-head{font-family:var(--ff-display);font-size:1.3rem;font-weight:400;margin-bottom:20px;color:var(--text-primary)}
+.widget-dates{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.widget-date{padding:10px 14px;border:1px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;min-width:58px}
+.widget-date:hover{border-color:var(--accent)}
+.widget-date.active{border-color:var(--accent);background:var(--accent-glow)}
+.widget-date-day{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted)}
+.widget-date-num{font-family:var(--ff-display);font-size:1.4rem;font-weight:300}
+.widget-svc{display:flex;gap:0;margin-bottom:18px;border:1px solid var(--border)}
+.widget-svc-btn{flex:1;padding:10px;text-align:center;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;color:var(--text-muted);background:transparent;border:none;transition:all .2s;font-family:var(--ff-body)}
+.widget-svc-btn.active{background:var(--accent);color:#fff}
+.widget-guests{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.widget-guests-label{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted)}
+.widget-guests-ctrl{display:flex;align-items:center;gap:0;border:1px solid var(--border)}
+.widget-guests-ctrl button{width:36px;height:36px;background:transparent;border:none;color:var(--text-primary);cursor:pointer;font-size:1rem;transition:background .2s;font-family:var(--ff-body)}
+.widget-guests-ctrl button:hover{background:var(--accent-glow)}
+.widget-guests-ctrl span{width:36px;text-align:center;font-family:var(--ff-display);font-size:1.2rem}
+.widget-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:20px}
+.widget-slot{padding:10px 6px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:all .2s}
+.widget-slot:hover{border-color:var(--accent)}
+.widget-slot.active{border-color:var(--accent);background:var(--accent-glow)}
+.widget-slot-t{font-family:var(--ff-display);font-size:1.1rem}
+.widget-status{display:inline-flex;align-items:center;gap:5px;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;margin-top:14px}
+.widget-status-dot{width:6px;height:6px;border-radius:50%}
+
+/* ═══ MAP ═══ */
+.map-section{display:grid;grid-template-columns:1fr 1fr;min-height:400px}
+.map-frame{border:none;width:100%;height:100%;min-height:400px;filter:grayscale(.8) contrast(1.1)}
+.map-info{padding:60px;display:flex;flex-direction:column;justify-content:center}
+.map-item{margin-bottom:20px}
+.map-item-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+.map-item-value{font-family:var(--ff-display);font-size:1.1rem;color:var(--text-primary)}
+.map-item-value a{color:var(--accent);text-decoration:none}
+.click-to-call{display:inline-flex;align-items:center;gap:8px;margin-top:20px}
+
+/* ═══ FOOTER ═══ */
+footer{border-top:1px solid var(--border);padding:60px 56px 30px}
+.footer-main{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px}
+.footer-logo img{height:60px;margin-bottom:14px;border-radius:0}
+.footer-social{display:flex;gap:8px;margin-top:12px}
+.footer-social a{width:36px;height:36px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:.7rem;transition:border-color .2s}
+.footer-social a:hover{border-color:var(--accent);color:var(--accent)}
+.fcol h5{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);font-weight:500}
+.fcol ul{list-style:none}
+.fcol li{font-size:.82rem;color:var(--text-body);margin-bottom:8px}
+.fcol a{color:var(--accent);text-decoration:none}
+.footer-bottom{max-width:1400px;margin:40px auto 0;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted)}
+.powered-by{font-size:.58rem;letter-spacing:.08em;color:var(--text-muted)}
+.powered-by a{color:var(--accent);text-decoration:none}
+
+/* ═══ ANIMATIONS ═══ */
+.rv{opacity:0;transform:translateY(30px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.rv.vis{opacity:1;transform:translateY(0)}
+.rv-r{opacity:0;transform:translateX(40px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.rv-r.vis{opacity:1;transform:translateX(0)}
+.d1{transition-delay:.15s}.d2{transition-delay:.3s}.d3{transition-delay:.45s}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1080px){
+  .section{padding:70px 32px}
+  .story-grid{grid-template-columns:1fr;gap:40px}
+  .resa-section{grid-template-columns:1fr}
+  .resa-img{height:300px}
+  .resa-img::after{background:linear-gradient(transparent 40%,var(--bg))}
+  .map-section{grid-template-columns:1fr}
+  .footer-main{grid-template-columns:1fr 1fr;gap:30px}
+  .spaces-masonry{columns:2}
+}
+@media(max-width:768px){
+  .story-grid, .resa-section { grid-template-columns: 1fr !important; }
+  .spec-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important; }
+  .menu-items { grid-template-columns: 1fr !important; }
+  section, .section { padding-left: 24px !important; padding-right: 24px !important; }
+}
+@media(max-width:580px){
+  .section{padding:50px 20px}
+  nav{padding:10px 20px}
+  nav.scrolled{padding:6px 20px}
+  .nav-links{display:none}
+  .nav-mobile-btn{display:block}
+  .h2{font-size:1.8rem}
+  .hero-btns{flex-direction:column;align-items:center}
+  .spec-grid{grid-template-columns:1fr}
+  .spaces-masonry{columns:1}
+  .reviews-header{grid-template-columns:1fr;text-align:center}
+  .footer-main{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;gap:8px;text-align:center}
+  .widget-slots{grid-template-columns:repeat(3,1fr)}
+  .resa-content{padding:30px 20px}
+  .map-info{padding:30px 20px}
+  .closure-banner{padding:10px 20px;font-size:.7rem}
+  .discount-banner{left:10px;right:10px;max-width:none}
+}
+</style>
+</head>
+<body>
+
+<!-- CLOSURE BANNER (dynamic from API) -->
+<div id="closure-banner" class="closure-banner hidden">
+  <span id="closure-text"></span>
+  <button class="close-btn" onclick="this.parentElement.classList.remove('visible')">&times;</button>
+</div>
+
+<!-- DISCOUNT BANNER (dynamic from API) -->
+<div id="discount-banner" class="discount-banner hidden">
+  <button class="close-btn" onclick="this.parentElement.classList.remove('visible')">&times;</button>
+  <div class="discount-banner-title" id="discount-title"></div>
+  <div class="discount-banner-text" id="discount-text"></div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo"><a href="#"><img id="nav-logo-img" src="" alt=""></a></div>
+  <div class="nav-right">
+    <ul class="nav-links" id="nav-links"></ul>
+    <div class="lang-switch" id="lang-switch"></div>
+    <button class="nav-mobile-btn" id="mobile-menu-btn" onclick="toggleMobileMenu()">&#9776;</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-overlay" id="hero-overlay"></div>
+  <div class="hero-content">
+    <img id="hero-logo" class="hero-logo" src="" alt="">
+    <p class="hero-tagline" id="hero-tagline"></p>
+    <p class="hero-sub" id="hero-sub"></p>
+    <div class="hero-btns">
+      <a href="#reservation" class="btn-accent" data-i18n="bookTable">Réserver une table</a>
+      <a href="#carte" class="btn-outline" data-i18n="seeMenu">Voir la carte</a>
+      <a id="hero-delivery-btn" href="#" target="_blank" class="btn-outline" style="display:none" data-i18n="orderDelivery">Commander en livraison</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><span></span><span></span><span></span></div>
+</section>
+
+<!-- STORY (optional) -->
+<section id="story" class="section hidden">
+  <div class="story-grid">
+    <div class="story-img rv">
+      <img id="story-img" src="" alt="" loading="lazy">
+      <div class="story-badge" id="story-badge"><div class="badge-n" id="story-year"></div><div class="badge-l" id="story-badge-text"></div></div>
+    </div>
+    <div class="rv-r">
+      <div class="tag" data-i18n="storyTag">Notre histoire</div>
+      <h2 class="h2" id="story-title"></h2>
+      <p class="corpo" id="story-text"></p>
+    </div>
+  </div>
+</section>
+
+<!-- SPECIALTIES (optional) -->
+<section id="specialties" class="section hidden">
+  <div class="tag" data-i18n="specTag">Nos spécialités</div>
+  <h2 class="h2" id="spec-title"></h2>
+  <p class="corpo" id="spec-text"></p>
+  <div class="spec-grid" id="spec-grid"></div>
+</section>
+
+<!-- MENU/CARTE (optional) -->
+<section id="carte" class="section hidden">
+  <div class="tag" data-i18n="menuTag">La carte</div>
+  <h2 class="h2" id="menu-title"></h2>
+  <div class="menu-embed">
+    <div class="menu-cats" id="menu-cats"></div>
+    <div class="menu-items" id="menu-items"></div>
+  </div>
+  <div class="menu-link">
+    <a id="menu-full-link" href="" target="_blank" class="btn-outline" data-i18n="fullMenu">Carte complète</a>
+  </div>
+</section>
+
+<!-- EVENTS (optional) -->
+<section id="events" class="section hidden">
+  <div class="tag" data-i18n="eventsTag">Événements</div>
+  <h2 class="h2" id="events-title"></h2>
+  <div class="events-grid" id="events-grid"></div>
+</section>
+
+<!-- VIDEO SECTION -->
+<section id="video" class="section" style="padding:80px 56px;text-align:center">
+  <h2 class="h2" style="margin-bottom:12px">🎬 Découvrez notre univers</h2>
+  <p style="color:var(--text-body);margin-bottom:32px;max-width:600px;margin-left:auto;margin-right:auto">Visite virtuelle de notre restaurant, nos grillades au feu de bois et l'ambiance chaleureuse du Petit Boeuf.</p>
+  <div style="position:relative;width:100%;max-width:800px;margin:0 auto;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.1)">
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(196,92,60,.3),rgba(26,19,16,.8))">
+      <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:.2s;border:2px solid rgba(255,255,255,.3)" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">▶</div>
+      <div style="margin-top:16px;font-size:13px;color:rgba(255,255,255,.7)">Vidéo de présentation — 2:30</div>
+    </div>
+  </div>
+</section>
+
+<!-- SPACES (optional) -->
+<section id="espaces" class="section hidden">
+  <div class="tag" data-i18n="spacesTag">Nos espaces</div>
+  <h2 class="h2" id="spaces-title"></h2>
+  <div class="spaces-masonry" id="spaces-grid"></div>
+</section>
+
+<!-- REVIEWS (optional) -->
+<section id="avis" class="section hidden">
+  <div class="reviews-header">
+    <div class="score-box rv">
+      <div class="score-n" id="review-score"></div>
+      <div class="score-s" id="review-stars"></div>
+      <div class="score-l" id="review-count"></div>
+    </div>
+    <div class="rv-r">
+      <div class="tag" data-i18n="reviewsTag">Avis clients</div>
+      <h2 class="h2" id="reviews-title"></h2>
+      <p class="corpo" id="reviews-text"></p>
+    </div>
+  </div>
+  <div class="reviews-grid" id="reviews-grid"></div>
+</section>
+
+<!-- RESERVATION -->
+<section id="reservation" class="resa-section">
+  <div class="resa-img" id="resa-bg">
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent 30%,var(--bg) 100%)"></div>
+  </div>
+  <div class="resa-content rv-r">
+    <div class="tag" data-i18n="resaTag">Votre table vous attend</div>
+    <h2 class="h2" id="resa-title"></h2>
+    <!-- Booking widget iframe -->
+    <div style="width:100%;max-width:520px;margin:0 auto">
+      <iframe src="https://booking.r3sto.ch" style="width:100%;height:620px;border:none;border-radius:14px;background:#fff" title="Réserver une table"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- MAP & CONTACT (optional) -->
+<section id="contact" class="map-section hidden">
+  <iframe class="map-frame" id="map-frame" src="" loading="lazy" allowfullscreen></iframe>
+  <div class="map-info">
+    <div class="tag" data-i18n="findUs">Nous trouver</div>
+    <div class="map-item">
+      <div class="map-item-label" data-i18n="address">Adresse</div>
+      <div class="map-item-value" id="map-address"></div>
+    </div>
+    <div class="map-item">
+      <div class="map-item-label" data-i18n="phone">Téléphone</div>
+      <div class="map-item-value"><a id="map-phone" href=""></a></div>
+    </div>
+    <div class="map-item">
+      <div class="map-item-label" data-i18n="hours">Horaires</div>
+      <div class="map-item-value" id="map-hours"></div>
+    </div>
+    <a id="map-link" href="" target="_blank" class="btn-outline" style="margin-top:20px">
+      <span data-i18n="openMaps">Ouvrir dans Google Maps</span>
+    </a>
+  </div>
+</section>
+
+<!-- ASSISTANT SECTION -->
+<section id="assistant" class="section" style="padding:60px 56px;text-align:center;background:rgba(196,92,60,.08);border-top:1px solid rgba(196,92,60,.15);border-bottom:1px solid rgba(196,92,60,.15)">
+  <div style="max-width:600px;margin:0 auto">
+    <div style="font-size:48px;margin-bottom:16px">🤖</div>
+    <h2 class="h2" style="margin-bottom:8px;font-size:1.6rem">Assistant R3STO</h2>
+    <p style="color:var(--text-body);margin-bottom:24px;font-size:.9rem;line-height:1.6">Posez vos questions sur notre carte, les allergènes, la disponibilité ou les événements. Notre assistant IA répond 24h/24.</p>
+    <div style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;text-align:left">
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(196,92,60,.3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🤖</div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.5;color:var(--text-primary)">Bonjour ! Je suis l'assistant du Petit Boeuf. Comment puis-je vous aider ? Carte, allergènes, réservation, événements…</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span style="padding:6px 14px;border-radius:20px;border:1px solid rgba(196,92,60,.4);font-size:12px;color:var(--accent);cursor:pointer">🥩 Voir la carte</span>
+        <span style="padding:6px 14px;border-radius:20px;border:1px solid rgba(196,92,60,.4);font-size:12px;color:var(--accent);cursor:pointer">⚠️ Allergènes</span>
+        <span style="padding:6px 14px;border-radius:20px;border:1px solid rgba(196,92,60,.4);font-size:12px;color:var(--accent);cursor:pointer">📅 Réserver</span>
+        <span style="padding:6px 14px;border-radius:20px;border:1px solid rgba(196,92,60,.4);font-size:12px;color:var(--accent);cursor:pointer">🎉 Événements</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-main">
+    <div>
+      <div class="footer-logo"><img id="footer-logo" src="" alt=""></div>
+      <p style="font-size:.82rem;color:var(--text-body);max-width:260px;line-height:1.5" id="footer-desc"></p>
+      <div class="footer-social" id="footer-social"></div>
+    </div>
+    <div class="fcol" id="footer-nav-col">
+      <h5 data-i18n="navigation">Navigation</h5>
+      <ul id="footer-nav"></ul>
+    </div>
+    <div class="fcol">
+      <h5 data-i18n="hours">Horaires</h5>
+      <ul id="footer-hours"></ul>
+    </div>
+    <div class="fcol">
+      <h5 data-i18n="contactInfo">Contact</h5>
+      <ul id="footer-contact"></ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span id="footer-copy"></span>
+    <span class="powered-by">Propulsé par <a href="https://r3sto.ch" target="_blank">R3STO</a></span>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════
+   R3STO UNIVERSAL SITE VITRINE ENGINE v1.0
+   ═══════════════════════════════════════════════ */
+
+/* ── I18N ── */
+var I18N = {
+  fr: {
+    bookTable:'Réserver une table', seeMenu:'Voir la carte', fullMenu:'Carte complète',
+    storyTag:'Notre histoire', specTag:'Nos spécialités', menuTag:'La carte',
+    eventsTag:'Événements', spacesTag:'Nos espaces', reviewsTag:'Avis clients',
+    resaTag:'Votre table vous attend', findUs:'Nous trouver', guests:'Convives',
+    confirmBooking:'Réserver ma table', address:'Adresse', phone:'Téléphone',
+    hours:'Horaires', navigation:'Navigation', contactInfo:'Contact',
+    openMaps:'Ouvrir dans Google Maps', closedToday:'Fermé aujourd\'hui',
+    openNow:'Ouvert maintenant', opensAt:'Ouvre à', closed:'Fermé',
+    popular:'Populaire', perPerson:'par personne', from:'dès',
+    bookingConfirmed:'Réservation envoyée !\nVous recevrez un e-mail de confirmation.',
+    closedBanner:'Restaurant fermé', discountBanner:'Offre spéciale'
+  },
+  de: {
+    bookTable:'Tisch reservieren', seeMenu:'Speisekarte', fullMenu:'Vollständige Karte',
+    storyTag:'Unsere Geschichte', specTag:'Unsere Spezialitäten', menuTag:'Speisekarte',
+    eventsTag:'Veranstaltungen', spacesTag:'Unsere Räume', reviewsTag:'Kundenbewertungen',
+    resaTag:'Ihr Tisch erwartet Sie', findUs:'So finden Sie uns', guests:'Gäste',
+    confirmBooking:'Tisch reservieren', address:'Adresse', phone:'Telefon',
+    hours:'Öffnungszeiten', navigation:'Navigation', contactInfo:'Kontakt',
+    openMaps:'In Google Maps öffnen', closedToday:'Heute geschlossen',
+    openNow:'Jetzt geöffnet', opensAt:'Öffnet um', closed:'Geschlossen',
+    popular:'Beliebt', perPerson:'pro Person', from:'ab',
+    bookingConfirmed:'Reservierung gesendet!\nSie erhalten eine Bestätigungs-E-Mail.',
+    closedBanner:'Restaurant geschlossen', discountBanner:'Sonderangebot'
+  },
+  it: {
+    bookTable:'Prenota un tavolo', seeMenu:'Vedi il menu', fullMenu:'Menu completo',
+    storyTag:'La nostra storia', specTag:'Le nostre specialità', menuTag:'Il menu',
+    eventsTag:'Eventi', spacesTag:'I nostri spazi', reviewsTag:'Recensioni',
+    resaTag:'Il vostro tavolo vi attende', findUs:'Come trovarci', guests:'Ospiti',
+    confirmBooking:'Prenota il mio tavolo', address:'Indirizzo', phone:'Telefono',
+    hours:'Orari', navigation:'Navigazione', contactInfo:'Contatti',
+    openMaps:'Apri in Google Maps', closedToday:'Chiuso oggi',
+    openNow:'Aperto adesso', opensAt:'Apre alle', closed:'Chiuso',
+    popular:'Popolare', perPerson:'a persona', from:'da',
+    bookingConfirmed:'Prenotazione inviata!\nRiceverà un\'e-mail di conferma.',
+    closedBanner:'Ristorante chiuso', discountBanner:'Offerta speciale'
+  },
+  en: {
+    bookTable:'Book a table', seeMenu:'View menu', fullMenu:'Full menu',
+    storyTag:'Our story', specTag:'Our specialties', menuTag:'The menu',
+    eventsTag:'Events', spacesTag:'Our spaces', reviewsTag:'Customer reviews',
+    resaTag:'Your table awaits', findUs:'Find us', guests:'Guests',
+    confirmBooking:'Book my table', address:'Address', phone:'Phone',
+    hours:'Hours', navigation:'Navigation', contactInfo:'Contact',
+    openMaps:'Open in Google Maps', closedToday:'Closed today',
+    openNow:'Open now', opensAt:'Opens at', closed:'Closed',
+    popular:'Popular', perPerson:'per person', from:'from',
+    bookingConfirmed:'Booking sent!\nYou will receive a confirmation email.',
+    closedBanner:'Restaurant closed', discountBanner:'Special offer'
+  }
+};
+
+var LANG = 'fr';
+var CONFIG = {};
+var guestCount = 2;
+
+function t(key){ return (I18N[LANG] && I18N[LANG][key]) || (I18N['fr'] && I18N['fr'][key]) || key; }
+
+function setLang(lang){
+  LANG = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lang-switch button').forEach(function(b){ b.classList.toggle('active', b.dataset.lang === lang); });
+  document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = t(el.dataset.i18n); });
+  // Re-render dynamic content
+  if(CONFIG.id) renderDynamic();
+}
+
+/* ── INIT ── */
+function init(config){
+  CONFIG = config;
+  // Theme
+  document.documentElement.setAttribute('data-theme', config.theme || 'dark-elegant');
+  // Title
+  document.getElementById('page-title').textContent = config.name + ' — ' + config.cuisine + ' ' + config.city;
+  document.getElementById('meta-desc').content = config.tagline;
+  document.getElementById('og-title').content = config.name;
+  document.getElementById('og-desc').content = config.tagline;
+  if(config.heroImage) document.getElementById('og-image').content = config.heroImage;
+
+  // Schema.org
+  var schema = {
+    '@context':'https://schema.org','@type':'Restaurant',
+    name:config.name, description:config.tagline,
+    address:{'@type':'PostalAddress',streetAddress:config.address,addressLocality:config.city,addressCountry:'CH'},
+    telephone:config.phone, servesCuisine:config.cuisine,
+    priceRange:config.priceRange||'CHF CHF'
+  };
+  document.getElementById('schema-json').textContent = JSON.stringify(schema);
+
+  // Logo
+  if(config.logo){
+    document.getElementById('nav-logo-img').src = config.logo;
+    document.getElementById('hero-logo').src = config.logo;
+    document.getElementById('footer-logo').src = config.logo;
+  } else {
+    document.getElementById('hero-logo').style.display = 'none';
+  }
+
+  // Hero
+  if(config.heroImage){
+    document.getElementById('hero-bg').style.backgroundImage = "url('"+config.heroImage+"')";
+  }
+  var oS = 'rgba(0,0,0,' + (getComputedStyle(document.documentElement).getPropertyValue('--overlay-start')||'.18').trim() + ')';
+  var oE = 'rgba(0,0,0,' + (getComputedStyle(document.documentElement).getPropertyValue('--overlay-end')||'.94').trim() + ')';
+  document.getElementById('hero-overlay').style.background = 'linear-gradient(170deg,'+oS+' 0%,'+oE+' 100%)';
+  document.getElementById('hero-tagline').textContent = config.tagline || '';
+  document.getElementById('hero-sub').textContent = (config.founded ? config.founded + ' · ' : '') + config.location + ' · ' + config.city + ', Suisse';
+
+  // Delivery button
+  if(config.deliveryUrl){
+    var dBtn = document.getElementById('hero-delivery-btn');
+    if(dBtn){ dBtn.href = config.deliveryUrl; dBtn.style.display = ''; }
+  }
+
+  // Languages
+  var langDiv = document.getElementById('lang-switch');
+  var langs = config.languages || ['fr'];
+  langs.forEach(function(l){
+    var btn = document.createElement('button');
+    btn.textContent = l.toUpperCase();
+    btn.dataset.lang = l;
+    btn.onclick = function(){ setLang(l); };
+    if(l === (config.defaultLang||'fr')) btn.className = 'active';
+    langDiv.appendChild(btn);
+  });
+
+  // Nav links + sections
+  buildNav(config);
+  buildSections(config);
+
+  // Reservation background
+  if(config.heroImage) document.getElementById('resa-bg').style.backgroundImage = "url('"+config.heroImage+"')";
+
+  // Footer
+  buildFooter(config);
+
+  // Widget
+  initWidget(config);
+
+  // Fetch live data from API
+  if(config.apiBase && config.id) fetchLiveData(config);
+
+  // Scroll animations
+  initScrollReveal();
+  initNavScroll();
+
+  // Initial language
+  setLang(config.defaultLang || 'fr');
+}
+
+/* ── BUILD NAV ── */
+function buildNav(c){
+  var nav = document.getElementById('nav-links');
+  var sections = [];
+  if(c.sections && c.sections.story) sections.push({id:'story',label:{fr:'Notre histoire',de:'Geschichte',it:'La nostra storia',en:'Our story'}});
+  if(c.sections && c.sections.specialties) sections.push({id:'specialties',label:{fr:'Spécialités',de:'Spezialitäten',it:'Specialità',en:'Specialties'}});
+  if(c.sections && c.sections.menu) sections.push({id:'carte',label:{fr:'La carte',de:'Speisekarte',it:'Il menu',en:'Menu'}});
+  if(c.sections && c.sections.events) sections.push({id:'events',label:{fr:'Événements',de:'Events',it:'Eventi',en:'Events'}});
+  sections.push({id:'video',label:{fr:'Vidéo',de:'Video',it:'Video',en:'Video'}});
+  if(c.sections && c.sections.spaces) sections.push({id:'espaces',label:{fr:'Espaces',de:'Räume',it:'Spazi',en:'Spaces'}});
+  if(c.sections && c.sections.reviews) sections.push({id:'avis',label:{fr:'Avis',de:'Bewertungen',it:'Recensioni',en:'Reviews'}});
+  if(c.sections && c.sections.contact) sections.push({id:'contact',label:{fr:'Contact',de:'Kontakt',it:'Contatti',en:'Contact'}});
+  sections.push({id:'assistant',label:{fr:'Assistant',de:'Assistent',it:'Assistente',en:'Assistant'}});
+
+  sections.forEach(function(s){
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + s.id;
+    a.textContent = s.label[LANG] || s.label.fr;
+    li.appendChild(a);
+    nav.appendChild(li);
+  });
+  // CTA button
+  var li = document.createElement('li');
+  li.innerHTML = '<a href="#reservation" class="nav-cta" data-i18n="bookTable">Réserver une table</a>';
+  nav.appendChild(li);
+}
+
+/* ── BUILD SECTIONS ── */
+function buildSections(c){
+  var s = c.sections || {};
+
+  // Story
+  if(s.story){
+    document.getElementById('story').classList.remove('hidden');
+    if(s.story.image) document.getElementById('story-img').src = s.story.image;
+    if(s.story.year){ document.getElementById('story-year').textContent = s.story.year; document.getElementById('story-badge-text').textContent = s.story.badgeText || ''; }
+    else { document.querySelector('.story-badge').style.display='none'; }
+    document.getElementById('story-title').innerHTML = s.story.title || '';
+    document.getElementById('story-text').textContent = s.story.text || '';
+  }
+
+  // Specialties
+  if(s.specialties){
+    document.getElementById('specialties').classList.remove('hidden');
+    document.getElementById('spec-title').innerHTML = s.specialties.title || '';
+    document.getElementById('spec-text').textContent = s.specialties.text || '';
+    var grid = document.getElementById('spec-grid');
+    (s.specialties.items||[]).forEach(function(item,i){
+      grid.innerHTML += '<div class="spec-card rv'+(i>0?' d'+Math.min(i,3):'')+'">'
+        +'<div class="spec-icon">'+(item.icon||'')+'</div>'
+        +'<div class="spec-name">'+item.name+'</div>'
+        +'<div class="spec-desc">'+item.desc+'</div>'
+        +(item.price?'<div class="spec-price">'+t('from')+' CHF '+item.price+'</div>':'')
+        +'</div>';
+    });
+  }
+
+  // Menu
+  if(s.menu){
+    document.getElementById('carte').classList.remove('hidden');
+    document.getElementById('menu-title').innerHTML = s.menu.title || '';
+    if(s.menu.menuUrl) document.getElementById('menu-full-link').href = s.menu.menuUrl;
+    else document.querySelector('.menu-link').style.display = 'none';
+    renderMenu(s.menu.categories || [], 0);
+  }
+
+  // Events
+  if(s.events){
+    document.getElementById('events').classList.remove('hidden');
+    document.getElementById('events-title').innerHTML = s.events.title || '';
+  }
+
+  // Spaces
+  if(s.spaces){
+    document.getElementById('espaces').classList.remove('hidden');
+    document.getElementById('spaces-title').innerHTML = s.spaces.title || '';
+    var sg = document.getElementById('spaces-grid');
+    (s.spaces.items||[]).forEach(function(sp){
+      sg.innerHTML += '<div class="space-item rv"><img src="'+sp.image+'" alt="'+sp.name+'" loading="lazy"><div class="space-label">'+sp.name+'</div></div>';
+    });
+  }
+
+  // Reviews
+  if(s.reviews){
+    document.getElementById('avis').classList.remove('hidden');
+    document.getElementById('review-score').textContent = s.reviews.score || '';
+    document.getElementById('review-stars').textContent = '★'.repeat(Math.round(s.reviews.score||0)) + '☆'.repeat(5-Math.round(s.reviews.score||0));
+    document.getElementById('review-count').textContent = s.reviews.countText || '';
+    document.getElementById('reviews-title').innerHTML = s.reviews.title || '';
+    document.getElementById('reviews-text').textContent = s.reviews.text || '';
+    var rg = document.getElementById('reviews-grid');
+    (s.reviews.items||[]).forEach(function(r,i){
+      rg.innerHTML += '<div class="review-card rv'+(i>0?' d'+Math.min(i,3):'')+'">'
+        +'<div class="review-quote">&laquo;</div>'
+        +'<div class="review-text">'+r.text+'</div>'
+        +'<div class="review-meta"><div><div class="review-stars">'+('★'.repeat(r.stars||5))+'</div>'
+        +'<div class="review-who">'+r.who+'</div></div>'
+        +'<div class="review-src">'+r.source+'</div></div></div>';
+    });
+  }
+
+  // Contact / Map
+  if(s.contact){
+    document.getElementById('contact').classList.remove('hidden');
+    document.getElementById('map-address').innerHTML = c.address+'<br>'+c.city+', Suisse';
+    var phone = c.phone || '';
+    document.getElementById('map-phone').href = 'tel:'+phone.replace(/\s/g,'');
+    document.getElementById('map-phone').textContent = phone;
+    if(c.mapQuery) document.getElementById('map-frame').src = 'https://maps.google.com/maps?q='+encodeURIComponent(c.mapQuery)+'&output=embed';
+    document.getElementById('map-link').href = 'https://maps.google.com/?q='+encodeURIComponent(c.mapQuery||c.name+' '+c.city);
+  }
+
+  // Reservation title
+  document.getElementById('resa-title').innerHTML = s.reservation && s.reservation.title ? s.reservation.title : 'Réservez votre<br><em>table</em>';
+}
+
+/* ── MENU RENDER ── */
+function renderMenu(cats, activeIdx){
+  var catsDiv = document.getElementById('menu-cats');
+  var itemsDiv = document.getElementById('menu-items');
+  catsDiv.innerHTML = '';
+  itemsDiv.innerHTML = '';
+  cats.forEach(function(cat,i){
+    var btn = document.createElement('button');
+    btn.className = 'menu-cat' + (i===activeIdx?' active':'');
+    btn.textContent = cat.name;
+    btn.onclick = function(){ renderMenu(cats, i); };
+    catsDiv.appendChild(btn);
+  });
+  if(cats[activeIdx]){
+    (cats[activeIdx].items||[]).forEach(function(item){
+      itemsDiv.innerHTML += '<div class="menu-item"><div><div class="menu-item-name">'+item.name+'</div>'
+        +(item.desc?'<div class="menu-item-desc">'+item.desc+'</div>':'')
+        +'</div><div class="menu-item-price">CHF '+item.price+'</div></div>';
+    });
+  }
+}
+
+/* ── WIDGET ── */
+function initWidget(c){
+  // Dates
+  var container = document.getElementById('widget-dates');
+  var days = {fr:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],de:['So','Mo','Di','Mi','Do','Fr','Sa'],it:['Dom','Lun','Mar','Mer','Gio','Ven','Sab'],en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat']};
+  for(var i=0;i<7;i++){
+    var d = new Date(); d.setDate(d.getDate()+i);
+    var chip = document.createElement('div');
+    chip.className = 'widget-date'+(i===0?' active':'');
+    chip.innerHTML = '<div class="widget-date-day">'+(days[LANG]||days.fr)[d.getDay()]+'</div><div class="widget-date-num">'+d.getDate()+'</div>';
+    chip.onclick = function(){ document.querySelectorAll('.widget-date').forEach(function(c){c.classList.remove('active')}); this.classList.add('active'); };
+    container.appendChild(chip);
+  }
+  // Services
+  var svcDiv = document.getElementById('widget-svc');
+  var services = c.services || [{name:'Midi',hours:'11h30–14h30'},{name:'Soir',hours:'18h30–23h00'}];
+  services.forEach(function(svc,i){
+    var btn = document.createElement('button');
+    btn.className = 'widget-svc-btn'+(i===0?' active':'');
+    btn.textContent = svc.name+' · '+svc.hours;
+    btn.onclick = function(){
+      document.querySelectorAll('.widget-svc-btn').forEach(function(b){b.classList.remove('active')});
+      this.classList.add('active');
+      renderSlots(svc.hours);
+    };
+    svcDiv.appendChild(btn);
+  });
+  renderSlots(services[0].hours);
+}
+
+function adjGuests(d){
+  guestCount = Math.max(1, Math.min(20, guestCount+d));
+  document.getElementById('widget-gc').textContent = guestCount;
+}
+
+function renderSlots(hours){
+  var c = document.getElementById('widget-slots');
+  c.innerHTML = '';
+  var start = parseInt(hours)||11;
+  var slots = [];
+  for(var h=start;h<start+4;h++){
+    for(var m=0;m<60;m+=15){
+      if(slots.length>=12) break;
+      slots.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);
+    }
+  }
+  var pop = Math.floor(Math.random()*slots.length);
+  slots.forEach(function(t,i){
+    var el = document.createElement('div');
+    el.className = 'widget-slot';
+    el.innerHTML = '<div class="widget-slot-t">'+t+'</div>';
+    if(i===pop) el.innerHTML += '<div style="position:absolute;top:-7px;right:-4px;font-size:.5rem;letter-spacing:.06em;background:var(--accent);color:#fff;padding:2px 6px;white-space:nowrap">'+I18N[LANG].popular+' &#128293;</div>';
+    el.style.position = 'relative';
+    el.onclick = function(){ document.querySelectorAll('.widget-slot').forEach(function(s){s.classList.remove('active')}); this.classList.add('active'); };
+    c.appendChild(el);
+  });
+}
+
+function bookTable(){
+  // If booking URL configured, redirect
+  if(CONFIG.bookingUrl){
+    window.open(CONFIG.bookingUrl, '_blank');
+  } else {
+    alert(t('bookingConfirmed'));
+  }
+}
+
+/* ── LIVE DATA FROM API ── */
+function fetchLiveData(c){
+  var base = c.apiBase;
+  var id = c.id;
+
+  // Closures
+  fetch(base+'/closures?restoId='+id).then(function(r){return r.json();}).then(function(data){
+    if(data && data.length){
+      var today = new Date().toISOString().slice(0,10);
+      var active = data.find(function(cl){return cl.start<=today && cl.end>=today;});
+      if(active){
+        var el = document.getElementById('closure-banner');
+        el.classList.remove('hidden');
+        document.getElementById('closure-text').textContent = t('closedBanner')+' : '+(active.reason||'');
+        setTimeout(function(){el.classList.add('visible');},500);
+        document.getElementById('nav').classList.add('has-closure');
+      }
+    }
+  }).catch(function(){});
+
+  // Events
+  fetch(base+'/events?restoId='+id).then(function(r){return r.json();}).then(function(data){
+    if(data && data.length){
+      document.getElementById('events').classList.remove('hidden');
+      var grid = document.getElementById('events-grid');
+      grid.innerHTML = '';
+      data.forEach(function(ev){
+        grid.innerHTML += '<div class="event-card rv">'
+          +(ev.image?'<div class="event-img" style="background-image:url(\''+ev.image+'\')"><div class="event-date">'+ev.date+'</div></div>':'')
+          +'<div class="event-body"><div class="event-name">'+ev.name+'</div><div class="event-desc">'+ev.description+'</div></div></div>';
+      });
+    }
+  }).catch(function(){});
+
+  // Discounts / Promotions
+  fetch(base+'/discounts?restoId='+id).then(function(r){return r.json();}).then(function(data){
+    if(data && data.length){
+      var active = data[0];
+      var el = document.getElementById('discount-banner');
+      el.classList.remove('hidden');
+      document.getElementById('discount-title').textContent = t('discountBanner');
+      document.getElementById('discount-text').textContent = active.description || active.name;
+      setTimeout(function(){el.classList.add('visible');},2000);
+    }
+  }).catch(function(){});
+
+  // Menu from API (overrides static)
+  fetch(base+'/menu?restoId='+id).then(function(r){return r.json();}).then(function(data){
+    if(data && data.categories && data.categories.length){
+      document.getElementById('carte').classList.remove('hidden');
+      renderMenu(data.categories, 0);
+    }
+  }).catch(function(){});
+
+  // Hours / status
+  fetch(base+'/hours?restoId='+id).then(function(r){return r.json();}).then(function(data){
+    if(data && data.hours) updateHoursStatus(data.hours);
+  }).catch(function(){});
+}
+
+function updateHoursStatus(hours){
+  var now = new Date();
+  var day = now.getDay();
+  var hm = now.getHours()*100+now.getMinutes();
+  var todayH = hours[day] || [];
+  var el = document.getElementById('widget-status');
+  if(!todayH.length){
+    el.innerHTML = '<div class="widget-status"><span class="widget-status-dot" style="background:var(--accent)"></span>'+t('closedToday')+'</div>';
+    return;
+  }
+  var open = todayH.some(function(s){
+    var o=parseInt(s.open.replace(':',''));
+    var c=parseInt(s.close.replace(':',''));
+    return hm>=o && hm<=c;
+  });
+  if(open){
+    el.innerHTML = '<div class="widget-status"><span class="widget-status-dot" style="background:#2ecc71"></span>'+t('openNow')+'</div>';
+  } else {
+    var next = todayH.find(function(s){return parseInt(s.open.replace(':',''))>hm;});
+    el.innerHTML = next
+      ? '<div class="widget-status"><span class="widget-status-dot" style="background:orange"></span>'+t('opensAt')+' '+next.open+'</div>'
+      : '<div class="widget-status"><span class="widget-status-dot" style="background:var(--accent)"></span>'+t('closed')+'</div>';
+  }
+}
+
+function renderDynamic(){
+  // Re-render time-dependent content on lang change
+  if(CONFIG.services) initWidget(CONFIG);
+}
+
+/* ── FOOTER ── */
+function buildFooter(c){
+  document.getElementById('footer-desc').textContent = c.footerDesc || c.tagline || '';
+  document.getElementById('footer-copy').textContent = '© '+new Date().getFullYear()+' '+c.name+' — '+c.city+', Suisse';
+
+  // Social
+  var social = document.getElementById('footer-social');
+  if(c.social){
+    if(c.social.instagram) social.innerHTML += '<a href="'+c.social.instagram+'" target="_blank">Ig</a>';
+    if(c.social.facebook) social.innerHTML += '<a href="'+c.social.facebook+'" target="_blank">Fb</a>';
+    if(c.social.tripadvisor) social.innerHTML += '<a href="'+c.social.tripadvisor+'" target="_blank">Ta</a>';
+    if(c.social.google) social.innerHTML += '<a href="'+c.social.google+'" target="_blank">G</a>';
+  }
+
+  // Hours
+  var fh = document.getElementById('footer-hours');
+  (c.footerHours||[]).forEach(function(h){
+    fh.innerHTML += '<li'+(h.style?' style="'+h.style+'"':'')+'>'+h.text+'</li>';
+  });
+  fh.innerHTML += '<li style="margin-top:10px"><a href="#reservation" style="color:var(--accent)">→ '+t('bookTable')+'</a></li>';
+
+  // Contact
+  var fc = document.getElementById('footer-contact');
+  fc.innerHTML = '<li>'+c.address+'</li><li>'+c.city+', Suisse</li>';
+  if(c.phone) fc.innerHTML += '<li style="margin-top:8px"><a href="tel:'+c.phone.replace(/\s/g,'')+'">'+c.phone+'</a></li>';
+  if(c.email) fc.innerHTML += '<li><a href="mailto:'+c.email+'">'+c.email+'</a></li>';
+}
+
+/* ── SCROLL REVEAL ── */
+function initScrollReveal(){
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting) e.target.classList.add('vis');
+    });
+  },{threshold:0.15});
+  document.querySelectorAll('.rv,.rv-r').forEach(function(el){observer.observe(el);});
+}
+
+function initNavScroll(){
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll',function(){
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+}
+
+function toggleMobileMenu(){
+  var links = document.getElementById('nav-links');
+  links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+  links.style.position = 'fixed';
+  links.style.top = '60px';
+  links.style.left = '0';
+  links.style.right = '0';
+  links.style.background = 'var(--nav-bg)';
+  links.style.flexDirection = 'column';
+  links.style.padding = '20px';
+  links.style.gap = '16px';
+  links.style.zIndex = '998';
+}
+</script>
+<!-- ═══ CONFIGURATION ═══ -->
+<script>
+/*
+  RESTAURANT CONFIG
+  Replace this with your restaurant data or load from API
+*/
+init({
+  // Identity
+  id: 'demo-petitboeuf',
+  name: 'Le Petit Bœuf',
+  cuisine: 'Grill & Viandes',
+  city: 'Lausanne',
+  address: 'Bord du lac',
+  location: 'Bord du lac',
+  phone: '+41 21 312 47 83',
+  email: 'info@petitboeuf.ch',
+  founded: 'Fondé en 2000',
+  priceRange: 'CHF CHF CHF',
+  mapQuery: 'Petit Boeuf Lausanne',
+
+  // Theme: dark-elegant | light-fresh | warm-bistro | modern-minimal | zen-japanese
+  theme: 'dark-elegant',
+
+  // Languages
+  languages: ['fr','de','it','en'],
+  defaultLang: 'fr',
+
+  // Images
+  logo: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"%3E%3C/svg%3E',
+  heroImage: 'https://petitboeuf.com/wp-content/uploads/2020/03/pb_0459-2048x1365.jpg',
+
+  // API connection (for live closures, events, discounts, menu)
+  apiBase: 'https://api.r3sto.ch',
+
+  // Booking
+  bookingUrl: 'https://booking.r3sto.ch?id=demo-petitboeuf',
+  deliveryUrl: 'https://delivery.r3sto.ch?id=demo-petitboeuf',
+
+  // Services
+  services: [
+    {name:'Midi', hours:'11h30–14h30'},
+    {name:'Soir', hours:'18h30–00h00'}
+  ],
+
+  // Social
+  social: {
+    instagram: 'https://instagram.com/petitboeuflausanne',
+    facebook: 'https://facebook.com/petitboeuf',
+    tripadvisor: 'https://tripadvisor.com',
+    google: 'https://g.page/petitboeuf'
+  },
+
+  // Footer hours
+  footerHours: [
+    {text:'Lun–Ven · 11h30–14h30'},
+    {text:'Lun–Sam · 18h30–00h00'},
+    {text:'Dimanche — Fermé', style:'opacity:.4;margin-top:6px'}
+  ],
+
+  // ═══ SECTIONS (toggle on/off) ═══
+  sections: {
+
+    story: {
+      image: 'https://petitboeuf.com/wp-content/uploads/2020/03/pb_0523-2048x1365.jpg',
+      year: '2000',
+      badgeText: 'Fondé à Lausanne',
+      title: 'Une institution<br><em>lausannoise</em><br><strong>depuis 25 ans</strong>',
+      text: 'Ouvert en 2000, Le Petit Bœuf s\'est imposé comme la référence incontestée de la viande d\'exception à Lausanne. En 2015, Alket — chef passionné — et Erjon — maître de salle d\'exception — ont repris le flambeau en préservant l\'âme unique du lieu.'
+    },
+
+    specialties: {
+      title: 'Nos <em>spécialités</em>',
+      text: 'Sélection rigoureuse, cuisson maîtrisée, présentation soignée.',
+      items: [
+        {icon:'🥩', name:'Entrecôte Angus 300g', desc:'Élevage suisse, maturation 28 jours, accompagnée de frites maison et sauce béarnaise.', price:'48'},
+        {icon:'🔥', name:'Tartare Natacha', desc:'Flambé à la vodka devant vous. Notre signature depuis plus de 20 ans.', price:'42'},
+        {icon:'🍷', name:'Cave à vins', desc:'Plus de 120 références sélectionnées auprès de vignerons suisses et internationaux.'}
+      ]
+    },
+
+    menu: {
+      title: 'Notre <em>carte</em>',
+      menuUrl: 'https://menu.r3sto.ch',
+      categories: [
+        {name:'Entrées', items:[
+          {name:'Salade César', desc:'Romaine, parmesan, croûtons maison', price:'16'},
+          {name:'Carpaccio de bœuf', desc:'Roquette, copeaux de parmesan, câpres', price:'22'},
+          {name:'Tartare de saumon', desc:'Avocat, sésame, citron vert', price:'24'}
+        ]},
+        {name:'Viandes', items:[
+          {name:'Entrecôte Angus 300g', desc:'Frites maison, béarnaise', price:'48'},
+          {name:'Filet de bœuf 200g', desc:'Légumes grillés, sauce au poivre', price:'54'},
+          {name:'Tartare Natacha', desc:'Flambé à la vodka, frites allumettes', price:'42'}
+        ]},
+        {name:'Desserts', items:[
+          {name:'Crème brûlée', desc:'Vanille Bourbon', price:'14'},
+          {name:'Fondant au chocolat', desc:'Cœur coulant, glace vanille', price:'16'}
+        ]}
+      ]
+    },
+
+    events: {
+      title: 'Nos <em>événements</em>'
+    },
+
+    spaces: {
+      title: 'Nos <em>espaces</em>',
+      items: [
+        {name:'Salle principale', image:'https://petitboeuf.com/wp-content/uploads/2020/03/pb_0459-2048x1365.jpg'},
+        {name:'Terrasse', image:'https://petitboeuf.com/wp-content/uploads/2020/03/pb_0523-2048x1365.jpg'}
+      ]
+    },
+
+    reviews: {
+      score: 4.4,
+      countText: '+1600 avis · Google Maps',
+      title: 'Ce que nos <em>clients</em><br>disent de nous',
+      text: 'Des familles lausannoises aux visiteurs du monde entier, ils repartent tous avec la même conviction.',
+      items: [
+        {text:'Un incontournable de la viande traditionnelle à Lausanne. Service impeccable, assiettes généreuses — on revient !', stars:5, who:'Client fidèle', source:'Restaurant Guru'},
+        {text:'Le tartare Natacha flambé devant soi est un moment mémorable. Très fortement recommandé !', stars:5, who:'Voyageur', source:'TripAdvisor'},
+        {text:'Professionnalisme, sourires et nourriture d\'exception. La viande est d\'une qualité remarquable.', stars:5, who:'Client local', source:'Google'}
+      ]
+    },
+
+    contact: true,
+
+    reservation: {
+      title: 'Réservez votre<br><em>expérience</em>'
+    }
+  }
+});
+</script>
+</body>
+</html>

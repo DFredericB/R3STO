@@ -1,0 +1,15 @@
+{
+  "name": "booking",
+  "version": "1.5.0",
+  "build": "2026-04-03T10:00:00Z",
+  "env": "production",
+  "depends": ["api"],
+  "changelog": [
+    "1.5.0 — Widget iframe embedded, responsive calendar view optimisé",
+    "1.4.3 — Fix détection disponibilités, gestion fuseaux horaires",
+    "1.4.2 — Validation formulaire améliore, confirmation courriel"
+  ],
+  "compatibility": {
+    "api": ">=3.0.0"
+  }
+}

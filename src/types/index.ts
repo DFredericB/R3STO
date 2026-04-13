@@ -5,7 +5,7 @@
 // ══════════════════════════════════════════════════
 
 export type ResaStatus = 'reserved' | 'arrived' | 'done' | 'noshow' | 'cancelled' | 'waitlist'
-export type ResaCanal = 'telephone' | 'walkin' | 'widget' | 'google' | 'email' | 'whatsapp' | 'sms'
+export type ResaCanal = 'telephone' | 'walkin' | 'widget' | 'google' | 'email' | 'whatsapp' | 'sms' | 'waitlist'
 export type ResaMode = 'ia' | 'manuel' | 'web'
 export type UserRole = 'proprietaire' | 'manager' | 'serveur'
 export type Plan = 'bistro' | 'resto' | 'gastro'
@@ -286,6 +286,18 @@ export interface LoyaltyConfig {
   birthdayBonus: number          // bonus anniversaire
   expirationMonths: number       // 0 = jamais
   doublePointsDays: number[]     // jours de la semaine (0=dim) pour x2
+  autoEnroll: boolean             // inscription auto 1ère résa
+  autoEarnOnDone: boolean         // accumulation auto quand résa → done
+  tiersEnabled: boolean           // activer les niveaux
+  tiers: LoyaltyTier[]           // niveaux configurables
+}
+
+export interface LoyaltyTier {
+  name: string         // ex: 'Bronze', 'Argent', 'Or'
+  icon: string         // ex: '🥉', '🥈', '🥇'
+  minEarned: number    // total gagné minimum pour ce tier
+  color: string        // couleur badge
+  perks: string        // avantages texte libre
 }
 
 export interface LoyaltyCard {
@@ -300,6 +312,7 @@ export interface LoyaltyCard {
   rewardsUsed: number            // nombre de récompenses utilisées
   joinedAt: number               // timestamp inscription
   lastActivity: string           // date ISO
+  tier?: string                  // nom du tier courant
   history: LoyaltyEvent[]
 }
 
@@ -329,6 +342,66 @@ export interface Site {
   acceptRedirect?: boolean    // Accept incoming redirected clients
   redirectPriority?: number   // Priority in redirect order (1 = first proposed)
   redirectMsg?: string        // Custom message shown to redirected clients
+}
+
+// ── Support Ticket ────────────────────────────────
+export type TicketStatus = 'open' | 'inprogress' | 'resolved' | 'closed'
+export type TicketPriority = 'normal' | 'urgent'
+export type TicketType = 'tech' | 'usage' | 'feature' | 'billing'
+
+export interface TicketMessage {
+  id: string
+  role: 'client' | 'admin'
+  content: string
+  ts: number
+  by?: string           // nom de l'auteur (admin side)
+}
+
+export interface Ticket {
+  id: string            // TKT-XXXXX
+  siteId?: string       // multi-site context
+  createdAt: number
+  updatedAt: number
+  status: TicketStatus
+  priority: TicketPriority
+  type: TicketType
+  module: string
+  subject: string
+  description: string
+  messages: TicketMessage[]
+  userAgent?: string
+  plan?: string
+  assignee?: string     // admin who handles it
+  rating?: number       // 1-5 after resolution
+  resolvedAt?: number
+}
+
+// ── Liste d'attente ───────────────────────────────
+export interface WaitlistItem {
+  id: string
+  n: string
+  c: number
+  svc: string
+  t: string
+  tel?: string
+  note?: string
+  createdAt: number
+}
+
+// ── Demande groupe ────────────────────────────────
+export interface GroupRequest {
+  id: string
+  n: string           // nom du contact
+  c: number           // couverts demandés
+  svc: string
+  date: string        // ISO
+  t: string           // heure souhaitée
+  tel?: string
+  email?: string
+  note?: string
+  mode: 'auto' | 'manuel'
+  status: 'pending' | 'accepted' | 'refused'
+  createdAt: number
 }
 
 // ── État global de l'app ───────────────────────────

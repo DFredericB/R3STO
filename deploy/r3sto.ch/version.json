@@ -1,0 +1,13 @@
+{
+  "name": "r3sto",
+  "version": "1.0.0",
+  "build": "2026-04-03T10:00:00Z",
+  "env": "production",
+  "depends": [],
+  "changelog": [
+    "1.0.0 — Landing page initiale, sections présentation produit",
+    "0.9.2 — Optimisation SEO, performance Lighthouse",
+    "0.9.1 — Design système appliqué, animations smooth scroll"
+  ],
+  "compatibility": {}
+}

@@ -728,7 +728,7 @@ export function Plan() {
       bebe: 0,
       pmr: 0,
       statut: 0,
-      allergie: '',
+      allergie: false,
       confirmed: false,
       createdAt: Date.now(),
       prisPar: '—',

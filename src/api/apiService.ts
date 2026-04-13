@@ -775,7 +775,7 @@ export default api
 //  Export utilities
 // ══════════════════════════════════════════════════════════════════════════════
 
-export { setToken, clearToken, getToken, request, ApiError }
+export { setToken, clearToken, getToken, request }
 
 // ──────────────────────────────────────────────────────────────────────────────
 //  Type Exports (for convenience)

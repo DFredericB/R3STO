@@ -21,8 +21,23 @@ const baseFields = {
 
 const createSchema = z.object(baseFields);
 
+const marketplaceFields = {
+  cuisine_tag: z.string().max(60).optional(),
+  photo: z.string().max(500).optional(),
+  avg_price: z.coerce.number().int().min(0).optional(),
+  price_range: z.string().max(5).optional(),
+  features: z.any().optional(),
+  promos: z.any().optional(),
+  boost_score: z.coerce.number().int().min(0).max(100).optional(),
+  client_score: z.coerce.number().int().min(0).max(100).optional(),
+  marketplace: z.coerce.number().int().min(0).max(1).optional(),
+  booking_url: z.string().max(500).optional(),
+  vitrine_url: z.string().max(500).optional(),
+};
+
 const updateSchema = z.object({
   ...baseFields,
+  ...marketplaceFields,
   name: baseFields.name.optional(),
   status: z.enum(['active', 'inactive', 'setup', 'suspended']).optional(),
   settings: z.any().optional(),

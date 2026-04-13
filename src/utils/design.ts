@@ -84,6 +84,7 @@ export const CANAUX: Record<ResaCanal, CanalMeta> = {
   email:     { label: 'modal.email',     icon: '✉️', color: 'var(--am)', hex: '#e8a530' },
   whatsapp:  { label: 'canal.whatsapp', icon: '💬', color: '#25d366',    hex: '#25d366' },
   sms:       { label: 'canal.sms',      icon: '📱', color: 'var(--t2)',  hex: '#64748b' },
+  waitlist:  { label: 'canal.waitlist', icon: '⏳', color: '#f59e0b',    hex: '#f59e0b' },
 }
 
 // ── Statuts client ──────────────────────────────
@@ -200,6 +201,26 @@ export const filterChip = (on: boolean): React.CSSProperties => ({
   gap: 4,
   transition: 'all .12s',
 })
+
+// ── Typographie ─────────────────────────────────
+export const FONT = {
+  /** Micro labels, hints */
+  xs: 9,
+  /** Small body, badges */
+  sm: 11,
+  /** Standard text */
+  md: 12,
+  /** View titles, inputs */
+  lg: 13,
+  /** Section headers */
+  xl: 14,
+  /** Headings */
+  xxl: 16,
+  /** Mono font family */
+  mono: 'var(--fm)',
+  /** Main font family */
+  main: 'var(--ff)',
+} as const
 
 /** Input standard */
 export const inputStyle: React.CSSProperties = {

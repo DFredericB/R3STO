@@ -3,11 +3,13 @@
 //  Aucun objet HTTP ici (req/res). Les controllers s'en chargent.
 // ═══════════════════════════════════════════════════════════════
 
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { query } = require('../../config/db');
 const { sign } = require('../../utils/jwt');
 const { HttpError } = require('../../utils/responses');
 const otp = require('../../utils/otp');
+const { sendMail } = require('../../utils/mailer');
 
 function slugify(str) {
   return str
@@ -129,4 +131,93 @@ async function getMe(userId) {
   return rows[0];
 }
 
-module.exports = { register, login, sendOtp, verifyOtp, getMe };
+// ═══════════════════════════════════════════════════════════════
+//  FORGOT PASSWORD — envoie un email avec lien de réinitialisation
+// ═══════════════════════════════════════════════════════════════
+
+async function forgotPassword(email) {
+  const user = await findUserByEmail(email);
+  // Ne pas révéler si l'email existe ou non (sécurité)
+  if (!user || user.status !== 'active') {
+    return { sent: true };
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 heure
+
+  await query(
+    'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
+    [token, expires, user.id]
+  );
+
+  const resetUrl = `https://auth.r3sto.ch?mode=reset&token=${token}`;
+
+  await sendMail({
+    to: email,
+    subject: 'Réinitialisation de votre mot de passe R3STO',
+    html: buildResetHtml(resetUrl, user.name || email),
+  });
+
+  return { sent: true };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RESET PASSWORD — vérifie le token et change le mot de passe
+// ═══════════════════════════════════════════════════════════════
+
+async function resetPassword(token, newPassword) {
+  if (!token || !newPassword || newPassword.length < 8) {
+    throw new HttpError(400, 'Token manquant ou mot de passe trop court (min 8 caractères)');
+  }
+
+  const [rows] = await query(
+    'SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > NOW()',
+    [token]
+  );
+  const user = rows[0];
+  if (!user) {
+    throw new HttpError(400, 'Lien expiré ou invalide. Faites une nouvelle demande.');
+  }
+
+  const hash = await bcrypt.hash(newPassword, 12);
+  await query(
+    'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL, updated_at = NOW() WHERE id = ?',
+    [hash, user.id]
+  );
+
+  return { ok: true, message: 'Mot de passe mis à jour avec succès' };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EMAIL TEMPLATE — réinitialisation mot de passe
+// ═══════════════════════════════════════════════════════════════
+
+function buildResetHtml(resetUrl, name) {
+  return `
+    <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif;max-width:500px;margin:0 auto;background:#0b1525;border-radius:16px;overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#0d1d38 0%,#1a3a6e 100%);padding:28px 32px;text-align:center;">
+        <img src="https://r3sto.ch/logo-r3sto.jpg" alt="R3STO" width="140" style="display:inline-block;max-width:140px;height:auto;" />
+      </div>
+      <div style="padding:32px 32px 24px;">
+        <h2 style="text-align:center;color:#4a8fe7;font-size:20px;font-weight:700;margin:0 0 8px;">Réinitialisation du mot de passe</h2>
+        <p style="text-align:center;color:#7b94b8;font-size:14px;line-height:1.5;margin:0 0 28px;">
+          Bonjour ${name},<br>vous avez demandé la réinitialisation de votre mot de passe.
+        </p>
+        <div style="text-align:center;margin:0 0 28px;">
+          <a href="${resetUrl}" style="display:inline-block;padding:14px 32px;background:#4480d8;color:#fff;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;">
+            Réinitialiser mon mot de passe
+          </a>
+        </div>
+        <p style="text-align:center;color:#7b94b8;font-size:12px;line-height:1.6;margin:0;">
+          Ce lien expire dans <strong style="color:#4a8fe7;">1 heure</strong>.<br>
+          Si vous n'avez pas fait cette demande, ignorez cet email.
+        </p>
+      </div>
+      <div style="border-top:1px solid #1a2a45;padding:16px 32px;text-align:center;">
+        <p style="color:#4a5f80;font-size:11px;margin:0;">© ${new Date().getFullYear()} R3STO — La plateforme de gestion pour restaurateurs</p>
+      </div>
+    </div>
+  `;
+}
+
+module.exports = { register, login, sendOtp, verifyOtp, getMe, forgotPassword, resetPassword };

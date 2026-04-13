@@ -1,0 +1,15 @@
+{
+  "name": "menu",
+  "version": "1.2.0",
+  "build": "2026-04-03T10:00:00Z",
+  "env": "production",
+  "depends": ["api"],
+  "changelog": [
+    "1.2.0 — Affichage menu dynamique, catégories articles optimisée",
+    "1.1.2 — Fix images responsive, gestion prix promos",
+    "1.1.1 — Amélioration typographie, contraste couleurs"
+  ],
+  "compatibility": {
+    "api": ">=3.0.0"
+  }
+}

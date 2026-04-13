@@ -1,0 +1,319 @@
+================================================================================
+                    R3STO DEPLOY SITES - COMPREHENSIVE AUDIT
+                              April 5, 2026
+================================================================================
+
+AUDIT PERIOD: All 9 main subdomains + 4 r3sto.ch sub-pages + API layer
+FINDINGS: 6 issues identified (1 CRITIQUE, 2 IMPORTANT, 3 MINEUR/INFO)
+
+================================================================================
+SECTION 1: META TAGS & SEO ANALYSIS
+================================================================================
+
+✓ r3sto.ch (Main site)
+  - Title: "R3STO — Réservations & gestion pour restaurants suisses"
+  - Meta description: Present (comprehensive)
+  - OG tags: Complete (og:title, og:description, og:type, og:url, og:image, og:locale)
+  - Google verification: Present (uYVfE2eWgE67ya8-qV7uRIopRU36Rr9bVwbHCq1aenc)
+  - Twitter tags: Present
+  - Schema.org: Present (SoftwareApplication with 3 pricing offers)
+  - Status: EXCELLENT
+
+✓ r3sto.ch/comparatif
+  - Title: "R3STO vs TheFork, Zenchef, Aleno — Comparatif"
+  - Meta description: Present
+  - OG tags: Complete
+  - hreflang: Present (fr, x-default)
+  - Status: GOOD
+
+✓ r3sto.ch/video
+  - Title: "R3STO en 3 minutes — Vidéo de présentation"
+  - Meta description: Present
+  - OG tags: Complete
+  - Status: GOOD
+
+✓ r3sto.ch/assistant
+  - Title: "Assistant R3STO — Posez vos questions"
+  - Meta description: Present
+  - OG tags: Complete
+  - Status: GOOD
+
+✓ r3sto.ch/restaurants
+  - Title: "Restaurants R3STO — Réservez une table en Suisse"
+  - Meta description: Present (with i18n data attribute)
+  - OG tags: Complete
+  - Status: GOOD
+
+SUBDOMAIN SUMMARY:
+✓ app.r3sto.ch - Minimal (SPA, title only "R3STO")
+✓ admin.r3sto.ch - Minimal (SPA, title "R3STO Admin Console")
+✓ auth.r3sto.ch - Minimal (SPA, title "R3STO — Inscription")
+✓ bill.r3sto.ch - Minimal (SPA, title "Payer ma note")
+✓ booking.r3sto.ch - Minimal (SPA, title with restaurant demo)
+✓ delivery.r3sto.ch - Minimal (SPA, title demo)
+✓ menu.r3sto.ch - Minimal (SPA, title "Menu en ligne")
+✓ demo.r3sto.ch - Minimal (SPA, title "R3STO — Démo")
+
+SEO FINDINGS:
+  - Main site (r3sto.ch) is fully optimized for SEO
+  - Sub-pages properly configured with canonical tags and hreflang
+  - All SPAs are appropriate for application subdomains
+  - sitemap.xml present and valid (8 entries with proper lastmod)
+  - robots.txt present and correct (Allow all, sitemap reference)
+
+================================================================================
+SECTION 2: SECURITY & CREDENTIALS FINDINGS
+================================================================================
+
+CRITIQUE - EXPOSED PRODUCTION CREDENTIALS
+Location: /deploy/api.r3sto.ch/config.php
+Severity: CRITICAL
+Details:
+  - Database password exposed in plaintext: 'RueNeuve20#1081'
+  - JWT_SECRET exposed: 'r3sto_jwt_secret_2026_prod'
+  - SETUP_KEY exposed: 'r3sto_setup_2026'
+  - Database host: localhost
+  - Database user: pl7wy9_R3STO
+  - Database name: pl7wy9_R3STO
+
+Action Required:
+  1. IMMEDIATELY rotate all credentials (DB password, JWT secret, setup key)
+  2. Move sensitive config to environment variables (.env, not in git)
+  3. Regenerate database password and update in deployment
+  4. Use different keys for production vs development
+  5. Consider using secrets management system (AWS Secrets Manager, Vault, etc.)
+
+Line reference: /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/api.r3sto.ch/config.php:3-10
+
+================================================================================
+SECTION 3: HARDCODED REFERENCES & TEST DATA
+================================================================================
+
+IMPORTANT - LOCALHOST CONFIGURATION IN PRODUCTION
+Location: /deploy/api.r3sto.ch/config.php
+Severity: IMPORTANT
+Details:
+  - DB_HOST defined as 'localhost' instead of actual server host
+  - This works in current deployment but indicates config not properly
+    separated between environments
+  - If API tries to connect from different server, will fail
+
+Action Required:
+  1. Use environment-specific configurations
+  2. Define DB_HOST as actual Infomaniak MySQL server hostname
+  3. Verify database connectivity from deployed API instance
+
+Line reference: /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/api.r3sto.ch/config.php:3
+
+================================================================================
+SECTION 4: INCOMPLETE FEATURES & TODO COMMENTS
+================================================================================
+
+IMPORTANT - TODO COMMENT IN PRODUCTION CODE
+Location: /deploy/api.r3sto.ch/_patch_reminders.js
+Severity: IMPORTANT
+Details:
+  - Line 70: "// TODO: Intégrer Twilio/Infomaniak SMS ici"
+  - SMS reminders are not yet implemented; system logs instead of sending
+  - Comment indicates incomplete implementation in production code
+  - Feature marked as "bientôt disponible" but no completion date
+
+Action Required:
+  1. Complete SMS integration with Twilio or Infomaniak SMS API
+  2. Remove TODO comments before production release
+  3. Implement proper error handling for SMS failures
+  4. Add monitoring/logging for SMS quota usage
+
+Line reference: /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/api.r3sto.ch/_patch_reminders.js:70
+
+================================================================================
+SECTION 5: BRANDING & ORGANIZATION REFERENCES
+================================================================================
+
+MINEUR - INNOPTIM ORGANIZATION NAME IN FOOTER
+Location: Multiple files
+Severity: MINEUR (Informational/Branding)
+Details:
+  - Files affected:
+    * /deploy/r3sto.ch/index.html (line 898, 1044, 1098, 1152, 1206)
+    * /deploy/auth.r3sto.ch/index.html (footer multilingual strings)
+  - References: "© 2026 R3STO · Innoptim Group Sarl · Fribourg, Suisse"
+  - Schema.org branding also references Innoptim
+
+Assessment:
+  - This is technically correct (Innoptim Group is the company)
+  - But feedback indicates preference to avoid "Innoptim" references
+  - Should normalize to just "R3STO" or "R3STO by Didier"
+  - Memory note indicates: "Logo R3STO jamais d'effets, jamais d'arrondis"
+
+Action: Update branding strings to remove Innoptim references where possible
+
+References:
+  /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/r3sto.ch/index.html (lines 898, 1044, 1098, 1152, 1206)
+  /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/auth.r3sto.ch/index.html
+
+================================================================================
+SECTION 6: CACHE & SECURITY HEADERS
+================================================================================
+
+✓ CACHE CONTROL HEADERS
+Location: All SPA subdomains
+Status: PROPERLY CONFIGURED
+Details:
+  - app.r3sto.ch: no-cache, no-store, must-revalidate
+  - admin.r3sto.ch: no-cache, no-store, must-revalidate
+  - auth.r3sto.ch: no-cache, no-store, must-revalidate
+  - bill.r3sto.ch: Cache-Control headers present
+  - booking.r3sto.ch: Cache-Control headers present
+  - demo.r3sto.ch: no-cache, no-store, must-revalidate
+  - delivery.r3sto.ch: Cache-Control headers present
+  - menu.r3sto.ch: Cache-Control headers present
+
+Assessment: EXCELLENT
+  - Proper cache prevention for authentication/sensitive pages
+  - Prevents browser caching of sensitive data
+
+NO SECURITY HEADERS REFERENCES FOUND in static index.html files
+Note: Security headers (CSP, X-Frame-Options, etc.) should be set at server level
+      via .htaccess or web server configuration
+
+================================================================================
+SECTION 7: ASSET INTEGRITY & DEPLOYMENT
+================================================================================
+
+✓ ASSET HASHING
+Status: PROPERLY IMPLEMENTED
+Details:
+  - All compiled assets use content hashing (e.g., index-CNiyhxh4.js)
+  - This enables cache-busting on updates
+  - Examples: index-CNiyhxh4.js, index-D-m210Na.css, etc.
+
+✓ API DEPLOYMENT LAYER
+Status: DOCUMENTED
+Details:
+  - /deploy/api.r3sto.ch/: PHP API with comprehensive documentation
+  - /deploy/api.r3sto.ch-node/: Node.js version available
+  - Files present:
+    * server.js (main)
+    * config.php (credentials - ISSUE #1)
+    * auth.php, db.php, index.php, setup.php
+    * Documentation: README.md, QUICKSTART.md, ARCHITECTURE.md, etc.
+
+✓ VERSION FILE
+Location: /deploy/api.r3sto.ch/version.json
+Status: PRESENT (last updated Apr 3, 2026)
+
+MINEUR - DEVELOPMENT UTILITIES IN PRODUCTION
+Location: /deploy/api.r3sto.ch/
+Files present:
+  - FIX-API-DEPLOY.ps1 (PowerShell script)
+  - deploy-api.ps1 (PowerShell script)
+  - Various .md documentation files
+  - sql_sms_quota.sql
+
+Assessment: MINEUR
+  - These files don't pose security risk if web server blocks them
+  - But confirm with server .htaccess that scripts cannot be executed
+  - Documentation could be moved to separate wiki/docs site
+
+================================================================================
+SECTION 8: DATABASE & CONNECTIVITY
+================================================================================
+
+DATABASE CONFIGURATION STATUS:
+  - Hostname: localhost (see ISSUE #2)
+  - User: pl7wy9_R3STO
+  - Database: pl7sto_R3STO
+  - Tables documented in setup.php
+
+DEPLOYED DATA PERSISTENCE:
+  - /deploy/api.r3sto.ch/sql_sms_quota.sql (recent file, Apr 5, 13:00)
+  - Indicates recent database operations or migrations
+
+================================================================================
+SECTION 9: MULTI-LANGUAGE SUPPORT
+================================================================================
+
+✓ LANGUAGE IMPLEMENTATION
+Status: WELL IMPLEMENTED
+Details:
+  - Main site (r3sto.ch) supports FR, DE, IT, EN
+  - Inline JSON translations in index.html (1000+ strings)
+  - Language selector in navigation
+  - data-i18n attributes in HTML
+  - Script handles dynamic language switching
+
+Example languages present:
+  - FR (Français): lines 1043-1046 in r3sto.ch/index.html
+  - EN (English): lines 1097-1100
+  - DE (Deutsch): lines 1151-1154
+  - IT (Italiano): lines 1205-1208
+
+✓ Sub-pages also support hreflang:
+  - <link rel="alternate" hreflang="fr" href="...">
+  - <link rel="alternate" hreflang="x-default" href="...">
+
+================================================================================
+SUMMARY TABLE: ISSUE SEVERITY BREAKDOWN
+================================================================================
+
+CRITIQUE (Immediate Action Required):
+  [1] Exposed database password & API secrets in config.php
+
+IMPORTANT (High Priority):
+  [2] Database host configured as localhost in production
+  [3] TODO comment indicates incomplete SMS implementation
+
+MINEUR (Low Priority):
+  [4] Innoptim organization name in branding/footer
+  [5] Development files present in production API folder
+  [6] Google site verification tag only on main domain
+
+INFO (Observations):
+  - All SPA subdomains properly minimal (no duplicate SEO)
+  - sitemap.xml and robots.txt correctly configured
+  - Schema.org markup properly structured
+  - Cache headers properly set for auth/sensitive pages
+  - Multi-language support comprehensive
+  - Asset hashing/cache-busting working correctly
+
+================================================================================
+REMEDIATION PRIORITY & CHECKLIST
+================================================================================
+
+IMMEDIATE (Today):
+  [ ] Rotate DB password - update config.php and database
+  [ ] Regenerate JWT_SECRET
+  [ ] Regenerate SETUP_KEY
+  [ ] Move all secrets to environment variables
+  [ ] Verify database hostname connectivity
+
+HIGH (This Week):
+  [ ] Implement Twilio/Infomaniak SMS integration
+  [ ] Remove TODO comments from production code
+  [ ] Test SMS quota tracking and reminders
+  [ ] Update branding to remove Innoptim references
+
+MEDIUM (This Sprint):
+  [ ] Move .md documentation out of web root
+  [ ] Verify .htaccess blocks execution of .ps1, .sql files
+  [ ] Add Google site verification to demo sites if needed
+  [ ] Review and harden API security headers
+
+================================================================================
+FILE REFERENCES FOR REMEDIATION
+================================================================================
+
+Primary files requiring updates:
+  1. /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/api.r3sto.ch/config.php
+  2. /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/api.r3sto.ch/_patch_reminders.js
+  3. /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/r3sto.ch/index.html
+  4. /sessions/zealous-affectionate-turing/mnt/Desktop--R3STO/deploy/auth.r3sto.ch/index.html
+
+Subdomain deployment health: All passing deployment checks
+SEO health: Excellent
+Performance assets: Properly optimized with hashing
+
+================================================================================
+END AUDIT REPORT
+================================================================================

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistant R3STO — Posez vos questions</title>
+<meta name="description" content="L'assistant IA R3STO répond à toutes vos questions sur la plateforme, les tarifs, les fonctionnalités et la migration.">
+<link rel="icon" type="image/jpeg" href="/logo-r3sto.jpg">
+<link rel="canonical" href="https://r3sto.ch/assistant/">
+<link rel="alternate" hreflang="fr" href="https://r3sto.ch/assistant/">
+<link rel="alternate" hreflang="x-default" href="https://r3sto.ch/assistant/">
+<meta property="og:title" content="Assistant R3STO — Posez vos questions">
+<meta property="og:description" content="L'assistant IA R3STO répond à toutes vos questions sur la plateforme, les tarifs, les fonctionnalités et la migration.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://r3sto.ch/assistant/">
+<meta property="og:image" content="https://r3sto.ch/logo-r3sto.jpg">
+<meta property="og:locale" content="fr_CH">
+<meta property="og:site_name" content="R3STO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Assistant R3STO — Posez vos questions">
+<meta name="twitter:description" content="L'assistant IA R3STO répond à vos questions sur la plateforme, tarifs et fonctionnalités.">
+<meta name="twitter:image" content="https://r3sto.ch/logo-r3sto.jpg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0b1120;--surf:#111827;--surf2:#1e293b;--border:rgba(255,255,255,.06);--text:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--ac:#3b82f6;--gn:#10b981;--rad:12px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--ac);text-decoration:none}
+a:hover{text-decoration:underline}
+.header-nav{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--border)}
+.logo-img{width:40px;height:40px;object-fit:cover;border-radius:0}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ac);padding:24px 24px 0}
+.hero{text-align:center;padding:48px 24px 32px;max-width:700px;margin:0 auto}
+.hero h1{font-size:28px;font-weight:800;margin-bottom:10px}
+.hero p{font-size:15px;color:var(--t2);line-height:1.6}
+.chat-wrap{max-width:700px;width:100%;margin:0 auto;padding:0 16px;flex:1;display:flex;flex-direction:column}
+.chat-box{flex:1;min-height:400px;background:var(--surf);border:1px solid var(--border);border-radius:var(--rad) var(--rad) 0 0;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.msg{max-width:85%;padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.6}
+.msg.bot{background:var(--surf2);border:1px solid var(--border);align-self:flex-start}
+.msg.user{background:var(--ac);color:#fff;align-self:flex-end}
+.msg strong{font-weight:700}
+.input-bar{display:flex;gap:0;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--rad) var(--rad);overflow:hidden;background:var(--surf)}
+.input-bar input{flex:1;padding:14px 16px;background:transparent;border:none;color:var(--text);font-size:14px;font-family:inherit;outline:none}
+.input-bar input::placeholder{color:var(--t3)}
+.input-bar button{padding:14px 20px;background:var(--ac);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.input-bar button:hover{background:#2563eb}
+.quick-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:20px 16px;max-width:700px;margin:0 auto}
+.q-tag{padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:100px;font-size:12px;color:var(--t2);cursor:pointer;transition:all .15s}
+.q-tag:hover{border-color:var(--ac);color:var(--ac)}
+.footer-note{text-align:center;padding:24px;font-size:12px;color:var(--t3)}
+</style>
+</head>
+<body>
+<div class="header-nav">
+  <img src="/logo-r3sto.jpg" alt="R3STO" class="logo-img">
+</div>
+<a href="/" class="back">← Retour à r3sto.ch</a>
+
+<div class="hero">
+  <h1>Posez vos questions à R3STO</h1>
+  <p>Notre assistant répond instantanément à vos questions sur la plateforme, les tarifs, les fonctionnalités et la migration depuis un autre système.</p>
+</div>
+
+<div class="quick-tags">
+  <span class="q-tag" onclick="askQ(this.textContent)">Combien ça coûte ?</span>
+  <span class="q-tag" onclick="askQ(this.textContent)">Quelle est la différence avec TheFork ?</span>
+  <span class="q-tag" onclick="askQ(this.textContent)">Comment migrer ?</span>
+  <span class="q-tag" onclick="askQ(this.textContent)">Mes données sont-elles en Suisse ?</span>
+  <span class="q-tag" onclick="askQ(this.textContent)">La confirmation est instantanée ?</span>
+  <span class="q-tag" onclick="askQ(this.textContent)">C'est quoi R3STO Delivery ?</span>
+</div>
+
+<div class="chat-wrap">
+  <div class="chat-box" id="chatBox">
+    <div class="msg bot">Bonjour ! Je suis l'assistant R3STO. Posez-moi n'importe quelle question sur la plateforme, les tarifs, ou la migration depuis votre système actuel.</div>
+  </div>
+  <div class="input-bar">
+    <input type="text" id="chatInput" placeholder="Posez votre question..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button onclick="sendMsg()">Envoyer</button>
+  </div>
+</div>
+
+<div class="footer-note">Les réponses sont générées à partir de notre base de connaissances. Pour toute question, explorez notre <a href="https://r3sto.ch/comparatif">comparatif</a> ou <a href="https://auth.r3sto.ch">créez votre compte</a>.</div>
+
+<script>
+var KB = {
+  'tarif|prix|coût|combien|cher|abonnement': 'R3STO propose 3 plans :\n\n<strong>Bistro</strong> — 39 CHF/mois (468 CHF/an)\nRéservations illimitées, plan de salle, CRM, widget, rappels SMS/email.\n\n<strong>Resto</strong> — 59 CHF/mois (708 CHF/an)\nTout Bistro + bons cadeaux, fidélité, QR code menu, commandes.\n\n<strong>Gastro</strong> — 79 CHF/mois (948 CHF/an)\nTout Resto + prépaiement Stripe, multi-sites, optimisation créneaux, API REST.\n\n<strong>0% commission</strong> sur toutes les réservations. Toujours.',
+  'thefork|fork|commission|concurrent': 'TheFork prélève <strong>2 à 5 CHF par couvert</strong>. Pour un restaurant à 100 couverts/jour, cela peut représenter 6\'000-15\'000 CHF/mois.\n\nR3STO : <strong>abonnement fixe dès 39 CHF/mois, 0% commission</strong>. Jamais de frais par couvert, pas de surprises sur la facture.',
+  'zenchef|confirmation|manuelle|attente|instant': 'Chez certaines plateformes comme Zenchef, le client réserve et <strong>attend que le restaurant confirme manuellement</strong> — parfois des heures.\n\nAvec R3STO, la confirmation est <strong>instantanée</strong> : le client sait qu\'il a sa table en 2 secondes. SMS + email automatiques, zéro intervention du restaurateur.',
+  'migrer|migration|changer|thefork|import': 'La migration vers R3STO est simple :\n\n1. <strong>Créez votre compte</strong> sur auth.r3sto.ch (3 minutes)\n2. <strong>Configurez</strong> votre plan de salle et vos horaires\n3. <strong>Importez</strong> vos données clients (CSV ou saisie manuelle)\n4. <strong>Intégrez</strong> le widget sur votre site web\n\nVous êtes opérationnel en moins de 15 minutes. Aucune compétence technique requise.',
+  'suisse|données|héberg|infomaniak|sécur|lpd|rgpd': 'Toutes vos données sont hébergées <strong>en Suisse chez Infomaniak</strong> (Genève). Aucun transfert hors de Suisse.\n\nR3STO est conforme à la <strong>LPD</strong> (loi fédérale suisse) et au <strong>RGPD</strong>. Chiffrement TLS, sauvegardes régulières, accès restreint.',
+  'delivery|livraison|commande en ligne|take.?away': '<strong>R3STO Delivery</strong> est notre module de commande en ligne + livraison, disponible en add-on à +29 CHF/mois.\n\nIl inclut : menu en ligne, panier, paiement Stripe, mode livraison ou retrait, zones de livraison, suivi en temps réel.\n\n<em>Ce module sera bientôt disponible.</em>',
+  'order|commande|salle|kds|serveur': '<strong>R3STO Order</strong> gère les commandes en salle : prise de commande serveur sur tablette, KDS cuisine & bar, envoi automatique en cuisine.\n\n<em>Ce module sera bientôt disponible.</em>',
+  'cash|factur|caisse|bon cadeau|fidélit': '<strong>R3STO Cash</strong> couvre la facturation, les bons cadeaux en ligne, le programme de fidélité, le prépaiement et la caution Stripe.\n\n<em>Ce module sera bientôt disponible.</em>',
+  'no.?show|annul|prépaiement|caution': 'R3STO lutte contre les no-shows avec plusieurs outils :\n\n• <strong>Rappels automatiques</strong> par SMS et email\n• <strong>Prépaiement</strong> et caution via Stripe (plan Gastro)\n• <strong>Scoring no-show</strong> pour identifier les clients à risque\n\nRésultat : <strong>-87% de no-shows</strong> en moyenne.',
+  'plan de salle|table|surbooking|capacité': 'Le <strong>plan de salle interactif</strong> contrôle la capacité en temps réel.\n\n• Attribution automatique des tables par l\'IA\n• Alerte à 90%, blocage à 100%\n• Drag & drop pour réorganiser\n• Vue service en temps réel\n\nFini le surbooking et les mauvaises surprises.',
+  'crm|client|historique|allergies|préférence': 'Le <strong>CRM R3STO</strong> crée automatiquement une fiche pour chaque client :\n\n• Historique complet des réservations\n• Préférences et allergies\n• Score VIP et fréquence\n• Notes du personnel\n\nVous connaissez chaque client comme un habitué.',
+  'widget|site|intégr': 'Le <strong>widget de réservation R3STO</strong> s\'intègre à votre site web en une ligne de code.\n\nResponsive, personnalisable aux couleurs de votre restaurant. Vos clients réservent 24h/24, même à 23h depuis leur canapé.\n\nConfirmation instantanée, sans aucune intervention de votre part.'
+};
+
+function findAnswer(q) {
+  q = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (var pattern in KB) {
+    var re = new RegExp(pattern, 'i');
+    if (re.test(q)) return KB[pattern];
+  }
+  return 'Bonne question ! Je n\'ai pas de réponse précise dans ma base de connaissances pour le moment. <a href="https://auth.r3sto.ch" style="color:#3b82f6">Créez votre compte</a> ou <a href="https://r3sto.ch/video/" style="color:#3b82f6">regardez notre vidéo</a>.';
+}
+
+function addMsg(text, isUser) {
+  var box = document.getElementById('chatBox');
+  var div = document.createElement('div');
+  div.className = 'msg ' + (isUser ? 'user' : 'bot');
+  div.innerHTML = isUser ? text : text.replace(/\n/g, '<br>');
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendMsg() {
+  var input = document.getElementById('chatInput');
+  var q = input.value.trim();
+  if (!q) return;
+  addMsg(q, true);
+  input.value = '';
+  setTimeout(function() {
+    addMsg(findAnswer(q), false);
+  }, 400);
+}
+
+function askQ(q) {
+  document.getElementById('chatInput').value = q;
+  sendMsg();
+}
+</script>
+</body>
+</html>

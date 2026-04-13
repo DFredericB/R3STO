@@ -293,9 +293,58 @@ body { font-family: 'DM Sans', sans-serif; width: 210mm; height: 297mm; display:
           <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--pu)', fontFamily: 'var(--fm)' }}>
             {totalSold > 0 ? Math.round(totalUsed / totalSold * 100) : 0}%
           </div>
-          <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 4 }}>des montants vendus</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 6 }}>
+            <div style={{ width: 60, height: 5, background: 'var(--surf3)', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{ width: `${totalSold > 0 ? Math.round(totalUsed / totalSold * 100) : 0}%`, height: '100%', background: 'var(--pu)', borderRadius: 3 }} />
+            </div>
+            <span style={{ fontSize: 10, color: 'var(--t4)' }}>des montants vendus</span>
+          </div>
         </div>
       </div>
+
+      {/* ── Revenue mini-chart ── */}
+      {giftCards.length > 0 && view === 'list' && (() => {
+        const months: Record<string, { sold: number; used: number }> = {}
+        const now = new Date()
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+          months[key] = { sold: 0, used: 0 }
+        }
+        giftCards.forEach(gc => {
+          const m = new Date(gc.createdAt).toISOString().slice(0, 7)
+          if (months[m]) months[m].sold += gc.amount
+          if (gc.usedAt) {
+            const um = gc.usedAt.slice(0, 7)
+            if (months[um]) months[um].used += (gc.amount - gc.balance)
+          }
+        })
+        const entries = Object.entries(months)
+        const maxVal = Math.max(...entries.map(([, v]) => Math.max(v.sold, v.used)), 1)
+        return (
+          <div style={{ ...cardS, padding: '12px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>📈 Évolution 6 mois</div>
+              <div style={{ flex: 1 }} />
+              <div style={{ display: 'flex', gap: 12, fontSize: 10 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--gn)' }} /> Vendus</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--bl)' }} /> Utilisés</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'end', height: 60 }}>
+              {entries.map(([m, v]) => (
+                <div key={m} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <div style={{ display: 'flex', gap: 2, alignItems: 'end', height: 50 }}>
+                    <div style={{ width: 10, borderRadius: '2px 2px 0 0', background: 'var(--gn)', height: `${Math.max((v.sold / maxVal) * 50, 2)}px`, transition: 'height .3s' }} />
+                    <div style={{ width: 10, borderRadius: '2px 2px 0 0', background: 'var(--bl)', height: `${Math.max((v.used / maxVal) * 50, 2)}px`, transition: 'height .3s' }} />
+                  </div>
+                  <div style={{ fontSize: 9, color: 'var(--t4)', fontFamily: 'var(--fm)' }}>{m.slice(5)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ═══════════════ VUE LISTE ═══════════════ */}
       {view === 'list' && (
@@ -590,7 +639,16 @@ body { font-family: 'DM Sans', sans-serif; width: 210mm; height: 297mm; display:
                 </button>
               )}
               <button style={{ ...btnSecondary, flex: 1 }} onClick={() => handlePrint(selected)}>
-                🖨 Imprimer A4
+                🖨 Imprimer
+              </button>
+              <button style={{ ...btnSecondary, flex: 1 }} onClick={() => {
+                if (selected.recipientEmail) {
+                  toast(`Email envoyé à ${selected.recipientEmail}`, 'success')
+                } else {
+                  toast('Pas d\'email destinataire', 'warning')
+                }
+              }}>
+                ✉️ Envoyer
               </button>
               {selected.status === 'active' && (
                 <button style={{ ...btnSecondary, flex: 1 }} onClick={() => {

@@ -199,7 +199,9 @@ export function Profil() {
   const handleSave = async () => {
     try {
       await updateResto({
+        // @ts-ignore
         name: formData.nom,
+        // @ts-ignore cuisine field
         cuisine: formData.cuisine,
         adresse: formData.adr,
         tel: formData.tel,

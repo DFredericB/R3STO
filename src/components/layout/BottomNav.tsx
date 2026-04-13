@@ -14,7 +14,7 @@ export function BottomNav() {
     <nav className="bottom-nav" style={{
       display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0,
       height: 'var(--bn)', background: 'var(--surf)',
-      borderTop: '1px solid var(--border)', zIndex: 100,
+      borderTop: '1px solid var(--border)', zIndex: 100, justifyContent: 'space-around', alignItems: 'center',
     }}>
       {ITEMS.map((item) => {
         const isActive = location.pathname === item.path

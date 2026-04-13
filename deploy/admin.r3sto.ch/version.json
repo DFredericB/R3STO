@@ -1,0 +1,17 @@
+{
+  "name": "admin",
+  "version": "1.4.0",
+  "build": "2026-04-11T12:00:00Z",
+  "env": "production",
+  "depends": ["api", "auth"],
+  "changelog": [
+    "1.4.0 — Login redesign calqué auth.r3sto.ch, lecture ?lang= URL, badge sécurisé, lang pills",
+    "1.3.0 — Tableaux statistiques améliorés, export données CSV/PDF",
+    "1.2.3 — Fix performance graphiques dashboard, cache optimisée",
+    "1.2.2 — Gestion permissions rôles utilisateurs, audit logs"
+  ],
+  "compatibility": {
+    "api": ">=3.0.0",
+    "auth": ">=1.8.0"
+  }
+}

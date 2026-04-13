@@ -270,6 +270,22 @@ export function Header() {
       {/* Logo R3STO */}
       <Logo size="md" />
 
+      {/* Badge ADMIN visible sur admin.r3sto.ch */}
+      {window.location.hostname.startsWith('admin.') && (
+        <span style={{
+          background: '#e67e22',
+          color: '#fff',
+          fontSize: 10,
+          fontWeight: 800,
+          padding: '2px 8px',
+          borderRadius: 4,
+          letterSpacing: 1,
+          textTransform: 'uppercase',
+          marginLeft: 6,
+          flexShrink: 0,
+        }}>Admin</span>
+      )}
+
       {/* Séparateur */}
       <div style={{ width: 1, height: 20, background: 'var(--border)', flexShrink: 0 }} />
 

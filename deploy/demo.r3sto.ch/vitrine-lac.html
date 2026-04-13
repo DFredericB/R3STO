@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Comptoir du Lac — Poissons & Terroir</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-white: #fafbfd;
+            --color-lake-blue: #2d6cb8;
+            --color-seafoam: #10b981;
+            --color-sand: #f5f0e8;
+            --color-dark: #1a1a1a;
+            --color-light-gray: #e8e6e0;
+            --color-success: #10b981;
+            --color-danger: #ef4444;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--color-white);
+            color: var(--color-dark);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+        }
+
+        h2 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--color-lake-blue);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Header/Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: transparent;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            padding: 1.5rem 2rem;
+        }
+
+        header.scrolled {
+            background: rgba(255, 251, 253, 0.95);
+            box-shadow: 0 2px 10px rgba(45, 108, 184, 0.1);
+            padding: 1rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-lake-blue);
+            border-radius: 0;
+        }
+
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-lake-blue);
+        }
+
+        .nav-toggle input {
+            display: none;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--color-dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--color-lake-blue);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: var(--color-lake-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1e4a82;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 108, 184, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid var(--color-lake-blue);
+            color: var(--color-lake-blue);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--color-lake-blue);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #e8f4fd 0%, var(--color-white) 50%, #f0f9f7 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+            margin-top: 60px;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: var(--color-success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .hero h1 {
+            margin-bottom: 0.5rem;
+            color: var(--color-lake-blue);
+        }
+
+        .hero .tagline {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        /* Banner */
+        .banner {
+            background-color: var(--color-lake-blue);
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Section Styles */
+        section {
+            padding: 4rem 2rem;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-light {
+            background-color: var(--color-white);
+        }
+
+        .section-sand {
+            background-color: var(--color-sand);
+        }
+
+        /* Notre Histoire */
+        .histoire-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .histoire-text h3 {
+            color: var(--color-lake-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        .year-badge {
+            display: inline-block;
+            background-color: var(--color-lake-blue);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-right: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .histoire-image {
+            background: linear-gradient(135deg, #a8d5f7 0%, #7ec8f0 100%);
+            height: 350px;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+        }
+
+        /* Spécialités */
+        .specialites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .specialty-card {
+            background: white;
+            border: 1px solid var(--color-light-gray);
+            padding: 1.5rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .specialty-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(45, 108, 184, 0.15);
+        }
+
+        .specialty-emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .specialty-name {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-lake-blue);
+        }
+
+        .specialty-desc {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .specialty-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-seafoam);
+        }
+
+        /* La Carte */
+        .carte-card {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0f9f7 100%);
+            border: 2px solid var(--color-lake-blue);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-radius: 0;
+        }
+
+        .carte-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--color-lake-blue);
+        }
+
+        .carte-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .carte-category {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0;
+            border-left: 4px solid var(--color-seafoam);
+        }
+
+        .carte-category-name {
+            font-weight: 600;
+            color: var(--color-lake-blue);
+        }
+
+        /* Horaires */
+        .horaires-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .horaires-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .horaires-table th,
+        .horaires-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-light-gray);
+        }
+
+        .horaires-table th {
+            background-color: var(--color-lake-blue);
+            color: white;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+        }
+
+        .horaires-table tr:hover {
+            background-color: rgba(45, 108, 184, 0.05);
+        }
+
+        .status-open {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.open {
+            background-color: var(--color-success);
+        }
+
+        .status-dot.closed {
+            background-color: var(--color-danger);
+        }
+
+        .horaires-info {
+            background: linear-gradient(135deg, #f0f9f7 0%, #e8f4fd 100%);
+            padding: 2rem;
+            border-radius: 0;
+            border-left: 4px solid var(--color-seafoam);
+        }
+
+        .horaires-info h3 {
+            margin-bottom: 1rem;
+            color: var(--color-lake-blue);
+        }
+
+        .horaires-info p {
+            margin-bottom: 0.75rem;
+            color: #666;
+        }
+
+        /* Événements */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .event-card {
+            background: linear-gradient(135deg, #fef5e8 0%, #fef9f0 100%);
+            border: 1px solid var(--color-light-gray);
+            padding: 2rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(245, 240, 232, 0.5);
+        }
+
+        .event-date {
+            font-size: 0.9rem;
+            color: var(--color-lake-blue);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-title {
+            font-size: 1.5rem;
+            color: var(--color-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .event-time {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Espaces */
+        .spaces-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .space-card {
+            border-radius: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .space-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .space-image {
+            height: 200px;
+            background: linear-gradient(135deg, #a8d5f7 0%, #7ec8f0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+
+        .space-info {
+            background: white;
+            padding: 1.5rem;
+            border: 1px solid var(--color-light-gray);
+        }
+
+        .space-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--color-lake-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .space-capacity {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        /* Avis Clients */
+        .reviews-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .reviews-summary {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .rating-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--color-lake-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reviews-count {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .review-card {
+            background: white;
+            padding: 1.5rem;
+            border: 1px solid var(--color-light-gray);
+            border-radius: 0;
+        }
+
+        .review-author {
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .review-rating {
+            color: #ffc107;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-text {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Réservation Widget */
+        .booking-section {
+            background: linear-gradient(135deg, var(--color-lake-blue) 0%, #1e4a82 100%);
+            color: white;
+        }
+
+        .booking-section h2 {
+            color: white;
+        }
+
+        .booking-widget {
+            background: white;
+            color: var(--color-dark);
+            padding: 2rem;
+            border-radius: 0;
+            margin-top: 2rem;
+        }
+
+        .booking-iframe-container {
+            position: relative;
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .booking-iframe-container iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid var(--color-light-gray);
+            border-radius: 0;
+        }
+
+        /* Delivery Banner */
+        .delivery-banner {
+            background-color: var(--color-seafoam);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .delivery-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            border-bottom: 2px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .delivery-link:hover {
+            border-bottom-color: transparent;
+        }
+
+        /* Contact & Carte */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .contact-info h3 {
+            color: var(--color-lake-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-label {
+            font-weight: 600;
+            color: var(--color-lake-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-value {
+            color: #666;
+        }
+
+        .contact-value a {
+            color: var(--color-lake-blue);
+            text-decoration: none;
+        }
+
+        .contact-value a:hover {
+            text-decoration: underline;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: var(--color-lake-blue);
+            color: white;
+            border-radius: 0;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background-color: #1e4a82;
+            transform: translateY(-2px);
+        }
+
+        .map-container {
+            background: linear-gradient(135deg, #a8d5f7 0%, #7ec8f0 100%);
+            height: 400px;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--color-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: var(--color-seafoam);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobile Menu */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block;
+            }
+
+            .nav-toggle input:checked ~ nav {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 2rem;
+                gap: 1rem;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            nav {
+                display: none;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .hero {
+                margin-top: 80px;
+                padding: 2rem 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .histoire-content {
+                grid-template-columns: 1fr;
+            }
+
+            .horaires-container {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .reviews-container {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 2rem 1rem;
+            }
+
+            .hero-buttons {
+                gap: 0.75rem;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .specialites-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            h2 {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .section-container {
+                max-width: 1200px;
+            }
+
+            h1 {
+                font-size: 4rem;
+            }
+
+            h2 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header id="header">
+        <div class="header-content">
+            <div class="logo">🐟 Le Comptoir du Lac</div>
+            <div class="nav-toggle">
+                <label for="menu-toggle">☰</label>
+                <input type="checkbox" id="menu-toggle">
+                <nav>
+                    <a href="#histoire">Notre histoire</a>
+                    <a href="#specialites">Spécialités</a>
+                    <a href="#horaires">Horaires</a>
+                    <a href="#events">Événements</a>
+                    <a href="#contact">Contact</a>
+                    <a href="#booking" class="btn btn-primary">Réserver</a>
+                </nav>
+            </div>
+            <nav>
+                <a href="#histoire">Notre histoire</a>
+                <a href="#specialites">Spécialités</a>
+                <a href="#horaires">Horaires</a>
+                <a href="#events">Événements</a>
+                <a href="#contact">Contact</a>
+                <a href="#booking" class="btn btn-primary">Réserver</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="status-badge">🟢 Ouvert maintenant</div>
+            <h1>Le Comptoir du Lac</h1>
+            <p class="tagline">Les trésors du Léman dans votre assiette</p>
+            <div class="hero-buttons">
+                <a href="#booking" class="btn btn-primary">Réserver une table</a>
+                <a href="#carte" class="btn btn-secondary">Consulter la carte</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Annonce Banner -->
+    <div class="banner">
+        🐟 Arrivage du jour : Perches du Léman, Omble chevalier, Féra — Pêche de ce matin !
+    </div>
+
+    <!-- Notre Histoire -->
+    <section id="histoire" class="section-sand">
+        <div class="section-container">
+            <h2>Notre histoire</h2>
+            <div class="histoire-content">
+                <div class="histoire-text">
+                    <div style="display: flex; align-items: flex-start;">
+                        <div class="year-badge">2005</div>
+                        <div>
+                            <h3>Depuis 2005 sur la rive du Léman</h3>
+                            <p>Le Comptoir du Lac est né d'une passion pour les poissons d'eau douce et les produits du terroir vaudois. Situé sur les quais d'Ouchy à Lausanne, notre restaurant célèbre la richesse gastronomique du Léman avec authenticité et savoir-faire.</p>
+                            <p style="margin-top: 1rem;">Nous travaillons en direct avec les pêcheurs locaux pour vous proposer les plus belles prises du jour, cuisinées selon les traditions savoyardes et vaudoises.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="histoire-image">
+                    🌊
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Spécialités -->
+    <section id="specialites" class="section-light">
+        <div class="section-container">
+            <h2>Nos spécialités</h2>
+            <div class="specialites-grid">
+                <div class="specialty-card">
+                    <div class="specialty-emoji">🐟</div>
+                    <div class="specialty-name">Filets de perche du Léman</div>
+                    <div class="specialty-desc">Levés du jour, panés à l'amande, servis avec sauce beurre blanc</div>
+                    <div class="specialty-price">CHF 38.50</div>
+                </div>
+                <div class="specialty-card">
+                    <div class="specialty-emoji">🦐</div>
+                    <div class="specialty-name">Tartare de féra aux agrumes</div>
+                    <div class="specialty-desc">Féra fraîche, citron, pamplemousse, échalote, caviar</div>
+                    <div class="specialty-price">CHF 22.00</div>
+                </div>
+                <div class="specialty-card">
+                    <div class="specialty-emoji">🐠</div>
+                    <div class="specialty-name">Omble chevalier poêlé</div>
+                    <div class="specialty-desc">À la noisette, champignons sauvages, persil de montagne</div>
+                    <div class="specialty-price">CHF 39.50</div>
+                </div>
+                <div class="specialty-card">
+                    <div class="specialty-emoji">🫕</div>
+                    <div class="specialty-name">Fondue au Gruyère</div>
+                    <div class="specialty-desc">Mélange classique vaudois, à partager, pain grillé</div>
+                    <div class="specialty-price">CHF 26.00/p.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- La Carte -->
+    <section id="carte" class="section-sand">
+        <div class="section-container">
+            <h2>La carte</h2>
+            <div class="carte-card">
+                <div class="carte-title">📋 Carte synchronisée depuis R3STO</div>
+                <p>Accédez à notre carte complète et réservez en temps réel</p>
+                <div class="carte-categories">
+                    <div class="carte-category">
+                        <div class="carte-category-name">🐟 Poissons du lac</div>
+                    </div>
+                    <div class="carte-category">
+                        <div class="carte-category-name">🥗 Entrées</div>
+                    </div>
+                    <div class="carte-category">
+                        <div class="carte-category-name">🍰 Desserts</div>
+                    </div>
+                    <div class="carte-category">
+                        <div class="carte-category-name">🍷 Vins vaudois</div>
+                    </div>
+                </div>
+                <a href="#booking" class="btn btn-primary" style="margin-top: 2rem;">Réserver une table</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Horaires -->
+    <section id="horaires" class="section-light">
+        <div class="section-container">
+            <h2>Horaires & Accès</h2>
+            <div class="horaires-container">
+                <div>
+                    <table class="horaires-table">
+                        <thead>
+                            <tr>
+                                <th>Jour</th>
+                                <th>Horaires</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Lundi - Mardi</td>
+                                <td style="color: #999;">Fermé</td>
+                            </tr>
+                            <tr>
+                                <td>Mercredi - Samedi</td>
+                                <td>12:00-14:30<br>19:00-22:30</td>
+                            </tr>
+                            <tr>
+                                <td>Dimanche</td>
+                                <td>12:00-15:00<br>(Brunch)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="horaires-info">
+                    <h3>Nous contacter</h3>
+                    <div class="status-open">
+                        <span class="status-dot open"></span>
+                        <span><strong>Ouvert maintenant</strong><br>Jusqu'à 22:30</span>
+                    </div>
+                    <p style="margin-top: 1.5rem;">Téléphone : <a href="tel:+41219033333" style="color: var(--color-lake-blue); text-decoration: none;">+41 21 903 33 33</a></p>
+                    <p>Email : <a href="mailto:contact@comptoir-lac.ch" style="color: var(--color-lake-blue); text-decoration: none;">contact@comptoir-lac.ch</a></p>
+                    <p>Réservation fortement conseillée</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Événements -->
+    <section id="events" class="section-sand">
+        <div class="section-container">
+            <h2>Événements & Animations</h2>
+            <div class="events-grid">
+                <div class="event-card">
+                    <div class="event-date">Dimanche 19 avril</div>
+                    <div class="event-title">Brunch du Léman</div>
+                    <div class="event-time">🕙 10:00 - 15:00</div>
+                    <p style="margin-top: 1rem; color: #666;">Champagne, œufs bénédictine, poisson fumé. Menu spécial Dimanche.</p>
+                </div>
+                <div class="event-card">
+                    <div class="event-date">Vendredi 25 avril</div>
+                    <div class="event-title">Soirée Chasselas & Perches</div>
+                    <div class="event-time">🕖 19:00</div>
+                    <p style="margin-top: 1rem; color: #666;">Accords mets-vins : Chasselas vaudois et nos meilleures perches. Réservation obligatoire.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Espaces -->
+    <section class="section-light">
+        <div class="section-container">
+            <h2>Nos espaces</h2>
+            <div class="spaces-grid">
+                <div class="space-card">
+                    <div class="space-image">🏛️</div>
+                    <div class="space-info">
+                        <div class="space-name">Salle panoramique</div>
+                        <div class="space-capacity">50 places — Vue sur le Léman</div>
+                    </div>
+                </div>
+                <div class="space-card">
+                    <div class="space-image">☀️</div>
+                    <div class="space-info">
+                        <div class="space-name">Terrasse lac</div>
+                        <div class="space-capacity">35 places — En bord d'eau</div>
+                    </div>
+                </div>
+                <div class="space-card">
+                    <div class="space-image">🤝</div>
+                    <div class="space-info">
+                        <div class="space-name">Espace privé</div>
+                        <div class="space-capacity">14 places — Séminaires & réceptions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Avis Clients -->
+    <section class="section-sand">
+        <div class="section-container">
+            <h2>Avis de nos clients</h2>
+            <div class="reviews-container">
+                <div class="reviews-summary">
+                    <div class="rating-display">4.8/5</div>
+                    <div class="stars">★★★★★</div>
+                    <div class="reviews-count">Basé sur 196 avis</div>
+                    <p style="color: #666; margin-bottom: 1rem;">Nos clients adorent l'authenticité de nos poissons et la qualité de nos préparations.</p>
+                    <a href="#booking" class="btn btn-primary">Laisser un avis</a>
+                </div>
+                <div class="reviews-list">
+                    <div class="review-card">
+                        <div class="review-author">Sophie L.</div>
+                        <div class="review-rating">★★★★★ — Avril 2026</div>
+                        <div class="review-text">"Les filets de perche sont incomparables. Frais, délicats, parfaitement préparés. Service impeccable et cadre magnifique."</div>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-author">Marc D.</div>
+                        <div class="review-rating">★★★★★ — Mars 2026</div>
+                        <div class="review-text">"Depuis 20 ans on vient au Comptoir du Lac. La qualité ne faiblit jamais. À recommander vivement !"</div>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-author">Camille V.</div>
+                        <div class="review-rating">★★★★★ — Avril 2026</div>
+                        <div class="review-text">"Un vrai délice. Les produits du jour sont toujours surprenants. L'équipe connaît ses vins vaudois comme personne."</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Réservation -->
+    <section id="booking" class="booking-section">
+        <div class="section-container">
+            <h2>Réservez votre table</h2>
+            <div class="booking-widget">
+                <p>Utilisez le système R3STO pour réserver votre table en temps réel :</p>
+                <div class="booking-iframe-container">
+                    <iframe src="https://booking.r3sto.ch" title="Réservation R3STO" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Delivery Banner -->
+    <div class="delivery-banner">
+        🛵 Commandez en livraison ! Livraison gratuite dès CHF 60 — <a href="https://delivery.r3sto.ch" class="delivery-link" target="_blank">Commander maintenant</a>
+    </div>
+
+    <!-- Contact & Carte -->
+    <section id="contact" class="section-light">
+        <div class="section-container">
+            <h2>Nous trouver</h2>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Coordonnées</h3>
+                    <div class="contact-item">
+                        <div class="contact-label">📍 Adresse</div>
+                        <div class="contact-value">
+                            Quai d'Ouchy 12<br>
+                            1006 Lausanne<br>
+                            Vaud, Suisse
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-label">📞 Téléphone</div>
+                        <div class="contact-value">
+                            <a href="tel:+41219033333">+41 21 903 33 33</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-label">📧 Email</div>
+                        <div class="contact-value">
+                            <a href="mailto:contact@comptoir-lac.ch">contact@comptoir-lac.ch</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-label">🌐 Réseaux sociaux</div>
+                        <div class="social-links">
+                            <a href="https://facebook.com" class="social-link" target="_blank" title="Facebook">f</a>
+                            <a href="https://instagram.com" class="social-link" target="_blank" title="Instagram">📷</a>
+                            <a href="https://tripadvisor.com" class="social-link" target="_blank" title="TripAdvisor">✓</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="map-container">
+                    🗺️ Google Maps — Quai d'Ouchy, Lausanne
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 Le Comptoir du Lac — Poissons & Terroir</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            Propulsé par <a href="https://r3sto.ch">R3STO</a> — Plateforme de gestion pour restaurants
+        </p>
+    </footer>
+
+    <!-- Intersection Observer for Scroll Animations -->
+    <script>
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Fade-in animations on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+            observer.observe(section);
+        });
+
+        // Mobile menu close on link click
+        const menuToggle = document.getElementById('menu-toggle');
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.checked = false;
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

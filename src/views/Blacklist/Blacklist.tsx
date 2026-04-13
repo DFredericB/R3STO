@@ -88,7 +88,7 @@ export function Blacklist() {
           ))}
           <div style={{ flex: 1 }} />
           <button
-            onClick={() => toast('Export CSV', 'success')}
+            onClick={() => { const csv = ['Nom,Tel,Score,Niveau,Raison,Actif', ...clients.map(c => c.n+','+c.tel+','+c.score+','+c.level+','+c.reason+','+c.active)].join('\n'); const blob = new Blob([csv], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'blacklist.csv'; a.click(); toast('CSV exporté', 'success') }}
             style={{
               padding: '6px 12px', borderRadius: 5, fontSize: 12, fontWeight: 700, cursor: 'pointer',
               border: '1px solid var(--border)', background: 'var(--surf2)', color: 'var(--text)',
@@ -191,7 +191,7 @@ export function Blacklist() {
             </div>
           </div>
           <button
-            onClick={() => toast('Règles sauvegardées', 'success')}
+            onClick={() => { setAutoRules({...autoRules}); toast('Règles sauvegardées', 'success') }}
             style={{ marginTop: 14, padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--bl)', color: 'white', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
           >
             💾 Sauvegarder les règles
@@ -317,7 +317,7 @@ export function Blacklist() {
                   <td style={{ padding: 12 }}>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button
-                        onClick={() => toast('Fiche ouverte', 'success')}
+                        onClick={() => toast(b.n + ' · ' + b.tel + ' · ' + b.reason, 'info')}
                         style={{
                           fontSize: 11,
                           padding: '3px 7px',
@@ -332,7 +332,7 @@ export function Blacklist() {
                       </button>
                       {b.active && (
                         <button
-                          onClick={() => toast('Réhabilité', 'success')}
+                          onClick={() => { setClients(prev => prev.map(c => c.id === b.id ? {...c, active: false} : c)); toast(b.n + ' réhabilité', 'success') }}
                           style={{
                             fontSize: 11,
                             padding: '3px 7px',

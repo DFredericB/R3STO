@@ -66,4 +66,25 @@ async function me(req, res, next) {
   }
 }
 
-module.exports = { register, login, sendOtp, verifyOtp, me };
+async function forgotPassword(req, res, next) {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ ok: false, error: 'Email requis' });
+    const result = await service.forgotPassword(email);
+    return ok(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function resetPassword(req, res, next) {
+  try {
+    const { token, password } = req.body || {};
+    const result = await service.resetPassword(token, password);
+    return ok(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { register, login, sendOtp, verifyOtp, me, forgotPassword, resetPassword };

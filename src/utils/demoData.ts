@@ -1,3 +1,5 @@
+import type { Client, GiftCard, Review, LoyaltyConfig, LoyaltyCard, Fermeture, User, OptionsData } from '../types/index'
+
 // ══════════════════════════════════════════════════
 //  R3STO — Données démo : "Le Comptoir du Lac"
 //  Restaurant suisse 120 couverts, 3 salles,
@@ -344,5 +346,167 @@ export function loadDemoFallback() {
     },
   ]
 
-  return { resas, tables, combos, services, salles, resto, roomItems, sites, activeSiteId: null, isDemo: true, activeDate: t, _demoVersion: 16 }
+  // ══════════════════════════════════════════════════
+  //  CLIENTS — CRM
+  // ══════════════════════════════════════════════════
+
+  const clients: Client[] = [
+    { id:'c1', nom:'Martin', prenom:'Jean', tel:'+41 79 123 45 67', email:'jean.martin@mail.ch', statut:1, allergies:'', notes:'Préfère table avec vue lac', langue:'fr', entreprise:'', tags:['terrasse','régulier'], tablePref:'T1', createdAt:Date.now()-180*86400000, lastVisit:t, totalVisits:12, totalCouverts:24, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c2', nom:'Dupont', prenom:'Marie', tel:'+41 78 234 56 78', email:'marie.dupont@mail.ch', statut:0, allergies:'', notes:'', langue:'fr', entreprise:'', tags:[], tablePref:'', createdAt:Date.now()-90*86400000, lastVisit:t, totalVisits:3, totalCouverts:6, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c3', nom:'Schmid', prenom:'Anna', tel:'+41 76 345 67 89', email:'anna@mail.ch', statut:2, allergies:'Arachides, fruits secs', notes:'Anniversaire important — souvent accompagné de groupe', langue:'fr', entreprise:'', tags:['vin-rouge','anniversaire','groupe'], tablePref:'T3', createdAt:Date.now()-365*86400000, lastVisit:t, totalVisits:8, totalCouverts:42, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c4', nom:'Favre', prenom:'Isabelle', tel:'+41 76 456 78 90', email:'isabelle.favre@mail.ch', statut:0, allergies:'', notes:'Préfère sans noix', langue:'fr', entreprise:'Banque Cantonale', tags:['repas-affaires'], tablePref:'', createdAt:Date.now()-120*86400000, lastVisit:t, totalVisits:4, totalCouverts:12, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c5', nom:'Rochat', prenom:'Pierre', tel:'+41 79 567 89 01', email:'p.rochat@corp.ch', statut:1, allergies:'', notes:'Régulier midi — menu dégustation', langue:'fr', entreprise:'', tags:['midi','régulier'], tablePref:'T20', createdAt:Date.now()-200*86400000, lastVisit:t, totalVisits:15, totalCouverts:30, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c6', nom:'Blanc', prenom:'Julie', tel:'+41 76 678 90 12', email:'julie.blanc@mail.ch', statut:0, allergies:'Gluten', notes:'Préfère table tranquille', langue:'fr', entreprise:'', tags:['sans-gluten'], tablePref:'', createdAt:Date.now()-60*86400000, lastVisit:t, totalVisits:2, totalCouverts:4, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c7', nom:'Weber', prenom:'Lisa', tel:'+41 79 222 33 44', email:'lisa.weber@mail.ch', statut:0, allergies:'', notes:'Vient avec enfants — besoin chaise bébé', langue:'de', entreprise:'', tags:['famille','enfants'], tablePref:'', createdAt:Date.now()-140*86400000, lastVisit:t, totalVisits:5, totalCouverts:18, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c8', nom:'Müller', prenom:'Klaus', tel:'+41 79 456 78 90', email:'k.muller@business.ch', statut:2, allergies:'', notes:'Déjeuners d\'affaires réguliers — VIP', langue:'de', entreprise:'Acme AG', tags:['affaires','VIP','midi'], tablePref:'T20', createdAt:Date.now()-250*86400000, lastVisit:t, totalVisits:18, totalCouverts:72, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c9', nom:'Bernard', prenom:'Claire', tel:'+41 76 111 22 33', email:'claire.bernard@mail.ch', statut:0, allergies:'', notes:'Crustacés réguliers', langue:'fr', entreprise:'', tags:['fruits-de-mer'], tablePref:'', createdAt:Date.now()-100*86400000, lastVisit:t, totalVisits:6, totalCouverts:18, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c10', nom:'Costa', prenom:'Miguel', tel:'+41 79 345 67 89', email:'m.costa@mail.ch', statut:0, allergies:'Lactose', notes:'Préfère aperitif rapide', langue:'it', entreprise:'', tags:['bar','apéritif'], tablePref:'', createdAt:Date.now()-45*86400000, lastVisit:t, totalVisits:3, totalCouverts:6, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c11', nom:'Fischer', prenom:'Daniel', tel:'+41 79 888 77 66', email:'d.fischer@mail.ch', statut:1, allergies:'', notes:'Client très régulier — même table demandée', langue:'de', entreprise:'', tags:['régulier','soir','même-table'], tablePref:'T10', createdAt:Date.now()-300*86400000, lastVisit:t, totalVisits:24, totalCouverts:48, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c12', nom:'Hoffmann', prenom:'Georg', tel:'+41 78 333 22 11', email:'georg.hoffmann@mail.ch', statut:2, allergies:'', notes:'Anniversaires familiaux — grande table', langue:'de', entreprise:'', tags:['famille','anniversaire','groupe'], tablePref:'', createdAt:Date.now()-280*86400000, lastVisit:t, totalVisits:7, totalCouverts:52, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c13', nom:'Bauer', prenom:'Christine', tel:'+41 79 666 55 44', email:'christine.bauer@mail.ch', statut:0, allergies:'', notes:'Dîner famille grande table', langue:'fr', entreprise:'', tags:['famille','soir','groupe'], tablePref:'', createdAt:Date.now()-110*86400000, lastVisit:t, totalVisits:4, totalCouverts:28, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c14', nom:'Steiner', prenom:'Marco', tel:'+41 79 555 44 33', email:'m.steiner@corp.ch', statut:0, allergies:'', notes:'Repas entreprise régulier', langue:'it', entreprise:'FreshFood Ltd', tags:['affaires','groupe'], tablePref:'', createdAt:Date.now()-160*86400000, lastVisit:t, totalVisits:9, totalCouverts:36, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c15', nom:'Meyer', prenom:'Laura', tel:'+41 76 222 11 00', email:'laura.meyer@mail.ch', statut:3, allergies:'', notes:'Accès PMR — fauteuil roulant', langue:'fr', entreprise:'', tags:['PMR','accessible','surveiller'], tablePref:'T20', createdAt:Date.now()-175*86400000, lastVisit:t, totalVisits:5, totalCouverts:16, totalNoshows:1, blacklisted:false, blacklistReason:'' },
+    { id:'c16', nom:'Leroy', prenom:'Alice', tel:'+41 79 555 66 77', email:'alice.leroy@mail.ch', statut:1, allergies:'', notes:'Cliente régulière soir', langue:'fr', entreprise:'', tags:['soir','régulier','couple'], tablePref:'T1', createdAt:Date.now()-220*86400000, lastVisit:t, totalVisits:13, totalCouverts:26, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c17', nom:'Morel', prenom:'Sandrine', tel:'+41 76 444 55 66', email:'sandrine@morel.ch', statut:0, allergies:'Kiwi, latex (gants)', notes:'Allergies documentées', langue:'fr', entreprise:'', tags:['allergies'], tablePref:'', createdAt:Date.now()-85*86400000, lastVisit:t, totalVisits:4, totalCouverts:12, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c18', nom:'Gruber', prenom:'Stefan', tel:'+41 78 999 88 77', email:'stefan@gruber.ch', statut:0, allergies:'', notes:'Via widget — demande attentive', langue:'de', entreprise:'', tags:[], tablePref:'', createdAt:Date.now()-40*86400000, lastVisit:'', totalVisits:0, totalCouverts:0, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c19', nom:'Villard', prenom:'Anne', tel:'+41 76 888 77 66', email:'', statut:0, allergies:'', notes:'Préfère grande table', langue:'fr', entreprise:'', tags:['groupe'], tablePref:'', createdAt:Date.now()-35*86400000, lastVisit:'', totalVisits:0, totalCouverts:0, totalNoshows:0, blacklisted:false, blacklistReason:'' },
+    { id:'c20', nom:'Renaud', prenom:'Éric', tel:'+41 78 666 55 44', email:'eric.renaud@mail.ch', statut:0, allergies:'', notes:'', langue:'fr', entreprise:'', tags:[], tablePref:'', createdAt:Date.now()-320*86400000, lastVisit:'', totalVisits:1, totalCouverts:4, totalNoshows:1, blacklisted:true, blacklistReason:'Annulation 2h avant sans justification', },
+  ]
+
+  // ══════════════════════════════════════════════════
+  //  BONS CADEAUX
+  // ══════════════════════════════════════════════════
+
+  const giftCards: GiftCard[] = [
+    { id:'gc1', code:'GC-A7X2-K9M4', amount:100, balance:100, currency:'CHF', status:'active', buyerName:'Sophie Marchand', buyerEmail:'sophie@mail.ch', buyerTel:'+41 79 444 33 22', recipientName:'Thomas Marchand', recipientEmail:'thomas@mail.ch', message:'Joyeux anniversaire!', createdAt:Date.now()-30*86400000, expiresAt:'2027-04-12', source:'online' },
+    { id:'gc2', code:'GC-M5K8-P2L1', amount:150, balance:80, currency:'CHF', status:'partial', buyerName:'Entreprise ABC', buyerEmail:'hr@abc.ch', buyerTel:'+41 21 777 88 99', recipientName:'Sylvain Blanc', recipientEmail:'sylvain.blanc@mail.ch', message:'Merci pour ton travail!', createdAt:Date.now()-60*86400000, expiresAt:'2027-04-12', usedAt:'2026-03-15', usedResaId:'r6', source:'online' },
+    { id:'gc3', code:'GC-X9D4-R6N2', amount:200, balance:0, currency:'CHF', status:'used', buyerName:'Didier Lefevre', buyerEmail:'didier@r3sto.com', buyerTel:'+41 21 903 45 67', recipientName:'Michèle Blanc', recipientEmail:'michele@mail.ch', message:'Profitez de notre nouvelle carte!', createdAt:Date.now()-90*86400000, expiresAt:'2027-01-12', usedAt:'2026-03-28', usedResaId:'r34', source:'admin' },
+    { id:'gc4', code:'GC-W2J7-Q8H3', amount:50, balance:0, currency:'CHF', status:'expired', buyerName:'Jean Dupont', buyerEmail:'jean.dupont@mail.ch', buyerTel:'+41 79 333 44 55', recipientName:'Antoinette Dupont', recipientEmail:'antoinette@mail.ch', message:'Pour un bon moment!', createdAt:Date.now()-400*86400000, expiresAt:'2025-04-12', source:'online' },
+    { id:'gc5', code:'GC-F3G6-Z1P9', amount:75, balance:75, currency:'CHF', status:'active', buyerName:'Admin', buyerEmail:'info@comptoirdulac.ch', buyerTel:'+41 21 903 45 67', recipientName:'Promo mars', recipientEmail:'', message:'Bon promo nouveau client', createdAt:Date.now()-20*86400000, expiresAt:'2027-04-12', source:'admin' },
+  ]
+
+  // ══════════════════════════════════════════════════
+  //  AVIS CLIENTS
+  // ══════════════════════════════════════════════════
+
+  const reviews: Review[] = [
+    { id:'rv1', source:'google', clientName:'Martin Gironde', clientEmail:'', date:'2026-03-28', createdAt:Date.now()-15*86400000, rating:5, comment:'Excellent restaurant! Cadre superbe avec vue sur le lac. Service attentif et cuisine raffinée.', service:'soir', reply:'Merci pour votre visite! À bientôt au Comptoir du Lac.', repliedAt:Date.now()-14*86400000, visible:true, flagged:false },
+    { id:'rv2', source:'google', clientName:'Sophie Marchand', clientEmail:'sophie@mail.ch', date:'2026-03-20', createdAt:Date.now()-23*86400000, rating:5, comment:'Magnifique terrasse, excellente cuisine suisse revisitée, prix justes.', service:'midi', visible:true, flagged:false },
+    { id:'rv3', source:'internal', clientName:'Thomas R.', clientEmail:'', clientId:'c10', date:'2026-03-15', createdAt:Date.now()-28*86400000, rating:4, comment:'Très bon restaurant. Un point : le vin rouge un peu trop jeune. Sinon parfait!', service:'soir', reply:'Merci! Nous prenons note pour notre carte des vins.', repliedAt:Date.now()-27*86400000, visible:true, flagged:false },
+    { id:'rv4', source:'google', clientName:'Nathalie B.', clientEmail:'', date:'2026-03-10', createdAt:Date.now()-33*86400000, rating:5, comment:'Déjeuner d\'affaires idéal. Cadre discret, service rapide, cuisine savoureuse.', service:'midi', visible:true, flagged:false },
+    { id:'rv5', source:'google', clientName:'Marc Steiner', clientEmail:'m.steiner@corp.ch', clientId:'c14', date:'2026-03-08', createdAt:Date.now()-35*86400000, rating:4, comment:'Bon restaurant, belle vue. Service un peu lent en soir de weekend.', service:'soir', reply:'Merci! Nous optimisons notre service en pics d\'affluence.', repliedAt:Date.now()-34*86400000, visible:true, flagged:false },
+    { id:'rv6', source:'internal', clientName:'Lisa Weber', clientEmail:'lisa.weber@mail.ch', clientId:'c7', date:'2026-02-28', createdAt:Date.now()-43*86400000, rating:5, comment:'Fantastique! Les enfants ont adoré. Chaises bébés disponibles, équipe très attentive.', service:'midi', reply:'Merci! Nous adorons accueillir les familles.', repliedAt:Date.now()-43*86400000, visible:true, flagged:false },
+    { id:'rv7', source:'google', clientName:'Klaus Müller', clientEmail:'k.muller@business.ch', clientId:'c8', date:'2026-02-20', createdAt:Date.now()-51*86400000, rating:5, comment:'Hervorragendes Restaurant! Perfektes Geschäftsessen, höchste Qualität.', service:'midi', reply:'Danke für Ihren Besuch!', repliedAt:Date.now()-50*86400000, visible:true, flagged:false },
+    { id:'rv8', source:'google', clientName:'Anonyme', clientEmail:'', date:'2026-02-15', createdAt:Date.now()-56*86400000, rating:3, comment:'Ambiance sympathique, mais plat principal trop salé et oublié un accompagnement.', service:'soir', reply:'Nous sommes désolés! Contactez-nous pour rectifier.', repliedAt:Date.now()-56*86400000, visible:true, flagged:true },
+    { id:'rv9', source:'email', clientName:'Michèle D.', clientEmail:'michele@mail.ch', date:'2026-02-10', createdAt:Date.now()-61*86400000, rating:5, comment:'Sublime! Terrasse vue panoramique, menu gastronomique impeccable. Soirée mémorable.', service:'soir', visible:true, flagged:false },
+  ]
+
+  // ══════════════════════════════════════════════════
+  //  PROGRAMME FIDÉLITÉ
+  // ══════════════════════════════════════════════════
+
+  const loyaltyConfig: LoyaltyConfig = {
+    active: true,
+    mode: 'points',
+    pointsPerChf: 1,
+    stampsGoal: 10,
+    cashbackPercent: 0,
+    rewardName: 'Repas gastronomique',
+    rewardValue: 200,
+    rewardThreshold: 2000,
+    welcomeBonus: 100,
+    birthdayBonus: 50,
+    expirationMonths: 24,
+    doublePointsDays: [5, 6], // ven, sam
+    autoEnroll: true,
+    autoEarnOnDone: true,
+    tiersEnabled: true,
+    tiers: [
+      { name: 'Bronze', icon: '🥉', minEarned: 0, color: '#8B4513', perks: 'Bienvenue! 1 point par CHF dépensé' },
+      { name: 'Argent', icon: '🥈', minEarned: 500, color: '#C0C0C0', perks: '1.5x points, happy hour +10%, repas anniversaire -20%' },
+      { name: 'Or', icon: '🥇', minEarned: 1500, color: '#FFD700', perks: '2x points, happy hour gratuit 1x/mois, accès menu privé, carafe offerte' },
+    ]
+  }
+
+  const loyaltyCards: LoyaltyCard[] = [
+    { id:'lc1', clientId:'c1', clientName:'Martin Jean', clientEmail:'jean.martin@mail.ch', points:485, stamps:0, cashbackBalance:0, totalEarned:485, rewardsUsed:0, joinedAt:Date.now()-180*86400000, lastActivity:t, tier:'Bronze', history:[] },
+    { id:'lc2', clientId:'c3', clientName:'Schmid Anna', clientEmail:'anna@mail.ch', points:1820, stamps:0, cashbackBalance:0, totalEarned:1820, rewardsUsed:1, joinedAt:Date.now()-365*86400000, lastActivity:t, tier:'Or', history:[] },
+    { id:'lc3', clientId:'c5', clientName:'Rochat Pierre', clientEmail:'p.rochat@corp.ch', points:780, stamps:0, cashbackBalance:0, totalEarned:780, rewardsUsed:0, joinedAt:Date.now()-200*86400000, lastActivity:t, tier:'Argent', history:[] },
+    { id:'lc4', clientId:'c8', clientName:'Müller Klaus', clientEmail:'k.muller@business.ch', points:2340, stamps:0, cashbackBalance:0, totalEarned:2340, rewardsUsed:1, joinedAt:Date.now()-250*86400000, lastActivity:t, tier:'Or', history:[] },
+    { id:'lc5', clientId:'c11', clientName:'Fischer Daniel', clientEmail:'d.fischer@mail.ch', points:1650, stamps:0, cashbackBalance:0, totalEarned:1650, rewardsUsed:0, joinedAt:Date.now()-300*86400000, lastActivity:t, tier:'Or', history:[] },
+    { id:'lc6', clientId:'c16', clientName:'Leroy Alice', clientEmail:'alice.leroy@mail.ch', points:620, stamps:0, cashbackBalance:0, totalEarned:620, rewardsUsed:0, joinedAt:Date.now()-220*86400000, lastActivity:t, tier:'Argent', history:[] },
+  ]
+
+  // ══════════════════════════════════════════════════
+  //  FERMETURES EXCEPTIONNELLES
+  // ══════════════════════════════════════════════════
+
+  const fermetures: Fermeture[] = [
+    { id:'f1', label:'Pâques — Fermé', date:'2026-04-05', dateFin:'2026-04-07', type:'ferie', note:'Fête religieuse — fermé 3 jours', active:true },
+    { id:'f2', label:'Ascension — Fermé', date:'2026-05-14', type:'ferie', note:'Jeudi de l\'Ascension', active:true },
+    { id:'f3', label:'Lundi fermé', date:'2026-04-13', type:'restaurant', note:'Fermeture hebdomadaire', active:true },
+    { id:'f4', label:'Salon privé — Entretien', date:'2026-04-20', type:'travaux', salle:'Salon privé', note:'Maintenance peinture', active:true },
+    { id:'f5', label:'Vacances été', date:'2026-07-20', dateFin:'2026-08-10', type:'vacances', note:'Fermeture annuelle estivale', active:true },
+  ]
+
+  // ══════════════════════════════════════════════════
+  //  UTILISATEURS — ÉQUIPE
+  // ══════════════════════════════════════════════════
+
+  const users: User[] = [
+    { id:'u1', n:'Didier Lefevre', email:'didier@r3sto.com', role:'proprietaire', active:true },
+    { id:'u2', n:'Véronique Roth', email:'veronique@comptoirdulac.ch', role:'manager', active:true },
+    { id:'u3', n:'Stéphane Moulin', email:'stephane@comptoirdulac.ch', role:'serveur', active:true },
+    { id:'u4', n:'Caroline Blanc', email:'caroline@comptoirdulac.ch', role:'serveur', active:true },
+    { id:'u5', n:'Antoine Dubois', email:'antoine@comptoirdulac.ch', role:'serveur', active:true },
+  ]
+
+  // ══════════════════════════════════════════════════
+  //  OPTIONS — Paramètres du restaurant
+  // ══════════════════════════════════════════════════
+
+  const options: OptionsData = {
+    wifi: true,
+    wifi_payant: false,
+    parking: true,
+    parking_valet: false,
+    terrasse: true,
+    accessible: true,
+    animaux: true,
+    animaux_terrasse_only: true,
+    reservation_min: 1,
+    reservation_max: 20,
+    annulation_h: 24,
+    allow_past_booking: false,
+    booking_horizon_days: 90,
+    slot_interval_mins: 15,
+    default_duration_mins: 90,
+    require_phone: false,
+    allow_walkin: true,
+    dispersion_mode: 'ia',
+    dispersion_interval: 15,
+    dispersion_max_per_slot: 3,
+    groupe_seuil: 8,
+    groupe_max_par_service: 2,
+    notif_new_resa: true,
+    notif_new_hours: 3,
+    auto_confirm: false,
+    auto_remind_24h: true,
+    auto_noshow_flag: true,
+    chaises_bebe: 6,
+    places_pmr: 3,
+  }
+
+  return {
+    resas, tables, combos, services, salles, resto, roomItems, sites,
+    clients, giftCards, reviews, loyaltyConfig, loyaltyCards, fermetures, users, options,
+    activeSiteId: null, isDemo: true, activeDate: t, _demoVersion: 20,
+    userRole: 'proprietaire' as const, lang: 'fr' as const,
+  }
+  return {
+    resas, tables, combos, services, salles, resto, roomItems, sites,
+    clients, giftCards, reviews, loyaltyConfig, loyaltyCards, fermetures, users, options,
+    activeSiteId: null, isDemo: true, activeDate: t, _demoVersion: 17,
+    userRole: 'proprietaire' as const, lang: 'fr' as const,
+  }
 }

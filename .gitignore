@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
+dist-demo
 dist-ssr
 *.local
 
@@ -29,3 +30,17 @@ dist-ssr
 *.sln
 *.sw?
 node_modules_old/
+
+# Office temp/lock files
+~$*
+
+# Build artifacts & temp
+*.tar.gz
+*.tar.gz.b64
+*.zip
+chunk_*
+
+# Deploy temp scripts (keep DEPLOY-PSCP.bat and DEPLOY.bat)
+list-cmd.txt
+fix-quickresa.cjs
+fix-quickresa.js

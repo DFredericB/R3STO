@@ -259,4 +259,6 @@ html, body, #root {
 @media (max-width: 768px) {
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .main-content { padding-bottom: var(--bn); }
+  .sidebar { display: none !important; }
+  .bottom-nav { display: flex !important; }
 }
