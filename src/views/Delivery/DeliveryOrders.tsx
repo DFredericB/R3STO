@@ -1,8 +1,5 @@
-// ══════════════════════════════════════════════════
-//  R3STO — DeliveryOrders
-//  DISABLED - stub
-// ══════════════════════════════════════════════════
+import { LockedModule } from '../../components/ui/LockedModule'
 
 export function DeliveryOrders() {
-  return null
+  return <LockedModule title="Commandes Livraison" icon="📦" description="Module livraison à venir." />
 }

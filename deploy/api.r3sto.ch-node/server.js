@@ -101,6 +101,16 @@ app.use(cors({
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// ── Fix préfixe /api ─────────────────────────────
+// Le frontend appelle /api/auth/login mais le serveur écoute sur /auth/login
+// Ce middleware réécrit /api/* → /* pour la compatibilité
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    req.url = req.url.replace('/api', '');
+  }
+  next();
+});
+
 // ── Auth Middleware ────────────────────────────────
 function authMiddleware(req, res, next) {
   const header = req.headers.authorization;
@@ -345,6 +355,7 @@ app.post('/auth/register', async (req, res) => {
 
     // Return access_token (auth.r3sto.ch expects this key)
     res.status(201).json({
+      ok: true,
       access_token: token,
       token,
       user: { id: result.insertId, email: email.toLowerCase(), name: fullName, role: 'owner', plan: userPlan },
@@ -392,6 +403,7 @@ app.post('/auth/login', async (req, res) => {
 
     // Return both token and access_token for compatibility
     res.json({
+      ok: true,
       access_token: token,
       token,
       user: {
@@ -451,7 +463,7 @@ app.get('/auth/me', authMiddleware, async (req, res) => {
       [req.user.id]
     );
     if (users.length === 0) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    res.json({ user: users[0] });
+    res.json({ ok: true, user: users[0] });
   } catch (err) {
     res.status(500).json({ error: 'Erreur serveur' });
   }

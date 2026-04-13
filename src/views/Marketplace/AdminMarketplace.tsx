@@ -1,8 +1,5 @@
-// ══════════════════════════════════════════════════
-//  R3STO — AdminMarketplace
-//  DISABLED - stub
-// ══════════════════════════════════════════════════
+import { LockedModule } from '../../components/ui/LockedModule'
 
 export function AdminMarketplace() {
-  return null
+  return <LockedModule title="Admin Marketplace" icon="🏪" description="Gestion des applications et intégrations." />
 }

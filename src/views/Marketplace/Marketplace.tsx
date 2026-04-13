@@ -1,8 +1,5 @@
-// ══════════════════════════════════════════════════
-//  R3STO — Marketplace
-//  DISABLED - stub only
-// ══════════════════════════════════════════════════
+import { LockedModule } from '../../components/ui/LockedModule'
 
 export function Marketplace() {
-  return null
+  return <LockedModule title="Marketplace" icon="🛒" description="La marketplace R3STO sera bientôt disponible." />
 }

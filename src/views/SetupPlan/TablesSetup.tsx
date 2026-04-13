@@ -1,8 +1,5 @@
-// ══════════════════════════════════════════════════
-//  R3STO — TablesSetup
-//  DISABLED - stub
-// ══════════════════════════════════════════════════
+import { Tables } from '../Tables/Tables'
 
 export function TablesSetup() {
-  return null
+  return <Tables />
 }

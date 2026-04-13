@@ -1,8 +1,5 @@
-// ══════════════════════════════════════════════════
-//  R3STO — useAuth hook
-//  Login / logout / persistence (remember-me)
-// ══════════════════════════════════════════════════
 import { useState, useCallback } from 'react'
+import { useAppStore } from '../store/useAppStore'
 
 const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch/api'
 const TOKEN_KEY = 'r3sto-token'
@@ -45,11 +42,11 @@ export function useAuth() {
       if (!r.ok || !data.ok) throw new Error(data.error || 'Identifiants invalides')
 
       const store = remember ? localStorage : sessionStorage
-      // Clear both to avoid ghost session
       localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY)
       sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY)
       store.setItem(TOKEN_KEY, data.access_token)
       store.setItem(USER_KEY, JSON.stringify(data.user))
+      useAppStore.getState().resetData()
       if (remember) {
         localStorage.setItem(REMEMBER_EMAIL_KEY, email)
       } else {
