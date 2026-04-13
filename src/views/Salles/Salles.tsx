@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import { useT } from '../../i18n/useTranslation'
 
@@ -62,10 +63,24 @@ function minsToSlot(mins: number): string {
 export function Salles() {
   const { toast } = useToast()
   const { t } = useT()
+  const storeSalles = useAppStore(s => s.salles)
+  const storeServices = useAppStore(s => s.services)
+  const storeTables = useAppStore(s => s.tables)
+  const { setSalles: setStoreSalles, setServices: setStoreServices } = useAppStore()
   const [activeTab, setActiveTab] = useState<TabType>('salles')
-  const [salles, setSalles] = useState(DEMO_SALLES)
-  const [services, setServices] = useState(DEMO_SERVICES)
-  const [tables] = useState(DEMO_TABLES)
+  // Use store data (fall back to demo only if store completely empty AND not in prod)
+  const salles = storeSalles.length > 0 ? storeSalles : DEMO_SALLES
+  const services = storeServices.length > 0 ? storeServices : DEMO_SERVICES
+  const tables = storeTables.length > 0 ? storeTables : DEMO_TABLES
+  // Wrapper to persist salles to store
+  const setSalles = (updater: typeof DEMO_SALLES | ((prev: typeof DEMO_SALLES) => typeof DEMO_SALLES)) => {
+    const next = typeof updater === 'function' ? updater(salles as any) : updater
+    setStoreSalles(next as any)
+  }
+  const setServices = (updater: typeof DEMO_SERVICES | ((prev: typeof DEMO_SERVICES) => typeof DEMO_SERVICES)) => {
+    const next = typeof updater === 'function' ? updater(services as any) : updater
+    setStoreServices(next as any)
+  }
 
   // Modal state
   const [modal, setModal] = useState<ModalKind>('none')

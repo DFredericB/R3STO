@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useAppStore } from '../store/useAppStore'
 
-const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch/api'
+const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
 const TOKEN_KEY = 'r3sto-token'
 const USER_KEY  = 'r3sto-user'
 const REMEMBER_EMAIL_KEY = 'r3sto-remember-email'

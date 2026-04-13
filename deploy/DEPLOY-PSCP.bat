@@ -6,9 +6,9 @@ echo ============================================
 echo.
 
 set PSCP="C:\Program Files\PuTTY\pscp.exe"
-set USER=pl7wy9_r3sto
+set USER=pl7wy9_R3sto
 set HOST=pl7wy9.ftp.infomaniak.com
-set PASS=RueNeuve20#1081
+set PASS=a5NDkGSzZ8zU
 set BASE=C:\Users\db\Desktop\R3STO\deploy
 
 echo [1/4] Deploying app.r3sto.ch ...

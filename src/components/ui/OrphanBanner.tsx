@@ -5,9 +5,11 @@
  * Propose le réassignment auto IA ou la navigation vers le détail.
  */
 import { useOrphans } from '../../hooks/useOrphans'
+import { useToast } from './Toast'
 
 export function OrphanBanner({ onNavigate }: { onNavigate?: (resaId: string) => void }) {
   const { orphans, orphansWithTarget, autoReassign, count } = useOrphans()
+  const { toast } = useToast()
 
   if (count === 0) return null
 
@@ -46,7 +48,7 @@ export function OrphanBanner({ onNavigate }: { onNavigate?: (resaId: string) => 
             onClick={() => {
               const n = autoReassign()
               // Force re-render via store update
-              if (n > 0) alert(`✅ ${n} réservation${n > 1 ? 's' : ''} réassignée${n > 1 ? 's' : ''} automatiquement`)
+              if (n > 0) toast(`✅ ${n} réservation${n > 1 ? 's' : ''} réassignée${n > 1 ? 's' : ''}`, 'success')
             }}
             style={{
               background: 'var(--gn)', color: '#fff', border: 'none', borderRadius: 8,

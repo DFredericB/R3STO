@@ -34,7 +34,7 @@ const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> 
 
 export function Fermetures() {
   const { t } = useT()
-  const { fermetures, salles, services } = useAppStore()
+  const { fermetures, salles, services, addFermeture, updateFermeture, deleteFermeture } = useAppStore()
   const { toast } = useToast()
 
   // Form state
@@ -49,19 +49,10 @@ export function Fermetures() {
   const [showForm, setShowForm] = useState(false)
   const [filterType, setFilterType] = useState('all')
 
-  // Data
-  const demoFermetures: Fermeture[] = [
-    { id: 'f1', type: 'vacances', date: '2026-08-01', dateFin: '2026-08-16', label: 'Vacances été', note: 'Fermeture complète du restaurant', active: true },
-    { id: 'f2', type: 'ferie', date: '2026-12-25', label: 'Noël', active: true },
-    { id: 'f3', type: 'ferie', date: '2026-12-26', label: 'Deuxième jour de Noël', active: true },
-    { id: 'f4', type: 'restaurant', date: '2026-04-20', label: 'Lundi de Pâques', active: true },
-    { id: 'f5', type: 'travaux', date: '2026-06-15', dateFin: '2026-06-17', label: 'Travaux terrasse', note: 'Rénovation terrasse extérieure', active: true },
-    { id: 'f6', type: 'service', date: '2026-07-01', dateFin: '2026-07-15', label: 'Fermeture midi', service: 'midi', note: 'Service midi fermé pendant les vacances', active: true },
-    { id: 'f7', type: 'salle', date: '2026-09-10', dateFin: '2026-09-12', label: 'Terrasse fermée', salle: 'Terrasse', note: 'Nettoyage haute pression', active: true },
-  ]
-  const activeFermetures = fermetures.length === 0 ? demoFermetures : fermetures
-  const activeSalles = salles.length > 0 ? salles : [{ id: 's1', name: 'Salle principale', color: '#4480d8', active: true }]
-  const activeServices = services.length > 0 ? services : []
+  // (demo data removed — reads directly from store)
+  const activeFermetures = fermetures
+  const activeSalles = salles
+  const activeServices = services
 
   // Filter closures
   const filteredFermetures = useMemo(() => {
@@ -83,14 +74,46 @@ export function Fermetures() {
       toast(t('ferm.fillRequired'), 'error')
       return
     }
+    const newF: Fermeture = {
+      id: `ferm_${Date.now()}`,
+      type: fermType as Fermeture['type'],
+      date: fermStart,
+      dateFin: fermEnd || undefined,
+      label: fermLabel,
+      note: fermNote || undefined,
+      salle: fermType === 'salle' ? selectedSalle : undefined,
+      service: fermType === 'service' ? selectedService : undefined,
+      active: true,
+    }
+    addFermeture(newF)
     toast(t('ferm.added'), 'success')
-    // Reset form
     setFermLabel(''); setFermStart(''); setFermEnd(''); setFermNote(''); setWidgetMsg('')
     setShowForm(false)
   }
-  const handleToggleFermeture = (_id: string) => { toast(t('ferm.statusUpdated'), 'success') }
-  const handleDeleteFermeture = (_id: string) => { toast(t('ferm.deleted') || 'Fermeture supprimée', 'success') }
-  const handleAddHoliday = (_date: string, label: string) => {
+  const handleToggleFermeture = (id: string) => {
+    const f = activeFermetures.find(x => x.id === id)
+    if (f) {
+      updateFermeture(id, { active: !f.active })
+      toast(t('ferm.statusUpdated'), 'success')
+    }
+  }
+  const handleDeleteFermeture = (id: string) => {
+    deleteFermeture(id)
+    toast(t('ferm.deleted') || 'Fermeture supprimée', 'success')
+  }
+  const handleAddHoliday = (date: string, label: string) => {
+    // Check if already exists
+    if (activeFermetures.some(f => f.date === date && f.type === 'ferie')) {
+      toast('Déjà ajouté', 'warning')
+      return
+    }
+    addFermeture({
+      id: `ferie_${Date.now()}_${date}`,
+      type: 'ferie',
+      date,
+      label,
+      active: true,
+    })
     toast(`${label} — ${t('ferm.markedClosed')}`, 'success')
   }
 

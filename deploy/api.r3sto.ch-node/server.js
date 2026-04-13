@@ -866,6 +866,136 @@ app.post('/public/reservation', async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════
+//  SYNC — Full state pull/push (Zustand ↔ API)
+// ═══════════════════════════════════════════════════
+
+// GET /sync/state — Retourne l'état complet du restaurant pour le frontend
+app.get('/sync/state', authMiddleware, async (req, res) => {
+  try {
+    // Récupérer le premier restaurant de l'utilisateur
+    const [restaurants] = await pool.query(
+      'SELECT * FROM restaurants WHERE user_id = ? ORDER BY id ASC LIMIT 1',
+      [req.user.id]
+    );
+
+    if (restaurants.length === 0) {
+      return res.json({ ok: true, empty: true });
+    }
+
+    const resto = restaurants[0];
+    let settings = {};
+    try {
+      settings = typeof resto.settings === 'string'
+        ? JSON.parse(resto.settings)
+        : (resto.settings || {});
+    } catch (_) { settings = {}; }
+
+    // Récupérer le plan depuis la table users
+    const [userRows] = await pool.query('SELECT plan FROM users WHERE id = ?', [req.user.id]);
+    const userPlan = userRows.length > 0 ? userRows[0].plan : 'free';
+
+    // Récupérer les réservations des 90 derniers jours + futures
+    const [resas] = await pool.query(
+      `SELECT * FROM reservations WHERE restaurant_id = ?
+       AND date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+       ORDER BY date DESC, time ASC`,
+      [resto.id]
+    );
+
+    // Mapper les réservations DB → format frontend Zustand
+    const mappedResas = resas.map(r => ({
+      id: String(r.id),
+      nom: r.guest_name,
+      tel: r.guest_phone || '',
+      email: r.guest_email || '',
+      cvt: r.party_size || 2,
+      date: r.date instanceof Date ? r.date.toISOString().slice(0, 10) : String(r.date).slice(0, 10),
+      heure: r.time ? String(r.time).slice(0, 5) : '12:00',
+      svc: r.service || '',
+      tbl: r.table_id || '',
+      salle: r.salle || '',
+      s: r.status || 'reserved',
+      note: r.notes || '',
+      source: r.source || 'app',
+      createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    }));
+
+    res.json({
+      ok: true,
+      restaurantId: resto.id,
+      restaurant: {
+        name: resto.name || '',
+        ville: resto.city || '',
+        pays: resto.country || 'CH',
+        plan: userPlan,
+        maxCvt: resto.capacity || 30,
+        tel: resto.phone || '',
+        email: resto.email || '',
+        web: resto.website || '',
+        logo: resto.logo_url || '',
+        slug: resto.slug || '',
+      },
+      resas: mappedResas,
+      // Spread all settings (tables, services, salles, combos, options, clients, etc.)
+      ...settings,
+    });
+
+    console.log(`[R3STO] Sync state pour user ${req.user.id}, restaurant ${resto.id} — ${Object.keys(settings).length} settings keys, ${mappedResas.length} resas`);
+  } catch (err) {
+    console.error('[R3STO] Sync state error:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// POST /sync/push — Sauvegarde l'état complet dans restaurant.settings
+app.post('/sync/push', authMiddleware, async (req, res) => {
+  try {
+    const { restaurantId, ...data } = req.body;
+
+    if (!restaurantId) {
+      return res.status(400).json({ error: 'restaurantId requis' });
+    }
+
+    // Vérifier que le restaurant appartient à l'utilisateur
+    const [check] = await pool.query(
+      'SELECT id FROM restaurants WHERE id = ? AND user_id = ?',
+      [restaurantId, req.user.id]
+    );
+    if (check.length === 0) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
+    // Séparer les réservations (table propre) du reste (settings JSON)
+    const { resas, resto, ...settings } = data;
+
+    // Sauvegarder settings dans la colonne JSON
+    const updates = ['settings = ?'];
+    const values = [JSON.stringify(settings)];
+
+    // Si le resto est mis à jour, mettre à jour aussi les colonnes directes
+    if (resto) {
+      if (resto.name) { updates.push('name = ?'); values.push(resto.name); }
+      if (resto.tel) { updates.push('phone = ?'); values.push(resto.tel); }
+      if (resto.email) { updates.push('email = ?'); values.push(resto.email); }
+      if (resto.web) { updates.push('website = ?'); values.push(resto.web); }
+      if (resto.ville) { updates.push('city = ?'); values.push(resto.ville); }
+      if (resto.maxCvt) { updates.push('capacity = ?'); values.push(resto.maxCvt); }
+    }
+
+    values.push(restaurantId, req.user.id);
+    await pool.query(
+      `UPDATE restaurants SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`,
+      values
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[R3STO] Sync push error:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 // ── 404 fallback ──────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ error: 'Route non trouvée', path: req.path, method: req.method });

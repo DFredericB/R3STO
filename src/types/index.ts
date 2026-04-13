@@ -7,7 +7,129 @@
 export type ResaStatus = 'reserved' | 'arrived' | 'done' | 'noshow' | 'cancelled' | 'waitlist'
 export type ResaCanal = 'telephone' | 'walkin' | 'widget' | 'google' | 'email' | 'whatsapp' | 'sms' | 'waitlist'
 export type ResaMode = 'ia' | 'manuel' | 'web'
-export type UserRole = 'proprietaire' | 'manager' | 'serveur'
+// ── Rôles système R3STO (entreprise SaaS) ─────────
+// SuperAdmin = Didier (accès total, toute la plateforme)
+// Les rôles sont ceux d'une boîte SaaS, PAS d'un restaurant
+export type UserRole =
+  | 'superadmin'
+  | 'cto'
+  | 'coo'
+  | 'manager'
+  | 'dev'
+  | 'sales'
+  | 'marketing'
+  | 'rh'
+  | 'comptable'
+  | 'support'
+  | 'onboarding'
+  | 'stagiaire'
+  | 'custom'
+
+// ── Modules de permissions ────────────────────────
+export type PermissionModule =
+  | 'dashboard'
+  | 'resas'
+  | 'plan'
+  | 'grille'
+  | 'agenda'
+  | 'waitlist'
+  | 'groupes'
+  | 'clients'
+  | 'crm'
+  | 'marketing'
+  | 'blacklist'
+  | 'avis'
+  | 'fidelite'
+  | 'widget'
+  | 'menu'
+  | 'commandes'
+  | 'kds'
+  | 'caisse'
+  | 'delivery'
+  | 'prepaiement'
+  | 'cadeaux'
+  | 'profil'
+  | 'salles'
+  | 'tables'
+  | 'fermetures'
+  | 'options'
+  | 'acces_roles'
+  | 'multisite'
+  | 'audit'
+  | 'alertes'
+  | 'historique'
+  | 'support'
+  | 'finance'
+  | 'equipes'
+  | 'plateforme'
+  | 'newsletter'
+  | 'marketplace'
+  | 'site_vitrine'
+  | 'qrcode'
+  | 'modules'
+  | 'rh'
+
+// ── Niveaux d'accès par module ────────────────────
+export type PermissionLevel = 'none' | 'read' | 'write' | 'admin'
+
+// ── Profil de permissions pour un rôle ────────────
+export interface RolePermissions {
+  role: UserRole
+  label: string
+  color: string
+  icon: string
+  description: string
+  modules: Record<PermissionModule, PermissionLevel>
+}
+
+// ── Permissions par défaut pour chaque rôle ───────
+export const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, Pick<RolePermissions, 'label' | 'color' | 'icon' | 'description'>> = {
+  superadmin:  { label: 'Super Admin', color: '#e74c3c', icon: '🛡️', description: 'Accès total — fondateur R3STO' },
+  cto:         { label: 'CTO', color: '#9b59b6', icon: '💻', description: 'Direction technique, infra, dev' },
+  coo:         { label: 'COO', color: '#f39c12', icon: '👑', description: 'Direction opérations' },
+  manager:     { label: 'Manager', color: '#2ecc71', icon: '👔', description: 'Gestion d\'équipe et opérations' },
+  dev:         { label: 'Développeur', color: '#3498db', icon: '⌨️', description: 'Développement produit' },
+  sales:       { label: 'Commercial', color: '#e67e22', icon: '📈', description: 'Ventes, prospection, closing' },
+  marketing:   { label: 'Marketing', color: '#8e44ad', icon: '📣', description: 'Campagnes, contenu, SEO' },
+  rh:          { label: 'Ressources Humaines', color: '#e91e63', icon: '🧑‍💼', description: 'Recrutement, paie, personnel' },
+  comptable:   { label: 'Comptable', color: '#1abc9c', icon: '📊', description: 'Finance, facturation, TVA' },
+  support:     { label: 'Support Client', color: '#3cc870', icon: '🎧', description: 'Tickets, assistance clients' },
+  onboarding:  { label: 'Onboarding', color: '#4480d8', icon: '🚀', description: 'Mise en route nouveaux clients' },
+  stagiaire:   { label: 'Stagiaire', color: '#9e9e9e', icon: '📝', description: 'Accès limité en lecture' },
+  custom:      { label: 'Personnalisé', color: '#607d8b', icon: '⚡', description: 'Permissions sur mesure' },
+}
+
+// ── Helper: module access par défaut selon rôle ───
+export function getDefaultModuleAccess(role: UserRole): Record<PermissionModule, PermissionLevel> {
+  const all = (level: PermissionLevel): Record<PermissionModule, PermissionLevel> => {
+    const modules: PermissionModule[] = [
+      'dashboard','resas','plan','grille','agenda','waitlist','groupes',
+      'clients','crm','marketing','blacklist','avis','fidelite',
+      'widget','menu','commandes','kds','caisse','delivery',
+      'prepaiement','cadeaux','profil','salles','tables','fermetures',
+      'options','acces_roles','multisite','audit','alertes','historique',
+      'support','finance','equipes','plateforme','newsletter','marketplace',
+      'site_vitrine','qrcode','modules','rh',
+    ]
+    return Object.fromEntries(modules.map(m => [m, level])) as Record<PermissionModule, PermissionLevel>
+  }
+
+  switch (role) {
+    case 'superadmin': return all('admin')
+    case 'cto': return { ...all('admin'), finance: 'read', rh: 'none' as any }
+    case 'coo': return { ...all('admin'), plateforme: 'read' }
+    case 'manager': return { ...all('write'), acces_roles: 'read', plateforme: 'none', finance: 'read' }
+    case 'dev': return { ...all('none'), dashboard: 'read', plateforme: 'admin', audit: 'admin', alertes: 'write', modules: 'write', widget: 'write', marketplace: 'write' }
+    case 'sales': return { ...all('none'), dashboard: 'read', clients: 'write', crm: 'admin', marketing: 'read', avis: 'read', newsletter: 'read', fidelite: 'read' }
+    case 'marketing': return { ...all('none'), dashboard: 'read', clients: 'read', crm: 'read', marketing: 'admin', avis: 'write', fidelite: 'write', newsletter: 'admin', site_vitrine: 'write', widget: 'read' }
+    case 'rh': return { ...all('none'), dashboard: 'read', equipes: 'admin', finance: 'read', acces_roles: 'write' }
+    case 'comptable': return { ...all('none'), dashboard: 'read', finance: 'admin', prepaiement: 'read', cadeaux: 'read' }
+    case 'support': return { ...all('none'), dashboard: 'read', clients: 'write', crm: 'read', support: 'admin', avis: 'write', blacklist: 'write', historique: 'read' }
+    case 'onboarding': return { ...all('none'), dashboard: 'read', clients: 'write', crm: 'read', support: 'write', profil: 'read', salles: 'read', tables: 'read' }
+    case 'stagiaire': return { ...all('read'), acces_roles: 'none', finance: 'none', plateforme: 'none', audit: 'none' }
+    case 'custom': return all('none')
+  }
+}
 export type Plan = 'bistro' | 'resto' | 'gastro'
 
 // ── Réservation ────────────────────────────────────
@@ -153,6 +275,13 @@ export interface User {
   role: UserRole
   active: boolean
   pin?: string
+  phone?: string
+  avatar?: string
+  permissions?: Partial<Record<PermissionModule, PermissionLevel>>  // overrides per-user
+  lastLogin?: string
+  createdAt?: number
+  department?: string
+  notes?: string
 }
 
 // ── Options ────────────────────────────────────────

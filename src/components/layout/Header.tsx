@@ -178,7 +178,8 @@ export function Header() {
 
   // Multi-site : site actif
   const activeSite = activeSiteId ? sites.find(s => s.id === activeSiteId) : null
-  const displayName = activeSite ? activeSite.name : (resto.name || t('general.myRestaurant'))
+  const isAdmin = window.location.hostname.startsWith('admin.')
+  const displayName = isAdmin ? 'Admin Console' : (activeSite ? activeSite.name : (resto.name || t('general.myRestaurant')))
   const hasMultiSites = sites.length > 0 && resto.plan === 'gastro'
   const [readIds, setReadIds] = useState<Set<string>>(new Set())
 
@@ -236,54 +237,35 @@ export function Header() {
       flexShrink: 0,
       zIndex: 100,
     }}>
-      {/* Bouton sidebar toggle — hamburger CSS animé */}
-      <button
-        onClick={toggleSidebar}
-        title={sidebarCollapsed ? t('header.openMenu') : t('header.closeMenu')}
-        style={{
-          ...iconBtn,
-          flexDirection: 'column',
-          gap: sidebarCollapsed ? 4 : 0,
-          padding: 0,
-        }}
-      >
-        <span style={{
-          display: 'block', width: 16, height: 2,
-          background: 'var(--t2)', borderRadius: 1,
-          transition: 'all .25s ease',
-          transform: sidebarCollapsed ? 'none' : 'translateY(3px) rotate(45deg)',
-        }} />
-        <span style={{
-          display: 'block', width: 16, height: 2,
-          background: 'var(--t2)', borderRadius: 1,
-          transition: 'all .2s ease',
-          opacity: sidebarCollapsed ? 1 : 0,
-        }} />
-        <span style={{
-          display: 'block', width: 16, height: 2,
-          background: 'var(--t2)', borderRadius: 1,
-          transition: 'all .25s ease',
-          transform: sidebarCollapsed ? 'none' : 'translateY(-3px) rotate(-45deg)',
-        }} />
-      </button>
-
       {/* Logo R3STO */}
       <Logo size="md" />
 
-      {/* Badge ADMIN visible sur admin.r3sto.ch */}
+      {/* Badge contexte — ADMIN sur admin.r3sto.ch, DEMO sur demo.r3sto.ch */}
       {window.location.hostname.startsWith('admin.') && (
         <span style={{
-          background: '#e67e22',
+          background: 'linear-gradient(135deg, #e74c3c, #c0392b)',
           color: '#fff',
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: 800,
-          padding: '2px 8px',
+          padding: '3px 10px',
           borderRadius: 4,
-          letterSpacing: 1,
+          letterSpacing: 1.2,
           textTransform: 'uppercase',
-          marginLeft: 6,
           flexShrink: 0,
-        }}>Admin</span>
+        }}>Super Admin</span>
+      )}
+      {isDemo && (
+        <span style={{
+          background: 'var(--am)',
+          color: '#000',
+          fontSize: 9,
+          fontWeight: 800,
+          padding: '3px 10px',
+          borderRadius: 4,
+          letterSpacing: 1.2,
+          textTransform: 'uppercase',
+          flexShrink: 0,
+        }}>Demo</span>
       )}
 
       {/* Séparateur */}
@@ -627,8 +609,8 @@ export function Header() {
               </div>
             </div>
 
-            {/* Changer de rôle — uniquement propriétaire OU mode démo */}
-            {(userRole === 'proprietaire' || isDemo) && (
+            {/* Changer de rôle — superadmin/cto/coo OU mode démo */}
+            {(userRole === 'superadmin' || userRole === 'cto' || userRole === 'coo' || isDemo) && (
               <div style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>
                 <div style={{
                   fontSize: 10, fontWeight: 700, color: 'var(--t4)',
@@ -645,23 +627,29 @@ export function Header() {
                     }}>DEMO</span>
                   )}
                 </div>
-                {(['proprietaire', 'manager', 'serveur'] as const).map(role => (
-                  <button
-                    key={role}
-                    onClick={() => { setUserRole(role); setShowProfile(false) }}
-                    style={{
-                      display: 'block', width: '100%', textAlign: 'left',
-                      padding: '6px 8px', borderRadius: 6, marginBottom: 2,
-                      border: 'none', cursor: 'pointer', fontFamily: 'var(--ff)',
-                      fontSize: 12, fontWeight: userRole === role ? 700 : 500,
-                      background: userRole === role ? 'var(--bp)' : 'transparent',
-                      color: userRole === role ? 'var(--bl)' : 'var(--t2)',
-                      transition: 'background .12s',
-                    }}
-                  >
-                    {userRole === role ? '● ' : '○ '}{t(`role.${role}`)}
-                  </button>
-                ))}
+                {(['superadmin', 'cto', 'coo', 'manager', 'sales', 'dev', 'support', 'stagiaire'] as const).map(role => {
+                  const icons: Record<string, string> = { superadmin: '🛡️', cto: '💻', coo: '📋', manager: '👔', sales: '💼', dev: '🔧', support: '🎧', stagiaire: '🎓' }
+                  const labels: Record<string, string> = { superadmin: 'Super Admin', cto: 'CTO', coo: 'COO', manager: 'Manager', sales: 'Commercial', dev: 'Développeur', support: 'Support', stagiaire: 'Stagiaire' }
+                  return (
+                    <button
+                      key={role}
+                      onClick={() => { setUserRole(role); setShowProfile(false) }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        width: '100%', textAlign: 'left',
+                        padding: '6px 8px', borderRadius: 6, marginBottom: 2,
+                        border: 'none', cursor: 'pointer', fontFamily: 'var(--ff)',
+                        fontSize: 12, fontWeight: userRole === role ? 700 : 500,
+                        background: userRole === role ? 'var(--bp)' : 'transparent',
+                        color: userRole === role ? 'var(--bl)' : 'var(--t2)',
+                        transition: 'background .12s',
+                      }}
+                    >
+                      <span style={{ fontSize: 13 }}>{icons[role]}</span>
+                      {labels[role]}
+                    </button>
+                  )
+                })}
               </div>
             )}
 
@@ -730,7 +718,7 @@ export function Header() {
               </button>
               <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
               <button
-                onClick={() => { setShowProfile(false); navigate('/') }}
+                onClick={() => { localStorage.removeItem('r3sto-token'); localStorage.removeItem('r3sto-user'); sessionStorage.removeItem('r3sto-token'); sessionStorage.removeItem('r3sto-user'); localStorage.removeItem('r3sto-app-data'); window.location.href = '/' }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   width: '100%', padding: '6px 8px', borderRadius: 6,

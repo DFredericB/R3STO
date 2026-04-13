@@ -54,11 +54,18 @@ export function Marketing() {
   const { t } = useT()
   const { toast } = useToast()
   const plan = useAppStore(s => s.resto.plan)
+  const options = useAppStore(s => s.options)
+  const updateOptions = useAppStore(s => s.updateOptions)
   const [tab, setTab] = useState<MktTab>('automations')
-  const [automations, setAutomations] = useState(AUTOMATIONS)
+
+  // Read automations from store options if available, else use defaults
+  const storedAutomations = (options as any).marketingAutomations as Automation[] | undefined
+  const [automations, setAutomations] = useState<Automation[]>(storedAutomations || AUTOMATIONS)
 
   const toggle = (id: string) => {
-    setAutomations(prev => prev.map(m => m.id === id ? { ...m, active: !m.active } : m))
+    const updated = automations.map(m => m.id === id ? { ...m, active: !m.active } : m)
+    setAutomations(updated)
+    updateOptions({ marketingAutomations: updated } as any)
     toast(t('mkt.toggleSuccess'), 'success')
   }
 

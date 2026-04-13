@@ -4,6 +4,7 @@
 // ══════════════════════════════════════════════════
 
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { RADIUS, sectionTitle } from '../../utils/design'
 import { useToast } from '../../components/ui/Toast'
@@ -40,6 +41,14 @@ interface Restaurant {
   plan: string
   mrr: number
   bookings: number
+}
+
+interface NewSignup {
+  id: number
+  restaurant: string
+  plan: string
+  date: string
+  city: string
 }
 
 // Demo data
@@ -82,6 +91,14 @@ const DEMO_REVENUE = [
   { month: 'Jan', amount: 23800 },
   { month: 'Fév', amount: 27100 },
   { month: 'Mar', amount: 28450 },
+]
+
+const DEMO_SIGNUPS: NewSignup[] = [
+  { id: 1, restaurant: 'Restaurant Le Nomade', plan: 'Gastro', date: '2026-04-12', city: 'Genève' },
+  { id: 2, restaurant: 'Brasserie Au Coin', plan: 'Resto', date: '2026-04-11', city: 'Lausanne' },
+  { id: 3, restaurant: 'Le Petit Bistreau', plan: 'Bistro', date: '2026-04-10', city: 'Neuchâtel' },
+  { id: 4, restaurant: 'Auberge de Montagne', plan: 'Gastro', date: '2026-04-08', city: 'Valais' },
+  { id: 5, restaurant: 'Café de la Gare', plan: 'Bistro', date: '2026-04-07', city: 'Bâle' },
 ]
 
 // Styles
@@ -130,13 +147,16 @@ const alertBanner: React.CSSProperties = {
 }
 
 export function AdminDashboard() {
+  const navigate = useNavigate()
   const { toast } = useToast()
   const [kpi] = useState<KPIData>(DEMO_KPI)
   const [activity] = useState<ActivityLog[]>(DEMO_ACTIVITY)
   const [subdomains] = useState<SubdomainHealth[]>(DEMO_SUBDOMAINS)
   const [restaurants] = useState<Restaurant[]>(DEMO_RESTAURANTS)
   const [revenue] = useState(DEMO_REVENUE)
+  const [signups] = useState<NewSignup[]>(DEMO_SIGNUPS)
   const [loading, setLoading] = useState(false)
+  const [syncStatus, setSyncStatus] = useState<'online' | 'offline'>('online')
 
   const exportReport = () => {
     try {
@@ -180,6 +200,18 @@ export function AdminDashboard() {
     }
   }
 
+  const handleBackupDB = () => {
+    toast('Base de donnees sauvegardee')
+  }
+
+  const handleViewLogs = () => {
+    navigate('/admin/logs')
+  }
+
+  const handleSystemSettings = () => {
+    navigate('/admin/settings')
+  }
+
   const maxRevenue = Math.max(...revenue.map(r => r.amount), 1)
 
   return (
@@ -217,28 +249,100 @@ export function AdminDashboard() {
         </div>
       </div>
 
+      {/* Sync Status Bar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: 10,
+          background: syncStatus === 'online' ? 'rgba(52, 211, 153, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+          border: `1px solid ${syncStatus === 'online' ? 'rgba(52, 211, 153, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+          borderRadius: RADIUS.md,
+          marginBottom: 16,
+          fontSize: 12,
+          fontFamily: 'var(--ff)',
+        }}
+      >
+        <span
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: syncStatus === 'online' ? 'var(--gn)' : 'var(--rd)',
+            animation: syncStatus === 'online' ? 'pulse 2s infinite' : 'none',
+          }}
+        />
+        <span style={{ color: 'var(--text)', fontWeight: 600 }}>
+          {syncStatus === 'online' ? '✓ Sync en ligne' : '✕ Mode offline'}
+        </span>
+        <span style={{ marginLeft: 'auto', color: 'var(--t3)', fontSize: 11 }}>
+          {new Date().toLocaleTimeString('fr-CH')}
+        </span>
+      </div>
+
       {/* KPI Cards */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-        <div style={kpiCard}>
+        <div
+          style={{ ...kpiCard, cursor: 'pointer', transition: '.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate('/admin/restaurants')}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--gn)')}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+        >
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--gn)' }}>{kpi.mrr.toLocaleString()} CHF</div>
           <div style={{ fontSize: 10, color: 'var(--t3)', fontWeight: 600, marginTop: 4 }}>MRR REVENU</div>
         </div>
-        <div style={kpiCard}>
+        <div
+          style={{ ...kpiCard, cursor: 'pointer', transition: '.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate('/admin/restaurants')}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--bl)')}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+        >
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--bl)' }}>{kpi.activeClients}</div>
           <div style={{ fontSize: 10, color: 'var(--t3)', fontWeight: 600, marginTop: 4 }}>CLIENTS ACTIFS</div>
         </div>
-        <div style={kpiCard}>
+        <div
+          style={{ ...kpiCard, cursor: 'pointer', transition: '.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate('/admin/bookings')}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--am)')}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+        >
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--am)' }}>{kpi.monthlyBookings.toLocaleString()}</div>
           <div style={{ fontSize: 10, color: 'var(--t3)', fontWeight: 600, marginTop: 4 }}>RESAS MOIS</div>
         </div>
-        <div style={kpiCard}>
+        <div
+          style={{ ...kpiCard, cursor: 'pointer', transition: '.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate('/admin/analytics')}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--rd)')}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+        >
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--rd)' }}>{kpi.noShowRate}%</div>
           <div style={{ fontSize: 10, color: 'var(--t3)', fontWeight: 600, marginTop: 4 }}>NO-SHOW</div>
         </div>
-        <div style={kpiCard}>
+        <div style={{ ...kpiCard }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--bp)' }}>{(kpi.pipeline / 1000).toFixed(1)}k CHF</div>
           <div style={{ fontSize: 10, color: 'var(--t3)', fontWeight: 600, marginTop: 4 }}>PIPELINE</div>
         </div>
+      </div>
+
+      {/* Quick Action Buttons */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 10,
+          marginBottom: 16,
+          flexWrap: 'wrap',
+        }}
+      >
+        <button style={btnPrimary} onClick={handleBackupDB}>
+          💾 Backup DB
+        </button>
+        <button style={btnSecondary} onClick={handleViewLogs}>
+          📋 View Logs
+        </button>
+        <button style={btnSecondary} onClick={handleSystemSettings}>
+          ⚙️ Settings
+        </button>
       </div>
 
       {/* Two-column layout */}
@@ -364,31 +468,70 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      {/* Activity Feed */}
-      <div style={cardS}>
-        <div style={sectionTitle}>Activité récente</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {activity.slice(0, 5).map(log => (
-            <div key={log.id} style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
-              <span
-                style={{
-                  fontSize: 16,
-                  minWidth: 20,
-                  textAlign: 'center',
-                }}
-              >
-                {log.status === 'success' ? '✓' : log.status === 'warning' ? '⚠' : '✕'}
-              </span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>{log.action}</div>
-                <div style={{ fontSize: 9, color: 'var(--t3)' }}>
-                  {log.user} · {log.timestamp}
+      {/* Two-column layout: Activity + New Signups */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: 14, marginBottom: 16 }}>
+        {/* Activity Feed */}
+        <div style={cardS}>
+          <div style={sectionTitle}>Activité récente</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {activity.slice(0, 5).map(log => (
+              <div key={log.id} style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
+                <span
+                  style={{
+                    fontSize: 16,
+                    minWidth: 20,
+                    textAlign: 'center',
+                  }}
+                >
+                  {log.status === 'success' ? '✓' : log.status === 'warning' ? '⚠' : '✕'}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>{log.action}</div>
+                  <div style={{ fontSize: 9, color: 'var(--t3)' }}>
+                    {log.user} · {log.timestamp}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Latest Signups */}
+        <div style={cardS}>
+          <div style={sectionTitle}>Dernières inscriptions</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {signups.slice(0, 5).map(signup => (
+              <div key={signup.id} style={{ display: 'flex', alignItems: 'center', gap: 10, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
+                <div
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: 'var(--bl)',
+                    flexShrink: 0,
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)' }}>{signup.restaurant}</div>
+                  <div style={{ fontSize: 9, color: 'var(--t3)' }}>
+                    {signup.plan} · {signup.city}
+                  </div>
+                </div>
+                <span style={{ fontSize: 9, color: 'var(--t4)', fontFamily: 'var(--fm)', whiteSpace: 'nowrap' }}>{signup.date}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}
+      </style>
     </div>
   )
 }

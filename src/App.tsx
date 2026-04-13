@@ -61,14 +61,18 @@ import { AdminDashboard } from './views/Admin/AdminDashboard'
 import { Equipes } from './views/Admin/Equipes'
 import { Finance } from './views/Admin/Finance'
 import { Plateforme } from './views/Admin/Plateforme'
+import { DataIntelligence } from './views/Admin/DataIntelligence'
+import { PricingStrategy } from './views/Admin/PricingStrategy'
 import { loadDemoFallback } from './utils/demoData'
 import { useAuth } from './auth/useAuth'
+import { useApiSync } from './hooks/useApiSync'
 import { Login } from './views/Auth/Login'
 import './styles/global.css'
 
 export default function App() {
   const { tables, theme } = useAppStore()
   const { user } = useAuth()
+  const { status: syncStatus } = useApiSync()
 
   // ── Chargement démo SYNCHRONE (avant le premier rendu visible) ──
   // Sur demo.r3sto.ch : charger les données démo immédiatement
@@ -127,7 +131,7 @@ export default function App() {
   // ── Gate d'authentification (inline) ─────────────────────────
   // Demo : bypass total — pas de login requis
   if (!user && isDemo) {
-    const demoUser = { id: 0, email: 'demo@r3sto.ch', name: 'Demo R3STO', role: 'owner', plan: 'gastro' }
+    const demoUser = { id: 0, email: 'demo@r3sto.ch', name: 'Demo R3STO', role: 'superadmin', plan: 'gastro' }
     localStorage.setItem('r3sto-user', JSON.stringify(demoUser))
     localStorage.setItem('r3sto-token', 'demo-token')
     window.location.reload()
@@ -207,6 +211,8 @@ export default function App() {
                 <Route path="/equipes" element={<Equipes />} />
                 <Route path="/finance" element={<Finance />} />
                 <Route path="/plateforme" element={<Plateforme />} />
+                <Route path="/data-intelligence" element={<DataIntelligence />} />
+                <Route path="/pricing-strategy" element={<PricingStrategy />} />
                 {/* ADMINISTRATION */}
                 <Route path="/acces-roles" element={<AccesRoles />} />
                 <Route path="/historique" element={<Historique />} />

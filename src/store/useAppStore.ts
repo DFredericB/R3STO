@@ -66,6 +66,10 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 
 // ── Interface du store ─────────────────────────────
 interface AppStore {
+  // Sync
+  restaurantId: number | null
+  setRestaurantId: (id: number | null) => void
+
   // Données
   resas: Resa[]
   tables: Table[]
@@ -145,6 +149,11 @@ interface AppStore {
   deleteSite: (id: string) => void
   setActiveSite: (id: string | null) => void
 
+  // Actions — Fermetures
+  addFermeture: (f: Fermeture) => void
+  updateFermeture: (id: string, patch: Partial<Fermeture>) => void
+  deleteFermeture: (id: string) => void
+
   // Actions — Auth & UI
   setUserRole: (role: UserRole) => void
   setLang: (lang: 'fr' | 'en' | 'de' | 'it') => void
@@ -162,6 +171,8 @@ export const useAppStore = create<AppStore>()(
   persist(
     (set) => ({
       // État initial
+      restaurantId: null,
+      setRestaurantId: (id) => set({ restaurantId: id }),
       resas: [],
       tables: [],
       combos: [],
@@ -189,7 +200,7 @@ export const useAppStore = create<AppStore>()(
       activeDate: today(),
       isDemo: false,
       _demoVersion: 0,
-      userRole: 'proprietaire',
+      userRole: 'superadmin',
       lang: 'fr',
       theme: 'dark',
       sidebarCollapsed: false,
@@ -252,6 +263,13 @@ export const useAppStore = create<AppStore>()(
       setServices: (services) => set({ services }),
       setSalles: (salles) => set({ salles }),
       setRoomItems: (items) => set({ roomItems: items }),
+
+      // Fermetures
+      addFermeture: (f) => set((s) => ({ fermetures: [...s.fermetures, f] })),
+      updateFermeture: (id, patch) => set((s) => ({
+        fermetures: s.fermetures.map((f) => f.id === id ? { ...f, ...patch } : f)
+      })),
+      deleteFermeture: (id) => set((s) => ({ fermetures: s.fermetures.filter((f) => f.id !== id) })),
 
       // Clients
       addClient: (client) => set((s) => ({ clients: [...s.clients, client] })),
@@ -342,6 +360,7 @@ export const useAppStore = create<AppStore>()(
       // Demo
       loadDemoData: (data) => set((s) => ({ ...s, ...data, isDemo: true })),
       resetData: () => set({
+        restaurantId: null,
         resas: [], tables: [], combos: [],
         services: DEFAULT_SERVICES, salles: DEFAULT_SALLES,
         options: DEFAULT_OPTIONS, users: [], fermetures: [], roomItems: [], clients: [], giftCards: [], reviews: [], loyaltyCards: [],
@@ -362,6 +381,7 @@ export const useAppStore = create<AppStore>()(
         }
       },
       partialize: (state) => ({
+        restaurantId: state.restaurantId,
         resas: state.resas,
         tables: state.tables,
         combos: state.combos,
@@ -414,4 +434,79 @@ export function isDoubleBooked(tbl: string, date: string, svc: string): boolean 
 /** Vérifie si une transition de statut est valide */
 export function isValidTransition(from: string, to: string): boolean {
   return (VALID_TRANSITIONS[from] || []).includes(to)
+}
+
+/** Vérifie si on peut placer une résa sur cette table (capacité + blocage + double-booking) */
+export function canPlaceResa(tbl: string, date: string, svc: string, cvt: number): { ok: boolean; reason?: string } {
+  const state = useAppStore.getState()
+  const table = state.tables.find(t => t.id === tbl || t.n === tbl)
+  if (!table) return { ok: false, reason: 'Table introuvable' }
+  if (!table.active) return { ok: false, reason: 'Table inactive' }
+  if (table.blocked) return { ok: false, reason: `Table bloquée${table.blockedReason ? ` : ${table.blockedReason}` : ''}` }
+  if (cvt > table.capMax) return { ok: false, reason: `Capacité max ${table.capMax} couverts` }
+  if (cvt < table.capMin) return { ok: false, reason: `Capacité min ${table.capMin} couverts` }
+  // Double-booking
+  const occupied = state.resas.some(r =>
+    r.date === date && r.svc === svc && r.tbl === tbl &&
+    (r.s === 'reserved' || r.s === 'arrived')
+  )
+  if (occupied) return { ok: false, reason: 'Table déjà occupée pour ce service' }
+  // Fermeture
+  const closed = state.fermetures.some(f =>
+    f.active && f.date <= date && (!f.dateFin || f.dateFin >= date) &&
+    (!f.service || f.service === svc)
+  )
+  if (closed) return { ok: false, reason: 'Service fermé à cette date' }
+  return { ok: true }
+}
+
+/** Vérifie si une résa en attente de réassignation existe */
+export function hasPendingReassign(date: string, svc: string): boolean {
+  const state = useAppStore.getState()
+  return state.resas.some(r =>
+    r.date === date && r.svc === svc &&
+    (r.s === 'reserved' || r.s === 'arrived') && !r.tbl
+  )
+}
+
+/** Table bloquée pour un service spécifique */
+export function isTableHeld(tbl: string, svcId?: string): boolean {
+  const state = useAppStore.getState()
+  const table = state.tables.find(t => t.id === tbl || t.n === tbl)
+  if (!table) return false
+  if (table.blocked) return true
+  if (table.held) return true
+  // Check fermetures spécifiques au service
+  if (svcId) {
+    return state.fermetures.some(f =>
+      f.active && f.type === 'service' && f.service === svcId &&
+      f.date <= state.activeDate && (!f.dateFin || f.dateFin >= state.activeDate)
+    )
+  }
+  return false
+}
+
+/** Match table dans un combo (utiliser au lieu de .includes()) */
+export function tblMatchesTable(comboTables: string[], tblId: string): boolean {
+  return comboTables.some(t => t.trim() === tblId.trim())
+}
+
+// ── Permission helpers ────────────────────────────────
+import { getDefaultModuleAccess } from '../types'
+import type { PermissionModule, PermissionLevel } from '../types'
+
+/** Vérifie si le rôle actuel a accès au module */
+export function hasAccess(module: PermissionModule, minLevel: PermissionLevel = 'read'): boolean {
+  const state = useAppStore.getState()
+  const defaults = getDefaultModuleAccess(state.userRole)
+  const level = defaults[module] || 'none'
+  const levels: PermissionLevel[] = ['none', 'read', 'write', 'admin']
+  return levels.indexOf(level) >= levels.indexOf(minLevel)
+}
+
+/** Retourne le niveau d'accès pour un module */
+export function getAccessLevel(module: PermissionModule): PermissionLevel {
+  const state = useAppStore.getState()
+  const defaults = getDefaultModuleAccess(state.userRole)
+  return defaults[module] || 'none'
 }

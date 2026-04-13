@@ -102,6 +102,8 @@ const translations: Record<string, Record<Lang, string>> = {
   'nav.equipes': { FR: 'Équipes', DE: 'Teams', IT: 'Team', EN: 'Teams' },
   'nav.finance': { FR: 'Finance', DE: 'Finanzen', IT: 'Finanza', EN: 'Finance' },
   'nav.plateforme': { FR: 'Plateforme', DE: 'Plattform', IT: 'Piattaforma', EN: 'Platform' },
+  'nav.dataIntelligence': { FR: 'Data Intelligence', DE: 'Daten-Analyse', IT: 'Data Intelligence', EN: 'Data Intelligence' },
+  'nav.pricingStrategy': { FR: 'Stratégie & Pricing', DE: 'Strategie & Preise', IT: 'Strategia & Prezzi', EN: 'Strategy & Pricing' },
 
   // ── Support ──────────────────────────────────
   'support.title':       { FR: 'Support', DE: 'Support', IT: 'Supporto', EN: 'Support' },
@@ -526,9 +528,19 @@ const translations: Record<string, Record<Lang, string>> = {
   'profile.switchRole': { FR: 'Changer de rôle', DE: 'Rolle wechseln', IT: 'Cambia ruolo', EN: 'Switch role' },
   'profile.language': { FR: 'Langue', DE: 'Sprache', IT: 'Lingua', EN: 'Language' },
   'profile.logout': { FR: 'Déconnexion', DE: 'Abmelden', IT: 'Disconnetti', EN: 'Log out' },
-  'role.proprietaire': { FR: 'Propriétaire', DE: 'Inhaber', IT: 'Proprietario', EN: 'Owner' },
+  'role.superadmin': { FR: 'Super Admin', DE: 'Super Admin', IT: 'Super Admin', EN: 'Super Admin' },
+  'role.cto': { FR: 'CTO', DE: 'CTO', IT: 'CTO', EN: 'CTO' },
+  'role.coo': { FR: 'COO', DE: 'COO', IT: 'COO', EN: 'COO' },
   'role.manager': { FR: 'Manager', DE: 'Manager', IT: 'Manager', EN: 'Manager' },
-  'role.serveur': { FR: 'Serveur', DE: 'Kellner', IT: 'Cameriere', EN: 'Waiter' },
+  'role.dev': { FR: 'Développeur', DE: 'Entwickler', IT: 'Sviluppatore', EN: 'Developer' },
+  'role.sales': { FR: 'Commercial', DE: 'Vertrieb', IT: 'Commerciale', EN: 'Sales' },
+  'role.marketing': { FR: 'Marketing', DE: 'Marketing', IT: 'Marketing', EN: 'Marketing' },
+  'role.rh': { FR: 'Ressources Humaines', DE: 'Personalwesen', IT: 'Risorse Umane', EN: 'Human Resources' },
+  'role.comptable': { FR: 'Comptable', DE: 'Buchhalter', IT: 'Contabile', EN: 'Accountant' },
+  'role.support': { FR: 'Support', DE: 'Support', IT: 'Supporto', EN: 'Support' },
+  'role.onboarding': { FR: 'Onboarding', DE: 'Onboarding', IT: 'Onboarding', EN: 'Onboarding' },
+  'role.stagiaire': { FR: 'Stagiaire', DE: 'Praktikant', IT: 'Stagista', EN: 'Intern' },
+  'role.custom': { FR: 'Personnalisé', DE: 'Benutzerdefiniert', IT: 'Personalizzato', EN: 'Custom' },
 
   // ── Général ────────────────────────────────────
   'general.myRestaurant': { FR: 'Mon restaurant', DE: 'Mein Restaurant', IT: 'Il mio ristorante', EN: 'My restaurant' },
@@ -747,8 +759,6 @@ const translations: Record<string, Record<Lang, string>> = {
   'ferm.works': { FR: 'Travaux', DE: 'Bauarbeiten', IT: 'Lavori', EN: 'Construction' },
 
   // ── Rôles / Roles ───────────────────────────────
-  'role.owner': { FR: 'Propriétaire', DE: 'Inhaber', IT: 'Proprietario', EN: 'Owner' },
-  'role.waiter': { FR: 'Serveur', DE: 'Kellner', IT: 'Cameriere', EN: 'Waiter' },
   'role.readOnly': { FR: 'Lecture seule', DE: 'Nur lesen', IT: 'Sola lettura', EN: 'Read only' },
 
   // ── Formulaires / Forms ─────────────────────────

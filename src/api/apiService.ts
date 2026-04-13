@@ -18,7 +18,7 @@ import type {
 } from '../types'
 
 // ── Configuration ──────────────────────────────────────────────────────────
-const API_BASE = import.meta.env.VITE_API_BASE as string || '/api'
+const API_BASE = import.meta.env.VITE_API_BASE as string || 'https://api.r3sto.ch'
 type ApiMode = 'local' | 'api'
 
 const config = {

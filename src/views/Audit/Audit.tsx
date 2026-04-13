@@ -165,11 +165,11 @@ export function Audit() {
       detail: `${activeUsers}/${(users || []).length} ${t('audit.utilisateurs')}`,
       severity: activeUsers > 0 ? 'ok' : 'warn',
     })
-    const owners = (users || []).filter((u: any) => u.role === 'owner').length
+    const admins = (users || []).filter((u: any) => u.role === 'superadmin' || u.role === 'cto' || u.role === 'coo').length
     list.push({
       id: 'a2', category: 'access', label: t('audit.ownerDefini'),
-      detail: owners > 0 ? `${owners} owner` : t('audit.aucunOwner'),
-      severity: owners > 0 ? 'ok' : 'err',
+      detail: admins > 0 ? `${admins} admin(s)` : t('audit.aucunOwner'),
+      severity: admins > 0 ? 'ok' : 'err',
     })
 
     return list

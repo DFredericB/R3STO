@@ -363,7 +363,7 @@ export function ResaFormModal({ open, onClose, editResa, presets, returnTo }: Re
           }
         }
       }
-      const newId = Date.now().toString()
+      const newId = 'r' + Date.now()
       addResa({ ...resaData, id: newId, createdAt: Date.now() })
       blinkResa(newId)
     }

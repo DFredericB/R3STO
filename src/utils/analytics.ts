@@ -106,7 +106,7 @@ class AnalyticsCollector {
   private restoId = ''
   private plan = ''
   private lang = 'FR'
-  private userRole = 'proprietaire'
+  private userRole = 'superadmin'
 
   constructor() {
     this.sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`

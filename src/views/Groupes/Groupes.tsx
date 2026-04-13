@@ -15,9 +15,8 @@ export function Groupes() {
   const { toast } = useToast()
 
   // ── Store ──
-  const groupRequests = [] as any[]
-  const addGroupRequest = (_r: any) => {}
-  const updateGroupRequest = (_id: any, _u: any) => {}
+  const options = useAppStore(s => s.options)
+  const updateOptions = useAppStore(s => s.updateOptions)
   const tables = useAppStore(s => s.tables)
   const combos = useAppStore(s => s.combos)
   const resas = useAppStore(s => s.resas)
@@ -26,18 +25,30 @@ export function Groupes() {
   const addResa = useAppStore(s => s.addResa)
   const activeServices = services.filter(s => s.active)
 
+  // Group requests stored in options.groupRequests
+  const groupRequests: any[] = (options as any).groupRequests || []
+  const addGroupRequest = (r: any) => {
+    updateOptions({ groupRequests: [...groupRequests, r] } as any)
+  }
+  const updateGroupRequest = (id: any, u: any) => {
+    updateOptions({ groupRequests: groupRequests.map((g: any) => g.id === id ? { ...g, ...u } : g) } as any)
+  }
+
   const [showSettings, setShowSettings] = useState(false)
   const [showForm, setShowForm] = useState(false)
+
+  // Group settings stored in options.groupSettings
+  const storedGrpSettings = (options as any).groupSettings || null
   const [grpSettings, setGrpSettings] = useState({
-    seuil_widget: 8,
-    validation_obligatoire: true,
-    delai_reponse_h: 48,
-    redirect_widget: true,
-    msg_redirect: 'Pour les groupes de {seuil}+ personnes, merci de remplir notre formulaire dédié.',
-    prepaiement_groupe: true,
-    acompte_pct: 30,
-    notification_email: true,
-    notification_sms: false,
+    seuil_widget: storedGrpSettings?.seuil_widget ?? 8,
+    validation_obligatoire: storedGrpSettings?.validation_obligatoire ?? true,
+    delai_reponse_h: storedGrpSettings?.delai_reponse_h ?? 48,
+    redirect_widget: storedGrpSettings?.redirect_widget ?? true,
+    msg_redirect: storedGrpSettings?.msg_redirect ?? 'Pour les groupes de {seuil}+ personnes, merci de remplir notre formulaire dédié.',
+    prepaiement_groupe: storedGrpSettings?.prepaiement_groupe ?? true,
+    acompte_pct: storedGrpSettings?.acompte_pct ?? 30,
+    notification_email: storedGrpSettings?.notification_email ?? true,
+    notification_sms: storedGrpSettings?.notification_sms ?? false,
   })
 
   // Form state
@@ -215,7 +226,7 @@ export function Groupes() {
               </label>
             </div>
           </div>
-          <button onClick={() => { toast('Paramètres sauvegardés', 'success'); setShowSettings(false) }}
+          <button onClick={() => { updateOptions({ groupSettings: grpSettings } as any); toast('Paramètres sauvegardés', 'success'); setShowSettings(false) }}
             style={{ marginTop: 12, padding: '7px 16px', borderRadius: 6, border: 'none', background: 'var(--bl)', color: 'white', fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)' }}>
             💾 Sauvegarder
           </button>

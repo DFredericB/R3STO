@@ -26,7 +26,7 @@ export function useAnalyticsInit() {
       resto?.name || 'unknown',
       resto?.plan || 'unknown',
       lang || 'FR',
-      userRole || 'proprietaire'
+      userRole || 'superadmin'
     )
   }, [resto?.name, resto?.plan, lang, userRole])
 

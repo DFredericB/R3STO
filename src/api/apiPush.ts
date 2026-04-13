@@ -1,83 +1,86 @@
-// ══════════════════════════════════════════════════════════════════════════════
-//  R3STO — API Push (fire & forget)
-//  Envoie les mutations vers le backend en parallèle du Zustand store
-//  Si l'API est injoignable ou mode local, les appels sont ignorés silencieusement
-// ══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  R3STO — Auto-sync push (debounced full-state)
+//  Subscribes to Zustand store → pushes every 2s
+// ══════════════════════════════════════════════════
 
-const API_BASE = import.meta.env.VITE_API_BASE as string || 'https://api.r3sto.ch/api'
-const API_MODE = import.meta.env.VITE_API_MODE as string || 'local'
+import { useAppStore } from '../store/useAppStore'
 
-function getToken(): string {
-  return localStorage.getItem('r3sto-token') || ''
+const DEBOUNCE_MS = 2000
+const DATA_KEYS = [
+  'resas','tables','combos','services','salles','resto','options',
+  'users','fermetures','roomItems','clients','giftCards','reviews',
+  'loyaltyConfig','loyaltyCards','sites',
+] as const
+
+let timer: ReturnType<typeof setTimeout> | null = null
+let pushing = false
+const prevSnapshot: Record<string, unknown> = {}
+
+function getApiBase(): string {
+  return (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch/api'
 }
 
-async function apiFetch(path: string, options?: RequestInit): Promise<any> {
-  const token = getToken()
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 10000)
+function getToken(): string | null {
+  try { return localStorage.getItem('r3sto-token') } catch { return null }
+}
 
+async function pushState(): Promise<void> {
+  if (pushing) return
+  pushing = true
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      ...options,
+    const state = useAppStore.getState() as any
+    const restaurantId = state.restaurantId
+    if (!restaurantId) return
+    const token = getToken()
+    if (!token) return
+
+    const payload: Record<string, unknown> = { restaurantId }
+    for (const key of DATA_KEYS) {
+      payload[key] = state[key]
+    }
+
+    const res = await fetch(`${getApiBase()}/sync/push`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...(options?.headers || {}),
+        Authorization: `Bearer ${token}`,
       },
-      signal: controller.signal,
+      body: JSON.stringify(payload),
     })
-    clearTimeout(timeoutId)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return res.json()
+    if (!res.ok) console.warn('[sync] push failed:', res.status)
   } catch (err) {
-    clearTimeout(timeoutId)
-    throw err
+    console.warn('[sync] push error:', err)
+  } finally {
+    pushing = false
   }
 }
 
-function shouldPush(): boolean {
-  return API_MODE !== 'local' && !!getToken()
+function schedulePush() {
+  if (timer) clearTimeout(timer)
+  timer = setTimeout(() => { timer = null; pushState() }, DEBOUNCE_MS)
 }
 
-export const apiPush = {
-  // Réservations
-  createResa: (resa: any) =>
-    shouldPush() && apiFetch('/resas', { method: 'POST', body: JSON.stringify(resa) }).catch(console.warn),
+let started = false
 
-  updateResa: (id: string, patch: any) =>
-    shouldPush() && apiFetch(`/resas/${id}`, { method: 'PATCH', body: JSON.stringify(patch) }).catch(console.warn),
+export function startAutoSync(): void {
+  if (started) return
+  started = true
 
-  deleteResa: (id: string) =>
-    shouldPush() && apiFetch(`/resas/${id}`, { method: 'DELETE' }).catch(console.warn),
+  // Initialize snapshot
+  const state = useAppStore.getState() as any
+  for (const key of DATA_KEYS) {
+    prevSnapshot[key] = state[key]
+  }
 
-  setResaStatus: (id: string, status: string) =>
-    shouldPush() && apiFetch(`/resas/${id}/status`, { method: 'POST', body: JSON.stringify({ status }) }).catch(console.warn),
-
-  // Tables
-  updateTables: (tables: any[]) =>
-    shouldPush() && apiFetch('/tables/batch', { method: 'PUT', body: JSON.stringify({ tables }) }).catch(console.warn),
-
-  // Clients
-  createClient: (client: any) =>
-    shouldPush() && apiFetch('/clients', { method: 'POST', body: JSON.stringify(client) }).catch(console.warn),
-
-  updateClient: (id: string, patch: any) =>
-    shouldPush() && apiFetch(`/clients/${id}`, { method: 'PATCH', body: JSON.stringify(patch) }).catch(console.warn),
-
-  deleteClient: (id: string) =>
-    shouldPush() && apiFetch(`/clients/${id}`, { method: 'DELETE' }).catch(console.warn),
-
-  // Config
-  updateOptions: (patch: any) =>
-    shouldPush() && apiFetch('/options', { method: 'PATCH', body: JSON.stringify(patch) }).catch(console.warn),
-
-  updateResto: (patch: any) =>
-    shouldPush() && apiFetch('/resto', { method: 'PATCH', body: JSON.stringify(patch) }).catch(console.warn),
-
-  // Services & Salles
-  updateServices: (services: any[]) =>
-    shouldPush() && apiFetch('/services', { method: 'PUT', body: JSON.stringify(services) }).catch(console.warn),
-
-  updateSalles: (salles: any[]) =>
-    shouldPush() && apiFetch('/salles', { method: 'PUT', body: JSON.stringify(salles) }).catch(console.warn),
+  useAppStore.subscribe((state: any) => {
+    if (state.isDemo) return
+    let changed = false
+    for (const key of DATA_KEYS) {
+      if (state[key] !== prevSnapshot[key]) {
+        changed = true
+        prevSnapshot[key] = state[key]
+      }
+    }
+    if (changed) schedulePush()
+  })
 }

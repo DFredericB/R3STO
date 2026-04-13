@@ -10,7 +10,7 @@ param(
 
 $ftpHost  = "ftp://pl7wy9.ftp.infomaniak.com"
 $ftpUser  = "pl7wy9_r3sto"
-$ftpPass  = "RueNeuve20#1081"
+$ftpPass  = "a5NDkGSzZ8zU"
 $cred     = New-Object System.Net.NetworkCredential($ftpUser, $ftpPass)
 $deployDir = $PSScriptRoot
 $errors = @()

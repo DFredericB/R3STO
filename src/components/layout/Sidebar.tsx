@@ -63,6 +63,8 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/admin-dashboard', icon: '📊', labelKey: 'nav.adminDashboard', groupKey: 'admin-erp' },
   { path: '/equipes',         icon: '👷', labelKey: 'nav.equipes', groupKey: 'admin-erp' },
   { path: '/finance',         icon: '💶', labelKey: 'nav.finance', groupKey: 'admin-erp' },
+  { path: '/data-intelligence', icon: '🧠', labelKey: 'nav.dataIntelligence', groupKey: 'admin-erp' },
+  { path: '/pricing-strategy', icon: '💰', labelKey: 'nav.pricingStrategy', groupKey: 'admin-erp' },
   { path: '/plateforme',      icon: '🖥️', labelKey: 'nav.plateforme', groupKey: 'admin-erp' },
   { path: '/admin-marketplace', icon: '🏪', labelKey: 'nav.adminMarketplace', groupKey: 'admin-marketplace' },
   // ── RÉGLAGES (toute la configuration) ──
@@ -85,9 +87,10 @@ const NAV_ITEMS: NavItem[] = [
 export function Sidebar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { sidebarCollapsed, resas, activeDate } = useAppStore()
+  const { sidebarCollapsed, resas, activeDate, userRole, resto } = useAppStore()
   const { t } = useT()
 
+  const toggleSidebar = useAppStore(s => s.toggleSidebar)
   const isAdmin = window.location.hostname.startsWith('admin.')
   const collapsed = sidebarCollapsed
   const [searchOpen, setSearchOpen] = useState(false)
@@ -324,6 +327,22 @@ export function Sidebar() {
           )
         )}
 
+        {/* Collapse toggle */}
+        <button
+          onClick={toggleSidebar}
+          title={collapsed ? 'Ouvrir le menu' : 'Réduire le menu'}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
+            gap: 8, width: '100%', padding: collapsed ? '8px 0' : '6px 8px',
+            background: 'transparent', border: 'none', borderRadius: 6,
+            color: 'var(--t3)', cursor: 'pointer', fontSize: 12,
+            fontFamily: 'var(--ff)', transition: 'color .12s',
+          }}
+        >
+          <span style={{ fontSize: 14, transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform .2s' }}>☰</span>
+          {!collapsed && <span>Réduire</span>}
+        </button>
+
         {/* Version */}
         <div style={{
           fontSize: 10, color: 'var(--t4)',
@@ -350,8 +369,35 @@ export function Sidebar() {
               justifyContent: 'flex-start',
             }}
           >
-            <span>👑</span>
-            <span>Propriétaire</span>
+            <span>{
+              userRole === 'superadmin' ? '🛡️' :
+              userRole === 'cto' ? '💻' :
+              userRole === 'coo' ? '📋' :
+              userRole === 'manager' ? '👔' :
+              userRole === 'dev' ? '🔧' :
+              userRole === 'sales' ? '💼' :
+              userRole === 'marketing' ? '📣' :
+              userRole === 'rh' ? '👥' :
+              userRole === 'comptable' ? '🧮' :
+              userRole === 'support' ? '🎧' :
+              userRole === 'onboarding' ? '🚀' :
+              userRole === 'stagiaire' ? '🎓' : '👤'
+            }</span>
+            <span>{
+              userRole === 'superadmin' ? 'Super Admin' :
+              userRole === 'cto' ? 'CTO' :
+              userRole === 'coo' ? 'COO' :
+              userRole === 'manager' ? 'Manager' :
+              userRole === 'dev' ? 'Développeur' :
+              userRole === 'sales' ? 'Commercial' :
+              userRole === 'marketing' ? 'Marketing' :
+              userRole === 'rh' ? 'RH' :
+              userRole === 'comptable' ? 'Comptable' :
+              userRole === 'support' ? 'Support' :
+              userRole === 'onboarding' ? 'Onboarding' :
+              userRole === 'stagiaire' ? 'Stagiaire' :
+              userRole.charAt(0).toUpperCase() + userRole.slice(1)
+            }</span>
           </button>
         )}
 
@@ -376,8 +422,8 @@ export function Sidebar() {
           >
             <span>💎</span>
             <div style={{ flex: 1, textAlign: 'left' }}>
-              <div>Restaurant</div>
-              <div style={{ fontSize: 9, color: 'var(--t4)' }}>Premium</div>
+              <div>{resto.name || 'Restaurant'}</div>
+              <div style={{ fontSize: 9, color: 'var(--t4)' }}>{(resto.plan || 'bistro').charAt(0).toUpperCase() + (resto.plan || 'bistro').slice(1)}</div>
             </div>
           </button>
         )}

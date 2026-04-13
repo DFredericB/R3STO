@@ -1,7 +1,14 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { RADIUS } from '../../utils/design'
+import { useToast } from '../../components/ui/Toast'
 
 type Tab = 'overview' | 'factures' | 'frais' | 'tva' | 'tresorerie'
+
+interface MonthlyData {
+  month: string
+  revenue: number
+  expenses: number
+}
 
 interface Invoice {
   id: string
@@ -45,15 +52,53 @@ const TVA_RATES = [
 
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec']
 
+const MONTHLY_DATA: MonthlyData[] = [
+  { month: 'Oct', revenue: 24000, expenses: 12400 },
+  { month: 'Nov', revenue: 26500, expenses: 12800 },
+  { month: 'Dec', revenue: 31200, expenses: 13100 },
+  { month: 'Jan', revenue: 23800, expenses: 12900 },
+  { month: 'Feb', revenue: 27100, expenses: 13500 },
+  { month: 'Mar', revenue: 28450, expenses: 13200 },
+]
+
+const FORECAST_MONTHS: MonthlyData[] = [
+  { month: 'Apr', revenue: 29500, expenses: 13400 },
+  { month: 'May', revenue: 31200, expenses: 13600 },
+  { month: 'Jun', revenue: 32800, expenses: 13800 },
+]
+
 const card: React.CSSProperties = { background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: RADIUS.md, padding: 14 }
 const btnS: React.CSSProperties = { padding: '8px 16px', borderRadius: RADIUS.sm, background: 'var(--surf3)', color: 'var(--t2)', border: '1px solid var(--border)', fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)' }
+const btnP: React.CSSProperties = { padding: '8px 16px', borderRadius: RADIUS.sm, background: 'var(--bl)', color: '#fff', border: 'none', fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)' }
 
 export function Finance() {
+  const { toast } = useToast()
   const [tab, setTab] = useState<Tab>('overview')
 
   const totalRevenue = INVOICES.reduce((s, i) => s + i.amount, 0)
   const totalExpenses = EXPENSES.reduce((s, e) => s + e.amount, 0)
   const netProfit = totalRevenue - totalExpenses
+
+  const monthlyStats = useMemo(() => MONTHLY_DATA.map(m => ({
+    ...m,
+    net: m.revenue - m.expenses,
+    margin: m.revenue > 0 ? Math.round((m.revenue - m.expenses) / m.revenue * 100) : 0,
+  })), [])
+
+  const maxMonthRevenue = Math.max(...MONTHLY_DATA.map(m => m.revenue), 1)
+
+  const exportInvoices = () => {
+    const header = 'N Facture,Client,Date,Montant,Echeance,Statut\n'
+    const rows = INVOICES.map(i => `${i.id},${i.client},${i.date},${i.amount},${i.dueDate},${i.status}`).join('\n')
+    const blob = new Blob([header + rows], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `invoices-r3sto-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast('Factures exportees')
+  }
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: "Vue d'ensemble" },
@@ -93,19 +138,56 @@ export function Finance() {
       {/* Overview */}
       {tab === 'overview' && (
         <div>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-            {[
-              { label: 'REVENUS', value: 'CHF ' + totalRevenue.toLocaleString(), color: 'var(--gn)' },
-              { label: 'DEPENSES', value: 'CHF ' + totalExpenses.toLocaleString(), color: 'var(--rd)' },
-              { label: 'BENEFICE NET', value: 'CHF ' + netProfit.toLocaleString(), color: netProfit >= 0 ? 'var(--gn)' : 'var(--rd)' },
-              { label: 'MRR', value: 'CHF ' + Math.round(totalRevenue / 3).toLocaleString(), color: 'var(--bl)' },
-            ].map(k => (
-              <div key={k.label} style={{ ...card, textAlign: 'center', flex: '1 1 140px', minWidth: 120 }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: k.color }}>{k.value}</div>
-                <div style={{ fontSize: 9, color: 'var(--t3)', fontWeight: 700, letterSpacing: '.05em' }}>{k.label}</div>
+          {/* P&L Summary */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
+            <div style={{ ...card, borderLeft: '4px solid var(--gn)' }}>
+              <div style={{ fontSize: 11, color: 'var(--t3)', fontWeight: 700, marginBottom: 4 }}>REVENUS</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--gn)' }}>CHF {totalRevenue.toLocaleString()}</div>
+            </div>
+            <div style={{ ...card, borderLeft: '4px solid var(--rd)' }}>
+              <div style={{ fontSize: 11, color: 'var(--t3)', fontWeight: 700, marginBottom: 4 }}>DEPENSES</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--rd)' }}>- CHF {totalExpenses.toLocaleString()}</div>
+            </div>
+            <div style={{ ...card, borderLeft: `4px solid ${netProfit >= 0 ? 'var(--gn)' : 'var(--rd)'}` }}>
+              <div style={{ fontSize: 11, color: 'var(--t3)', fontWeight: 700, marginBottom: 4 }}>BENEFICE NET</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: netProfit >= 0 ? 'var(--gn)' : 'var(--rd)' }}>
+                CHF {netProfit.toLocaleString()}
               </div>
-            ))}
+            </div>
+            <div style={{ ...card, borderLeft: '4px solid var(--bl)' }}>
+              <div style={{ fontSize: 11, color: 'var(--t3)', fontWeight: 700, marginBottom: 4 }}>MARGE NET</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--bl)' }}>
+                {totalRevenue > 0 ? Math.round(netProfit / totalRevenue * 100) : 0}%
+              </div>
+            </div>
           </div>
+
+          {/* Revenue Evolution Chart */}
+          <div style={{ ...card, marginBottom: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Evolution mensuelle des revenus</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 150, marginBottom: 12 }}>
+              {MONTHLY_DATA.map((m, i) => (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: `${(m.revenue / maxMonthRevenue) * 130}px`,
+                      background: 'var(--gn)',
+                      borderRadius: RADIUS.sm,
+                      transition: 'all .2s',
+                    }}
+                    title={`${m.month}: CHF ${m.revenue.toLocaleString()}`}
+                  />
+                  <span style={{ fontSize: 9, color: 'var(--t3)', fontWeight: 600 }}>{m.month}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--t4)' }}>
+              Tendance: +{Math.round((MONTHLY_DATA[MONTHLY_DATA.length - 1].revenue - MONTHLY_DATA[0].revenue) / MONTHLY_DATA[0].revenue * 100)}% sur la periode
+            </div>
+          </div>
+
+          {/* Expense Distribution */}
           <div style={{ ...card }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Repartition des depenses</div>
             {Object.entries(EXPENSES.reduce((acc, e) => { acc[e.category] = (acc[e.category] || 0) + e.amount; return acc }, {} as Record<string, number>)).map(([cat, amount]) => (
@@ -123,33 +205,38 @@ export function Finance() {
 
       {/* Factures */}
       {tab === 'factures' && (
-        <div style={{ overflowX: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'var(--border) transparent' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: 'var(--ff)' }}>
-            <thead>
-              <tr>
-                {['N facture', 'Client', 'Date', 'Montant', 'Echeance', 'Statut'].map(h => (
-                  <th key={h} style={{ padding: 8, textAlign: 'left', borderBottom: '2px solid var(--border)', color: 'var(--t3)', fontWeight: 700 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {INVOICES.map(inv => {
-                const meta = statusMeta[inv.status]
-                return (
-                  <tr key={inv.id}>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text)' }}>{inv.id}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--text)' }}>{inv.client}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--t3)' }}>{inv.date}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', fontWeight: 700, color: 'var(--text)' }}>CHF {inv.amount}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--t3)' }}>{inv.dueDate}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: meta.bg, color: meta.color }}>{meta.label}</span>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <button style={btnP} onClick={exportInvoices}>↓ Exporter CSV</button>
+          </div>
+          <div style={{ overflowX: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'var(--border) transparent' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: 'var(--ff)' }}>
+              <thead>
+                <tr>
+                  {['N facture', 'Client', 'Date', 'Montant', 'Echeance', 'Statut'].map(h => (
+                    <th key={h} style={{ padding: 8, textAlign: 'left', borderBottom: '2px solid var(--border)', color: 'var(--t3)', fontWeight: 700 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {INVOICES.map(inv => {
+                  const meta = statusMeta[inv.status]
+                  return (
+                    <tr key={inv.id}>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text)' }}>{inv.id}</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--text)' }}>{inv.client}</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--t3)' }}>{inv.date}</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', fontWeight: 700, color: 'var(--text)' }}>CHF {inv.amount}</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--t3)' }}>{inv.dueDate}</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)' }}>
+                        <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: meta.bg, color: meta.color }}>{meta.label}</span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -177,7 +264,7 @@ export function Finance() {
       {tab === 'tva' && (
         <div>
           <div style={{ ...card, marginBottom: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Taux TVA suisses (2024+)</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Taux TVA suisses (2026)</div>
             {TVA_RATES.map(t => (
               <div key={t.label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '8px 0', borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--bl)', minWidth: 60 }}>{t.rate}%</span>
@@ -188,18 +275,39 @@ export function Finance() {
               </div>
             ))}
           </div>
+
+          {/* TVA Calculation */}
+          <div style={{ ...card, marginBottom: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Estimation TVA automatique</div>
+            <div style={{ background: 'var(--surf3)', padding: 10, borderRadius: RADIUS.sm, marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 8, borderBottom: '1px solid var(--border)', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+                <span style={{ fontSize: 11, color: 'var(--text)' }}>Revenus SaaS HT</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)' }}>CHF {totalRevenue.toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 8, marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+                <span style={{ fontSize: 11, color: 'var(--text)' }}>TVA 8.1%</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--am)' }}>+ CHF {Math.round(totalRevenue * 0.081).toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1.5px solid var(--border)', flexWrap: 'wrap', gap: 8 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>Total TTC</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--bl)' }}>CHF {Math.round(totalRevenue * 1.081).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Net Profit after Tax */}
           <div style={{ ...card }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Estimation TVA sur revenus</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Benefice net apres impots</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border)', flexWrap: 'wrap', gap: 8 }}>
-              <span style={{ fontSize: 12, color: 'var(--text)' }}>Revenus SaaS (8.1%)</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>CHF {Math.round(totalRevenue * 0.081).toLocaleString()}</span>
+              <span style={{ fontSize: 12, color: 'var(--text)' }}>Benefice brut</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: netProfit >= 0 ? 'var(--gn)' : 'var(--rd)' }}>CHF {netProfit.toLocaleString()}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border)', flexWrap: 'wrap', gap: 8 }}>
               <span style={{ fontSize: 12, color: 'var(--text)' }}>Impot sur benefice (14.7%)</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>CHF {Math.round(Math.max(0, netProfit) * 0.147).toLocaleString()}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--rd)' }}>- CHF {Math.round(Math.max(0, netProfit) * 0.147).toLocaleString()}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0', flexWrap: 'wrap', gap: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>Benefice net apres impots</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>Benefice net</span>
               <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--gn)' }}>CHF {Math.round(Math.max(0, netProfit) * (1 - 0.147)).toLocaleString()}</span>
             </div>
           </div>
@@ -208,35 +316,53 @@ export function Finance() {
 
       {/* Tresorerie */}
       {tab === 'tresorerie' && (
-        <div style={{ overflowX: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'var(--border) transparent' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: 'var(--ff)' }}>
-            <thead>
-              <tr>
-                {['Mois', 'Revenus', 'Depenses', 'Net', 'Marge'].map(h => (
-                  <th key={h} style={{ padding: 8, textAlign: 'left', borderBottom: '2px solid var(--border)', color: 'var(--t3)', fontWeight: 700 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {MONTHS.slice(0, 6).map((m, i) => {
-                const revBase = [3200, 3650, 4100, 4700, 5300, 5850]
-                const expBase = [12400, 12800, 13100, 12900, 13500, 13200]
-                const rev = revBase[i]
-                const exp = expBase[i]
-                const net = rev - exp
-                const margin = rev > 0 ? Math.round(net / rev * 100) : 0
+        <div>
+          {/* Cash Flow Forecast */}
+          <div style={{ ...card, marginBottom: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Projection tresorerie (3 mois)</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 12 }}>
+              {FORECAST_MONTHS.map(m => {
+                const net = m.revenue - m.expenses
                 return (
-                  <tr key={m}>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text)' }}>{m} 2026</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--gn)', fontWeight: 600 }}>CHF {rev.toLocaleString()}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--rd)', fontWeight: 600 }}>CHF {exp.toLocaleString()}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', fontWeight: 700, color: net >= 0 ? 'var(--gn)' : 'var(--rd)' }}>CHF {net.toLocaleString()}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--t3)' }}>{margin}%</td>
-                  </tr>
+                  <div key={m.month} style={{ padding: 10, background: 'var(--surf3)', borderRadius: RADIUS.sm }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--t3)', marginBottom: 4 }}>{m.month} 2026</div>
+                    <div style={{ fontSize: 10, color: 'var(--gn)', fontWeight: 600, marginBottom: 2 }}>+{m.revenue.toLocaleString()}</div>
+                    <div style={{ fontSize: 10, color: 'var(--rd)', fontWeight: 600, marginBottom: 4 }}>-{m.expenses.toLocaleString()}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: net >= 0 ? 'var(--gn)' : 'var(--rd)', paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+                      {net >= 0 ? '+' : ''}{net.toLocaleString()}
+                    </div>
+                  </div>
                 )
               })}
-            </tbody>
-          </table>
+            </div>
+          </div>
+
+          {/* Historical Cash Flow */}
+          <div style={{ ...card }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Historique tresorerie (6 mois)</div>
+            <div style={{ overflowX: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'var(--border) transparent' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: 'var(--ff)' }}>
+                <thead>
+                  <tr>
+                    {['Mois', 'Revenus', 'Depenses', 'Net', 'Marge'].map(h => (
+                      <th key={h} style={{ padding: 8, textAlign: 'left', borderBottom: '2px solid var(--border)', color: 'var(--t3)', fontWeight: 700 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {monthlyStats.map(m => (
+                    <tr key={m.month}>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', fontWeight: 600, color: 'var(--text)' }}>{m.month} 2026</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--gn)', fontWeight: 600 }}>CHF {m.revenue.toLocaleString()}</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--rd)', fontWeight: 600 }}>CHF {m.expenses.toLocaleString()}</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', fontWeight: 700, color: m.net >= 0 ? 'var(--gn)' : 'var(--rd)' }}>CHF {m.net.toLocaleString()}</td>
+                      <td style={{ padding: 8, borderBottom: '1px solid var(--border)', color: 'var(--t3)' }}>{m.margin}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
     </div>

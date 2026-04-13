@@ -98,7 +98,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
     // Résas
     for (const r of resas) {
       if (out.length >= MAX) break
-      const searchable = `${r.n} ${r.tel} ${r.tbl} ${r.note}`.toLowerCase()
+      const searchable = `${r.n || ''} ${r.tel || ''} ${r.tbl || ''} ${r.note || ''}`.toLowerCase()
       if (searchable.includes(q)) {
         out.push({
           type: 'resa', icon: '📖',

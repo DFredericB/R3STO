@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import PhoneInput from '../../components/ui/PhoneInput'
 
-interface BlacklistedClient {
+interface BlacklistEntry {
   id: string
   n: string
   tel: string
@@ -11,13 +12,6 @@ interface BlacklistedClient {
   reason: string
   active: boolean
 }
-
-const BLACKLIST: BlacklistedClient[] = [
-  { id: '1', n: 'Jean Dupont', tel: '+33612345678', score: 92, level: 4, reason: 'Ban total - 5 no-shows', active: true },
-  { id: '2', n: 'Marie Lefevre', tel: '+33623456789', score: 78, level: 3, reason: 'Interdit - Comportement agressif', active: true },
-  { id: '3', n: 'Pierre Martin', tel: '+33634567890', score: 55, level: 2, reason: 'Attention - 3 no-shows', active: true },
-  { id: '4', n: 'Sophie Bernard', tel: '+33645678901', score: 32, level: 1, reason: 'Surveillance - 1 no-show', active: true },
-]
 
 const levelMap = {
   1: { c: 'var(--am)', l: '⚠️ Surveillance' },
@@ -28,35 +22,86 @@ const levelMap = {
 
 export function Blacklist() {
   const { toast } = useToast()
-  const [clients, setClients] = useState(BLACKLIST)
+  const storeClients = useAppStore(s => s.clients)
+  const resas = useAppStore(s => s.resas)
+  const options = useAppStore(s => s.options)
+  const { addClient, updateClient } = useAppStore()
   const [tab, setTab] = useState<'liste' | 'regles' | 'manuel'>('liste')
+
+  // Blacklist rules stored in options (persisted via auto-sync)
+  const autoRulesStored = (options as any).blacklistRules || null
   const [autoRules, setAutoRules] = useState({
-    noshow_threshold: 3,
-    noshow_level: 2 as 1|2|3|4,
-    noshow_ban_threshold: 5,
-    cancel_late_threshold: 4,
-    cancel_late_level: 1 as 1|2|3|4,
-    auto_rehabilitate_days: 90,
-    auto_enabled: true,
+    noshow_threshold: autoRulesStored?.noshow_threshold ?? 3,
+    noshow_level: (autoRulesStored?.noshow_level ?? 2) as 1|2|3|4,
+    noshow_ban_threshold: autoRulesStored?.noshow_ban_threshold ?? 5,
+    cancel_late_threshold: autoRulesStored?.cancel_late_threshold ?? 4,
+    cancel_late_level: (autoRulesStored?.cancel_late_level ?? 1) as 1|2|3|4,
+    auto_rehabilitate_days: autoRulesStored?.auto_rehabilitate_days ?? 90,
+    auto_enabled: autoRulesStored?.auto_enabled ?? true,
   })
+  const updateOptions = useAppStore(s => s.updateOptions)
   const [manualForm, setManualForm] = useState({ name: '', tel: '', level: 2 as 1|2|3|4, reason: '' })
+
+  // Derive blacklist from store clients (status = 'blacklisted' or noshow count)
+  const clients: BlacklistEntry[] = useMemo(() => {
+    // Clients explicitly blacklisted
+    const blacklisted = storeClients
+      .filter(c => c.blacklisted === true || c.totalNoshows > 0)
+      .map(c => {
+        const noshowCount = resas.filter(r => r.tel === c.tel && r.s === 'noshow').length
+        const level: 1|2|3|4 = noshowCount >= autoRules.noshow_ban_threshold ? 4
+          : noshowCount >= autoRules.noshow_threshold ? autoRules.noshow_level as 1|2|3|4
+          : c.blacklisted === true ? 3 : 1
+        const score = Math.min(100, noshowCount * 20 + (c.blacklisted === true ? 40 : 0))
+        return {
+          id: c.id,
+          n: `${c.prenom || ''} ${c.nom || ''}`.trim() || c.tel,
+          tel: c.tel || '',
+          score,
+          level,
+          reason: c.notes || (c.blacklisted === true ? 'Blocage manuel' : `${noshowCount} no-show(s)`),
+          active: c.blacklisted === true,
+        }
+      })
+    return blacklisted.sort((a, b) => b.score - a.score)
+  }, [storeClients, resas, autoRules])
 
   const activeCount = clients.filter(c => c.active).length
   const level34Count = clients.filter(c => c.level >= 3).length
-  const avgScore = Math.round(clients.reduce((sum, c) => sum + c.score, 0) / clients.length)
+  const avgScore = clients.length > 0 ? Math.round(clients.reduce((sum, c) => sum + c.score, 0) / clients.length) : 0
 
   function addManualBlock() {
     if (!manualForm.name.trim()) return
-    const newClient: BlacklistedClient = {
-      id: `m${Date.now()}`,
-      n: manualForm.name,
-      tel: manualForm.tel,
-      score: manualForm.level * 25,
-      level: manualForm.level,
-      reason: manualForm.reason || 'Blocage manuel',
-      active: true,
+    // Check if client already exists by phone
+    const existing = storeClients.find(c => c.tel === manualForm.tel)
+    if (existing) {
+      updateClient(existing.id, {
+        blacklisted: true,
+        notes: manualForm.reason || 'Blocage manuel',
+      })
+    } else {
+      addClient({
+        id: `bl_${Date.now()}`,
+        nom: manualForm.name.split(' ').slice(1).join(' ') || manualForm.name,
+        prenom: manualForm.name.split(' ')[0] || '',
+        tel: manualForm.tel,
+        email: '',
+        statut: 3,
+        allergies: '',
+        notes: manualForm.reason || 'Blocage manuel',
+        langue: 'fr',
+        entreprise: '',
+        tags: [],
+        tablePref: '',
+        createdAt: Date.now(),
+        lastVisit: '',
+        totalVisits: 0,
+        totalCouverts: 0,
+        totalNoshows: 0,
+        blacklisted: true,
+        blacklistReason: manualForm.reason || 'Blocage manuel',
+      })
     }
-    setClients(prev => [newClient, ...prev])
     setManualForm({ name: '', tel: '', level: 2, reason: '' })
     setTab('liste')
     toast('Client bloqué manuellement', 'success')
@@ -191,7 +236,7 @@ export function Blacklist() {
             </div>
           </div>
           <button
-            onClick={() => { setAutoRules({...autoRules}); toast('Règles sauvegardées', 'success') }}
+            onClick={() => { updateOptions({ blacklistRules: autoRules } as any); toast('Règles sauvegardées', 'success') }}
             style={{ marginTop: 14, padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--bl)', color: 'white', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
           >
             💾 Sauvegarder les règles
@@ -332,7 +377,7 @@ export function Blacklist() {
                       </button>
                       {b.active && (
                         <button
-                          onClick={() => { setClients(prev => prev.map(c => c.id === b.id ? {...c, active: false} : c)); toast(b.n + ' réhabilité', 'success') }}
+                          onClick={() => { updateClient(b.id, { blacklisted: false, blacklistReason: "" }); toast(b.n + ' réhabilité', 'success') }}
                           style={{
                             fontSize: 11,
                             padding: '3px 7px',

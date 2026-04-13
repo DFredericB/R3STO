@@ -454,11 +454,11 @@ export function loadDemoFallback() {
   // ══════════════════════════════════════════════════
 
   const users: User[] = [
-    { id:'u1', n:'Didier Lefevre', email:'didier@r3sto.com', role:'proprietaire', active:true },
-    { id:'u2', n:'Véronique Roth', email:'veronique@comptoirdulac.ch', role:'manager', active:true },
-    { id:'u3', n:'Stéphane Moulin', email:'stephane@comptoirdulac.ch', role:'serveur', active:true },
-    { id:'u4', n:'Caroline Blanc', email:'caroline@comptoirdulac.ch', role:'serveur', active:true },
-    { id:'u5', n:'Antoine Dubois', email:'antoine@comptoirdulac.ch', role:'serveur', active:true },
+    { id:'u1', n:'Didier Lefevre', email:'didier@r3sto.com', role:'superadmin', active:true },
+    { id:'u2', n:'Véronique Roth', email:'veronique@comptoirdulac.ch', role:'coo', active:true },
+    { id:'u3', n:'Stéphane Moulin', email:'stephane@comptoirdulac.ch', role:'dev', active:true },
+    { id:'u4', n:'Caroline Blanc', email:'caroline@comptoirdulac.ch', role:'sales', active:true },
+    { id:'u5', n:'Antoine Dubois', email:'antoine@comptoirdulac.ch', role:'support', active:true },
   ]
 
   // ══════════════════════════════════════════════════
@@ -501,12 +501,6 @@ export function loadDemoFallback() {
     resas, tables, combos, services, salles, resto, roomItems, sites,
     clients, giftCards, reviews, loyaltyConfig, loyaltyCards, fermetures, users, options,
     activeSiteId: null, isDemo: true, activeDate: t, _demoVersion: 20,
-    userRole: 'proprietaire' as const, lang: 'fr' as const,
-  }
-  return {
-    resas, tables, combos, services, salles, resto, roomItems, sites,
-    clients, giftCards, reviews, loyaltyConfig, loyaltyCards, fermetures, users, options,
-    activeSiteId: null, isDemo: true, activeDate: t, _demoVersion: 17,
-    userRole: 'proprietaire' as const, lang: 'fr' as const,
+    userRole: 'superadmin' as const, lang: 'fr' as const,
   }
 }

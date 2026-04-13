@@ -144,7 +144,7 @@ export const useAppStore = create<AppStore>()(
       activeSiteId: null,
       activeDate: today(),
       isDemo: false,
-      userRole: 'proprietaire',
+      userRole: 'superadmin',
       lang: 'fr',
 
       // Réservations
