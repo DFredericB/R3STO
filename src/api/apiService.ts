@@ -21,10 +21,36 @@ import type {
 const API_BASE = import.meta.env.VITE_API_BASE as string || 'https://api.r3sto.ch'
 type ApiMode = 'local' | 'api'
 
+/**
+ * Détection auto du mode :
+ *  - VITE_API_MODE=api  → force mode api
+ *  - VITE_API_MODE=local → force mode local
+ *  - Sinon : auto depuis hostname
+ *      app.r3sto.ch      → api (prod)
+ *      admin.r3sto.ch    → api
+ *      *.r3sto.ch (auth, booking…) → api
+ *      demo.r3sto.ch     → local (démo isolée)
+ *      localhost / 127.* → local (dev)
+ */
+function detectMode(): ApiMode {
+  const forced = import.meta.env.VITE_API_MODE as ApiMode | undefined
+  if (forced === 'api' || forced === 'local') return forced
+  if (typeof window === 'undefined') return 'local'
+  const h = window.location.hostname
+  if (h.startsWith('demo.') || h === 'localhost' || h.startsWith('127.') || h.startsWith('192.168.')) return 'local'
+  if (h.endsWith('.r3sto.ch') || h === 'r3sto.ch') return 'api'
+  return 'local'
+}
+
 const config = {
-  mode: (import.meta.env.VITE_API_MODE as ApiMode) || 'local',
+  mode: detectMode(),
   baseUrl: API_BASE,
   timeout: 10000,
+}
+
+/** Exposé pour les call sites : `if (isApiMode()) await api.resas.list(...)` sinon lire le store */
+export function isApiMode(): boolean {
+  return config.mode === 'api'
 }
 
 // ── Token Management ──────────────────────────────────────────────────────
