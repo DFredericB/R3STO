@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { RADIUS } from '../../utils/design'
 import { useToast } from '../../components/ui/Toast'
+import { useAdminFinancials } from '../../hooks/useAdminApi'
 
 type Tab = 'overview' | 'factures' | 'frais' | 'tva' | 'tresorerie'
 
@@ -74,6 +75,7 @@ const btnP: React.CSSProperties = { padding: '8px 16px', borderRadius: RADIUS.sm
 export function Finance() {
   const { toast } = useToast()
   const [tab, setTab] = useState<Tab>('overview')
+  const { data: fin, source: finSource } = useAdminFinancials()
 
   const totalRevenue = INVOICES.reduce((s, i) => s + i.amount, 0)
   const totalExpenses = EXPENSES.reduce((s, e) => s + e.amount, 0)
@@ -138,6 +140,24 @@ export function Finance() {
       {/* Overview */}
       {tab === 'overview' && (
         <div>
+          {/* Live API Banner */}
+          {fin && finSource === 'api' && (
+            <div style={{ ...card, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', borderLeft: '4px solid var(--bl)' }}>
+              <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--bl)', background: 'var(--bp)', padding: '3px 8px', borderRadius: 10 }}>LIVE API</span>
+              <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', fontSize: 12 }}>
+                <span style={{ color: 'var(--t3)' }}>MRR R3STO SaaS : <strong style={{ color: 'var(--gn)' }}>CHF {Math.round(fin.mrr).toLocaleString()}</strong></span>
+                <span style={{ color: 'var(--t3)' }}>ARR : <strong style={{ color: 'var(--bl)' }}>CHF {Math.round(fin.arr).toLocaleString()}</strong></span>
+                {fin.total_restaurants \!= null && <span style={{ color: 'var(--t3)' }}>Restaurants : <strong style={{ color: 'var(--text)' }}>{fin.total_restaurants}</strong></span>}
+                {fin.signups_30d \!= null && <span style={{ color: 'var(--t3)' }}>Signups 30j : <strong style={{ color: 'var(--am)' }}>+{fin.signups_30d}</strong></span>}
+              </div>
+            </div>
+          )}
+          {finSource === 'demo' && (
+            <div style={{ ...card, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', borderLeft: '4px solid var(--t4)' }}>
+              <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--t4)', background: 'var(--surf3)', padding: '3px 8px', borderRadius: 10 }}>DONNÉES DÉMO</span>
+              <span style={{ fontSize: 11, color: 'var(--t3)' }}>API admin indisponible — chiffres ci-dessous à titre illustratif uniquement.</span>
+            </div>
+          )}
           {/* P&L Summary */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
             <div style={{ ...card, borderLeft: '4px solid var(--gn)' }}>

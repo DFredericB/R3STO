@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { RADIUS, sectionTitle, filterChip } from '../../utils/design'
 import { useToast } from '../../components/ui/Toast'
+import { useAdminFinancials } from '../../hooks/useAdminApi'
 
 const card: React.CSSProperties = {
   background: 'var(--surf)', border: '1px solid var(--border)',
@@ -66,11 +67,16 @@ const UPSELL_OPPORTUNITIES = [
 export function PricingStrategy() {
   const { toast } = useToast()
   const [tab, setTab] = useState<TabView>('overview')
+  const { data: fin, source: finSource } = useAdminFinancials()
 
-  const totalMRR = PLANS.reduce((s, p) => s + p.mrr, 0)
-  const totalClients = PLANS.reduce((s, p) => s + p.clients, 0)
+  const demoMRR = PLANS.reduce((s, p) => s + p.mrr, 0)
+  const demoClients = PLANS.reduce((s, p) => s + p.clients, 0)
+
+  // Préférer API si dispo
+  const totalMRR = fin?.mrr \!= null ? Math.round(fin.mrr) : demoMRR
+  const totalClients = fin?.total_restaurants ?? demoClients
   const arpu = totalClients > 0 ? Math.round(totalMRR / totalClients) : 0
-  const arr = totalMRR * 12
+  const arr = fin?.arr \!= null ? Math.round(fin.arr) : totalMRR * 12
   const potentialUpsellMRR = UPSELL_OPPORTUNITIES.reduce((s, o) => s + o.deltaMRR, 0)
   const latest = REVENUE_MONTHS[REVENUE_MONTHS.length - 1]
   const prev = REVENUE_MONTHS[REVENUE_MONTHS.length - 2]
@@ -86,6 +92,9 @@ export function PricingStrategy() {
           </h1>
           <p style={{ fontSize: 11, color: 'var(--t3)', margin: '2px 0 0', fontFamily: 'var(--ff)' }}>
             Revenus, plans tarifaires, upsell, optimisation MRR
+            <span style={{ marginLeft: 8, padding: '1px 6px', borderRadius: 8, background: finSource === 'api' ? 'var(--bp)' : 'var(--surf3)', color: finSource === 'api' ? 'var(--bl)' : 'var(--t4)', fontSize: 9, fontWeight: 800 }}>
+              {finSource === 'api' ? 'LIVE API' : 'DEMO'}
+            </span>
           </p>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
