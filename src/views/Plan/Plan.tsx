@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import { ViewToolbar } from '../../components/ui/ViewToolbar'
-import { STATUS } from '../../utils/design'
+import { STATUS, TABLE_STATE } from '../../utils/design'
 import { timeToMins, nowMins, shiftISO } from '../../utils/date'
 import {
   isOccupying, tblMatchesTable,
@@ -45,14 +45,15 @@ function planTableSvg(
   const tRef = Math.min(t.w, t.h)
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2
 
-  // Couleurs selon statut — libre = discret, réservé/arrivé = bien contrasté
+  // Couleurs selon statut — source unique : TABLE_STATE (design.ts)
+  // Les clés 'combo_partial' / 'held' sont mappées sur 'combo' / 'hold'
   const fills: Record<string, string> = {
-    free:           'rgba(68,128,216,.06)',
-    reserved:       'rgba(91,156,246,.50)',
-    arrived:        'rgba(60,200,112,.45)',
-    blocked:        'rgba(100,116,139,.15)',
-    combo_partial:  'rgba(144,96,224,.28)',
-    held:           'rgba(232,165,48,.15)',
+    free:           TABLE_STATE.free.fill,
+    reserved:       TABLE_STATE.reserved.fill,
+    arrived:        TABLE_STATE.arrived.fill,
+    blocked:        TABLE_STATE.blocked.fill,
+    combo_partial:  TABLE_STATE.combo.fill,
+    held:           TABLE_STATE.hold.bg, // Plan SVG volontairement plus transparent
   }
   const strokes: Record<string, string> = {
     free:           'rgba(68,128,216,.25)',

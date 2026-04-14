@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useT } from '../../i18n/useTranslation'
 import { useToast } from '../../components/ui/Toast'
 import { useAppStore } from '../../store/useAppStore'
-import { filterChip } from '../../utils/design'
+import { filterChip, STATUS } from '../../utils/design'
 
 type TabType = 'resas' | 'journal'
 
@@ -134,15 +134,13 @@ export function Historique() {
     return journalEntries.slice(start, start + itemsPerPage)
   }, [journalEntries, currentPage])
 
-  const statusColors: Record<string, string> = {
-    reserved: 'var(--bl)',
-    arrived: 'var(--gn)',
-    noshow: 'var(--rd)',
-    cancelled: 'var(--t3)',
-    done: 'var(--t4)',
-    waitlist: 'var(--am)',
-  }
+  // Source unique : design.ts STATUS (même couleur/label que Resas, Grille, Journal…)
+  const statusColors: Record<string, string> = Object.fromEntries(
+    Object.entries(STATUS).map(([k, v]) => [k, v.color])
+  )
 
+  // Labels FR uniformes (fallback local si la clé i18n n'est pas résolvable
+  // depuis une Record plate). Mapping explicite pour éviter toute divergence.
   const statusLabels: Record<string, string> = {
     reserved: 'Réservé',
     arrived: 'Arrivé',

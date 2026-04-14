@@ -87,6 +87,107 @@ export const CANAUX: Record<ResaCanal, CanalMeta> = {
   waitlist:  { label: 'canal.waitlist', icon: '⏳', color: '#f59e0b',    hex: '#f59e0b' },
 }
 
+// ── États de table (Grille, Plan 2D, Journal, Agenda) ─
+//    UN SEUL endroit qui décrit comment une table est
+//    rendue visuellement dans TOUTES les vues. Toute
+//    nouvelle vue utilisant des tables DOIT s'y référer.
+export type TableStateKey =
+  | 'free'       // libre
+  | 'reserved'   // réservée (pas encore arrivée)
+  | 'arrived'    // arrivée / occupée
+  | 'done'       // terminée (libérée)
+  | 'blocked'    // bloquée manuellement
+  | 'hold'       // bloquée temporaire / hold
+  | 'combo'      // rattachée à un combo assemblé
+
+export interface TableStateMeta {
+  /** Clé i18n (fallback au label si non traduite) */
+  label: string
+  labelFr: string     // label FR dur pour fallback immédiat
+  icon: string
+  /** Couleur texte / accent */
+  color: string
+  hex: string
+  /** Fond plein (état dominant) */
+  fill: string
+  /** Fond léger (overlays, listes) */
+  bg: string
+  /** Bordure */
+  border: string
+}
+
+export const TABLE_STATE: Record<TableStateKey, TableStateMeta> = {
+  free: {
+    label: 'table.free', labelFr: 'Libre', icon: '⬜',
+    color: 'var(--t3)', hex: '#6b82a0',
+    fill: 'rgba(68,128,216,.06)',
+    bg: 'rgba(68,128,216,.04)',
+    border: 'rgba(68,128,216,.25)',
+  },
+  reserved: {
+    label: 'table.reserved', labelFr: 'Réservée', icon: '📋',
+    color: 'var(--bl)', hex: '#4480d8',
+    fill: 'rgba(91,156,246,.50)',
+    bg: 'rgba(91,156,246,.12)',
+    border: 'rgba(91,156,246,.60)',
+  },
+  arrived: {
+    label: 'table.arrived', labelFr: 'Occupée', icon: '✅',
+    color: 'var(--gn)', hex: '#3cc870',
+    fill: 'rgba(60,200,112,.45)',
+    bg: 'rgba(60,200,112,.12)',
+    border: 'rgba(60,200,112,.55)',
+  },
+  done: {
+    label: 'table.done', labelFr: 'Libérée', icon: '🏁',
+    color: 'var(--t3)', hex: '#6b82a0',
+    fill: 'var(--surf3)',
+    bg: 'var(--surf3)',
+    border: 'var(--border)',
+  },
+  blocked: {
+    label: 'table.blocked', labelFr: 'Bloquée', icon: '🚫',
+    color: 'var(--rd)', hex: '#dc5050',
+    fill: 'rgba(100,116,139,.15)',
+    bg: 'rgba(220,80,80,.10)',
+    border: 'rgba(220,80,80,.35)',
+  },
+  hold: {
+    label: 'table.hold', labelFr: 'En attente', icon: '⏳',
+    color: 'var(--am)', hex: '#e8a530',
+    fill: 'rgba(232,165,48,.22)',
+    bg: 'rgba(232,165,48,.10)',
+    border: 'rgba(232,165,48,.45)',
+  },
+  combo: {
+    label: 'table.combo', labelFr: 'Combo', icon: '🔗',
+    color: 'var(--pu)', hex: '#9060e0',
+    fill: 'rgba(144,96,224,.30)',
+    bg: 'rgba(144,96,224,.10)',
+    border: 'rgba(144,96,224,.55)',
+  },
+}
+
+/**
+ * Dérive l'état visuel d'une table depuis son état fonctionnel.
+ * Utilitaire unique à appeler dans Grille / Plan / Journal / Agenda.
+ */
+export function tableStateFromResa(opts: {
+  blocked?: boolean
+  hold?: boolean
+  combo?: boolean
+  resaStatus?: ResaStatus | null
+}): TableStateKey {
+  if (opts.blocked) return 'blocked'
+  if (opts.hold) return 'hold'
+  if (opts.combo) return 'combo'
+  if (!opts.resaStatus) return 'free'
+  if (opts.resaStatus === 'arrived') return 'arrived'
+  if (opts.resaStatus === 'done') return 'done'
+  if (opts.resaStatus === 'reserved') return 'reserved'
+  return 'free'
+}
+
 // ── Statuts client ──────────────────────────────
 export interface ClientStatutMeta {
   label: string        // clé i18n

@@ -399,6 +399,13 @@ const translations: Record<string, Record<Lang, string>> = {
   'status.noshow': { FR: 'No-show', DE: 'No-Show', IT: 'No-show', EN: 'No-show' },
   'status.cancelled': { FR: 'Annulé', DE: 'Storniert', IT: 'Cancellato', EN: 'Cancelled' },
   'status.waitlist': { FR: 'File d\'attente', DE: 'Warteliste', IT: 'Lista d\'attesa', EN: 'Waitlist' },
+  'table.free':     { FR: 'Libre',      DE: 'Frei',       IT: 'Libero',    EN: 'Free' },
+  'table.reserved': { FR: 'Réservée',   DE: 'Reserviert', IT: 'Riservato', EN: 'Reserved' },
+  'table.arrived':  { FR: 'Occupée',    DE: 'Belegt',     IT: 'Occupato',  EN: 'Occupied' },
+  'table.done':     { FR: 'Libérée',    DE: 'Frei',       IT: 'Liberato',  EN: 'Cleared' },
+  'table.blocked':  { FR: 'Bloquée',    DE: 'Gesperrt',   IT: 'Bloccato',  EN: 'Blocked' },
+  'table.hold':     { FR: 'En attente', DE: 'Wartet',     IT: 'In attesa', EN: 'On hold' },
+  'table.combo':    { FR: 'Combo',      DE: 'Combo',      IT: 'Combo',     EN: 'Combo' },
 
   // ── Modal réservation ──────────────────────────
   'modal.new': { FR: 'Réservation', DE: 'Reservierung', IT: 'Prenotazione', EN: 'Reservation' },
@@ -622,6 +629,10 @@ const translations: Record<string, Record<Lang, string>> = {
   'action.refresh': { FR: 'Actualiser', DE: 'Aktualisieren', IT: 'Aggiornare', EN: 'Refresh' },
   'action.download': { FR: 'Télécharger', DE: 'Herunterladen', IT: 'Scaricare', EN: 'Download' },
   'action.print': { FR: 'Imprimer', DE: 'Drucken', IT: 'Stampare', EN: 'Print' },
+  'action.arrive':  { FR: 'Marquer arrivé',  DE: 'Als angekommen markieren', IT: 'Segna arrivato',   EN: 'Mark arrived' },
+  'action.noshow':  { FR: 'Marquer no-show', DE: 'Als No-Show markieren',    IT: 'Segna no-show',    EN: 'Mark no-show' },
+  'action.done':    { FR: 'Libérer table',   DE: 'Tisch freigeben',          IT: 'Libera tavolo',    EN: 'Free table' },
+  'action.restore': { FR: 'Restaurer',        DE: 'Wiederherstellen',         IT: 'Ripristina',       EN: 'Restore' },
 
   // ── États / Statuts ──────────────────────────────
   'state.active': { FR: 'Actif', DE: 'Aktiv', IT: 'Attivo', EN: 'Active' },
