@@ -867,6 +867,182 @@ app.post('/public/reservation', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════
+//  PUBLIC DIRECTORY (Annuaire r3sto.ch)
+// ═══════════════════════════════════════════════════
+
+// GET /public/directory — liste paginée des restaurants
+// Query: region, canton, cuisine, carat, q, page, limit
+app.get('/public/directory', async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '24', 10)));
+    const offset = (page - 1) * limit;
+
+    const where = ["status='live'"];
+    const args = [];
+    if (req.query.canton) { where.push('canton_iso = ?'); args.push(req.query.canton); }
+    if (req.query.city) { where.push('city = ?'); args.push(req.query.city); }
+    if (req.query.cuisine) { where.push('cuisine_tag = ?'); args.push(req.query.cuisine); }
+    if (req.query.carat) { where.push('carat_level = ?'); args.push(req.query.carat); }
+    if (req.query.claimed === 'true') where.push("claim_status='claimed'");
+    if (req.query.q) {
+      where.push('(name LIKE ? OR city LIKE ? OR cuisine LIKE ?)');
+      const like = '%' + req.query.q.replace(/[%_]/g, '') + '%';
+      args.push(like, like, like);
+    }
+    const whereSql = where.join(' AND ');
+
+    // Count
+    const [cntRows] = await pool.query(
+      `SELECT COUNT(*) as total FROM directory_restaurants WHERE ${whereSql}`, args
+    );
+    const total = cntRows[0].total;
+
+    // Sort: CARAT gold→silver→bronze→null, then plan, then rating desc
+    const orderBy = `
+      CASE carat_level WHEN 'gold' THEN 3 WHEN 'silver' THEN 2 WHEN 'bronze' THEN 1 ELSE 0 END DESC,
+      CASE plan WHEN 'gastro' THEN 3 WHEN 'resto' THEN 2 WHEN 'bistro' THEN 1 ELSE 0 END DESC,
+      COALESCE(rating, 0) DESC,
+      id ASC
+    `;
+
+    const [rows] = await pool.query(
+      `SELECT id, osm_id, slug, name, cuisine, cuisine_tag, amenity,
+              address, postcode, city, canton, canton_iso, lat, lon,
+              phone, website, opening_hours, price_range, avg_price,
+              outdoor_seating, takeaway, delivery, photo_url, image,
+              rating, reviews_count, claim_status, plan,
+              boost_score, client_score, carat_level
+       FROM directory_restaurants
+       WHERE ${whereSql}
+       ORDER BY ${orderBy}
+       LIMIT ? OFFSET ?`,
+      [...args, limit, offset]
+    );
+
+    res.json({
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      limit,
+      restaurants: rows.map(r => ({
+        id: r.slug,           // front uses slug as id
+        osm_id: r.osm_id,
+        slug: r.slug,
+        name: r.name,
+        cuisine: r.cuisine || '',
+        cuisineTag: r.cuisine_tag || '',
+        amenity: r.amenity,
+        address: r.address,
+        city: r.city,
+        postcode: r.postcode,
+        ville: r.city,
+        canton: r.canton,
+        region: (r.canton_iso || '').toLowerCase().replace('ch-', ''),
+        lat: r.lat ? parseFloat(r.lat) : null,
+        lon: r.lon ? parseFloat(r.lon) : null,
+        phone: r.phone,
+        website: r.website,
+        bookingUrl: r.claim_status === 'claimed'
+          ? `https://booking.r3sto.ch/?r=${encodeURIComponent(r.name)}`
+          : null,
+        vitrineUrl: r.website || null,
+        openingHours: r.opening_hours,
+        priceRange: r.price_range || '$$',
+        avgPrice: r.avg_price || 40,
+        outdoor_seating: !!r.outdoor_seating,
+        takeaway: !!r.takeaway,
+        delivery: !!r.delivery,
+        photo: r.photo_url || r.image || null,
+        rating: r.rating ? parseFloat(r.rating) : null,
+        reviews: r.reviews_count || 0,
+        claimed: r.claim_status === 'claimed',
+        claim_status: r.claim_status,
+        plan: r.plan || 'free',
+        boostScore: r.boost_score || 0,
+        clientScore: r.client_score || 0,
+        carat: r.carat_level,
+        features: [
+          r.outdoor_seating ? 'Terrasse' : null,
+          r.takeaway ? 'À emporter' : null,
+          r.delivery ? 'Livraison' : null,
+          r.wheelchair === 'yes' ? 'Accessible PMR' : null,
+        ].filter(Boolean).slice(0, 3),
+        promos: [],
+        open: true,  // TODO: compute from opening_hours
+      })),
+    });
+  } catch (err) {
+    console.error('[R3STO] /public/directory error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur', detail: err.message });
+  }
+});
+
+// GET /public/directory/:slug — fiche détaillée
+app.get('/public/directory/:slug', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM directory_restaurants WHERE slug = ? AND status = 'live' LIMIT 1`,
+      [req.params.slug]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Fiche non trouvée' });
+    res.json({ restaurant: rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// POST /public/directory/:slug/claim — demande de claim
+app.post('/public/directory/:slug/claim', async (req, res) => {
+  try {
+    const { email, phone, ide_number, raison_sociale, notes } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Email requis' });
+
+    const [rests] = await pool.query(
+      'SELECT id, claim_status FROM directory_restaurants WHERE slug = ?',
+      [req.params.slug]
+    );
+    if (rests.length === 0) return res.status(404).json({ error: 'Fiche non trouvée' });
+    const r = rests[0];
+    if (r.claim_status === 'claimed') {
+      return res.status(409).json({ error: 'Déjà réclamée' });
+    }
+
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    await pool.query(
+      `INSERT INTO directory_claims (restaurant_id, email, phone, ide_number, raison_sociale, notes, ip_address, user_agent)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [r.id, email, phone || '', ide_number || '', raison_sociale || '', notes || '', ip, req.headers['user-agent'] || '']
+    );
+    await pool.query(
+      `UPDATE directory_restaurants SET claim_status = 'pending' WHERE id = ? AND claim_status = 'unclaimed'`,
+      [r.id]
+    );
+    res.status(201).json({ ok: true, message: 'Demande enregistrée. Nous allons vérifier et te contacter sous 48h.' });
+  } catch (err) {
+    console.error('[R3STO] claim error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// POST /public/directory/submit — ajouter nouveau resto (modération)
+app.post('/public/directory/submit', async (req, res) => {
+  try {
+    const { name, city, canton_iso, address, phone, website, email, ide_number, submitter_name, submitter_email, notes } = req.body || {};
+    if (!name || !submitter_email) return res.status(400).json({ error: 'Champs requis manquants' });
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const [result] = await pool.query(
+      `INSERT INTO directory_submissions (name, city, canton_iso, address, phone, website, email, ide_number, submitter_name, submitter_email, notes, ip_address)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, city || '', canton_iso || '', address || '', phone || '', website || '', email || '', ide_number || '', submitter_name || '', submitter_email, notes || '', ip]
+    );
+    res.status(201).json({ id: result.insertId, message: 'Soumission reçue, en modération.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// ═══════════════════════════════════════════════════
 //  SYNC — Full state pull/push (Zustand ↔ API)
 // ═══════════════════════════════════════════════════
 
