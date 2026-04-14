@@ -101,9 +101,10 @@ INSERT INTO services (
    '21:30:00', 15, 8, 24, 60, '🍷');
 
 -- ─── 7) Options restaurant ────────────────────────────────────
+-- Backticks obligatoires sur `accessible` (mot reserve MariaDB)
 INSERT INTO options_restaurant (
-  restaurant_id, wifi, parking, terrasse, accessible, animaux,
-  langues, annulation_h, widget_couleur, widget_actif
+  `restaurant_id`, `wifi`, `parking`, `terrasse`, `accessible`, `animaux`,
+  `langues`, `annulation_h`, `widget_couleur`, `widget_actif`
 ) VALUES (
   @rid, 1, 0, 1, 1, 1,
   'fr,de,en,it', 24, '#1c4f90', 1
@@ -116,6 +117,4 @@ SELECT
   (SELECT COUNT(*) FROM tables             WHERE restaurant_id = r.id) AS tables_count,
   (SELECT COUNT(*) FROM combos             WHERE restaurant_id = r.id) AS combos,
   (SELECT COUNT(*) FROM services           WHERE restaurant_id = r.id) AS services,
-  (SELECT COUNT(*) FROM options_restaurant WHERE restaurant_id = r.id) AS options_count
-FROM restaurants r
-WHERE r.slug = 'chez-bunnys';
+  (SELECT COUNT(*) FROM options_restaurant WHERE res
