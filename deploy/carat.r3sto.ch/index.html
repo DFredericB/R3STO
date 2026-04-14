@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CARAT — Évaluation Gastronomique Indépendante · Suisse</title>
+<meta name="description" content="CARAT : label gastronomique suisse indépendant, 4 piliers AQSA (Apprêt, Qualité, Service, Ambiance), 3 niveaux Bronze, Silver, Gold. Évaluation anonyme, anti-fraude, renouvelée chaque année.">
+<meta property="og:title" content="CARAT — Évaluation Gastronomique Indépendante">
+<meta property="og:description" content="Le label gastronomique suisse fondé sur la méthode, pas l'opinion. 4 piliers AQSA × 3 niveaux. Renouvelé chaque année.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://carat.r3sto.ch">
+<meta property="og:image" content="https://carat.r3sto.ch/og-carat.jpg">
+<meta property="og:locale" content="fr_CH">
+<meta property="og:site_name" content="CARAT by R3STO">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CARAT — Évaluation Gastronomique Indépendante">
+<meta name="twitter:description" content="Label suisse : 4 piliers AQSA × Bronze/Silver/Gold. Méthode, pas opinion.">
+<link rel="icon" type="image/jpeg" href="logo-r3sto.jpg">
+<link rel="canonical" href="https://carat.r3sto.ch">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"CARAT","legalName":"CARAT — Évaluation Gastronomique Indépendante","url":"https://carat.r3sto.ch","logo":"https://carat.r3sto.ch/logo-r3sto.jpg","description":"Label gastronomique suisse indépendant fondé sur 4 piliers méthodologiques et 3 niveaux de certification.","parentOrganization":{"@type":"Organization","name":"R3STO","url":"https://r3sto.ch"},"address":{"@type":"PostalAddress","addressLocality":"Lausanne","addressCountry":"CH"},"contactPoint":{"@type":"ContactPoint","contactType":"customer service","email":"info@innoptimgroup.com","telephone":"+41795301000","areaServed":"CH","availableLanguage":["French","German","Italian","English"]}}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0a;
+  --bg2:#141414;
+  --surf:#1a1a1a;
+  --surf2:#222;
+  --border:rgba(201,166,73,.12);
+  --border2:rgba(201,166,73,.28);
+  --text:#f5f0e5;
+  --t2:#a89f8e;
+  --t3:#7a7366;
+  --muted:#4a4638;
+  --gold:#c9a649;
+  --gold2:#d4af37;
+  --gold-dark:#8b6914;
+  --silver-lt:#e8e8e8;
+  --silver:#b0b0b0;
+  --silver-dk:#808080;
+  --bronze-lt:#cd7f32;
+  --bronze:#8b4513;
+  --bronze-dk:#5a2d0c;
+  --ff:'Inter',system-ui,-apple-system,sans-serif;
+  --fs:'Cormorant Garamond',Georgia,serif;
+  --max:1160px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--gold);text-decoration:none;transition:.2s}
+a:hover{color:var(--gold2)}
+img{max-width:100%;display:block}
+section{padding:110px 24px;position:relative}
+.inner{max-width:var(--max);margin:0 auto}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+.nav.scrolled{background:rgba(10,10,10,.92);backdrop-filter:blur(20px);border-bottom-color:var(--border)}
+.nav-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:68px}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-brand .diamond{width:28px;height:28px;flex-shrink:0}
+.nav-brand-text{font-family:var(--fs);font-size:22px;font-weight:600;letter-spacing:4px;color:var(--text);text-transform:uppercase}
+.nav-brand-text span{color:var(--gold)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{color:var(--t2);font-size:13px;font-weight:600;letter-spacing:.04em}
+.nav-links a:hover{color:var(--text)}
+.nav-back{padding:8px 16px;border:1px solid var(--border2);color:var(--gold);border-radius:2px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.nav-back:hover{background:var(--gold);color:#0a0a0a}
+.mob-menu{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer}
+@media(max-width:880px){
+  .nav-links{display:none;position:absolute;top:68px;left:0;right:0;background:rgba(10,10,10,.98);backdrop-filter:blur(20px);flex-direction:column;padding:24px;gap:20px;border-bottom:1px solid var(--border)}
+  .nav-links.open{display:flex}
+  .mob-menu{display:block}
+}
+
+/* ── HERO ── */
+.hero{padding:160px 24px 120px;text-align:center;position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.hero::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:1200px;height:1200px;background:radial-gradient(ellipse,rgba(201,166,73,.08) 0%,transparent 60%);pointer-events:none;z-index:0}
+.hero::after{content:'';position:absolute;bottom:-20%;left:10%;width:500px;height:500px;background:radial-gradient(circle,rgba(201,166,73,.04) 0%,transparent 70%);pointer-events:none;z-index:0}
+.hero-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto}
+.hero-diamond{width:88px;height:88px;margin:0 auto 32px;animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hero-pill{display:inline-flex;align-items:center;gap:10px;padding:8px 18px 8px 10px;background:rgba(201,166,73,.06);border:1px solid var(--border2);border-radius:100px;font-size:11px;font-weight:700;color:var(--gold);margin-bottom:28px;letter-spacing:.12em;text-transform:uppercase}
+.hero-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:var(--fs);font-size:clamp(44px,8vw,92px);font-weight:500;line-height:1;letter-spacing:.04em;margin:0 0 20px;text-transform:uppercase}
+.hero h1 .accent{color:var(--gold);font-style:italic;font-weight:500}
+.hero-tag{font-family:var(--fs);font-size:clamp(18px,2.5vw,26px);color:var(--t2);font-style:italic;margin-bottom:28px;font-weight:400}
+.hero-sub{font-size:clamp(15px,1.5vw,17px);color:var(--t2);max-width:640px;margin:0 auto 44px;line-height:1.7}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:72px}
+.btn-gold{display:inline-flex;align-items:center;gap:10px;padding:16px 34px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#0a0a0a;border:none;border-radius:2px;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.2s;text-decoration:none;box-shadow:0 8px 32px rgba(201,166,73,.25)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(201,166,73,.4);color:#0a0a0a}
+.btn-ghost{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;background:transparent;color:var(--text);border:1px solid var(--border2);border-radius:2px;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.2s;text-decoration:none}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,166,73,.04)}
+.hero-signature{font-family:var(--fs);font-style:italic;font-size:15px;color:var(--t3);letter-spacing:.04em}
+
+/* ── DIVIDER ── */
+.divider{display:flex;align-items:center;justify-content:center;gap:16px;margin:0 auto;max-width:520px;padding:0 24px}
+.divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+.divider-diamond{width:14px;height:14px;color:var(--gold);flex-shrink:0}
+
+/* ── SECTION HEADER ── */
+.s-head{text-align:center;max-width:780px;margin:0 auto 72px}
+.s-label{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:18px;font-family:var(--ff)}
+.s-title{font-family:var(--fs);font-size:clamp(32px,4.5vw,52px);font-weight:500;line-height:1.1;letter-spacing:.02em;margin-bottom:18px;text-transform:uppercase}
+.s-title em{font-style:italic;color:var(--gold);font-weight:500}
+.s-sub{font-size:16px;color:var(--t2);max-width:620px;margin:0 auto;line-height:1.7}
+
+/* ── CONCEPT ── */
+.concept{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;max-width:var(--max);margin:0 auto}
+@media(max-width:880px){.concept-grid{grid-template-columns:1fr;gap:48px}}
+.concept-text h2{font-family:var(--fs);font-size:clamp(30px,4vw,44px);font-weight:500;line-height:1.15;margin-bottom:24px;text-transform:uppercase;letter-spacing:.02em}
+.concept-text h2 em{font-style:italic;color:var(--gold);font-weight:500}
+.concept-text p{font-size:16px;color:var(--t2);line-height:1.8;margin-bottom:18px}
+.concept-text p strong{color:var(--text);font-weight:600}
+.concept-visual{position:relative;aspect-ratio:1;max-width:440px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.concept-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgba(201,166,73,.12) 0%,transparent 70%);border-radius:50%}
+.concept-visual svg{width:80%;height:auto;position:relative;z-index:1}
+
+/* ── 4 PILIERS (AQSA) ── */
+.pillars{background:var(--bg)}
+.pillars-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:1080px){.pillars-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.pillars-grid{grid-template-columns:1fr}}
+.pillar{background:linear-gradient(180deg,var(--surf),var(--bg2));border:1px solid var(--border);border-radius:2px;padding:44px 28px;text-align:center;transition:.3s;position:relative;overflow:hidden}
+.pillar::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:.3s}
+.pillar:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.pillar:hover::before{opacity:1}
+.pillar-letter{font-family:var(--fs);font-size:88px;font-weight:500;line-height:1;color:var(--gold);letter-spacing:-.02em;margin-bottom:8px;font-style:italic}
+.pillar-title{font-family:var(--fs);font-size:22px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px}
+.pillar-text{font-size:13px;color:var(--t2);line-height:1.65}
+.pillars-note{text-align:center;margin-top:56px;font-family:var(--fs);font-style:italic;font-size:18px;color:var(--gold);letter-spacing:.04em}
+
+/* ── 3 NIVEAUX ── */
+.levels{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.levels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+@media(max-width:880px){.levels-grid{grid-template-columns:1fr}}
+.level{border-radius:2px;padding:48px 32px 44px;text-align:center;position:relative;overflow:hidden;background:var(--surf);border:1px solid var(--border);transition:.3s}
+.level:hover{transform:translateY(-4px);box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.level-bronze{border-color:rgba(205,127,50,.3)}
+.level-silver{border-color:rgba(192,192,192,.3)}
+.level-gold{border-color:rgba(255,215,0,.35)}
+.level::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.level-bronze::before{background:linear-gradient(90deg,var(--bronze-dk),var(--bronze-lt),var(--bronze-dk))}
+.level-silver::before{background:linear-gradient(90deg,var(--silver-dk),var(--silver-lt),var(--silver-dk))}
+.level-gold::before{background:linear-gradient(90deg,var(--gold-dark),var(--gold2),var(--gold-dark))}
+.level-badge{width:120px;height:120px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;position:relative}
+.level-badge svg{width:100%;height:100%;filter:drop-shadow(0 8px 24px rgba(0,0,0,.5))}
+.level-name{font-family:var(--fs);font-size:32px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+.level-bronze .level-name{background:linear-gradient(135deg,var(--bronze-lt),var(--bronze));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.level-silver .level-name{background:linear-gradient(135deg,var(--silver-lt),var(--silver));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.level-gold .level-name{background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.level-status{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:22px}
+.level-desc{font-size:14px;color:var(--t2);line-height:1.75;min-height:110px}
+.level-principle{margin-top:52px;text-align:center;font-family:var(--fs);font-style:italic;font-size:clamp(18px,2.5vw,24px);color:var(--t2);max-width:720px;margin-left:auto;margin-right:auto;line-height:1.5;letter-spacing:.02em}
+.level-principle strong{color:var(--gold);font-weight:600;font-style:normal}
+
+/* ── PROCESS (6 ÉTAPES) ── */
+.process{background:var(--bg)}
+.process-timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;position:relative;margin-top:40px}
+@media(max-width:1080px){.process-timeline{grid-template-columns:repeat(3,1fr);gap:28px}}
+@media(max-width:640px){.process-timeline{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.process-timeline{grid-template-columns:1fr}}
+.step{text-align:center;position:relative}
+.step-num{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-family:var(--fs);font-size:22px;font-weight:600;color:var(--gold);background:var(--surf);position:relative;z-index:1}
+.step-title{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.step-text{font-size:12px;color:var(--t2);line-height:1.65}
+
+/* ── DISTINCTION vs G&M ── */
+.distinction{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.distinction-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px}
+@media(max-width:880px){.distinction-grid{grid-template-columns:1fr}}
+.dist-card{padding:40px 32px;border-radius:2px;border:1px solid var(--border)}
+.dist-card.old{background:var(--surf);opacity:.7}
+.dist-card.new{background:linear-gradient(180deg,rgba(201,166,73,.04),var(--surf));border-color:var(--border2)}
+.dist-head{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.dist-card.new .dist-head{border-bottom-color:var(--border2)}
+.dist-icon{font-family:var(--fs);font-size:32px;color:var(--gold);font-style:italic}
+.dist-card.old .dist-icon{color:var(--t3);font-style:normal}
+.dist-card h3{font-family:var(--fs);font-size:26px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.dist-list{list-style:none}
+.dist-list li{padding:12px 0;display:flex;align-items:flex-start;gap:12px;font-size:14px;line-height:1.65;color:var(--t2);border-bottom:1px dashed var(--border)}
+.dist-list li:last-child{border-bottom:none}
+.dist-list li::before{content:'';width:6px;height:6px;margin-top:8px;flex-shrink:0;background:var(--t3);transform:rotate(45deg)}
+.dist-card.new .dist-list li::before{background:var(--gold)}
+.dist-card.new .dist-list li{color:var(--text)}
+
+/* ── PALMARÈS (vitrine 3 exemples) ── */
+.palmares{background:var(--bg);text-align:center}
+.palmares .inner{max-width:var(--max)}
+.palmares-note{display:inline-block;margin-top:10px;padding:6px 14px;background:rgba(201,166,73,.06);border:1px solid var(--border);border-radius:100px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);font-weight:700}
+.showcase{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+@media(max-width:880px){.showcase{grid-template-columns:1fr}}
+.show-card{background:var(--surf);border:1px solid var(--border);border-radius:2px;padding:0;overflow:hidden;text-align:left;transition:.3s;position:relative}
+.show-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.show-photo{aspect-ratio:3/2;background:#1a1a1a;position:relative;overflow:hidden}
+.show-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.85) contrast(1.05)}
+.show-badge{position:absolute;top:14px;right:14px;width:56px;height:56px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.6))}
+.show-body{padding:24px 26px 28px}
+.show-body h4{font-family:var(--fs);font-size:24px;font-weight:600;letter-spacing:.02em;margin-bottom:6px}
+.show-cuisine{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:16px}
+.show-scores{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding-top:16px;border-top:1px solid var(--border)}
+.show-score{text-align:center}
+.show-score .n{font-family:var(--fs);font-size:22px;font-weight:600;color:var(--gold);line-height:1}
+.show-score .l{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-top:4px;font-weight:700}
+.show-level{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:2px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;margin-bottom:12px}
+.show-level.bronze{background:rgba(205,127,50,.12);color:#cd7f32;border:1px solid rgba(205,127,50,.3)}
+.show-level.silver{background:rgba(192,192,192,.1);color:#d8d8d8;border:1px solid rgba(192,192,192,.28)}
+.show-level.gold{background:rgba(212,175,55,.12);color:#d4af37;border:1px solid rgba(212,175,55,.35)}
+.palmares-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:48px}
+
+/* ── CTA (Évaluateur + Restaurant) ── */
+.cta-pair{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:var(--max);margin:0 auto}
+@media(max-width:880px){.cta-grid{grid-template-columns:1fr}}
+.cta-box{padding:56px 44px;border-radius:2px;border:1px solid var(--border2);background:linear-gradient(180deg,var(--surf),var(--bg2));position:relative;overflow:hidden}
+.cta-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.cta-box h3{font-family:var(--fs);font-size:clamp(26px,3vw,34px);font-weight:500;line-height:1.2;margin-bottom:18px;letter-spacing:.04em;text-transform:uppercase}
+.cta-box h3 em{font-style:italic;color:var(--gold);font-weight:500}
+.cta-box p{font-size:15px;color:var(--t2);line-height:1.7;margin-bottom:28px}
+.cta-form{display:flex;flex-direction:column;gap:12px}
+.cta-input{padding:14px 16px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--ff);font-size:14px;border-radius:2px;transition:.2s}
+.cta-input:focus{outline:none;border-color:var(--gold)}
+.cta-input::placeholder{color:var(--t3)}
+textarea.cta-input{resize:vertical;min-height:90px;font-family:var(--ff)}
+
+/* ── FAQ ── */
+.faq{background:var(--bg)}
+.faq-list{max-width:840px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:24px 0;cursor:pointer;transition:.2s}
+.faq-item:hover{border-color:var(--border2)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.faq-q h4{font-family:var(--fs);font-size:20px;font-weight:600;letter-spacing:.02em}
+.faq-arrow{width:18px;height:18px;color:var(--gold);transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s,padding .3s}
+.faq-item.open .faq-a{max-height:400px;padding-top:16px}
+.faq-a p{font-size:14px;color:var(--t2);line-height:1.75}
+
+/* ── FOOTER ── */
+footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 24px 40px;text-align:center}
+.footer-in{max-width:var(--max);margin:0 auto}
+.footer-brand{display:inline-flex;align-items:center;gap:12px;margin-bottom:24px}
+.footer-brand svg{width:24px;height:24px}
+.footer-brand span{font-family:var(--fs);font-size:20px;font-weight:600;letter-spacing:4px;text-transform:uppercase}
+.footer-brand span b{color:var(--gold);font-weight:600}
+.footer-signature{font-family:var(--fs);font-style:italic;color:var(--t2);font-size:15px;margin-bottom:18px}
+.footer-links{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.footer-links a{color:var(--t2);font-size:13px;letter-spacing:.04em}
+.footer-links a:hover{color:var(--gold)}
+.footer-copy{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.footer-copy a{color:var(--t3)}
+
+/* ── UTILITIES ── */
+.center{text-align:center}
+
+/* ── ANIMATIONS reveal ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .8s,transform .8s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── R3STO BACK BAR ── */
+.r3sto-bar{background:linear-gradient(90deg,rgba(201,166,73,.04),transparent,rgba(201,166,73,.04));border-top:1px solid var(--border);padding:20px 24px;text-align:center;font-size:12px;color:var(--t3);letter-spacing:.08em}
+.r3sto-bar a{color:var(--gold);font-weight:700;margin-left:8px}
+.r3sto-bar a:hover{color:var(--gold2)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-in">
+    <a href="/" class="nav-brand">
+      <svg class="diamond" viewBox="0 0 32 32" fill="none">
+        <defs>
+          <linearGradient id="gnav" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#d4af37"/>
+            <stop offset=".5" stop-color="#c9a649"/>
+            <stop offset="1" stop-color="#8b6914"/>
+          </linearGradient>
+        </defs>
+        <path d="M16 3L28 12 16 29 4 12Z" fill="url(#gnav)" stroke="#c9a649" stroke-width=".5"/>
+        <path d="M4 12L16 12 28 12M10 7L16 29M22 7L16 29" stroke="#0a0a0a" stroke-width=".7" stroke-opacity=".5"/>
+      </svg>
+      <span class="nav-brand-text">Ca<span>r</span>at</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#concept">Concept</a>
+      <a href="#piliers">4 Piliers</a>
+      <a href="#niveaux">3 Niveaux</a>
+      <a href="#process">Méthode</a>
+      <a href="#palmares">Palmarès</a>
+      <a href="https://r3sto.ch" class="nav-back">← r3sto.ch</a>
+    </div>
+    <button class="mob-menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <svg class="hero-diamond" viewBox="0 0 120 120" fill="none">
+      <defs>
+        <linearGradient id="ghero" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#FFE082"/>
+          <stop offset=".4" stop-color="#d4af37"/>
+          <stop offset=".7" stop-color="#c9a649"/>
+          <stop offset="1" stop-color="#8b6914"/>
+        </linearGradient>
+        <radialGradient id="ghalo" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#ffd700" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#ffd700" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="60" cy="60" r="58" fill="url(#ghalo)"/>
+      <path d="M60 10L104 44 60 112 16 44Z" fill="url(#ghero)" stroke="#d4af37" stroke-width="1"/>
+      <path d="M16 44L60 44 104 44M32 22L60 112M88 22L60 112M44 44L60 22L76 44" stroke="#0a0a0a" stroke-width=".8" stroke-opacity=".6" fill="none"/>
+    </svg>
+    <div class="hero-pill">Label Gastronomique Suisse</div>
+    <h1>C<span class="accent">a</span>rat</h1>
+    <div class="hero-tag">Évaluation Gastronomique Indépendante</div>
+    <p class="hero-sub">Méthode rigoureuse, anonymat, anti-fraude. Quatre piliers, trois niveaux, un standard. Chaque excellence mérite d'être reconnue — pizzeria, brasserie ou gastronomique, dans sa catégorie.</p>
+    <div class="hero-btns">
+      <a href="#palmares" class="btn-gold">Découvrir le Palmarès</a>
+      <a href="#cta-resto" class="btn-ghost">Soumettre mon restaurant</a>
+    </div>
+    <div class="hero-signature">« Chaque excellence mérite d'être reconnue »</div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CONCEPT ═══════════════════ -->
+<section id="concept" class="concept">
+  <div class="concept-grid">
+    <div class="concept-text">
+      <div class="s-label">Le concept</div>
+      <h2>La <em>méthode</em>,<br>pas l'opinion.</h2>
+      <p>CARAT est un label gastronomique suisse fondé sur une <strong>méthodologie rigoureuse</strong> et non sur la subjectivité d'un critique. Chaque établissement évalué est mesuré selon un protocole identique, par un évaluateur anonyme, avec preuves photographiques horodatées.</p>
+      <p>Notre ambition : <strong>universaliser l'excellence</strong>. Un bistrot peut recevoir un Gold comme un trois-étoiles — chacun dans sa catégorie. Pas de hiérarchie par type d'établissement, pas de privilège pour la gastronomie.</p>
+      <p>Fondé par <strong>R3STO</strong>, plateforme suisse indépendante de gestion pour restaurants. Intégré à l'annuaire national, renouvelé chaque année, signé par des évaluateurs certifiés.</p>
+    </div>
+    <div class="concept-visual">
+      <svg viewBox="0 0 200 200" fill="none">
+        <defs>
+          <linearGradient id="gconcept" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#d4af37"/>
+            <stop offset="1" stop-color="#8b6914"/>
+          </linearGradient>
+        </defs>
+        <circle cx="100" cy="100" r="90" fill="none" stroke="url(#gconcept)" stroke-width="1" stroke-opacity=".3"/>
+        <circle cx="100" cy="100" r="70" fill="none" stroke="url(#gconcept)" stroke-width="1" stroke-opacity=".5"/>
+        <circle cx="100" cy="100" r="50" fill="none" stroke="url(#gconcept)" stroke-width="1" stroke-opacity=".7"/>
+        <path d="M100 30L160 100 100 170 40 100Z" fill="url(#gconcept)" opacity=".15"/>
+        <path d="M100 30L160 100 100 170 40 100Z" fill="none" stroke="url(#gconcept)" stroke-width="1.5"/>
+        <path d="M40 100L100 100 160 100M70 65L100 170M130 65L100 170M80 100L100 65L120 100" stroke="#c9a649" stroke-width=".8" stroke-opacity=".6"/>
+        <text x="100" y="108" text-anchor="middle" font-family="Cormorant Garamond" font-size="18" font-style="italic" font-weight="600" fill="#c9a649" letter-spacing="4">AQSA</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 4 PILIERS ═══════════════════ -->
+<section id="piliers" class="pillars">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-label">La Méthodologie</div>
+      <h2 class="s-title">Quatre <em>Piliers</em></h2>
+      <p class="s-sub">Chaque évaluation repose sur quatre dimensions mesurées indépendamment. Un score par pilier, une vue d'ensemble rigoureuse, aucun critère laissé à l'appréciation vague.</p>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar">
+        <div class="pillar-letter">A</div>
+        <div class="pillar-title">Apprêt</div>
+        <p class="pillar-text">Technique culinaire, justesse des cuissons, respect et valorisation du produit dans l'assiette. La main du cuisinier se lit ici.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-letter">Q</div>
+        <div class="pillar-title">Qualité</div>
+        <p class="pillar-text">Fraîcheur, provenance, authenticité. Produits de saison, circuits courts, certifications bio ou traçabilité démontrée.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-letter">S</div>
+        <div class="pillar-title">Service</div>
+        <p class="pillar-text">Accueil, attention aux exigences, rythme de service, professionnalisme en salle. L'expérience se joue aussi entre les plats.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-letter">A</div>
+        <div class="pillar-title">Ambiance</div>
+        <p class="pillar-text">Environnement, propreté, originalité, chaleur du lieu, cohérence du décor avec la proposition culinaire.</p>
+      </div>
+    </div>
+    <div class="pillars-note">« Quatre piliers, un seul standard. »</div>
+  </div>
+</section>
+
+<!-- ═══════════════════ 3 NIVEAUX ═══════════════════ -->
+<section id="niveaux" class="levels">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-label">La Reconnaissance</div>
+      <h2 class="s-title">Trois <em>Niveaux</em></h2>
+      <p class="s-sub">Bronze, Silver, Gold — chacun correspond à un seuil méthodologique sur l'ensemble des quatre piliers. Aucun niveau n'est attribué par défaut.</p>
+    </div>
+    <div class="levels-grid">
+      <!-- BRONZE -->
+      <div class="level level-bronze">
+        <div class="level-badge">
+          <svg viewBox="0 0 120 120" fill="none">
+            <defs>
+              <linearGradient id="gbronze" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#e89654"/>
+                <stop offset=".5" stop-color="#cd7f32"/>
+                <stop offset="1" stop-color="#5a2d0c"/>
+              </linearGradient>
+            </defs>
+            <path d="M60 10L104 44 60 112 16 44Z" fill="url(#gbronze)" stroke="#8b4513" stroke-width="1"/>
+            <path d="M16 44L60 44 104 44M32 22L60 112M88 22L60 112M44 44L60 22L76 44" stroke="#3a1d08" stroke-width=".8" stroke-opacity=".6"/>
+          </svg>
+        </div>
+        <div class="level-name">Bronze</div>
+        <div class="level-status">Recommandable</div>
+        <p class="level-desc">L'adresse sans surprise ni déception. Les quatre piliers sont respectés au seuil satisfaisant, l'expérience est cohérente et solide.</p>
+      </div>
+      <!-- SILVER -->
+      <div class="level level-silver">
+        <div class="level-badge">
+          <svg viewBox="0 0 120 120" fill="none">
+            <defs>
+              <linearGradient id="gsilver" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#f0f0f0"/>
+                <stop offset=".5" stop-color="#c0c0c0"/>
+                <stop offset="1" stop-color="#707070"/>
+              </linearGradient>
+            </defs>
+            <path d="M60 10L104 44 60 112 16 44Z" fill="url(#gsilver)" stroke="#b0b0b0" stroke-width="1"/>
+            <path d="M16 44L60 44 104 44M32 22L60 112M88 22L60 112M44 44L60 22L76 44" stroke="#404040" stroke-width=".8" stroke-opacity=".5"/>
+          </svg>
+        </div>
+        <div class="level-name">Silver</div>
+        <div class="level-status">Remarquable</div>
+        <p class="level-desc">L'adresse qui se distingue dans sa catégorie. Identité propre, régularité démontrée, expérience mémorable sur plusieurs piliers.</p>
+      </div>
+      <!-- GOLD -->
+      <div class="level level-gold">
+        <div class="level-badge">
+          <svg viewBox="0 0 120 120" fill="none">
+            <defs>
+              <linearGradient id="ggold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFE082"/>
+                <stop offset=".5" stop-color="#d4af37"/>
+                <stop offset="1" stop-color="#8b6914"/>
+              </linearGradient>
+              <radialGradient id="ggoldhalo" cx=".5" cy=".5" r=".5">
+                <stop offset="0" stop-color="#ffd700" stop-opacity=".4"/>
+                <stop offset="1" stop-color="#ffd700" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="58" fill="url(#ggoldhalo)"/>
+            <path d="M60 10L104 44 60 112 16 44Z" fill="url(#ggold)" stroke="#d4af37" stroke-width="1"/>
+            <path d="M16 44L60 44 104 44M32 22L60 112M88 22L60 112M44 44L60 22L76 44" stroke="#0a0a0a" stroke-width=".8" stroke-opacity=".6"/>
+          </svg>
+        </div>
+        <div class="level-name">Gold</div>
+        <div class="level-status">Exceptionnel</div>
+        <p class="level-desc">La référence de sa catégorie dans sa ville. Excellence démontrée sur les quatre piliers, signature reconnaissable, savoir-faire indiscutable.</p>
+      </div>
+    </div>
+    <p class="level-principle">Une <strong>pizzeria peut être Gold</strong> comme un gastronomique, chacun dans <strong>sa catégorie</strong>. Pas de hiérarchie par type d'établissement.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════ PROCESS (6 ÉTAPES) ═══════════════════ -->
+<section id="process" class="process">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-label">Le Protocole</div>
+      <h2 class="s-title">Six <em>Étapes</em></h2>
+      <p class="s-sub">Chaque attribution suit le même protocole. Aucune exception, aucun passe-droit. L'évaluateur est anonyme, les preuves sont horodatées, le score est croisé.</p>
+    </div>
+    <div class="process-timeline">
+      <div class="step">
+        <div class="step-num">I</div>
+        <div class="step-title">Visite Anonyme</div>
+        <p class="step-text">Évaluateur certifié, incognito, réservation standard, note de frais confidentielle.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">II</div>
+        <div class="step-title">Photos Horodatées</div>
+        <p class="step-text">Chaque plat est photographié avant la première bouchée. Menu scanné, géolocalisation, timestamp.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">III</div>
+        <div class="step-title">Questionnaire 40</div>
+        <p class="step-text">Quarante questions adaptées au type d'établissement, sur les quatre piliers.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">IV</div>
+        <div class="step-title">Analyse Croisée</div>
+        <p class="step-text">Algorithme de scoring qui croise questionnaire, photos et menu. Un score par pilier.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">V</div>
+        <div class="step-title">Attribution</div>
+        <p class="step-text">Bronze, Silver ou Gold si seuils atteints. Sinon, aucun niveau — pas de lot de consolation.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">VI</div>
+        <div class="step-title">Renouvellement</div>
+        <p class="step-text">Le badge expire chaque année. Nouvelle visite déclenchée automatiquement. Rien n'est acquis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ DISTINCTION ═══════════════════ -->
+<section class="distinction">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-label">La Différence</div>
+      <h2 class="s-title">Ce qui <em>change</em></h2>
+      <p class="s-sub">CARAT ne cherche pas à remplacer les guides historiques. Il propose une lecture différente, fondée sur la méthode.</p>
+    </div>
+    <div class="distinction-grid">
+      <div class="dist-card old">
+        <div class="dist-head">
+          <div class="dist-icon">—</div>
+          <h3>Les guides classiques</h3>
+        </div>
+        <ul class="dist-list">
+          <li>Favorisent la haute gastronomie, ignorent les bistrots</li>
+          <li>Critique subjective d'un rédacteur signé</li>
+          <li>Méthode opaque, critères variables selon le pays</li>
+          <li>Renouvellement annuel non systématique</li>
+          <li>Aucune trace photographique des visites</li>
+          <li>Pas de cadre anti-fraude documenté</li>
+        </ul>
+      </div>
+      <div class="dist-card new">
+        <div class="dist-head">
+          <div class="dist-icon">✦</div>
+          <h3>La méthode CARAT</h3>
+        </div>
+        <ul class="dist-list">
+          <li>Universelle : pizzeria, brasserie, gastro — chacun dans sa catégorie</li>
+          <li>Méthodologique : protocole identique pour tous</li>
+          <li>Transparente : 4 piliers AQSA publiés, 40 questions documentées</li>
+          <li>Renouvellement annuel automatique, le niveau expire</li>
+          <li>Preuves horodatées, photos géolocalisées, menu scanné</li>
+          <li>Anti-fraude : évaluateurs anonymes, double-check algorithmique</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PALMARÈS (teaser annuaire) ═══════════════════ -->
+<section id="palmares" class="palmares">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-label">Aperçu</div>
+      <h2 class="s-title">Trois <em>exemples</em></h2>
+      <p class="s-sub">Aperçu illustratif de l'étiquette CARAT appliquée à trois établissements. Les attributions réelles seront publiées au fil des évaluations, dans l'annuaire R3STO.</p>
+      <div class="palmares-note">Démonstration · aucune attribution officielle à ce jour</div>
+    </div>
+    <div class="showcase">
+      <!-- GOLD : Alt 505 -->
+      <article class="show-card">
+        <div class="show-photo">
+          <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=533&fit=crop" alt="Alt 505 — Gastronomie alpine">
+          <svg class="show-badge" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <linearGradient id="bgold-g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFE082"/><stop offset=".5" stop-color="#d4af37"/><stop offset="1" stop-color="#8b6914"/>
+              </linearGradient>
+              <radialGradient id="bgold-h" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd700" stop-opacity=".4"/><stop offset="1" stop-color="#ffd700" stop-opacity="0"/></radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="58" fill="url(#bgold-h)"/>
+            <path d="M60 10L104 44 60 112 16 44Z" fill="url(#bgold-g)" stroke="#d4af37" stroke-width="1"/>
+            <path d="M16 44L60 44 104 44M32 22L60 112M88 22L60 112M44 44L60 22L76 44" stroke="#0a0a0a" stroke-width=".8" stroke-opacity=".6" fill="none"/>
+          </svg>
+        </div>
+        <div class="show-body">
+          <span class="show-level gold">◆ Carat Gold</span>
+          <h4>Alt 505</h4>
+          <div class="show-cuisine">Gastronomie alpine · Zermatt · VS</div>
+          <div class="show-scores">
+            <div class="show-score"><div class="n">18</div><div class="l">Apprêt</div></div>
+            <div class="show-score"><div class="n">17</div><div class="l">Qualité</div></div>
+            <div class="show-score"><div class="n">18</div><div class="l">Service</div></div>
+            <div class="show-score"><div class="n">17</div><div class="l">Ambiance</div></div>
+          </div>
+        </div>
+      </article>
+      <!-- SILVER : Petit Bœuf -->
+      <article class="show-card">
+        <div class="show-photo">
+          <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=533&fit=crop" alt="Le Petit Bœuf — Cuisine suisse">
+          <svg class="show-badge" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <linearGradient id="bsilv-g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#f0f0f0"/><stop offset=".5" stop-color="#c0c0c0"/><stop offset="1" stop-color="#707070"/>
+              </linearGradient>
+            </defs>
+            <path d="M60 10L104 44 60 112 16 44Z" fill="url(#bsilv-g)" stroke="#b0b0b0" stroke-width="1"/>
+            <path d="M16 44L60 44 104 44M32 22L60 112M88 22L60 112M44 44L60 22L76 44" stroke="#404040" stroke-width=".8" stroke-opacity=".5" fill="none"/>
+          </svg>
+        </div>
+        <div class="show-body">
+          <span class="show-level silver">◆ Carat Silver</span>
+          <h4>Le Petit Bœuf</h4>
+          <div class="show-cuisine">Bistrot suisse · Lausanne · VD</div>
+          <div class="show-scores">
+            <div class="show-score"><div class="n">15</div><div class="l">Apprêt</div></div>
+            <div class="show-score"><div class="n">16</div><div class="l">Qualité</div></div>
+            <div class="show-score"><div class="n">15</div><div class="l">Service</div></div>
+            <div class="show-score"><div class="n">14</div><div class="l">Ambiance</div></div>
+          </div>
+        </div>
+      </article>
+      <!-- BRONZE : Pinte Besson -->
+      <article class="show-card">
+        <div class="show-photo">
+          <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=533&fit=crop" alt="La Pinte Besson — Fondue traditionnelle">
+          <svg class="show-badge" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <linearGradient id="bbron-g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#e89654"/><stop offset=".5" stop-color="#cd7f32"/><stop offset="1" stop-color="#5a2d0c"/>
+              </linearGradient>
+            </defs>
+            <path d="M60 10L104 44 60 112 16 44Z" fill="url(#bbron-g)" stroke="#8b4513" stroke-width="1"/>
+            <path d="M16 44L60 44 104 44M32 22L60 112M88 22L60 112M44 44L60 22L76 44" stroke="#3a1d08" stroke-width=".8" stroke-opacity=".6" fill="none"/>
+          </svg>
+        </div>
+        <div class="show-body">
+          <span class="show-level bronze">◆ Carat Bronze</span>
+          <h4>La Pinte Besson</h4>
+          <div class="show-cuisine">Fondue & traditionnel · Lausanne · VD</div>
+          <div class="show-scores">
+            <div class="show-score"><div class="n">12</div><div class="l">Apprêt</div></div>
+            <div class="show-score"><div class="n">13</div><div class="l">Qualité</div></div>
+            <div class="show-score"><div class="n">13</div><div class="l">Service</div></div>
+            <div class="show-score"><div class="n">14</div><div class="l">Ambiance</div></div>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="palmares-actions">
+      <a href="https://r3sto.ch" class="btn-gold">Voir l'annuaire R3STO</a>
+      <a href="#cta-resto" class="btn-ghost">Soumettre mon restaurant</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CTA PAIR (Évaluateur + Restaurant) ═══════════════════ -->
+<section class="cta-pair">
+  <div class="cta-grid">
+    <div class="cta-box" id="cta-eval">
+      <h3>Devenir <em>évaluateur</em></h3>
+      <p>Passionné de gastronomie, rigoureux, discret. Vous évaluez anonymement les établissements suisses selon le protocole CARAT. Formation préalable, indemnité par visite, note de frais prise en charge.</p>
+      <form class="cta-form" onsubmit="return submitEval(event)">
+        <input class="cta-input" type="text" name="name" placeholder="Nom et prénom" required>
+        <input class="cta-input" type="email" name="email" placeholder="Adresse email" required>
+        <input class="cta-input" type="tel" name="phone" placeholder="Téléphone suisse (+41…)">
+        <textarea class="cta-input" name="motivation" placeholder="Votre rapport à la gastronomie, en quelques lignes…" required></textarea>
+        <button class="btn-gold" type="submit">Candidater</button>
+      </form>
+    </div>
+    <div class="cta-box" id="cta-resto">
+      <h3>Soumettre mon <em>restaurant</em></h3>
+      <p>Vous dirigez un établissement en Suisse et souhaitez être évalué. Aucune garantie d'attribution, aucune influence sur le résultat. Méthode stricte, visite anonyme, résultat communiqué dans les 6 semaines.</p>
+      <form class="cta-form" onsubmit="return submitResto(event)">
+        <input class="cta-input" type="text" name="restaurant" placeholder="Nom du restaurant" required>
+        <input class="cta-input" type="text" name="city" placeholder="Ville, canton" required>
+        <input class="cta-input" type="email" name="email" placeholder="Email de contact" required>
+        <input class="cta-input" type="url" name="website" placeholder="Site web (facultatif)">
+        <textarea class="cta-input" name="notes" placeholder="Précisez votre type de cuisine, horaires, particularités…"></textarea>
+        <button class="btn-gold" type="submit">Soumettre</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FAQ ═══════════════════ -->
+<section class="faq">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-label">Questions fréquentes</div>
+      <h2 class="s-title">Les <em>détails</em></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">
+          <h4>CARAT est-il payant pour les restaurants ?</h4>
+          <svg class="faq-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5z"/></svg>
+        </div>
+        <div class="faq-a"><p>La soumission est gratuite. Une participation aux frais d'évaluation peut être demandée selon le volume de demandes, mais l'attribution du niveau n'est jamais conditionnée à un paiement. Un restaurant peut refuser un niveau attribué ; il ne peut pas l'acheter.</p></div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">
+          <h4>Comment garantissez-vous l'anonymat de l'évaluateur ?</h4>
+          <svg class="faq-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5z"/></svg>
+        </div>
+        <div class="faq-a"><p>Les évaluateurs utilisent des identités réelles mais non reliées à CARAT. Ils réservent comme n'importe quel client, paient leur addition, prennent leurs photos discrètement, et reportent les données dans une application dédiée après la visite. Aucune signalétique, aucune déclaration sur place.</p></div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">
+          <h4>Qui sont les évaluateurs ?</h4>
+          <svg class="faq-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5z"/></svg>
+        </div>
+        <div class="faq-a"><p>Des passionnés suisses formés au protocole CARAT : restaurateurs retraités, sommeliers, journalistes gastronomiques, chefs reconvertis. Phase 1 : un cercle de 3 à 5 évaluateurs certifiés. Expansion progressive selon la couverture géographique.</p></div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">
+          <h4>Que se passe-t-il si mon niveau expire ?</h4>
+          <svg class="faq-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5z"/></svg>
+        </div>
+        <div class="faq-a"><p>Chaque badge CARAT a une validité d'un an. Deux mois avant expiration, une nouvelle visite anonyme est planifiée. Le nouveau résultat remplace l'ancien — il peut confirmer, élever ou redescendre le niveau. Aucun niveau n'est acquis à vie.</p></div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">
+          <h4>Pourquoi un bistrot peut-il obtenir un Gold comme un gastronomique ?</h4>
+          <svg class="faq-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5z"/></svg>
+        </div>
+        <div class="faq-a"><p>Parce que l'excellence ne dépend pas du prix du menu. Un bistrot qui maîtrise ses quatre piliers dans sa catégorie est un Gold dans sa catégorie. CARAT évalue la cohérence et l'exigence, pas l'ambition culinaire. Un trois-étoiles médiocre dans son segment recevra moins qu'un bistrot exemplaire dans le sien.</p></div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">
+          <h4>CARAT est-il indépendant de R3STO ?</h4>
+          <svg class="faq-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 5 5-5z"/></svg>
+        </div>
+        <div class="faq-a"><p>CARAT est une initiative de R3STO, plateforme suisse de gestion pour restaurants. L'indépendance est garantie par une cloison stricte : les évaluateurs ne savent pas si un restaurant utilise R3STO, les restaurants clients R3STO ne bénéficient d'aucun passe-droit. Le label est attribué uniquement sur la base du protocole.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div class="footer-in">
+    <div class="footer-brand">
+      <svg viewBox="0 0 32 32" fill="none">
+        <defs>
+          <linearGradient id="gfoot" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#d4af37"/>
+            <stop offset="1" stop-color="#8b6914"/>
+          </linearGradient>
+        </defs>
+        <path d="M16 3L28 12 16 29 4 12Z" fill="url(#gfoot)" stroke="#c9a649" stroke-width=".5"/>
+      </svg>
+      <span>Ca<b>r</b>at</span>
+    </div>
+    <div class="footer-signature">Évaluation Gastronomique Indépendante · Suisse</div>
+    <div class="footer-links">
+      <a href="#concept">Concept</a>
+      <a href="#piliers">4 Piliers</a>
+      <a href="#niveaux">3 Niveaux</a>
+      <a href="#process">Méthode</a>
+      <a href="#palmares">Palmarès</a>
+      <a href="https://r3sto.ch">r3sto.ch</a>
+      <a href="https://pro.r3sto.ch">pro.r3sto.ch</a>
+      <a href="mailto:info@innoptimgroup.com">Contact</a>
+    </div>
+    <div class="footer-copy">
+      © 2026 CARAT by R3STO · Lausanne, Suisse · Signataire : Didier Bonny
+      · <a href="tel:+41795301000">079 530 10 00</a>
+    </div>
+  </div>
+</footer>
+
+<div class="r3sto-bar">
+  Une initiative<a href="https://r3sto.ch">R3STO</a>
+</div>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll', function(){
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Reveal on scroll
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.12});
+document.querySelectorAll('.pillar,.level,.step,.dist-card,.cta-box,.faq-item').forEach(function(el){
+  el.classList.add('reveal');
+  io.observe(el);
+});
+
+// Stats from annuaire API
+async function loadStats(){
+  try {
+    var base = 'https://api.r3sto.ch/public/directory?limit=1';
+    var [g,s,b,t] = await Promise.all([
+      fetch(base+'&carat=gold').then(r=>r.json()).catch(()=>({total:0})),
+      fetch(base+'&carat=silver').then(r=>r.json()).catch(()=>({total:0})),
+      fetch(base+'&carat=bronze').then(r=>r.json()).catch(()=>({total:0})),
+      fetch(base+'&claimed=true').then(r=>r.json()).catch(()=>({total:0})),
+    ]);
+    document.getElementById('statGold').textContent = g.total || 0;
+    document.getElementById('statSilver').textContent = s.total || 0;
+    document.getElementById('statBronze').textContent = b.total || 0;
+    document.getElementById('statTotal').textContent = (g.total||0)+(s.total||0)+(b.total||0);
+  } catch(e){ console.log('stats unavailable'); }
+}
+loadStats();
+
+// Form submits
+async function submitEval(ev){
+  ev.preventDefault();
+  var f = ev.target;
+  var data = {
+    type: 'evaluator',
+    name: f.name.value, email: f.email.value, phone: f.phone.value,
+    motivation: f.motivation.value
+  };
+  try {
+    var resp = await fetch('https://api.r3sto.ch/public/carat/candidature', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    if(resp.ok){ alert('Candidature reçue. Nous revenons vers vous sous 10 jours.'); f.reset(); }
+    else throw new Error('API '+resp.status);
+  } catch(e){
+    // Fallback mailto si API pas prête
+    var body = encodeURIComponent('Candidature évaluateur CARAT\n\nNom: '+data.name+'\nEmail: '+data.email+'\nTél: '+data.phone+'\n\nMotivation:\n'+data.motivation);
+    window.location.href = 'mailto:info@innoptimgroup.com?subject=Candidature%20%C3%A9valuateur%20CARAT&body='+body;
+  }
+  return false;
+}
+async function submitResto(ev){
+  ev.preventDefault();
+  var f = ev.target;
+  var data = {
+    type: 'restaurant',
+    restaurant: f.restaurant.value, city: f.city.value, email: f.email.value,
+    website: f.website.value, notes: f.notes.value
+  };
+  try {
+    var resp = await fetch('https://api.r3sto.ch/public/carat/candidature', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    if(resp.ok){ alert('Soumission reçue. Réponse sous 6 semaines.'); f.reset(); }
+    else throw new Error('API '+resp.status);
+  } catch(e){
+    var body = encodeURIComponent('Soumission restaurant CARAT\n\nRestaurant: '+data.restaurant+'\nVille: '+data.city+'\nEmail: '+data.email+'\nSite: '+data.website+'\n\nNotes:\n'+data.notes);
+    window.location.href = 'mailto:info@innoptimgroup.com?subject=Soumission%20restaurant%20CARAT&body='+body;
+  }
+  return false;
+}
+</script>
+</body>
+</html>

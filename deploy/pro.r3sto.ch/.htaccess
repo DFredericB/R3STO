@@ -1,0 +1,27 @@
+DirectoryIndex index.html
+ErrorDocument 404 /index.html
+
+# ── Common URL typos / aliases ──
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^videos/?$ /video/ [R=301,L]
+    RewriteRule ^service/?$ /#fonctionnalités [R=301,NE,L]
+    RewriteRule ^services/?$ /#fonctionnalités [R=301,NE,L]
+    RewriteRule ^restaurant/?$ /restaurants/ [R=301,L]
+    RewriteRule ^comparatifs/?$ /comparatif/ [R=301,L]
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html "access plus 1 hour"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
