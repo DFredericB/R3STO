@@ -68,6 +68,9 @@ import { loadDemoFallback } from './utils/demoData'
 import { useAuth } from './auth/useAuth'
 import { useApiSync } from './hooks/useApiSync'
 import { Login } from './views/Auth/Login'
+import { Signup } from './views/Auth/Signup'
+import { ForgotPassword } from './views/Auth/ForgotPassword'
+import { ResetPassword } from './views/Auth/ResetPassword'
 import './styles/global.css'
 
 export default function App() {
@@ -139,6 +142,10 @@ export default function App() {
     return null
   }
   if (!user && !isDemo) {
+    const path = typeof window !== 'undefined' ? window.location.pathname : '/'
+    if (!isAdmin && path === '/signup') return <Signup />
+    if (path === '/forgot-password') return <ForgotPassword />
+    if (path === '/reset-password') return <ResetPassword />
     return <Login />
   }
 

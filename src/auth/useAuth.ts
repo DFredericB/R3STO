@@ -62,13 +62,46 @@ export function useAuth() {
     }
   }, [])
 
+  const signup = useCallback(async (payload: {
+    name: string
+    email: string
+    password: string
+    phone?: string
+    restaurantName?: string
+    plan?: string
+  }) => {
+    setLoading(true); setError(null)
+    try {
+      const r = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (!r.ok || !data.ok) throw new Error(data.error || "Inscription impossible")
+      const token = data.access_token || data.token
+      const newUser = data.user
+      if (!token || !newUser) throw new Error('Réponse serveur invalide')
+      localStorage.setItem(TOKEN_KEY, token)
+      localStorage.setItem(USER_KEY, JSON.stringify(newUser))
+      useAppStore.getState().resetData()
+      setUser(newUser)
+      return true
+    } catch (e: any) {
+      setError(e?.message || "Erreur d'inscription")
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY)
     sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY)
     setUser(null)
   }, [])
 
-  return { user, loading, error, login, logout }
+  return { user, loading, error, login, signup, logout }
 }
 
 export function getRememberedEmail(): string {

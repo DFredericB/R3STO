@@ -165,26 +165,32 @@ export function Login() {
           </button>
         </div>
 
-        {/* Remember */}
-        <label style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          fontSize: 12,
-          color: MUTED,
-          marginBottom: 20,
-          cursor: 'pointer',
-          userSelect: 'none',
-          fontFamily: FF,
+        {/* Remember + Forgot password */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginBottom: 20, fontFamily: FF,
         }}>
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={e => setRemember(e.target.checked)}
-            style={{ width: 14, height: 14, cursor: 'pointer', accentColor: BLUE }}
-          />
-          {t('login.remember')}
-        </label>
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            fontSize: 12, color: MUTED, cursor: 'pointer', userSelect: 'none',
+          }}>
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={e => setRemember(e.target.checked)}
+              style={{ width: 14, height: 14, cursor: 'pointer', accentColor: BLUE }}
+            />
+            {t('login.remember')}
+          </label>
+          {!isDemo && (
+            <a href="/forgot-password" style={{
+              fontSize: 12, color: BLUE, fontWeight: 600,
+              textDecoration: 'none', fontFamily: FF,
+            }}>
+              Mot de passe oublié ?
+            </a>
+          )}
+        </div>
 
         {/* Submit */}
         <button
