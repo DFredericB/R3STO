@@ -766,4 +766,52 @@ function submitBooking() {
       guests: selectedGuests,
       firstName: fname,
       lastName: lname,
-      email: 
+      email: email,
+      phone: fullPhone,
+      notes: document.getElementById('fnotes').value.trim(),
+      lang: BK_LANG
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = bt('btn_submit'); }
+
+    if(!data.ok) {
+      if(data.code === 'BLACKLISTED') { alert(bt('error_blacklist')); return; }
+      alert(bt('error_book'));
+      return;
+    }
+
+    // Confirmation screen
+    var d = new Date(dateInput.value + 'T00:00:00');
+    var opts = {weekday:'long',year:'numeric',month:'long',day:'numeric'};
+    document.getElementById('confResto').textContent  = document.getElementById('restoName').textContent;
+    document.getElementById('confDate').textContent   = d.toLocaleDateString(bt('locale'), opts);
+    document.getElementById('confTime').textContent   = selectedTime;
+    document.getElementById('confGuests').textContent = selectedGuests+(selectedGuests===1?' '+bt('person'):' '+bt('persons'));
+    document.getElementById('confName').textContent   = fname+' '+lname;
+    goStep(4);
+  })
+  .catch(function(err){
+    console.error('R3STO booking error', err);
+    if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = bt('btn_submit'); }
+    alert(bt('error_book'));
+  });
+}
+</script>
+<script src="./r3sto-phone.js"></script>
+<script>
+(function(){
+  window._bkPhone = R3Phone.init('#bk-phone-wrap', {
+    country: 'CH', selector: true, light: true,
+    onInput: function(d){ document.getElementById('fphone').value = d; if(typeof bkUpdateHint==='function') bkUpdateHint(); },
+    onE164: function(e164){
+      var cc = window._bkPhone ? window._bkPhone.getCountry() : 'CH';
+      var c = R3Phone.COUNTRIES[cc];
+      if(c) document.getElementById('bk-dial-val').value = c.dial;
+    }
+  });
+})();
+</script>
+</body>
+</html>

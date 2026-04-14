@@ -160,10 +160,10 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
       }
     }
 
-    // Par salle
+    // Par salle — Table.salle = NOM de la salle (cf. types/index.ts:168)
     const activeSalles = salles.filter(s => s.active)
     const perSalle = activeSalles.map(s => {
-      const salleTables = activeTables.filter(tb => tb.salle === s.id)
+      const salleTables = activeTables.filter(tb => tb.salle === s.name)
       const salleFreeTables = salleTables.filter(tb => !occupiedTbls.includes(tb.n))
       return { ...s, total: salleTables.length, free: salleFreeTables.length }
     })

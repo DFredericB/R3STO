@@ -268,4 +268,30 @@ export function QRCode() {
                   background: 'var(--surf2)',
                   color: 'var(--text)',
                   cursor: 'pointer',
-           
+                }}
+              >
+                PDF A4 — prêt à imprimer
+              </button>
+              <button
+                onClick={() => toast('Fichier ZIP téléchargé', 'success')}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  borderRadius: 4,
+                  border: '1px solid var(--border)',
+                  background: 'var(--surf2)',
+                  color: 'var(--text)',
+                  cursor: 'pointer',
+                }}
+              >
+                ZIP — un fichier par table
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

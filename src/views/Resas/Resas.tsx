@@ -322,7 +322,7 @@ export function Resas() {
     setHeure(activeServices.find(s => s.name.toLowerCase() === sid)?.open ?? '12:00')
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!svcId || !heure || !couverts) return
 
     // ── RÈGLE B4/C5 : validation capacité — proposer combo si dépasse ──
@@ -339,7 +339,12 @@ export function Resas() {
             .filter(c => c.tables.includes(currentTbl.id) && (c.capOverride || c.cap) >= couverts)
             .sort((a, b) => (a.capOverride || a.cap) - (b.capOverride || b.cap))[0]
           if (fittingCombo) {
-            if (confirm(`${couverts}p dépasse ${tbl} (max ${cap}p).\n\nPasser au combo ${fittingCombo.label} (${fittingCombo.capOverride || fittingCombo.cap}p) ?`)) {
+            const ok = await confirmAction({
+              title: 'Capacité dépassée',
+              message: `${couverts}p dépasse ${tbl} (max ${cap}p).\n\nPasser au combo ${fittingCombo.label} (${fittingCombo.capOverride || fittingCombo.cap}p) ?`,
+              confirmLabel: `Utiliser ${fittingCombo.label}`,
+            })
+            if (ok) {
               setTbl(fittingCombo.label)
               return // re-submit sera fait par l'utilisateur
             }
@@ -369,9 +374,13 @@ export function Resas() {
       if (sp.warning) setSmartWarn(sp.warning)
       if (sp.shouldWaitlist && !editingId) {
         // Recommander waitlist — mais laisser le choix
-        if (!confirm(`${sp.suggestion}\n\nPlacer quand même sur ${sp.table} ?`)) {
-          return
-        }
+        const forcePlace = await confirmAction({
+          title: 'Placement déconseillé',
+          message: `${sp.suggestion}\n\nPlacer quand même sur ${sp.table} ?`,
+          confirmLabel: 'Placer quand même',
+          danger: true,
+        })
+        if (!forcePlace) return
       }
     }
 

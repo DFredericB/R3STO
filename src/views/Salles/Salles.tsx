@@ -1070,4 +1070,11 @@ export function Salles() {
                     {modal === 'add-service' ? t('action.add') : t('action.save')}
                   </button>
                 </div>
-              </
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

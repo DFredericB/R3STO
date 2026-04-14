@@ -542,4 +542,34 @@ export interface GroupRequest {
   tel?: string
   email?: string
   note?: string
-  mode: 'auto' | 'manue
+  mode: 'auto' | 'manuel'
+  status: 'pending' | 'accepted' | 'refused'
+  createdAt: number
+}
+
+// ── État global de l'app ───────────────────────────
+export interface AppState {
+  resas: Resa[]
+  tables: Table[]
+  combos: Combo[]
+  services: Service[]
+  salles: Salle[]
+  resto: Resto
+  options: OptionsData
+  users: User[]
+  fermetures: Fermeture[]
+  clients: Client[]
+  giftCards: GiftCard[]
+  reviews: Review[]
+  loyaltyConfig: LoyaltyConfig
+  loyaltyCards: LoyaltyCard[]
+  // Multi-site (Gastro)
+  sites: Site[]
+  activeSiteId: string | null  // null = site principal (mono-site)
+  // Navigation
+  activeDate: string  // ISO YYYY-MM-DD
+  // UI state
+  isDemo: boolean
+  userRole: UserRole
+  lang: 'fr' | 'en' | 'de' | 'it'
+}

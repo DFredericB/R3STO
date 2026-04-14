@@ -676,4 +676,15 @@ export function Options() {
                 <NumField label="Nombre de chaises bébé" keyName="chaises_bebe" min={0} max={20} unit="chaises" />
               </div>
               <Toggle label="Places PMR / accessibilité" desc="Tables accessibles fauteuil roulant" keyName="places_pmr_active" />
-              <div styl
+              <div style={{ marginTop: 6 }}>
+                <NumField label="Nombre de places PMR" keyName="places_pmr" min={0} max={20} unit="places" />
+              </div>
+              <Toggle label="Gérer par table" desc="Cocher les tables avec équipement PMR/bébé (vs global)" keyName="chaises_bebe_par_table" />
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
+import { useToast } from '../../components/ui/Toast';
 
 // ══════════════════════════════════════════════════════════════════
 //  TYPES & INTERFACES
@@ -786,6 +787,7 @@ function NewOrderForm({
   onCreate: (table: string, items: OrderItem[], note: string) => void;
   onCancel: () => void;
 }) {
+  const { toast } = useToast();
   const [selectedTable, setSelectedTable] = useState(tables[0]);
   const [items, setItems] = useState<OrderItem[]>([{ id: '1', name: '', qty: 1, price: 0 }]);
   const [note, setNote] = useState('');
@@ -807,7 +809,7 @@ function NewOrderForm({
   const handleSubmit = () => {
     const validItems = items.filter(i => i.name.trim() && i.qty > 0 && i.price > 0);
     if (validItems.length === 0) {
-      alert('Veuillez ajouter au moins un article');
+      toast('Veuillez ajouter au moins un article', 'error');
       return;
     }
     onCreate(selectedTable, validItems, note);
@@ -1026,6 +1028,7 @@ function OrderEditForm({
 }) {
   const [items, setItems] = useState(order.items);
   const [note, setNote] = useState(order.note || '');
+  const { toast } = useToast();
 
   const updateItem = (id: string, field: string, value: any) => {
     setItems(prev => prev.map(item =>
@@ -1040,7 +1043,7 @@ function OrderEditForm({
   const handleSubmit = () => {
     const validItems = items.filter(i => i.name.trim() && i.qty > 0 && i.price > 0);
     if (validItems.length === 0) {
-      alert('Veuillez garder au moins un article');
+      toast('Veuillez garder au moins un article', 'error');
       return;
     }
     onSave(order.id, validItems, note);
@@ -1294,4 +1297,12 @@ function NotificationPanel({
                 </div>
                 <div style={{ fontSize: '9px', color: 'var(--t4)', marginTop: '2px' }}>
                   {new Date(notif.createdAt).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}
-            
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}

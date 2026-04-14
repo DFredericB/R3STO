@@ -1,6 +1,7 @@
 import { useAppStore } from '../../store/useAppStore'
 import { useState, useEffect, useMemo } from 'react'
 import { api } from '../../api/apiService'
+import { useToast } from '../../components/ui/Toast'
 
 const CUISINE_TYPES = [
   'française','italienne','suisse','méditerranéenne','japonaise','asiatique',
@@ -35,6 +36,7 @@ const parsePromos = (v: unknown): Promo[] => {
 
 export function Marketplace() {
   const { resto, updateResto } = useAppStore()
+  const { toast } = useToast()
   const restoName = resto?.name || 'Mon restaurant'
 
   // ── État hydraté depuis le resto ──
@@ -101,6 +103,7 @@ export function Marketplace() {
     } catch (e) {
       console.warn('[Marketplace] save failed', e)
       setSaveState('error')
+      toast('Erreur lors de la sauvegarde — veuillez r\u00e9essayer', 'error')
       setTimeout(() => setSaveState(s => s === 'error' ? 'idle' : s), 3500)
     }
   }
@@ -244,4 +247,43 @@ export function Marketplace() {
             {Object.entries(ptc).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label}</option>)}
           </select>
           <input style={{ ...S.input, flex: 1, minWidth: 160 }} placeholder="Ex: -20% le mardi, Menu midi 29 CHF..." value={newPromoLabel} onChange={e => setNewPromoLabel(e.target.value)} onKeyDown={e => e.key === 'Enter' && addPromo()} />
-          <button onClick={addPromo} style={S.btn('var(--bl)')}>+ Ajouter</bu
+          <button onClick={addPromo} style={S.btn('var(--bl)')}>+ Ajouter</button>
+        </div>
+      </div>
+
+      {/* Aperçu */}
+      <div style={S.card}>
+        <div style={S.cardTitle}>👀 Aperçu de votre fiche</div>
+        <div style={{ background: 'var(--bg)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)', maxWidth: 340 }}>
+          <div style={{ height: 140, backgroundImage: 'url(' + photo + ')', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+            <span style={{ position: 'absolute', top: 8, right: 8, padding: '3px 8px', borderRadius: 5, fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.03em', background: 'rgba(26,158,110,.9)', color: '#fff' }}>Ouvert</span>
+            {boostEnabled && <span style={{ position: 'absolute', top: 8, left: 8, padding: '3px 8px', borderRadius: 5, fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.03em', background: 'rgba(232,148,32,.92)', color: '#fff' }}>🔥 En vedette</span>}
+          </div>
+          <div style={{ padding: '12px 14px' }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--t1)' }}>{restoName}</div>
+            <div style={{ fontSize: 11, color: 'var(--bl)', fontWeight: 600, marginBottom: 4 }}>{cuisineLabel}</div>
+            <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 4 }}>{'📍 ' + (resto?.ville || 'Lausanne') + (features.length ? ' · ' + features.slice(0, 3).join(' · ') : '')}</div>
+            {promos.length > 0 && (
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
+                {promos.slice(0, 2).map((p, i) => { const cfg = ptc[p.type] || ptc.special; return <span key={i} style={{ padding: '2px 6px', borderRadius: 4, fontSize: 9, fontWeight: 700, background: cfg.color + '12', color: cfg.color, border: '1px solid ' + cfg.color + '20' }}>{cfg.icon} {p.label}</span> })}
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderTop: '1px solid var(--border)' }}>
+            <span style={{ fontSize: 11, color: 'var(--t3)' }}>{'Menu moyen '}<strong style={{ color: 'var(--t1)' }}>{avgPrice} CHF</strong></span>
+            <span style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--gn)', color: '#fff', fontSize: 11, fontWeight: 800 }}>Réserver</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <button onClick={handleSave} disabled={saveState === 'saving' || (!dirty && saveState === 'idle')} style={S.btn(saveBg, saveState === 'saving' || (!dirty && saveState === 'idle'))}>
+          {saveLabel}
+        </button>
+        {dirty && saveState === 'idle' && <span style={{ fontSize: 12, color: 'var(--am)', fontWeight: 600 }}>● Modifications non enregistrées</span>}
+        <a href="https://r3sto.ch/restaurants/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: 'var(--bl)', fontWeight: 600 }}>Voir la marketplace en ligne ↗</a>
+      </div>
+    </div>
+  )
+}

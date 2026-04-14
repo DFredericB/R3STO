@@ -1207,4 +1207,101 @@ function PermissionMatrixModal({ user, onClose, onSave }: PermissionMatrixModalP
                           key={level}
                           onClick={() => handleChange(module, level)}
                           style={{
-  
+                            padding: `${GAP.sm}px ${GAP.md}px`,
+                            borderRadius: RADIUS.sm,
+                            border: `1.5px solid ${levelColors[level]}`,
+                            background: isActive ? levelColors[level] + '20' : 'transparent',
+                            color: levelColors[level],
+                            fontSize: 10,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            textTransform: 'capitalize',
+                            transition: 'all .15s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isActive) {
+                              e.currentTarget.style.background = levelColors[level] + '10'
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isActive) {
+                              e.currentTarget.style.background = 'transparent'
+                            }
+                          }}
+                        >
+                          {level === 'none' ? '✕' : level === 'read' ? '👁️' : level === 'write' ? '✏️' : '🔑'}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        padding: GAP.xl,
+        borderTop: '1px solid var(--border)',
+        display: 'flex',
+        gap: GAP.lg,
+        justifyContent: 'flex-end',
+      }}>
+        <button
+          onClick={resetToDefaults}
+          style={{
+            padding: `${GAP.md}px ${GAP.lg}px`,
+            borderRadius: RADIUS.md,
+            border: '1px solid var(--border)',
+            background: 'var(--surf2)',
+            color: 'var(--text)',
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          Rétablir par défaut
+        </button>
+        <button
+          onClick={onClose}
+          style={{
+            padding: `${GAP.md}px ${GAP.lg}px`,
+            borderRadius: RADIUS.md,
+            border: '1px solid var(--border)',
+            background: 'transparent',
+            color: 'var(--t3)',
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          Annuler
+        </button>
+        <button
+          onClick={() => onSave(permissions)}
+          style={{
+            padding: `${GAP.md}px ${GAP.lg}px`,
+            borderRadius: RADIUS.md,
+            border: 'none',
+            background: 'var(--gn)',
+            color: 'white',
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: 'pointer',
+            transition: 'all .15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '0.9'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '1'
+          }}
+        >
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  )
+}

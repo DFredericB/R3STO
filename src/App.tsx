@@ -229,4 +229,11 @@ export default function App() {
                   </div>
                 } />
               </Routes>
-            </main
+            </main>
+          </div>
+          <BottomNav />
+        </div>
+      </ToastProvider>
+    </BrowserRouter>
+  )
+}

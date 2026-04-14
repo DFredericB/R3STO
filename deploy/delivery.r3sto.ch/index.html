@@ -1466,4 +1466,43 @@ function showTracking(orderId) {
   document.getElementById('etaLabel').textContent = isDelivery ? t('tracking.eta') : t('tracking.etaPickup');
   document.getElementById('etaValue').textContent = isDelivery ? RESTO.estimatedDelivery : RESTO.estimatedPickup;
 
-  setTimeout(() => s
+  setTimeout(() => simulateProgress(1), 8000);
+}
+
+function simulateProgress(step) {
+  const icons = document.querySelectorAll('#trackSteps .track-step');
+  if(step >= icons.length) return;
+  icons.forEach((el,i) => {
+    el.classList.remove('done','current');
+    if(i < step) el.classList.add('done');
+    if(i === step) el.classList.add('current');
+  });
+  if(step < icons.length - 1) {
+    setTimeout(() => simulateProgress(step + 1), 10000 + Math.random()*5000);
+  }
+}
+
+// ── SCROLL SPY ──
+function setupScrollSpy() {
+  const sections = document.querySelectorAll('.menu-section');
+  const pills = document.querySelectorAll('.cat-pill');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting) {
+        const id = entry.target.id.replace('cat-','');
+        pills.forEach(p => p.classList.remove('active'));
+        const active = [...pills].find(p => p.onclick?.toString().includes(id));
+        if(active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin:'-100px 0px -60% 0px', threshold:0.1 });
+  sections.forEach(s => observer.observe(s));
+}
+
+// ── LAUNCH ──
+window._payMethod = 'online';
+document.addEventListener('DOMContentLoaded', init);
+</script>
+<script src="./r3sto-phone.js"></script>
+</body>
+</html>

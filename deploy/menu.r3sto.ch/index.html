@@ -1513,4 +1513,24 @@ window.sendOrder=function(){
       <div class="twint-box">
         <div class="twint-logo">TWINT</div>
         <div class="twint-qr-wrap">
-          <img id="twint-qr-img" src="" width="180" height="180"
+          <img id="twint-qr-img" src="" width="180" height="180" alt="QR TWINT">
+        </div>
+        <div class="twint-amount" id="twint-amount">CHF 0.00</div>
+        <div class="twint-sub" id="twint-scan">Scannez avec votre app TWINT</div>
+        <div class="twint-alias" id="twint-alias"></div>
+      </div>
+      <div id="twint-steps" style="background:rgba(0,109,198,.08);border:1px solid rgba(0,109,198,.2);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:16px">
+        1. Ouvrez votre app TWINT<br>
+        2. Appuyez sur l'icône QR / Scanner<br>
+        3. Scannez ce code — le montant est pré-rempli<br>
+        4. Confirmez le paiement
+      </div>
+      <button id="twint-done" class="confirm-btn" onclick="paymentDone()" style="margin:0;width:100%">✅ J'ai payé</button>
+      <button id="twint-other" onclick="closeTwint();openPaySheet()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">← Autre mode de paiement</button>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>

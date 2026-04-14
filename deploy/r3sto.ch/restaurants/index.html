@@ -714,4 +714,31 @@ async function loadFromAPI(){
   }
   // Production : si API vide ET pas de ?demo=1 → afficher un \u00e9tat vide
   if(!loaded && !_isDemo){
-    RESTAURANTS = []
+    RESTAURANTS = [];
+  }
+  filterCards();
+  // Ajoute un message empty state si aucun resto (mode prod, API vide)
+  if(RESTAURANTS.length === 0){
+    var grid = document.getElementById('grid');
+    var emptyEl = document.getElementById('empty');
+    if(grid){
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--t3, #666)">' +
+        '<div style="font-size:56px;margin-bottom:16px;opacity:.4">\ud83c\udf7d\ufe0f</div>' +
+        '<div style="font-size:18px;font-weight:700;color:var(--t1, #222);margin-bottom:8px">Bient\u00f4t disponible</div>' +
+        '<div style="font-size:14px;max-width:420px;margin:0 auto;line-height:1.6">Les premiers restaurants R3STO rejoignent la plateforme. Revenez prochainement pour d\u00e9couvrir leur s\u00e9lection.</div>' +
+      '</div>';
+    }
+    if(emptyEl) emptyEl.style.display = 'none';
+  }
+}
+
+// ── Init ──
+applyI18n();
+if(_isDemo){
+  // D\u00e9mo : affiche imm\u00e9diatement le jeu fictif
+  filterCards();
+}
+loadFromAPI();
+</script>
+</body>
+</html>

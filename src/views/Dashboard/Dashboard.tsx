@@ -513,10 +513,11 @@ export function Dashboard() {
             <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.roomBreakdown')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {salles.filter(s => s.active).map(salle => {
-                const salleTableNames = tables.filter(tb => tb.salle === salle.id && tb.active).map(tb => tb.n)
+                // Table.salle contient le NOM de la salle, pas l'id (cf. types/index.ts:168)
+                const salleTableNames = tables.filter(tb => tb.salle === salle.name && tb.active).map(tb => tb.n)
                 const salleResas = dayResas.filter(r => salleTableNames.includes(r.tbl))
                 const salleCvt = salleResas.reduce((s, r) => s + r.c, 0)
-                const salleMax = tables.filter(tb => tb.salle === salle.id && tb.active).reduce((s, tb) => s + tb.capMax, 0)
+                const salleMax = tables.filter(tb => tb.salle === salle.name && tb.active).reduce((s, tb) => s + tb.capMax, 0)
                 const pct = salleMax > 0 ? Math.round(salleCvt / salleMax * 100) : 0
                 return (
                   <div key={salle.id}>

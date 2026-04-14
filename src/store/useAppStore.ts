@@ -64,7 +64,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   reserved:  ['arrived', 'noshow', 'cancelled', 'done'],
   arrived:   ['done', 'noshow'],
   waitlist:  ['reserved', 'cancelled'],
-  done:      [],           // état final
+  done:      ['reserved'], // réactivation possible (cohérent avec StatusActions restore)
   noshow:    ['reserved'], // réactivation possible
   cancelled: ['reserved'], // réactivation possible
 }

@@ -876,4 +876,72 @@ export function Profil() {
                       fontSize: 11,
                       padding: '6px 12px',
                       borderRadius: 6,
- 
+                      border: 'none',
+                      background: 'var(--bl)',
+                      color: 'white',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Enregistrer
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPasswordForm(false)
+                      setPasswordForm({ current: '', new: '', confirm: '' })
+                    }}
+                    style={{
+                      flex: 1,
+                      fontSize: 11,
+                      padding: '6px 12px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: 'var(--surf2)',
+                      color: 'var(--text)',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick shortcuts */}
+      <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', marginBottom: 30 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>⚡ Configuration rapide</div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {shortcuts.map((s) => (
+            <div
+              key={s.path}
+              onClick={() => navigate(s.path)}
+              style={{
+                background: 'var(--surf2)',
+                border: '1px solid var(--border)',
+                borderRadius: 10,
+                padding: '11px 13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                transition: '.15s',
+              }}
+            >
+              <span style={{ fontSize: 20 }}>{s.icon}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{s.lbl}</div>
+                <div style={{ fontSize: 11, color: 'var(--t3)' }}>{s.sub}</div>
+              </div>
+              <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--t3)' }}>›</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -698,4 +698,15 @@ export function Menu() {
                   color: '#fff',
                   fontWeight: 800,
                   cursor: 'pointer',
-               
+                  fontFamily: 'var(--ff)',
+                }}
+              >
+                Sauvegarder
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

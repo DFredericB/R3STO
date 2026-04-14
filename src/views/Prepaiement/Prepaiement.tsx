@@ -917,4 +917,34 @@ export function Prepaiement() {
                 </>
               ) : (
                 <div style={{
- 
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                }}>
+                  Merci de votre visite
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleNewPayment}
+              style={{
+                padding: '14px 24px',
+                borderRadius: 8,
+                border: 'none',
+                background: 'var(--bl)',
+                color: 'white',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                marginTop: 12,
+              }}
+            >
+              Nouveau paiement
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

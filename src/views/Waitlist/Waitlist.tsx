@@ -386,4 +386,10 @@ export function Waitlist() {
                   </button>
                 </div>
               </div>
-         
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
