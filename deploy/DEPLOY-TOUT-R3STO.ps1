@@ -206,6 +206,36 @@ if (-not $ApiOnly -and -not $AppOnly) {
     }
 }
 
+# 4b. SITE PRO (LANDING B2B)
+if (-not $ApiOnly -and -not $AppOnly) {
+    Write-Host "[4b/5] SITE PRO -> pro.r3sto.ch" -ForegroundColor Cyan
+    $proDir = Join-Path $deployDir "pro.r3sto.ch"
+    $sp = "sites/pro.r3sto.ch"
+    if (-not (Test-Path $proDir)) {
+        Write-Host "  SKIP pro.r3sto.ch (introuvable)" -ForegroundColor DarkYellow
+    } else {
+        New-FtpDir $sp
+        Get-ChildItem $proDir -File | ForEach-Object {
+            Upload-File $_.FullName "$sp/$($_.Name)"
+        }
+        Get-ChildItem $proDir -Directory | ForEach-Object {
+            $subFolderName = $_.Name
+            New-FtpDir "$sp/$subFolderName"
+            Get-ChildItem $_.FullName -File | ForEach-Object {
+                Upload-File $_.FullName "$sp/$subFolderName/$($_.Name)"
+            }
+            Get-ChildItem (Join-Path $proDir $subFolderName) -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+                $subSubName = $_.Name
+                New-FtpDir "$sp/$subFolderName/$subSubName"
+                Get-ChildItem $_.FullName -File | ForEach-Object {
+                    Upload-File $_.FullName "$sp/$subFolderName/$subSubName/$($_.Name)"
+                }
+            }
+        }
+        Write-Host "  pro.r3sto.ch OK" -ForegroundColor Green
+    }
+}
+
 # 5. PAGES LEGALES
 if (-not $ApiOnly -and -not $AppOnly) {
     Write-Host "[5/5] PAGES LEGALES -> r3sto.ch/legal/" -ForegroundColor Cyan
