@@ -11,6 +11,7 @@ import { useAppStore, isDoubleBooked } from '../../store/useAppStore'
 import { useToast } from '../ui/Toast'
 import PhoneInput, { toE164 } from '../ui/PhoneInput'
 import { useT } from '../../i18n/useTranslation'
+import { TABLE_STATE } from '../../utils/design'
 import type { Resa } from '../../types'
 
 function todayISO(): string {
@@ -820,28 +821,30 @@ function TableGrid({ tables, combos, resas, activeDate, svc, cvt, salles, salleI
                 let cursor = 'default'
                 let boxShadow = 'none'
 
+                // Source unique : TABLE_STATE (design.ts) — cohérent avec Grille/Plan/Journal
                 if (isBlk) {
                   opacity = .35; cursor = 'not-allowed'
-                  borderLeft = '5px solid rgba(100,116,139,.4)'
-                  statusText = '🚫 Bloquée'; statusBg = 'rgba(100,116,139,.1)'; statusColor = 'var(--muted, var(--t4))'
+                  borderLeft = `5px solid ${TABLE_STATE.blocked.border}`
+                  statusText = '🚫 Bloquée'; statusBg = TABLE_STATE.blocked.bg; statusColor = 'var(--muted, var(--t4))'
                 } else if (isOcc) {
-                  bg = 'rgba(91,156,246,.22)'; borderLeft = '5px solid rgba(59,130,246,.95)'
-                  nameColor = '#3b82f6'; boxShadow = 'inset 0 0 0 1px rgba(91,156,246,.2)'
+                  bg = TABLE_STATE.reserved.bg; borderLeft = `5px solid ${TABLE_STATE.reserved.border}`
+                  nameColor = '#3b82f6'; boxShadow = `inset 0 0 0 1px ${TABLE_STATE.reserved.border}`
                   statusText = resa ? `${resa.n} · ${resa.c}p` : 'Occupée'
                   statusBg = 'rgba(59,130,246,.85)'; statusColor = '#fff'
                   if (cvt > 0) opacity = .35
                 } else if (isSuggested) {
+                  // IA suggestion — violet spécifique (pas un état de table)
                   bg = 'rgba(168,85,247,.15)'; borderLeft = '5px solid rgba(168,85,247,.85)'
                   nameColor = '#a855f7'; boxShadow = '0 0 12px rgba(168,85,247,.3)'
                   statusText = '🤖 IA →'; statusBg = 'rgba(168,85,247,.85)'; statusColor = '#fff'
                   cursor = 'pointer'
                 } else if (fits) {
-                  bg = 'rgba(68,128,216,.06)'; borderLeft = '5px solid rgba(68,128,216,.4)'
+                  bg = TABLE_STATE.free.fill; borderLeft = `5px solid ${TABLE_STATE.free.border}`
                   nameColor = 'rgba(68,128,216,.7)'
                   statusText = `${tb.capMax} cvt ✔`; statusBg = 'rgba(91,156,246,.75)'; statusColor = '#fff'
                   cursor = 'pointer'
                 } else {
-                  bg = 'rgba(68,128,216,.06)'; borderLeft = '5px solid rgba(68,128,216,.4)'
+                  bg = TABLE_STATE.free.fill; borderLeft = `5px solid ${TABLE_STATE.free.border}`
                   nameColor = 'rgba(68,128,216,.7)'
                   statusText = '✅ LIBRE'; statusBg = 'rgba(91,156,246,.75)'; statusColor = '#fff'
                   if (dim) opacity = .12
