@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { ViewToolbar } from '../../components/ui/ViewToolbar'
+import { EmptyState } from '../../components/ui/EmptyState'
 import type { Resa, ResaCanal } from '../../types'
 import PhoneInput, { toE164, displayPhone } from '../../components/ui/PhoneInput'
 import { useT } from '../../i18n/useTranslation'
@@ -522,7 +523,29 @@ export function Resas() {
       {/* ═══ VUE JOURNAL (liste tableau) ═══ */}
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {dayResas.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)', fontSize: 14 }}>{t('resa.noResa')}</div>
+          (() => {
+            const hasAnyForDate = resas.some(r => r.date === activeDate)
+            const hasFilters = filter !== 'tous' || salleFilter !== 'toutes' || !!search
+            if (!hasAnyForDate && !hasFilters) {
+              return (
+                <EmptyState
+                  icon="📅"
+                  title={t('resa.noResa') || "Aucune réservation ce jour"}
+                  description="Commencez par créer votre première réservation manuellement ou attendez que vos clients réservent via le widget."
+                  cta={{ label: '+ Nouvelle réservation', onClick: openModal }}
+                  secondary={{ label: 'Voir la semaine', onClick: () => navigate('/agenda') }}
+                />
+              )
+            }
+            return (
+              <EmptyState
+                icon="🔎"
+                title="Aucun résultat"
+                description={hasFilters ? "Aucune réservation ne correspond aux filtres actuels. Essayez de les réinitialiser." : undefined}
+                cta={hasFilters ? { label: 'Réinitialiser les filtres', onClick: () => { setFilter('tous'); setSalleFilter('toutes'); setSearch('') }, variant: 'secondary' } : undefined}
+              />
+            )
+          })()
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
             <colgroup>
@@ -1170,24 +1193,4 @@ export function Resas() {
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 {editingId && (
-                  <div style={{ display: 'flex', gap: 4, marginRight: 'auto' }}>
-                    <button className="btn btn-danger" onClick={async () => { if (await confirmAction({ title: 'Annuler la réservation', message: 'Êtes-vous sûr de vouloir annuler cette réservation ?', danger: true, confirmLabel: 'Annuler la résa' })) { setResaStatus(editingId, 'cancelled'); closeModal() } }}
-                      style={{ minHeight: T, padding: '0 16px', fontSize: 13 }}>🚫 Annuler</button>
-                  </div>
-                )}
-                <button className="btn btn-secondary" onClick={() => closeModal()}
-                  style={{ minHeight: T, padding: '0 16px', fontSize: 13 }}>{t('modal.cancel')}</button>
-                <button className="btn btn-primary" onClick={handleSubmit}
-                  disabled={!svcId || !heure || !couverts}
-                  style={{ opacity: (!svcId || !heure || !couverts) ? .45 : 1, minWidth: 190, minHeight: T, fontWeight: 700, fontSize: 14 }}>
-                  ✓ {editingId ? t('modal.save') : t('modal.confirm')}
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+         
