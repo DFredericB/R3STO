@@ -44,3 +44,11 @@ chunk_*
 list-cmd.txt
 fix-quickresa.cjs
 fix-quickresa.js
+
+# Backend deploy packages (tar.gz, bin, zip)
+backend-deploy-*.tar.gz
+backend-deploy-*.bin
+backend-deploy-*.zip
+*.bak-pre-*
+*.js.new
+ziIHygtG
