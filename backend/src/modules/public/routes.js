@@ -295,6 +295,100 @@ router.post('/book', async (req, res, next) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
+//  DEMO — endpoints publics pour le tenant de demonstration
+//  Slug fige: 'chez-bunnys'. Pas d'auth, donnees regenerables.
+// ═══════════════════════════════════════════════════════════════
+
+const DEMO_SLUG = 'chez-bunnys';
+
+async function getDemoRestaurantId() {
+  const [rows] = await db.query(
+    'SELECT id FROM restaurants WHERE slug = ? LIMIT 1',
+    [DEMO_SLUG]
+  );
+  return rows[0]?.id || null;
+}
+
+// ─── GET /public/demo/status ────────────────────────────────
+router.get('/demo/status', async (_req, res, next) => {
+  try {
+    const id = await getDemoRestaurantId();
+    if (!id) {
+      return res.json({ ok: true, exists: false, slug: DEMO_SLUG });
+    }
+    const [[r]] = await db.query(
+      `SELECT
+         (SELECT COUNT(*) FROM reservations WHERE restaurant_id = ?) AS reservations,
+         (SELECT COUNT(*) FROM clients      WHERE restaurant_id = ?) AS clients,
+         (SELECT COUNT(*) FROM tables       WHERE restaurant_id = ?) AS tables_count,
+         (SELECT COUNT(*) FROM services     WHERE restaurant_id = ?) AS services`,
+      [id, id, id, id]
+    );
+    res.json({
+      ok: true, exists: true, slug: DEMO_SLUG, restaurantId: id,
+      counts: r,
+    });
+  } catch (e) { next(e); }
+});
+
+// ─── POST /public/demo/reset ────────────────────────────────
+// Purge reservations / clients / logs du tenant demo et reseed un set minimal.
+router.post('/demo/reset', async (_req, res, next) => {
+  try {
+    const id = await getDemoRestaurantId();
+    if (!id) {
+      return res.status(404).json({
+        ok: false, message: `Tenant demo "${DEMO_SLUG}" introuvable - run seed first`,
+      });
+    }
+    await db.query('DELETE FROM action_logs WHERE restaurant_id = ?', [id]).catch(() => {});
+    await db.query('DELETE FROM reservations WHERE restaurant_id = ?', [id]);
+    await db.query('DELETE FROM clients WHERE restaurant_id = ?', [id]);
+    await db.query('DELETE FROM waitlist WHERE restaurant_id = ?', [id]).catch(() => {});
+
+    const today = new Date();
+    const fmt = (d) => d.toISOString().slice(0, 10);
+    const J0 = fmt(today);
+    const J1 = fmt(new Date(today.getTime() + 86400000));
+    const J7 = fmt(new Date(today.getTime() + 7 * 86400000));
+
+    const seedClients = [
+      { p: 'Marie',  n: 'Dupont',  e: 'marie.dupont@demo.r3sto.ch',  t: '+41 79 111 22 33' },
+      { p: 'Lucas',  n: 'Bernard', e: 'lucas.bernard@demo.r3sto.ch', t: '+41 79 222 33 44' },
+      { p: 'Sophie', n: 'Rossi',   e: 'sophie.rossi@demo.r3sto.ch',  t: '+41 79 333 44 55' },
+    ];
+    for (const c of seedClients) {
+      await db.query(
+        `INSERT INTO clients (restaurant_id, prenom, nom, email, telephone, nb_visites)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [id, c.p, c.n, c.e, c.t, Math.floor(Math.random() * 5) + 1]
+      );
+    }
+
+    const seedResas = [
+      { date: J0, time: '12:30', guests: 2, name: 'Marie Dupont',  email: seedClients[0].e, phone: seedClients[0].t, source: 'widget' },
+      { date: J0, time: '19:30', guests: 4, name: 'Lucas Bernard', email: seedClients[1].e, phone: seedClients[1].t, source: 'app' },
+      { date: J1, time: '20:00', guests: 6, name: 'Sophie Rossi',  email: seedClients[2].e, phone: seedClients[2].t, source: 'widget' },
+      { date: J7, time: '12:30', guests: 3, name: 'Marie Dupont',  email: seedClients[0].e, phone: seedClients[0].t, source: 'widget' },
+    ];
+    for (const r of seedResas) {
+      await db.query(
+        `INSERT INTO reservations
+          (restaurant_id, guest_name, guest_email, guest_phone, party_size, date, time, notes, source, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, '', ?, 'reserved')`,
+        [id, r.name, r.email, r.phone, r.guests, r.date, r.time, r.source]
+      );
+    }
+
+    res.json({
+      ok: true, message: 'Demo reset OK',
+      restaurantId: id, slug: DEMO_SLUG,
+      seeded: { clients: seedClients.length, reservations: seedResas.length },
+    });
+  } catch (e) { next(e); }
+});
+
+// ═══════════════════════════════════════════════════════════════
 //  ANNUAIRE — directory_restaurants (OSM + claims)
 // ═══════════════════════════════════════════════════════════════
 

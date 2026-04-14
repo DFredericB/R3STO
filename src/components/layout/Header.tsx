@@ -492,7 +492,7 @@ export function Header() {
 
       {/* Demo: launcher sites clients */}
       {isDemo && (() => {
-        const DEMO_SLUG = 'chez-martin'
+        const DEMO_SLUG = 'chez-bunnys'
         const demoSites = [
           { key: 'widget',   icon: '📅', label: 'Widget booking', url: `https://booking.r3sto.ch/${DEMO_SLUG}?demo=1`,  hint: 'Prendre une résa depuis le widget client' },
           { key: 'menu',     icon: '📖', label: 'Menu client',    url: `https://menu.r3sto.ch/${DEMO_SLUG}?demo=1`,     hint: 'Carte vue par le client (QR code)' },
@@ -525,7 +525,7 @@ export function Header() {
                   fontSize: 10, fontWeight: 700, color: 'var(--t4)',
                   textTransform: 'uppercase', letterSpacing: '.08em',
                 }}>
-                  🎭 Sites clients — démo "Chez Martin"
+                  🎭 Sites clients — démo "Chez Bunny's"
                 </div>
                 <div style={{ padding: 6 }}>
                   {demoSites.map(s => (
