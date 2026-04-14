@@ -221,4 +221,13 @@ function buildResetHtml(resetUrl, name) {
   `;
 }
 
-module.exports = { register, login, sendOtp, verifyOtp, getMe, forgotPassword, resetPassword };
+
+module.exports = {
+  register,
+  login,
+  sendOtp,
+  verifyOtp,
+  getMe,
+  forgotPassword,
+  resetPassword,
+};
