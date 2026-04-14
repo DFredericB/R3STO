@@ -1,10 +1,10 @@
 import type { Client, GiftCard, Review, LoyaltyConfig, LoyaltyCard, Fermeture, User, OptionsData } from '../types/index'
 
 // ══════════════════════════════════════════════════
-//  R3STO — Données démo : "Le Comptoir du Lac"
-//  Restaurant suisse 120 couverts, 3 salles,
+//  R3STO — Données démo : "Chez Bunny's"
+//  Bistro Lausannois 120 couverts, 3 salles,
 //  services midi/soir + double service ven/sam soir.
-//  Plan réaliste — modèle exporté le 26/03/2026.
+//  Aligné avec le tenant SQL chez-bunnys (restaurant_id=16).
 //  Canvas : 120 × 80 par salle.
 // ══════════════════════════════════════════════════
 
@@ -293,14 +293,14 @@ export function loadDemoFallback() {
   // ══════════════════════════════════════════════════
 
   const resto: Resto = {
-    name: "Le Comptoir du Lac",
-    ville: 'Montpreveyres',
+    name: "Chez Bunny's",
+    ville: 'Lausanne',
     pays: 'CH',
     plan: 'gastro',
     maxCvt: 120,
-    tel: '+41 21 903 45 67',
-    email: 'info@comptoirdulac.ch',
-    web: 'www.comptoirdulac.ch'
+    tel: '+41 21 555 00 00',
+    email: 'contact@chez-bunnys.demo',
+    web: 'www.chez-bunnys.demo'
   }
 
   // ══════════════════════════════════════════════════
@@ -310,12 +310,12 @@ export function loadDemoFallback() {
   const sites = [
     {
       id: 'site_demo_1',
-      name: 'Le Comptoir — Sion',
-      ville: 'Sion',
-      adresse: 'Rue du Grand-Pont 18',
-      tel: '+41 27 322 45 67',
-      email: 'sion@comptoirdulac.ch',
-      web: 'www.comptoirdulac.ch/sion',
+      name: "Chez Bunny's — Lausanne",
+      ville: 'Lausanne',
+      adresse: 'Rue du Marché 12',
+      tel: '+41 21 555 00 00',
+      email: 'lausanne@chez-bunnys.demo',
+      web: 'www.chez-bunnys.demo/lausanne',
       active: true,
       color: '#38b090',
       plan: 'gastro' as const,
@@ -324,12 +324,12 @@ export function loadDemoFallback() {
     },
     {
       id: 'site_demo_2',
-      name: 'Le Comptoir — Sierre',
-      ville: 'Sierre',
-      adresse: 'Avenue Général-Guisan 5',
-      tel: '+41 27 455 12 34',
-      email: 'sierre@comptoirdulac.ch',
-      web: 'www.comptoirdulac.ch/sierre',
+      name: "Chez Bunny's — Vevey",
+      ville: 'Vevey',
+      adresse: 'Quai Perdonnet 5',
+      tel: '+41 21 555 01 00',
+      email: 'vevey@chez-bunnys.demo',
+      web: 'www.chez-bunnys.demo/vevey',
       active: true,
       color: '#7c3aed',
       plan: 'gastro' as const,
@@ -338,12 +338,12 @@ export function loadDemoFallback() {
     },
     {
       id: 'site_demo_3',
-      name: 'Le Comptoir — Martigny',
-      ville: 'Martigny',
-      adresse: 'Place Centrale 3',
-      tel: '+41 27 722 88 90',
-      email: 'martigny@comptoirdulac.ch',
-      web: 'www.comptoirdulac.ch/martigny',
+      name: "Chez Bunny's — Morges",
+      ville: 'Morges',
+      adresse: 'Grand-Rue 24',
+      tel: '+41 21 555 02 00',
+      email: 'morges@chez-bunnys.demo',
+      web: 'www.chez-bunnys.demo/morges',
       active: true,
       color: '#e08030',
       plan: 'gastro' as const,
@@ -388,7 +388,7 @@ export function loadDemoFallback() {
     { id:'gc2', code:'GC-M5K8-P2L1', amount:150, balance:80, currency:'CHF', status:'partial', buyerName:'Entreprise ABC', buyerEmail:'hr@abc.ch', buyerTel:'+41 21 777 88 99', recipientName:'Sylvain Blanc', recipientEmail:'sylvain.blanc@mail.ch', message:'Merci pour ton travail!', createdAt:Date.now()-60*86400000, expiresAt:relDate(305), usedAt:relDate(-29), usedResaId:'r6', source:'online' },
     { id:'gc3', code:'GC-X9D4-R6N2', amount:200, balance:0, currency:'CHF', status:'used', buyerName:'Didier Lefevre', buyerEmail:'didier@r3sto.com', buyerTel:'+41 21 903 45 67', recipientName:'Michèle Blanc', recipientEmail:'michele@mail.ch', message:'Profitez de notre nouvelle carte!', createdAt:Date.now()-90*86400000, expiresAt:relDate(275), usedAt:relDate(-16), usedResaId:'r34', source:'admin' },
     { id:'gc4', code:'GC-W2J7-Q8H3', amount:50, balance:0, currency:'CHF', status:'expired', buyerName:'Jean Dupont', buyerEmail:'jean.dupont@mail.ch', buyerTel:'+41 79 333 44 55', recipientName:'Antoinette Dupont', recipientEmail:'antoinette@mail.ch', message:'Pour un bon moment!', createdAt:Date.now()-400*86400000, expiresAt:relDate(-365), source:'online' },
-    { id:'gc5', code:'GC-F3G6-Z1P9', amount:75, balance:75, currency:'CHF', status:'active', buyerName:'Admin', buyerEmail:'info@comptoirdulac.ch', buyerTel:'+41 21 903 45 67', recipientName:'Promo mars', recipientEmail:'', message:'Bon promo nouveau client', createdAt:Date.now()-20*86400000, expiresAt:relDate(345), source:'admin' },
+    { id:'gc5', code:'GC-F3G6-Z1P9', amount:75, balance:75, currency:'CHF', status:'active', buyerName:'Admin', buyerEmail:'contact@chez-bunnys.demo', buyerTel:'+41 21 555 00 00', recipientName:'Promo mars', recipientEmail:'', message:'Bon promo nouveau client', createdAt:Date.now()-20*86400000, expiresAt:relDate(345), source:'admin' },
   ]
 
   // ══════════════════════════════════════════════════
@@ -396,7 +396,7 @@ export function loadDemoFallback() {
   // ══════════════════════════════════════════════════
 
   const reviews: Review[] = [
-    { id:'rv1', source:'google', clientName:'Martin Gironde', clientEmail:'', date:relDate(-15), createdAt:Date.now()-15*86400000, rating:5, comment:'Excellent restaurant! Cadre superbe avec vue sur le lac. Service attentif et cuisine raffinée.', service:'soir', reply:'Merci pour votre visite! À bientôt au Comptoir du Lac.', repliedAt:Date.now()-14*86400000, visible:true, flagged:false },
+    { id:'rv1', source:'google', clientName:'Martin Gironde', clientEmail:'', date:relDate(-15), createdAt:Date.now()-15*86400000, rating:5, comment:'Excellent bistro! Cadre chaleureux, terrasse agréable. Service attentif et cuisine de saison.', service:'soir', reply:'Merci pour votre visite! À bientôt chez Bunny\'s.', repliedAt:Date.now()-14*86400000, visible:true, flagged:false },
     { id:'rv2', source:'google', clientName:'Sophie Marchand', clientEmail:'sophie@mail.ch', date:relDate(-23), createdAt:Date.now()-23*86400000, rating:5, comment:'Magnifique terrasse, excellente cuisine suisse revisitée, prix justes.', service:'midi', visible:true, flagged:false },
     { id:'rv3', source:'internal', clientName:'Thomas R.', clientEmail:'', clientId:'c10', date:relDate(-28), createdAt:Date.now()-28*86400000, rating:4, comment:'Très bon restaurant. Un point : le vin rouge un peu trop jeune. Sinon parfait!', service:'soir', reply:'Merci! Nous prenons note pour notre carte des vins.', repliedAt:Date.now()-27*86400000, visible:true, flagged:false },
     { id:'rv4', source:'google', clientName:'Nathalie B.', clientEmail:'', date:relDate(-33), createdAt:Date.now()-33*86400000, rating:5, comment:'Déjeuner d\'affaires idéal. Cadre discret, service rapide, cuisine savoureuse.', service:'midi', visible:true, flagged:false },
@@ -461,10 +461,10 @@ export function loadDemoFallback() {
 
   const users: User[] = [
     { id:'u1', n:'Didier Lefevre', email:'didier@r3sto.com', role:'superadmin', active:true },
-    { id:'u2', n:'Véronique Roth', email:'veronique@comptoirdulac.ch', role:'coo', active:true },
-    { id:'u3', n:'Stéphane Moulin', email:'stephane@comptoirdulac.ch', role:'dev', active:true },
-    { id:'u4', n:'Caroline Blanc', email:'caroline@comptoirdulac.ch', role:'sales', active:true },
-    { id:'u5', n:'Antoine Dubois', email:'antoine@comptoirdulac.ch', role:'support', active:true },
+    { id:'u2', n:'Véronique Roth', email:'veronique@chez-bunnys.demo', role:'coo', active:true },
+    { id:'u3', n:'Stéphane Moulin', email:'stephane@chez-bunnys.demo', role:'dev', active:true },
+    { id:'u4', n:'Caroline Blanc', email:'caroline@chez-bunnys.demo', role:'sales', active:true },
+    { id:'u5', n:'Antoine Dubois', email:'antoine@chez-bunnys.demo', role:'support', active:true },
   ]
 
   // ══════════════════════════════════════════════════

@@ -13,6 +13,7 @@ import type { Client, Resa } from '../../types'
 import PhoneInput from '../../components/ui/PhoneInput'
 import { useToast } from '../../components/ui/Toast'
 import { useConfirm } from '../../components/ui/ConfirmDialog'
+import { EmptyState } from '../../components/ui/EmptyState'
 
 // ── Statut badge ────────────────────────────────
 const STATUT_META: Record<number, { label: string; icon: string; color: string; bg: string }> = {
@@ -323,9 +324,21 @@ export function Clients() {
         {/* List */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {filtered.length === 0 ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--t4)', fontSize: 13 }}>
-              {clients.length === 0 ? 'Aucun client — les profils se créent automatiquement depuis les réservations' : 'Aucun résultat'}
-            </div>
+            clients.length === 0 ? (
+              <EmptyState
+                icon="👥"
+                title="Aucun client pour l'instant"
+                description="Les profils clients se créent automatiquement dès qu'une réservation est saisie. Vous pouvez aussi en ajouter un manuellement."
+                cta={{ label: '+ Nouveau client', onClick: openNew }}
+              />
+            ) : (
+              <EmptyState
+                icon="🔎"
+                title="Aucun client trouvé"
+                description={search || filterStatut \!== null ? 'Aucun client ne correspond à vos filtres. Essayez de les réinitialiser.' : undefined}
+                cta={search || filterStatut \!== null ? { label: 'Réinitialiser les filtres', onClick: () => { setSearch(''); setFilterStatut(null) }, variant: 'secondary' } : undefined}
+              />
+            )
           ) : filtered.map(c => {
             const meta = STATUT_META[c.statut]
             const isActive = selectedId === c.id && !showForm
