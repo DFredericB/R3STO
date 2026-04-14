@@ -150,7 +150,8 @@ async function forgotPassword(email) {
     [token, expires, user.id]
   );
 
-  const resetUrl = `https://auth.r3sto.ch?mode=reset&token=${token}`;
+  const baseUrl = process.env.APP_RESET_URL || 'https://app.r3sto.ch/reset-password';
+  const resetUrl = `${baseUrl}?token=${token}`;
 
   await sendMail({
     to: email,
