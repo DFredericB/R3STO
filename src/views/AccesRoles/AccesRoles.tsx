@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useToast } from '../../components/ui/Toast'
+import { api } from '../../api/apiService'
 import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
 import { RADIUS, GAP, FONT } from '../../utils/design'
@@ -55,16 +56,29 @@ export function AccesRoles() {
   const [editingPermUserId, setEditingPermUserId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [showLoginHistory, setShowLoginHistory] = useState(false)
+  const isDemo = useAppStore(s => s.isDemo)
+
+  // Confirm dialog state (remplace window.confirm)
+  const [confirmDialog, setConfirmDialog] = useState<{
+    title: string
+    message: string
+    danger?: boolean
+    onConfirm: () => void
+  } | null>(null)
 
   const activeUserCount = storeUsers.filter(u => u.active).length
 
-  // Demo login history
-  const loginHistory: LoginLogItem[] = [
+  // Login history : démo statique en isDemo, sinon lastLogin par utilisateur
+  const loginHistory: LoginLogItem[] = isDemo ? [
     { userId: '1', userName: 'Pierre Martin', time: '2026-04-13 14:32', ip: '192.168.1.5' },
     { userId: '2', userName: 'Sophie Bernard', time: '2026-04-13 13:15', ip: '192.168.1.8' },
     { userId: '3', userName: 'Jean Dupont', time: '2026-04-13 12:45', ip: '192.168.1.3' },
     { userId: '1', userName: 'Pierre Martin', time: '2026-04-12 19:22', ip: '192.168.1.5' },
-  ]
+  ] : storeUsers
+    .filter(u => u.lastLogin)
+    .sort((a, b) => (b.lastLogin || '').localeCompare(a.lastLogin || ''))
+    .slice(0, 20)
+    .map(u => ({ userId: u.id, userName: u.n, time: u.lastLogin || '', ip: '—' }))
 
   const filteredUsers = storeUsers.filter(u =>
     u.n.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,25 +135,36 @@ export function AccesRoles() {
   function toggleUserActive(userId: string) {
     const user = storeUsers.find(u => u.id === userId)
     if (!user) return
-    const confirmed = window.confirm(
-      user.active
-        ? 'Êtes-vous sûr de vouloir révoquer l\'accès ?'
-        : 'Êtes-vous sûr de vouloir réactiver cet utilisateur ?'
-    )
-    if (!confirmed) return
-    useAppStore.setState(s => ({
-      users: s.users.map(u => u.id === userId ? { ...u, active: !u.active } : u)
-    }))
-    toast(user.active ? 'Accès révoqué' : 'Utilisateur réactivé', 'success')
+    setConfirmDialog({
+      title: user.active ? 'Révoquer l\'accès ?' : 'Réactiver l\'utilisateur ?',
+      message: user.active
+        ? `L'utilisateur ${user.n} ne pourra plus se connecter.`
+        : `L'utilisateur ${user.n} pourra à nouveau se connecter.`,
+      danger: user.active,
+      onConfirm: () => {
+        useAppStore.setState(s => ({
+          users: s.users.map(u => u.id === userId ? { ...u, active: !u.active } : u)
+        }))
+        toast(user.active ? 'Accès révoqué' : 'Utilisateur réactivé', 'success')
+        setConfirmDialog(null)
+      },
+    })
   }
 
   function deleteUser(userId: string) {
-    const confirmed = window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')
-    if (!confirmed) return
-    useAppStore.setState(s => ({
-      users: s.users.filter(u => u.id !== userId)
-    }))
-    toast('Utilisateur supprimé', 'success')
+    const user = storeUsers.find(u => u.id === userId)
+    setConfirmDialog({
+      title: 'Supprimer cet utilisateur ?',
+      message: user ? `Cette action est irréversible. ${user.n} sera définitivement supprimé.` : 'Cette action est irréversible.',
+      danger: true,
+      onConfirm: () => {
+        useAppStore.setState(s => ({
+          users: s.users.filter(u => u.id !== userId)
+        }))
+        toast('Utilisateur supprimé', 'success')
+        setConfirmDialog(null)
+      },
+    })
   }
 
   return (
@@ -988,6 +1013,62 @@ export function AccesRoles() {
           ))}
         </div>
       </div>
+
+      {/* Confirm dialog (remplace window.confirm) */}
+      {confirmDialog && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-title"
+          onClick={() => setConfirmDialog(null)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 9999, padding: 20,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--surf)', borderRadius: 12, padding: 24,
+              maxWidth: 440, width: '100%', border: '1px solid var(--border)',
+              boxShadow: '0 10px 40px rgba(0,0,0,.4)',
+            }}
+          >
+            <h3 id="confirm-title" style={{
+              margin: 0, marginBottom: 8, fontSize: 16, fontWeight: 800,
+              color: confirmDialog.danger ? 'var(--rd)' : 'var(--text)',
+            }}>
+              {confirmDialog.title}
+            </h3>
+            <p style={{ margin: 0, marginBottom: 20, fontSize: 13, color: 'var(--t2)', lineHeight: 1.5 }}>
+              {confirmDialog.message}
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setConfirmDialog(null)}
+                style={{
+                  padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border)',
+                  background: 'var(--surf2)', color: 'var(--text)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                autoFocus
+                style={{
+                  padding: '8px 16px', borderRadius: 6, border: 'none',
+                  background: confirmDialog.danger ? 'var(--rd)' : 'var(--bl)',
+                  color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                {confirmDialog.danger ? 'Confirmer' : 'OK'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1126,101 +1207,4 @@ function PermissionMatrixModal({ user, onClose, onSave }: PermissionMatrixModalP
                           key={level}
                           onClick={() => handleChange(module, level)}
                           style={{
-                            padding: `${GAP.sm}px ${GAP.md}px`,
-                            borderRadius: RADIUS.sm,
-                            border: `1.5px solid ${levelColors[level]}`,
-                            background: isActive ? levelColors[level] + '20' : 'transparent',
-                            color: levelColors[level],
-                            fontSize: 10,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            textTransform: 'capitalize',
-                            transition: 'all .15s ease',
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!isActive) {
-                              e.currentTarget.style.background = levelColors[level] + '10'
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isActive) {
-                              e.currentTarget.style.background = 'transparent'
-                            }
-                          }}
-                        >
-                          {level === 'none' ? '✕' : level === 'read' ? '👁️' : level === 'write' ? '✏️' : '🔑'}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div style={{
-        padding: GAP.xl,
-        borderTop: '1px solid var(--border)',
-        display: 'flex',
-        gap: GAP.lg,
-        justifyContent: 'flex-end',
-      }}>
-        <button
-          onClick={resetToDefaults}
-          style={{
-            padding: `${GAP.md}px ${GAP.lg}px`,
-            borderRadius: RADIUS.md,
-            border: '1px solid var(--border)',
-            background: 'var(--surf2)',
-            color: 'var(--text)',
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
-          Rétablir par défaut
-        </button>
-        <button
-          onClick={onClose}
-          style={{
-            padding: `${GAP.md}px ${GAP.lg}px`,
-            borderRadius: RADIUS.md,
-            border: '1px solid var(--border)',
-            background: 'transparent',
-            color: 'var(--t3)',
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
-          Annuler
-        </button>
-        <button
-          onClick={() => onSave(permissions)}
-          style={{
-            padding: `${GAP.md}px ${GAP.lg}px`,
-            borderRadius: RADIUS.md,
-            border: 'none',
-            background: 'var(--gn)',
-            color: 'white',
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'all .15s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = '0.9'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = '1'
-          }}
-        >
-          Enregistrer
-        </button>
-      </div>
-    </div>
-  )
-}
+  

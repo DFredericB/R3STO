@@ -79,6 +79,7 @@ export function Cadeaux() {
   const { t } = useT()
   const giftCards = useAppStore(s => s.giftCards)
   const addGiftCard = useAppStore(s => s.addGiftCard)
+
   const updateGiftCard = useAppStore(s => s.updateGiftCard)
   const useGiftCardAction = useAppStore(s => s.useGiftCard)
   const resto = useAppStore(s => s.resto)

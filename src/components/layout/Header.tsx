@@ -461,11 +461,13 @@ export function Header() {
           onClick={() => setShowSearch(true)}
           style={iconBtn}
           title="Recherche ⌘K"
+          aria-label="Ouvrir la recherche"
         >🔍</button>
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           style={iconBtn}
           title={theme === 'dark' ? 'Mode clair' : 'Mode foncé'}
+          aria-label={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode foncé'}
         >{theme === 'dark' ? '☀️' : '🌙'}</button>
         <button
           onClick={() => {
@@ -478,6 +480,7 @@ export function Header() {
           }}
           style={iconBtn}
           title="Plein écran"
+          aria-label="Basculer en plein écran"
         >⛶</button>
       </div>
 
@@ -485,7 +488,7 @@ export function Header() {
 
       {/* Notifications */}
       <div style={{ position: 'relative' }} data-notif-panel>
-        <button onClick={() => setShowNotif(!showNotif)} style={iconBtn} title={t('header.notifications')}>
+        <button onClick={() => setShowNotif(!showNotif)} style={iconBtn} title={t('header.notifications')} aria-label={t('header.notifications') + (unreadCount > 0 ? ` (${unreadCount} non lues)` : '')}>
           🔔
         </button>
         {unreadCount > 0 && (

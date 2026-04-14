@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useAppStore } from '../../store/useAppStore';
 
 // ══════════════════════════════════════════════════════════════════
 //  TYPES & INTERFACES
@@ -81,63 +82,62 @@ function playReadySound(volume: number = 0.3) {
 //  MAIN COMPONENT
 // ══════════════════════════════════════════════════════════════════
 
+const DEMO_ORDERS: Order[] = [
+  {
+    id: 'cmd1',
+    table: 'T3',
+    status: 'pending',
+    items: [
+      { id: 'm1', name: 'Salade César', qty: 2, price: 16 },
+      { id: 'm2', name: 'Carpaccio bœuf', qty: 1, price: 22 },
+    ],
+    total: 54,
+    note: '',
+    createdAt: Date.now() - 5 * 60000,
+  },
+  {
+    id: 'cmd2',
+    table: 'T7',
+    status: 'preparing',
+    items: [{ id: 'm4', name: 'Entrecôte 250g', qty: 2, price: 46 }],
+    total: 92,
+    note: 'Bien cuit',
+    createdAt: Date.now() - 12 * 60000,
+  },
+  {
+    id: 'cmd3',
+    table: 'T5',
+    status: 'ready',
+    items: [
+      { id: 'm3', name: 'Filet de perche', qty: 1, price: 38 },
+    ],
+    total: 38,
+    note: '',
+    createdAt: Date.now() - 18 * 60000,
+  },
+  {
+    id: 'cmd4',
+    table: 'T1',
+    status: 'done',
+    items: [
+      { id: 'm5', name: 'Risotto', qty: 1, price: 32 },
+    ],
+    total: 32,
+    note: '',
+    createdAt: Date.now() - 45 * 60000,
+  },
+];
+
+const DEMO_BELL_ALERTS: BellAlert[] = [
+  { id: '1', table: 'T2', msg: 'Appel serveur', ts: '14:25' },
+];
+
 export function Commandes() {
+  const isDemo = useAppStore(s => s.isDemo);
   // State
   const [filter, setFilter] = useState<'actives' | 'alertes' | 'terminees'>('actives');
-  const [orders, setOrders] = useState<Order[]>([
-    {
-      id: 'cmd1',
-      table: 'T3',
-      status: 'pending',
-      items: [
-        { id: 'm1', name: 'Salade César', qty: 2, price: 16 },
-        { id: 'm2', name: 'Carpaccio bœuf', qty: 1, price: 22 },
-      ],
-      total: 54,
-      note: '',
-      createdAt: Date.now() - 5 * 60000,
-    },
-    {
-      id: 'cmd2',
-      table: 'T7',
-      status: 'preparing',
-      items: [{ id: 'm4', name: 'Entrecôte 250g', qty: 2, price: 46 }],
-      total: 92,
-      note: 'Bien cuit',
-      createdAt: Date.now() - 12 * 60000,
-    },
-    {
-      id: 'cmd3',
-      table: 'T5',
-      status: 'ready',
-      items: [
-        { id: 'm3', name: 'Filet de perche', qty: 1, price: 38 },
-      ],
-      total: 38,
-      note: '',
-      createdAt: Date.now() - 18 * 60000,
-    },
-    {
-      id: 'cmd4',
-      table: 'T1',
-      status: 'done',
-      items: [
-        { id: 'm5', name: 'Risotto', qty: 1, price: 32 },
-      ],
-      total: 32,
-      note: '',
-      createdAt: Date.now() - 45 * 60000,
-    },
-  ]);
-
-  const [bellAlerts, setBellAlerts] = useState<BellAlert[]>([
-    {
-      id: '1',
-      table: 'T2',
-      msg: 'Appel serveur',
-      ts: '14:25',
-    },
-  ]);
+  const [orders, setOrders] = useState<Order[]>(isDemo ? DEMO_ORDERS : []);
+  const [bellAlerts, setBellAlerts] = useState<BellAlert[]>(isDemo ? DEMO_BELL_ALERTS : []);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifPanel, setShowNotifPanel] = useState(false);
@@ -1294,12 +1294,4 @@ function NotificationPanel({
                 </div>
                 <div style={{ fontSize: '9px', color: 'var(--t4)', marginTop: '2px' }}>
                   {new Date(notif.createdAt).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))
-      )}
-    </div>
-  );
-}
+            

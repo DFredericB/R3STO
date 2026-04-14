@@ -51,18 +51,16 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     stripePriceId: 'price_1TFWg9906pQ0p9GXfDcLAi20',
     color: 'var(--gn)',
     features: [
-      'Vue Grille',
-      'Vue Agenda',
-      'Vue Journal',
-      'Widget de réservation en ligne',
-      'Confirmations & rappels email auto',
-      'Services multiples (midi, soir…)',
-      'Fermeture exceptionnelle',
-      'Salles illimitées',
-      'Taux de remplissage',
+      'Grille interactive',
+      'Agenda & Journal',
+      'Dashboard temps réel',
+      'Nouvelle résa rapide',
+      'Services & Salles',
+      'Fermetures exceptionnelles',
+      'Notifications email',
       'Export CSV',
       '1 utilisateur',
-      'Support email',
+      'Support dédié',
     ],
   },
   resto: {
@@ -73,16 +71,17 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     color: 'var(--bl)',
     features: [
       'Tout Bistro +',
-      'Plan de salle 2D interactif',
-      'QR code de réservation',
-      'Rappels SMS automatiques',
-      'Gestion no-shows & blacklist',
-      'Fiche client & préférences',
-      'Score fidélité client',
-      "Liste d'attente automatique",
-      'Widget personnalisable',
-      'Utilisateurs illimités',
-      'Chat support & onboarding accompagné',
+      'Plan 2D interactif',
+      'Tables & Combos',
+      'Waitlist intelligente',
+      'Groupes & événements',
+      'CRM complet',
+      'Widget réservation',
+      'Menu digital & QR',
+      'Bons cadeaux',
+      'Marketplace',
+      'Rôles illimités',
+      'Support dédié',
     ],
   },
   gastro: {
@@ -93,17 +92,24 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     color: 'var(--am)',
     features: [
       'Tout Resto +',
-      'Prépaiement en ligne (Stripe)',
-      'Caution & remboursement auto',
-      'Gestion terrasse',
-      "Liste d'attente + rapatriement",
+      'Avis clients',
+      'Site vitrine',
+      'Prépaiement & acomptes',
       'Multi-sites (jusqu\'à 12)',
-      'Prédictions IA',
-      'Optimisation créneaux IA',
-      'API REST publique',
-      'Support prioritaire + SLA',
+      'IA optimisation',
+      'Notifications SMS',
+      'Rapports avancés',
+      'Marketplace premium',
+      'API REST',
+      'Support dédié + SLA',
     ],
   },
+}
+
+// ── Plan gating ──
+export const PLAN_LEVEL: Record<PlanId, number> = { bistro: 1, resto: 2, gastro: 3 }
+export function hasPlan(current: PlanId | undefined, required: PlanId): boolean {
+  return PLAN_LEVEL[current || 'bistro'] >= PLAN_LEVEL[required]
 }
 
 // ── Module Add-on definitions ──

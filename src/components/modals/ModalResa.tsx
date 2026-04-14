@@ -305,7 +305,7 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
               )}
             </div>
           </div>
-          <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--t3)', fontSize:20, cursor:'pointer', padding:'0 4px' }}>✕</button>
+          <button onClick={onClose} aria-label="Fermer" title="Fermer" style={{ background:'none', border:'none', color:'var(--t3)', fontSize:20, cursor:'pointer', padding:'0 4px' }}>✕</button>
         </div>
 
         {/* Corps — 3 colonnes */}

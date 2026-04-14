@@ -377,7 +377,7 @@ export function Blacklist() {
                       </button>
                       {b.active && (
                         <button
-                          onClick={() => { updateClient(b.id, { blacklisted: false, blacklistReason: "" }); toast(b.n + ' réhabilité', 'success') }}
+                          onClick={() => { updateClient(b.id, { blacklisted: false, blacklistReason: '' }); toast(b.n + ' réhabilité', 'success') }}
                           style={{
                             fontSize: 11,
                             padding: '3px 7px',

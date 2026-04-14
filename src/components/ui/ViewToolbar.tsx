@@ -111,7 +111,7 @@ export function ViewToolbar({
         </div>
       )}
       {/* ── Ligne 1 : titre + date + résumé + recherche + actions ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', flexWrap: 'nowrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', flexWrap: 'wrap' }}>
         {/* Titre */}
         <div style={{ flexShrink: 0 }}>
           <div className="page-title">{title}</div>

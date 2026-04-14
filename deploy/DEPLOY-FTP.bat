@@ -5,8 +5,8 @@ echo   R3STO - Deploy 7 sites via FTP (curl)
 echo ============================================
 echo.
 
-set FTP_USER=pl7wy9_R3sto
-set FTP_PASS=gDJbGDTax0nY
+set FTP_USER=pl7wy9_r3sto
+set FTP_PASS=a5NDkGSzZ8zU#
 set FTP_HOST=ftp://pl7wy9.ftp.infomaniak.com
 set BASE=C:\Users\db\Desktop\R3STO\deploy
 

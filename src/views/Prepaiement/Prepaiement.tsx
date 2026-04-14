@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useToast } from '../../components/ui/Toast'
+import { useAppStore } from '../../store/useAppStore'
 
 interface BillItem {
   name: string
@@ -26,6 +28,9 @@ const DEMO_BILL_ITEMS: BillItem[] = [
 ]
 
 export function Prepaiement() {
+  const { toast } = useToast()
+  const { isDemo } = useAppStore()
+  const billItems: BillItem[] = isDemo ? DEMO_BILL_ITEMS : []
   const [state, setState] = useState<PaymentState>('viewing')
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('twint')
   const [selectedTip, setSelectedTip] = useState<TipPercentage>(0)
@@ -36,7 +41,7 @@ export function Prepaiement() {
   const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' })
   const [processingProgress, setProcessingProgress] = useState(0)
 
-  const subtotal = DEMO_BILL_ITEMS.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  const subtotal = billItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const tipAmount = customTip ? parseFloat(customTip) : (subtotal * selectedTip) / 100
   const total = subtotal + tipAmount
   const amountPerPerson = split.mode === 'none' ? total : total / split.parts
@@ -60,7 +65,7 @@ export function Prepaiement() {
   const handlePayment = () => {
     if (selectedPayment === 'card') {
       if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvc) {
-        alert('Veuillez remplir tous les champs de la carte')
+        toast('Veuillez remplir tous les champs de la carte', 'error')
         return
       }
     }
@@ -135,8 +140,21 @@ export function Prepaiement() {
               }}>
                 Commandes
               </div>
+              {billItems.length === 0 && (
+                <div style={{
+                  padding: '32px 20px',
+                  background: 'var(--surf)',
+                  border: '1px dashed var(--border)',
+                  borderRadius: 8,
+                  textAlign: 'center',
+                  color: 'var(--t3)',
+                  fontSize: 13,
+                }}>
+                  Aucune commande en cours. Les tickets apparaîtront ici dès que la caisse sera branchée.
+                </div>
+              )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {DEMO_BILL_ITEMS.map((item, idx) => (
+                {billItems.map((item, idx) => (
                   <div key={idx} style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -899,34 +917,4 @@ export function Prepaiement() {
                 </>
               ) : (
                 <div style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: 'var(--text)',
-                }}>
-                  Merci de votre visite
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={handleNewPayment}
-              style={{
-                padding: '14px 24px',
-                borderRadius: 8,
-                border: 'none',
-                background: 'var(--bl)',
-                color: 'white',
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: 'pointer',
-                marginTop: 12,
-              }}
-            >
-              Nouveau paiement
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+ 

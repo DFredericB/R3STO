@@ -1,4 +1,6 @@
+import { api } from '../../api/apiService'
 import { useState } from 'react';
+import { useAppStore } from '../../store/useAppStore';
 
 interface MenuItem {
   id: string;
@@ -36,30 +38,34 @@ interface EditingItem {
   allergens: string;
 }
 
+const DEMO_ITEMS: MenuItem[] = [
+  { id: 'm1', name: 'Salade César', cat: 'c1', desc: 'Laitue romaine, parmesan, croutons', price: 16, available: true, allergens: ['gluten', 'lactose'] },
+  { id: 'm2', name: 'Carpaccio bœuf', cat: 'c1', desc: 'Finement tranché, roquette, câpres', price: 22, available: true, allergens: [] },
+  { id: 'm3', name: 'Filet de perche', cat: 'c2', desc: 'Du lac Léman, servi avec légumes', price: 38, available: true, allergens: ['poisson'] },
+  { id: 'm4', name: 'Entrecôte 250g', cat: 'c2', desc: 'Servie avec frites et sauce béarnaise', price: 46, available: true, allergens: ['lactose'] },
+  { id: 'm5', name: 'Risotto champignons', cat: 'c2', desc: 'Crémeux, parmesan', price: 32, available: true, allergens: ['gluten', 'lactose'] },
+  { id: 'm6', name: 'Tiramisu', cat: 'c3', price: 12, available: true, allergens: ['œuf', 'lactose'] },
+  { id: 'm7', name: 'Jus de fruits', cat: 'c4', price: 6, available: true, allergens: [] },
+  { id: 'm8', name: 'Eau 50cl', cat: 'c4', price: 5, available: true, allergens: [] },
+  { id: 'm9', name: 'Chasselas Lavaux', cat: 'c5', desc: 'Blanc, 2023', price: 58, available: true, allergens: ['sulfites'] },
+  { id: 'm10', name: 'Café', cat: 'c4', price: 4, available: true, allergens: [] },
+  { id: 'm11', name: 'Pinot Noir Valais', cat: 'c5', desc: 'Rouge, 2022', price: 52, available: true, allergens: ['sulfites'] },
+];
+
+const DEMO_CATEGORIES: MenuCategory[] = [
+  { id: 'c1', name: 'Entrées', icon: '🥗', active: true },
+  { id: 'c2', name: 'Plats', icon: '🍽️', active: true },
+  { id: 'c3', name: 'Desserts', icon: '🍰', active: true },
+  { id: 'c4', name: 'Boissons', icon: '🥤', active: true },
+  { id: 'c5', name: 'Vins', icon: '🍷', active: true },
+];
+
 export function Menu() {
+  const isDemo = useAppStore(s => s.isDemo);
   const [tab, setTab] = useState<'carte' | 'settings'>('carte');
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
-  const [items, setItems] = useState<MenuItem[]>([
-    { id: 'm1', name: 'Salade César', cat: 'c1', desc: 'Laitue romaine, parmesan, croutons', price: 16, available: true, allergens: ['gluten', 'lactose'] },
-    { id: 'm2', name: 'Carpaccio bœuf', cat: 'c1', desc: 'Finement tranché, roquette, câpres', price: 22, available: true, allergens: [] },
-    { id: 'm3', name: 'Filet de perche', cat: 'c2', desc: 'Du lac Léman, servi avec légumes', price: 38, available: true, allergens: ['poisson'] },
-    { id: 'm4', name: 'Entrecôte 250g', cat: 'c2', desc: 'Servie avec frites et sauce béarnaise', price: 46, available: true, allergens: ['lactose'] },
-    { id: 'm5', name: 'Risotto champignons', cat: 'c2', desc: 'Crémeux, parmesan', price: 32, available: true, allergens: ['gluten', 'lactose'] },
-    { id: 'm6', name: 'Tiramisu', cat: 'c3', price: 12, available: true, allergens: ['œuf', 'lactose'] },
-    { id: 'm7', name: 'Jus de fruits', cat: 'c4', price: 6, available: true, allergens: [] },
-    { id: 'm8', name: 'Eau 50cl', cat: 'c4', price: 5, available: true, allergens: [] },
-    { id: 'm9', name: 'Chasselas Lavaux', cat: 'c5', desc: 'Blanc, 2023', price: 58, available: true, allergens: ['sulfites'] },
-    { id: 'm10', name: 'Café', cat: 'c4', price: 4, available: true, allergens: [] },
-    { id: 'm11', name: 'Pinot Noir Valais', cat: 'c5', desc: 'Rouge, 2022', price: 52, available: true, allergens: ['sulfites'] },
-  ]);
-
-  const [categories] = useState<MenuCategory[]>([
-    { id: 'c1', name: 'Entrées', icon: '🥗', active: true },
-    { id: 'c2', name: 'Plats', icon: '🍽️', active: true },
-    { id: 'c3', name: 'Desserts', icon: '🍰', active: true },
-    { id: 'c4', name: 'Boissons', icon: '🥤', active: true },
-    { id: 'c5', name: 'Vins', icon: '🍷', active: true },
-  ]);
+  const [items, setItems] = useState<MenuItem[]>(isDemo ? DEMO_ITEMS : []);
+  const [categories] = useState<MenuCategory[]>(isDemo ? DEMO_CATEGORIES : []);
 
   const [settings, setSettings] = useState<MenuSettings>({
     showPrices: true,
@@ -692,15 +698,4 @@ export function Menu() {
                   color: '#fff',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  fontFamily: 'var(--ff)',
-                }}
-              >
-                Sauvegarder
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+               

@@ -26,21 +26,21 @@ type TabView = 'overview' | 'plans' | 'upsell' | 'revenue'
 // ── Data ──
 const PLANS = [
   {
-    name: 'Bistro', price: 39, stripeId: 'prod_RmIbAf5IzJflx8', color: 'var(--bl)',
+    name: 'Bistro', price: 39, stripeId: 'price_1TFWg9906pQ0p9GXfDcLAi20', color: 'var(--gn)',
     clients: 38, mrr: 38 * 39, churn: 4.2,
-    features: ['100 résas/mois', 'Widget basique', '1 salle', 'Email support'],
+    features: ['Grille, Agenda, Journal', 'Dashboard', 'Services & salles', 'Support dédié'],
     upsellTarget: 'Resto',
   },
   {
-    name: 'Resto', price: 59, stripeId: 'prod_RmIbAf5IzJflx8', color: '#7c3aed',
+    name: 'Resto', price: 59, stripeId: 'price_1TFWg9906pQ0p9GXtwaDm2PV', color: 'var(--bl)',
     clients: 24, mrr: 24 * 59, churn: 2.8,
-    features: ['Résas illimitées', 'Widget Pro', '3 salles', 'CRM clients', 'Marketing', 'Chat support'],
+    features: ['Tout Bistro +', 'Plan 2D, Tables & Combos', 'CRM, Fidélité, Marketing', 'Widget, Menu, QR, Cadeaux', 'Marketplace, Rôles illimités', 'Support dédié'],
     upsellTarget: 'Gastro',
   },
   {
-    name: 'Gastro', price: 79, stripeId: 'prod_RmIbAf5IzJflx8', color: 'var(--am)',
+    name: 'Gastro', price: 79, stripeId: 'price_1TFWg9906pQ0p9GX98TbpANS', color: 'var(--am)',
     clients: 12, mrr: 12 * 79, churn: 1.5,
-    features: ['Tout Resto +', 'Multi-site', 'Fidélité', 'API avancée', 'Prépaiement', 'Priority support'],
+    features: ['Tout Resto +', 'Avis, Site vitrine', 'Prépaiement Stripe', 'Multi-sites (12)', 'IA, SMS, API REST', 'Support dédié + SLA'],
     upsellTarget: null,
   },
 ]

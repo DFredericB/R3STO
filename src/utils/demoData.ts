@@ -17,6 +17,12 @@ function today(): string {
 
 function dayOfWeek(): number { return new Date().getDay() } // 0=dim ... 5=ven, 6=sam
 
+function relDate(daysFromToday: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() + daysFromToday)
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+
 export function loadDemoFallback() {
   const t = today()
   const dow = dayOfWeek()
@@ -378,11 +384,11 @@ export function loadDemoFallback() {
   // ══════════════════════════════════════════════════
 
   const giftCards: GiftCard[] = [
-    { id:'gc1', code:'GC-A7X2-K9M4', amount:100, balance:100, currency:'CHF', status:'active', buyerName:'Sophie Marchand', buyerEmail:'sophie@mail.ch', buyerTel:'+41 79 444 33 22', recipientName:'Thomas Marchand', recipientEmail:'thomas@mail.ch', message:'Joyeux anniversaire!', createdAt:Date.now()-30*86400000, expiresAt:'2027-04-12', source:'online' },
-    { id:'gc2', code:'GC-M5K8-P2L1', amount:150, balance:80, currency:'CHF', status:'partial', buyerName:'Entreprise ABC', buyerEmail:'hr@abc.ch', buyerTel:'+41 21 777 88 99', recipientName:'Sylvain Blanc', recipientEmail:'sylvain.blanc@mail.ch', message:'Merci pour ton travail!', createdAt:Date.now()-60*86400000, expiresAt:'2027-04-12', usedAt:'2026-03-15', usedResaId:'r6', source:'online' },
-    { id:'gc3', code:'GC-X9D4-R6N2', amount:200, balance:0, currency:'CHF', status:'used', buyerName:'Didier Lefevre', buyerEmail:'didier@r3sto.com', buyerTel:'+41 21 903 45 67', recipientName:'Michèle Blanc', recipientEmail:'michele@mail.ch', message:'Profitez de notre nouvelle carte!', createdAt:Date.now()-90*86400000, expiresAt:'2027-01-12', usedAt:'2026-03-28', usedResaId:'r34', source:'admin' },
-    { id:'gc4', code:'GC-W2J7-Q8H3', amount:50, balance:0, currency:'CHF', status:'expired', buyerName:'Jean Dupont', buyerEmail:'jean.dupont@mail.ch', buyerTel:'+41 79 333 44 55', recipientName:'Antoinette Dupont', recipientEmail:'antoinette@mail.ch', message:'Pour un bon moment!', createdAt:Date.now()-400*86400000, expiresAt:'2025-04-12', source:'online' },
-    { id:'gc5', code:'GC-F3G6-Z1P9', amount:75, balance:75, currency:'CHF', status:'active', buyerName:'Admin', buyerEmail:'info@comptoirdulac.ch', buyerTel:'+41 21 903 45 67', recipientName:'Promo mars', recipientEmail:'', message:'Bon promo nouveau client', createdAt:Date.now()-20*86400000, expiresAt:'2027-04-12', source:'admin' },
+    { id:'gc1', code:'GC-A7X2-K9M4', amount:100, balance:100, currency:'CHF', status:'active', buyerName:'Sophie Marchand', buyerEmail:'sophie@mail.ch', buyerTel:'+41 79 444 33 22', recipientName:'Thomas Marchand', recipientEmail:'thomas@mail.ch', message:'Joyeux anniversaire!', createdAt:Date.now()-30*86400000, expiresAt:relDate(335), source:'online' },
+    { id:'gc2', code:'GC-M5K8-P2L1', amount:150, balance:80, currency:'CHF', status:'partial', buyerName:'Entreprise ABC', buyerEmail:'hr@abc.ch', buyerTel:'+41 21 777 88 99', recipientName:'Sylvain Blanc', recipientEmail:'sylvain.blanc@mail.ch', message:'Merci pour ton travail!', createdAt:Date.now()-60*86400000, expiresAt:relDate(305), usedAt:relDate(-29), usedResaId:'r6', source:'online' },
+    { id:'gc3', code:'GC-X9D4-R6N2', amount:200, balance:0, currency:'CHF', status:'used', buyerName:'Didier Lefevre', buyerEmail:'didier@r3sto.com', buyerTel:'+41 21 903 45 67', recipientName:'Michèle Blanc', recipientEmail:'michele@mail.ch', message:'Profitez de notre nouvelle carte!', createdAt:Date.now()-90*86400000, expiresAt:relDate(275), usedAt:relDate(-16), usedResaId:'r34', source:'admin' },
+    { id:'gc4', code:'GC-W2J7-Q8H3', amount:50, balance:0, currency:'CHF', status:'expired', buyerName:'Jean Dupont', buyerEmail:'jean.dupont@mail.ch', buyerTel:'+41 79 333 44 55', recipientName:'Antoinette Dupont', recipientEmail:'antoinette@mail.ch', message:'Pour un bon moment!', createdAt:Date.now()-400*86400000, expiresAt:relDate(-365), source:'online' },
+    { id:'gc5', code:'GC-F3G6-Z1P9', amount:75, balance:75, currency:'CHF', status:'active', buyerName:'Admin', buyerEmail:'info@comptoirdulac.ch', buyerTel:'+41 21 903 45 67', recipientName:'Promo mars', recipientEmail:'', message:'Bon promo nouveau client', createdAt:Date.now()-20*86400000, expiresAt:relDate(345), source:'admin' },
   ]
 
   // ══════════════════════════════════════════════════
@@ -390,15 +396,15 @@ export function loadDemoFallback() {
   // ══════════════════════════════════════════════════
 
   const reviews: Review[] = [
-    { id:'rv1', source:'google', clientName:'Martin Gironde', clientEmail:'', date:'2026-03-28', createdAt:Date.now()-15*86400000, rating:5, comment:'Excellent restaurant! Cadre superbe avec vue sur le lac. Service attentif et cuisine raffinée.', service:'soir', reply:'Merci pour votre visite! À bientôt au Comptoir du Lac.', repliedAt:Date.now()-14*86400000, visible:true, flagged:false },
-    { id:'rv2', source:'google', clientName:'Sophie Marchand', clientEmail:'sophie@mail.ch', date:'2026-03-20', createdAt:Date.now()-23*86400000, rating:5, comment:'Magnifique terrasse, excellente cuisine suisse revisitée, prix justes.', service:'midi', visible:true, flagged:false },
-    { id:'rv3', source:'internal', clientName:'Thomas R.', clientEmail:'', clientId:'c10', date:'2026-03-15', createdAt:Date.now()-28*86400000, rating:4, comment:'Très bon restaurant. Un point : le vin rouge un peu trop jeune. Sinon parfait!', service:'soir', reply:'Merci! Nous prenons note pour notre carte des vins.', repliedAt:Date.now()-27*86400000, visible:true, flagged:false },
-    { id:'rv4', source:'google', clientName:'Nathalie B.', clientEmail:'', date:'2026-03-10', createdAt:Date.now()-33*86400000, rating:5, comment:'Déjeuner d\'affaires idéal. Cadre discret, service rapide, cuisine savoureuse.', service:'midi', visible:true, flagged:false },
-    { id:'rv5', source:'google', clientName:'Marc Steiner', clientEmail:'m.steiner@corp.ch', clientId:'c14', date:'2026-03-08', createdAt:Date.now()-35*86400000, rating:4, comment:'Bon restaurant, belle vue. Service un peu lent en soir de weekend.', service:'soir', reply:'Merci! Nous optimisons notre service en pics d\'affluence.', repliedAt:Date.now()-34*86400000, visible:true, flagged:false },
-    { id:'rv6', source:'internal', clientName:'Lisa Weber', clientEmail:'lisa.weber@mail.ch', clientId:'c7', date:'2026-02-28', createdAt:Date.now()-43*86400000, rating:5, comment:'Fantastique! Les enfants ont adoré. Chaises bébés disponibles, équipe très attentive.', service:'midi', reply:'Merci! Nous adorons accueillir les familles.', repliedAt:Date.now()-43*86400000, visible:true, flagged:false },
-    { id:'rv7', source:'google', clientName:'Klaus Müller', clientEmail:'k.muller@business.ch', clientId:'c8', date:'2026-02-20', createdAt:Date.now()-51*86400000, rating:5, comment:'Hervorragendes Restaurant! Perfektes Geschäftsessen, höchste Qualität.', service:'midi', reply:'Danke für Ihren Besuch!', repliedAt:Date.now()-50*86400000, visible:true, flagged:false },
-    { id:'rv8', source:'google', clientName:'Anonyme', clientEmail:'', date:'2026-02-15', createdAt:Date.now()-56*86400000, rating:3, comment:'Ambiance sympathique, mais plat principal trop salé et oublié un accompagnement.', service:'soir', reply:'Nous sommes désolés! Contactez-nous pour rectifier.', repliedAt:Date.now()-56*86400000, visible:true, flagged:true },
-    { id:'rv9', source:'email', clientName:'Michèle D.', clientEmail:'michele@mail.ch', date:'2026-02-10', createdAt:Date.now()-61*86400000, rating:5, comment:'Sublime! Terrasse vue panoramique, menu gastronomique impeccable. Soirée mémorable.', service:'soir', visible:true, flagged:false },
+    { id:'rv1', source:'google', clientName:'Martin Gironde', clientEmail:'', date:relDate(-15), createdAt:Date.now()-15*86400000, rating:5, comment:'Excellent restaurant! Cadre superbe avec vue sur le lac. Service attentif et cuisine raffinée.', service:'soir', reply:'Merci pour votre visite! À bientôt au Comptoir du Lac.', repliedAt:Date.now()-14*86400000, visible:true, flagged:false },
+    { id:'rv2', source:'google', clientName:'Sophie Marchand', clientEmail:'sophie@mail.ch', date:relDate(-23), createdAt:Date.now()-23*86400000, rating:5, comment:'Magnifique terrasse, excellente cuisine suisse revisitée, prix justes.', service:'midi', visible:true, flagged:false },
+    { id:'rv3', source:'internal', clientName:'Thomas R.', clientEmail:'', clientId:'c10', date:relDate(-28), createdAt:Date.now()-28*86400000, rating:4, comment:'Très bon restaurant. Un point : le vin rouge un peu trop jeune. Sinon parfait!', service:'soir', reply:'Merci! Nous prenons note pour notre carte des vins.', repliedAt:Date.now()-27*86400000, visible:true, flagged:false },
+    { id:'rv4', source:'google', clientName:'Nathalie B.', clientEmail:'', date:relDate(-33), createdAt:Date.now()-33*86400000, rating:5, comment:'Déjeuner d\'affaires idéal. Cadre discret, service rapide, cuisine savoureuse.', service:'midi', visible:true, flagged:false },
+    { id:'rv5', source:'google', clientName:'Marc Steiner', clientEmail:'m.steiner@corp.ch', clientId:'c14', date:relDate(-35), createdAt:Date.now()-35*86400000, rating:4, comment:'Bon restaurant, belle vue. Service un peu lent en soir de weekend.', service:'soir', reply:'Merci! Nous optimisons notre service en pics d\'affluence.', repliedAt:Date.now()-34*86400000, visible:true, flagged:false },
+    { id:'rv6', source:'internal', clientName:'Lisa Weber', clientEmail:'lisa.weber@mail.ch', clientId:'c7', date:relDate(-43), createdAt:Date.now()-43*86400000, rating:5, comment:'Fantastique! Les enfants ont adoré. Chaises bébés disponibles, équipe très attentive.', service:'midi', reply:'Merci! Nous adorons accueillir les familles.', repliedAt:Date.now()-43*86400000, visible:true, flagged:false },
+    { id:'rv7', source:'google', clientName:'Klaus Müller', clientEmail:'k.muller@business.ch', clientId:'c8', date:relDate(-51), createdAt:Date.now()-51*86400000, rating:5, comment:'Hervorragendes Restaurant! Perfektes Geschäftsessen, höchste Qualität.', service:'midi', reply:'Danke für Ihren Besuch!', repliedAt:Date.now()-50*86400000, visible:true, flagged:false },
+    { id:'rv8', source:'google', clientName:'Anonyme', clientEmail:'', date:relDate(-56), createdAt:Date.now()-56*86400000, rating:3, comment:'Ambiance sympathique, mais plat principal trop salé et oublié un accompagnement.', service:'soir', reply:'Nous sommes désolés! Contactez-nous pour rectifier.', repliedAt:Date.now()-56*86400000, visible:true, flagged:true },
+    { id:'rv9', source:'email', clientName:'Michèle D.', clientEmail:'michele@mail.ch', date:relDate(-61), createdAt:Date.now()-61*86400000, rating:5, comment:'Sublime! Terrasse vue panoramique, menu gastronomique impeccable. Soirée mémorable.', service:'soir', visible:true, flagged:false },
   ]
 
   // ══════════════════════════════════════════════════
@@ -442,11 +448,11 @@ export function loadDemoFallback() {
   // ══════════════════════════════════════════════════
 
   const fermetures: Fermeture[] = [
-    { id:'f1', label:'Pâques — Fermé', date:'2026-04-05', dateFin:'2026-04-07', type:'ferie', note:'Fête religieuse — fermé 3 jours', active:true },
-    { id:'f2', label:'Ascension — Fermé', date:'2026-05-14', type:'ferie', note:'Jeudi de l\'Ascension', active:true },
-    { id:'f3', label:'Lundi fermé', date:'2026-04-13', type:'restaurant', note:'Fermeture hebdomadaire', active:true },
-    { id:'f4', label:'Salon privé — Entretien', date:'2026-04-20', type:'travaux', salle:'Salon privé', note:'Maintenance peinture', active:true },
-    { id:'f5', label:'Vacances été', date:'2026-07-20', dateFin:'2026-08-10', type:'vacances', note:'Fermeture annuelle estivale', active:true },
+    { id:'f1', label:'Pâques — Fermé', date:relDate(10), dateFin:relDate(12), type:'ferie', note:'Fête religieuse — fermé 3 jours', active:true },
+    { id:'f2', label:'Ascension — Fermé', date:relDate(35), type:'ferie', note:'Jeudi de l\'Ascension', active:true },
+    { id:'f3', label:'Lundi fermé', date:relDate(0), type:'restaurant', note:'Fermeture hebdomadaire', active:true },
+    { id:'f4', label:'Salon privé — Entretien', date:relDate(7), type:'travaux', salle:'Salon privé', note:'Maintenance peinture', active:true },
+    { id:'f5', label:'Vacances été', date:relDate(90), dateFin:relDate(111), type:'vacances', note:'Fermeture annuelle estivale', active:true },
   ]
 
   // ══════════════════════════════════════════════════

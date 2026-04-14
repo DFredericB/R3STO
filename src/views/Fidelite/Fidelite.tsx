@@ -66,6 +66,8 @@ export function Fidelite() {
     updateLoyaltyConfig, addLoyaltyCard, deleteLoyaltyCard, addLoyaltyEvent, updateLoyaltyCard
   } = useAppStore()
 
+
+
   type Tab = 'dashboard' | 'members' | 'config'
   const [tab, setTab] = useState<Tab>('dashboard')
   const [search, setSearch] = useState('')

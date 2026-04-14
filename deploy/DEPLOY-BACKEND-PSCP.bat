@@ -5,8 +5,8 @@ echo ========================================
 echo.
 
 set PSCP="C:\Program Files\PuTTY\pscp.exe"
-set HOST=pl7wy9_R3sto@pl7wy9.ftp.infomaniak.com
-set PW=-pw gDJbGDTax0nY
+set HOST=pl7wy9_r3sto@pl7wy9.ftp.infomaniak.com
+set PW=-pw a5NDkGSzZ8zU#
 set API=C:\Users\db\Desktop\R3STO\deploy\api.r3sto.ch-node
 set REMOTE=sites/api.r3sto.ch
 
@@ -14,18 +14,17 @@ echo --- Upload server.js ---
 %PSCP% %PW% %API%\server.js %HOST%:%REMOTE%/server.js
 if errorlevel 1 (
   echo.
-  echo ERREUR: Upload echoue! Verifier mot de passe FTP.
+  echo ERREUR: Upload echoue\!
   pause
   exit /b 1
 )
 
 echo.
 echo ========================================
-echo   server.js uploade avec succes!
+echo   server.js uploade avec succes\!
 echo ========================================
 echo.
-echo IMPORTANT: Aller sur le Manager Infomaniak pour:
-echo   1. Redemarrer Node.js via le dashboard
-echo   2. Tester: https://api.r3sto.ch/health
+echo IMPORTANT: Redemarrer Node.js via le dashboard Infomaniak
+echo   Tester: https://api.r3sto.ch/health
 echo.
 pause

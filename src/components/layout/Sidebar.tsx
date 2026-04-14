@@ -8,6 +8,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
 import { computeAlerts } from '../../utils/alerts'
+import { type PlanId, hasPlan } from '../../utils/stripe'
 
 interface NavItem {
   path: string
@@ -17,6 +18,7 @@ interface NavItem {
   locked?: boolean
   moduleId?: string   // Si défini, verrouillé sauf si enabledModules contient ce moduleId
   groupKey?: string
+  minPlan?: PlanId
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -26,23 +28,23 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/agenda',        icon: '📅', labelKey: 'nav.agenda', groupKey: 'reservations' },
   { path: '/reservations',  icon: '📖', labelKey: 'nav.journal', groupKey: 'reservations' },
   { path: '/grille',        icon: '🪑', labelKey: 'nav.grid', groupKey: 'reservations' },
-  { path: '/plan',          icon: '📐', labelKey: 'nav.floorplan', groupKey: 'reservations' },
-  { path: '/waitlist',      icon: '⏳', labelKey: 'nav.waitlist', badge: 'waitlist', groupKey: 'reservations' },
-  { path: '/groupes',       icon: '👥', labelKey: 'nav.groups', badge: 'pending', groupKey: 'reservations' },
+  { path: '/plan',          icon: '📐', labelKey: 'nav.floorplan', groupKey: 'reservations', minPlan: 'resto' },
+  { path: '/waitlist',      icon: '⏳', labelKey: 'nav.waitlist', badge: 'waitlist', groupKey: 'reservations', minPlan: 'resto' },
+  { path: '/groupes',       icon: '👥', labelKey: 'nav.groups', badge: 'pending', groupKey: 'reservations', minPlan: 'resto' },
   // ── CLIENTS (CRM + fidélisation) ──
-  { path: '/clients',       icon: '👤', labelKey: 'nav.clients', groupKey: 'clients' },
-  { path: '/avis',          icon: '⭐', labelKey: 'nav.reviews', groupKey: 'clients' },
-  { path: '/fidelite',      icon: '🏆', labelKey: 'nav.loyalty', groupKey: 'clients' },
-  { path: '/marketing',     icon: '📣', labelKey: 'nav.campaigns', groupKey: 'clients' },
-  { path: '/blacklist',     icon: '🚫', labelKey: 'nav.blacklist', groupKey: 'clients' },
+  { path: '/clients',       icon: '👤', labelKey: 'nav.clients', groupKey: 'clients', minPlan: 'resto' },
+  { path: '/avis',          icon: '⭐', labelKey: 'nav.reviews', groupKey: 'clients', minPlan: 'gastro' },
+  { path: '/fidelite',      icon: '🏆', labelKey: 'nav.loyalty', groupKey: 'clients', minPlan: 'resto' },
+  { path: '/marketing',     icon: '📣', labelKey: 'nav.campaigns', groupKey: 'clients', minPlan: 'resto' },
+  { path: '/blacklist',     icon: '🚫', labelKey: 'nav.blacklist', groupKey: 'clients', minPlan: 'resto' },
   // ── CANAUX (présence en ligne + revenus) ──
-  { path: '/site-vitrine',  icon: '🖥️', labelKey: 'nav.siteVitrine', groupKey: 'channels' },
-  { path: '/widget',        icon: '🌐', labelKey: 'nav.widget', groupKey: 'channels' },
-  { path: '/menu',          icon: '📋', labelKey: 'nav.menu', groupKey: 'channels' },
-  { path: '/qrcode',        icon: '📱', labelKey: 'nav.qrcode', groupKey: 'channels' },
-  { path: '/cadeaux',       icon: '🎁', labelKey: 'nav.giftCards', groupKey: 'channels' },
-  { path: '/prepaiement',   icon: '💳', labelKey: 'nav.prepayment', groupKey: 'channels' },
-  { path: '/marketplace',   icon: '🛒', labelKey: 'nav.marketplace', groupKey: 'channels' },
+  { path: '/site-vitrine',  icon: '🖥️', labelKey: 'nav.siteVitrine', groupKey: 'channels', minPlan: 'gastro' },
+  { path: '/widget',        icon: '🌐', labelKey: 'nav.widget', groupKey: 'channels', minPlan: 'resto' },
+  { path: '/menu',          icon: '📋', labelKey: 'nav.menu', groupKey: 'channels', minPlan: 'resto' },
+  { path: '/qrcode',        icon: '📱', labelKey: 'nav.qrcode', groupKey: 'channels', minPlan: 'resto' },
+  { path: '/cadeaux',       icon: '🎁', labelKey: 'nav.giftCards', groupKey: 'channels', minPlan: 'resto' },
+  { path: '/prepaiement',   icon: '💳', labelKey: 'nav.prepayment', groupKey: 'channels', minPlan: 'gastro' },
+  { path: '/marketplace',   icon: '🛒', labelKey: 'nav.marketplace', groupKey: 'channels', minPlan: 'resto' },
   { path: '/modules',       icon: '🧩', labelKey: 'nav.modules', groupKey: 'channels' },
   // ── R3STO ORDER ──
   { path: '/commandes',     icon: '🔔', labelKey: 'nav.orders', groupKey: 'r3sto-order' },
@@ -70,12 +72,12 @@ const NAV_ITEMS: NavItem[] = [
   // ── RÉGLAGES (toute la configuration) ──
   { path: '/profil',        icon: '🍽️', labelKey: 'nav.myRestaurant', groupKey: 'settings' },
   { path: '/salles',        icon: '🚪', labelKey: 'nav.roomsServices', groupKey: 'settings' },
-  { path: '/tables',        icon: '🪑', labelKey: 'nav.tablesCombos', groupKey: 'settings' },
-  { path: '/setup-plan',    icon: '🔧', labelKey: 'nav.tablesPlan', groupKey: 'settings' },
+  { path: '/tables',        icon: '🪑', labelKey: 'nav.tablesCombos', groupKey: 'settings', minPlan: 'resto' },
+  { path: '/setup-plan',    icon: '🔧', labelKey: 'nav.tablesPlan', groupKey: 'settings', minPlan: 'resto' },
   { path: '/fermetures',    icon: '🔒', labelKey: 'nav.closures', groupKey: 'settings' },
   { path: '/options',       icon: '⚙️', labelKey: 'nav.options', groupKey: 'settings' },
-  { path: '/acces-roles',   icon: '🔐', labelKey: 'nav.teamAccess', groupKey: 'settings' },
-  { path: '/multisite',     icon: '🏢', labelKey: 'nav.multisite', groupKey: 'settings' },
+  { path: '/acces-roles',   icon: '🔐', labelKey: 'nav.teamAccess', groupKey: 'settings', minPlan: 'resto' },
+  { path: '/multisite',     icon: '🏢', labelKey: 'nav.multisite', groupKey: 'settings', minPlan: 'gastro' },
   // ── AIDE ──
   { path: '/historique',    icon: '📜', labelKey: 'nav.history', groupKey: 'help' },
   { path: '/admin-tickets', icon: '🎫', labelKey: 'nav.tickets', groupKey: 'help' },
@@ -91,6 +93,7 @@ export function Sidebar() {
   const { t } = useT()
 
   const toggleSidebar = useAppStore(s => s.toggleSidebar)
+  const currentPlan = (resto?.plan as PlanId) || 'bistro'
   const isAdmin = window.location.hostname.startsWith('admin.')
   const collapsed = sidebarCollapsed
   const [searchOpen, setSearchOpen] = useState(false)
@@ -134,8 +137,9 @@ export function Sidebar() {
             return item.groupKey !== 'r3sto-crm' && item.groupKey !== 'admin-marketplace' && item.groupKey !== 'admin-erp'
           })
           return filtered.map((item, i) => {
-          // Module-gated: verrouillé sauf si le module est activé
-          const isLocked = item.locked || false
+          // Module-gated + plan-gated
+          const planLocked = item.minPlan ? !hasPlan(currentPlan, item.minPlan) : false
+          const isLocked = item.locked || planLocked
           const isActive = location.pathname === item.path
           const showGroup = item.groupKey && (i === 0 || item.groupKey !== filtered[i-1]?.groupKey)
           const isGroupCollapsed = item.groupKey ? collapsedGroups[item.groupKey] : false

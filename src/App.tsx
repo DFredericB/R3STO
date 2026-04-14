@@ -10,6 +10,7 @@ import { Header } from './components/layout/Header'
 import { Sidebar } from './components/layout/Sidebar'
 import { BottomNav } from './components/layout/BottomNav'
 import { ToastProvider } from './components/ui/Toast'
+import { DemoShowcaseBar } from './components/ui/DemoShowcaseBar'
 import { Dashboard } from './views/Dashboard/Dashboard'
 import { Grille } from './views/Grille/Grille'
 import { Resas } from './views/Resas/Resas'
@@ -152,6 +153,7 @@ export default function App() {
     <BrowserRouter>
       <ToastProvider>
         <div className="app-layout">
+          {isDemo && <DemoShowcaseBar />}
           <Header />
           <div className="app-body">
             <Sidebar />
@@ -227,11 +229,4 @@ export default function App() {
                   </div>
                 } />
               </Routes>
-            </main>
-          </div>
-          <BottomNav />
-        </div>
-      </ToastProvider>
-    </BrowserRouter>
-  )
-}
+            </main

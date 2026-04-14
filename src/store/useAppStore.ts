@@ -1,3 +1,4 @@
+
 // ══════════════════════════════════════════════════
 //  R3STO — Store global (Zustand)
 //  Remplace toutes les variables globales JS
@@ -5,12 +6,16 @@
 // ══════════════════════════════════════════════════
 
 import { create } from 'zustand'
+import { api } from '../api/apiService'
 import { persist } from 'zustand/middleware'
 import type {
   Resa, Table, Combo, Service, Salle, Resto,
   OptionsData, User, Fermeture, UserRole, RoomItem, Client, GiftCard, Review,
   LoyaltyConfig, LoyaltyCard, LoyaltyEvent, Site
 } from '../types'
+
+// ── Fire-and-forget API sync (non-blocking, errors silenced) ──
+const sync = (fn: () => Promise<any>) => { fn().catch(() => {}) }
 
 // ── Données par défaut ─────────────────────────────
 const DEFAULT_SERVICES: Service[] = [
@@ -220,12 +225,13 @@ export const useAppStore = create<AppStore>()(
             return s // ne pas ajouter
           }
         }
+        sync(() => api.resas.create(resa))
         return { resas: [...s.resas, resa] }
       }),
-      updateResa: (id, patch) => set((s) => ({
+      updateResa: (id, patch) => { sync(() => api.resas.update(id, patch)); set((s) => ({
         resas: s.resas.map((r) => r.id === id ? { ...r, ...patch } : r)
-      })),
-      deleteResa: (id) => set((s) => ({ resas: s.resas.filter((r) => r.id !== id) })),
+      })) },
+      deleteResa: (id) => { sync(() => api.resas.delete(id)); set((s) => ({ resas: s.resas.filter((r) => r.id !== id) })) },
       setResaStatus: (id, status) => set((s) => {
         const resa = s.resas.find(r => r.id === id)
         if (!resa) return s
@@ -234,9 +240,10 @@ export const useAppStore = create<AppStore>()(
           console.warn(`[R3STO] Transition refusée : ${resa.s} → ${status}`)
           return s
         }
+        sync(() => api.resas.setStatus(id, status))
         return { resas: s.resas.map((r) => r.id === id ? { ...r, s: status } : r) }
       }),
-      swapTables: (idA, idB) => set((s) => {
+      swapTables: (idA, idB) => { sync(() => api.resas.swap(idA, idB)); set((s) => {
         const a = s.resas.find(r => r.id === idA)
         const b = s.resas.find(r => r.id === idB)
         if (!a || !b) return s
@@ -246,7 +253,7 @@ export const useAppStore = create<AppStore>()(
             r.id === idB ? { ...r, tbl: a.tbl } : r
           )
         }
-      }),
+      }) },
       blinkResa: (id) => {
         // Remplacer les anciens blinks par le nouveau — persiste jusqu'à la prochaine résa
         set({ blinkResaIds: [id] })
@@ -256,35 +263,35 @@ export const useAppStore = create<AppStore>()(
       setActiveDate: (date) => set({ activeDate: date }),
 
       // Config
-      updateOptions: (patch) => set((s) => ({ options: { ...s.options, ...patch } })),
-      updateResto: (patch) => set((s) => ({ resto: { ...s.resto, ...patch } })),
-      setTables: (tables) => set({ tables }),
-      setCombos: (combos) => set({ combos }),
-      setServices: (services) => set({ services }),
-      setSalles: (salles) => set({ salles }),
-      setRoomItems: (items) => set({ roomItems: items }),
+      updateOptions: (patch) => { sync(() => api.options.update(patch as any)); set((s) => ({ options: { ...s.options, ...patch } })) },
+      updateResto: (patch) => { sync(() => api.resto.update(patch as any)); set((s) => ({ resto: { ...s.resto, ...patch } })) },
+      setTables: (tables) => { sync(() => api.tables.updateBatch(tables)); set({ tables }) },
+      setCombos: (combos) => { sync(() => api.combos.updateBatch(combos as any)); set({ combos }) },
+      setServices: (services) => { sync(() => api.services.updateBatch(services as any)); set({ services }) },
+      setSalles: (salles) => { sync(() => api.salles.updateBatch(salles as any)); set({ salles }) },
+      setRoomItems: (items) => { sync(() => api.roomItems.updateBatch(items)); set({ roomItems: items }) },
 
       // Fermetures
-      addFermeture: (f) => set((s) => ({ fermetures: [...s.fermetures, f] })),
-      updateFermeture: (id, patch) => set((s) => ({
+      addFermeture: (f) => { sync(() => api.fermetures.create(f)); set((s) => ({ fermetures: [...s.fermetures, f] })) },
+      updateFermeture: (id, patch) => { sync(() => api.fermetures.update(id, patch)); set((s) => ({
         fermetures: s.fermetures.map((f) => f.id === id ? { ...f, ...patch } : f)
-      })),
-      deleteFermeture: (id) => set((s) => ({ fermetures: s.fermetures.filter((f) => f.id !== id) })),
+      })) },
+      deleteFermeture: (id) => { sync(() => api.fermetures.delete(id)); set((s) => ({ fermetures: s.fermetures.filter((f) => f.id !== id) })) },
 
       // Clients
-      addClient: (client) => set((s) => ({ clients: [...s.clients, client] })),
-      updateClient: (id, patch) => set((s) => ({
+      addClient: (client) => { sync(() => api.clients.create(client)); set((s) => ({ clients: [...s.clients, client] })) },
+      updateClient: (id, patch) => { sync(() => api.clients.update(id, patch)); set((s) => ({
         clients: s.clients.map((c) => c.id === id ? { ...c, ...patch } : c)
-      })),
-      deleteClient: (id) => set((s) => ({ clients: s.clients.filter((c) => c.id !== id) })),
+      })) },
+      deleteClient: (id) => { sync(() => api.clients.delete(id)); set((s) => ({ clients: s.clients.filter((c) => c.id !== id) })) },
 
       // Gift Cards
-      addGiftCard: (gc) => set((s) => ({ giftCards: [...s.giftCards, gc] })),
-      updateGiftCard: (id, patch) => set((s) => ({
+      addGiftCard: (gc) => { sync(() => api.giftCards.create(gc)); set((s) => ({ giftCards: [...s.giftCards, gc] })) },
+      updateGiftCard: (id, patch) => { sync(() => api.giftCards.update(id, patch)); set((s) => ({
         giftCards: s.giftCards.map((g) => g.id === id ? { ...g, ...patch } : g)
-      })),
-      deleteGiftCard: (id) => set((s) => ({ giftCards: s.giftCards.filter((g) => g.id !== id) })),
-      useGiftCard: (id, amount, resaId) => set((s) => ({
+      })) },
+      deleteGiftCard: (id) => { sync(() => api.giftCards.delete(id)); set((s) => ({ giftCards: s.giftCards.filter((g) => g.id !== id) })) },
+      useGiftCard: (id, amount, resaId) => { sync(() => api.giftCards.use(id, amount, resaId)); set((s) => ({
         giftCards: s.giftCards.map((g) => {
           if (g.id !== id) return g
           const newBalance = Math.max(0, g.balance - amount)
@@ -296,29 +303,29 @@ export const useAppStore = create<AppStore>()(
             usedResaId: resaId || g.usedResaId,
           }
         })
-      })),
+      })) },
 
       // Reviews
-      addReview: (review) => set((s) => ({ reviews: [...s.reviews, review] })),
-      updateReview: (id, patch) => set((s) => ({
+      addReview: (review) => { sync(() => api.reviews.create(review)); set((s) => ({ reviews: [...s.reviews, review] })) },
+      updateReview: (id, patch) => { sync(() => api.reviews.update(id, patch)); set((s) => ({
         reviews: s.reviews.map((r) => r.id === id ? { ...r, ...patch } : r)
-      })),
-      deleteReview: (id) => set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) })),
+      })) },
+      deleteReview: (id) => { sync(() => api.reviews.delete(id)); set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) })) },
 
       // Loyalty
-      updateLoyaltyConfig: (patch) => set((s) => ({
+      updateLoyaltyConfig: (patch) => { sync(() => api.loyalty.updateConfig(patch)); set((s) => ({
         loyaltyConfig: { ...s.loyaltyConfig, ...patch }
-      })),
-      addLoyaltyCard: (card) => set((s) => ({
+      })) },
+      addLoyaltyCard: (card) => { sync(() => api.loyalty.createCard(card)); set((s) => ({
         loyaltyCards: [...s.loyaltyCards, card]
-      })),
-      updateLoyaltyCard: (id, patch) => set((s) => ({
+      })) },
+      updateLoyaltyCard: (id, patch) => { sync(() => api.loyalty.updateCard(id, patch)); set((s) => ({
         loyaltyCards: s.loyaltyCards.map((c) => c.id === id ? { ...c, ...patch } : c)
-      })),
-      deleteLoyaltyCard: (id) => set((s) => ({
+      })) },
+      deleteLoyaltyCard: (id) => { sync(() => api.loyalty.deleteCard(id)); set((s) => ({
         loyaltyCards: s.loyaltyCards.filter((c) => c.id !== id)
-      })),
-      addLoyaltyEvent: (cardId, event) => set((s) => ({
+      })) },
+      addLoyaltyEvent: (cardId, event) => { sync(() => api.loyalty.addEvent(cardId, event)); set((s) => ({
         loyaltyCards: s.loyaltyCards.map((c) => {
           if (c.id !== cardId) return c
           const newHistory = [...c.history, event]
@@ -334,17 +341,17 @@ export const useAppStore = create<AppStore>()(
             history: newHistory
           }
         })
-      })),
+      })) },
 
       // Multi-site
-      addSite: (site: Site) => set((s: AppStore) => ({ sites: [...s.sites, site] })),
-      updateSite: (id: string, patch: Partial<Site>) => set((s: AppStore) => ({
+      addSite: (site: Site) => { sync(() => api.sites.create(site)); set((s: AppStore) => ({ sites: [...s.sites, site] })) },
+      updateSite: (id: string, patch: Partial<Site>) => { sync(() => api.sites.update(id, patch)); set((s: AppStore) => ({
         sites: s.sites.map((si: Site) => si.id === id ? { ...si, ...patch } : si)
-      })),
-      deleteSite: (id: string) => set((s: AppStore) => ({
+      })) },
+      deleteSite: (id: string) => { sync(() => api.sites.delete(id)); set((s: AppStore) => ({
         sites: s.sites.filter((si: Site) => si.id !== id),
         activeSiteId: s.activeSiteId === id ? null : s.activeSiteId
-      })),
+      })) },
       setActiveSite: (id: string | null) => set({ activeSiteId: id }),
 
       // Auth & UI
@@ -495,6 +502,7 @@ export function tblMatchesTable(comboTables: string[], tblId: string): boolean {
 import { getDefaultModuleAccess } from '../types'
 import type { PermissionModule, PermissionLevel } from '../types'
 
+
 /** Vérifie si le rôle actuel a accès au module */
 export function hasAccess(module: PermissionModule, minLevel: PermissionLevel = 'read'): boolean {
   const state = useAppStore.getState()
@@ -502,11 +510,4 @@ export function hasAccess(module: PermissionModule, minLevel: PermissionLevel = 
   const level = defaults[module] || 'none'
   const levels: PermissionLevel[] = ['none', 'read', 'write', 'admin']
   return levels.indexOf(level) >= levels.indexOf(minLevel)
-}
-
-/** Retourne le niveau d'accès pour un module */
-export function getAccessLevel(module: PermissionModule): PermissionLevel {
-  const state = useAppStore.getState()
-  const defaults = getDefaultModuleAccess(state.userRole)
-  return defaults[module] || 'none'
 }

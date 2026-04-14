@@ -107,13 +107,14 @@ export function Fermetures() {
       toast('Déjà ajouté', 'warning')
       return
     }
-    addFermeture({
+    const quickF = {
       id: `ferie_${Date.now()}_${date}`,
-      type: 'ferie',
+      type: 'ferie' as const,
       date,
       label,
       active: true,
-    })
+    }
+    addFermeture(quickF)
     toast(`${label} — ${t('ferm.markedClosed')}`, 'success')
   }
 

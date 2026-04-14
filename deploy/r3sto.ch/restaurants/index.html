@@ -78,11 +78,12 @@ a{color:var(--bl2);text-decoration:none}
 /* ── FILTERS ── */
 .filters{max-width:var(--max);margin:20px auto 0;padding:0 24px;display:flex;gap:6px;flex-wrap:wrap}
 .filter-chip{
-  padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;
-  border:1.5px solid var(--border);background:var(--surf);color:var(--t2);
+  padding:5px 12px;border-radius:16px;font-size:11px;font-weight:600;
+  border:1.5px solid var(--border);background:var(--surf);color:var(--t3);
   cursor:pointer;transition:.15s;white-space:nowrap
 }
-.filter-chip:hover,.filter-chip.on{border-color:var(--bl);color:var(--bl);background:rgba(43,91,160,.05)}
+.filter-chip:hover{border-color:var(--bl);color:var(--bl)}
+.filter-chip.on{border-color:var(--bl);color:var(--bl);background:rgba(43,91,160,.08)}
 
 /* ── SORT BAR ── */
 .sort-bar{max-width:var(--max);margin:16px auto 0;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -204,11 +205,7 @@ a{color:var(--bl2);text-decoration:none}
       <img src="/logo-r3sto.jpg" alt="R3STO">
       <span class="page-title" data-i18n="nav_title">Restaurants</span>
     </a>
-    <div class="nav-center">
-      <a href="https://r3sto.ch" data-i18n="nav_for_restaurateurs">Pour les restaurateurs</a>
-      <a href="https://r3sto.ch/#tarifs" data-i18n="nav_pricing">Tarifs</a>
-      <a href="https://r3sto.ch/#fonctionnalités" data-i18n="nav_features">Fonctionnalités</a>
-    </div>
+    <div class="nav-center"></div>
     <div class="nav-right">
       <div class="lang-sw">
         <span class="lp on" data-lang="fr" onclick="setLanguage('fr')">FR</span>
@@ -601,13 +598,13 @@ function renderCard(r){
 
   // Buttons
   var siteBtn = r.vitrineUrl ? '<button class="card-site" onclick="event.stopPropagation();window.open(\''+r.vitrineUrl+'\',\'_blank\')">'+t('card_site')+'</button>' : '';
-  var bookBtn = '<button class="card-book" onclick="event.stopPropagation();window.open(\''+r.bookingUrl+'\',\'_blank\')">'+t('card_book')+'</button>';
+  var bookBtn = '<button class="card-book" onclick="event.stopPropagation();window.location.href=\''+r.bookingUrl+'\'">'+t('card_book')+'</button>';
 
   var cls = 'card';
   if(isFeatured) cls+=' featured';
   else if(isBoosted) cls+=' boosted';
 
-  return '<div class="'+cls+'">'
+  return '<div class="'+cls+'" onclick="window.location.href=\''+r.bookingUrl+'\'" style="cursor:pointer">'
     +'<div class="card-img" style="background-image:url('+r.photo+')">'
     +'<span class="badge-open '+(r.open?'open':'closed')+'">'+(r.open?t('card_open'):t('card_closed'))+'</span>'
     +topBadge
@@ -680,13 +677,18 @@ function setCuisine(el){
   filterCards();
 }
 
+// ── Détection mode démo ──
+var _isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
+
 // ── API Load ──
 async function loadFromAPI(){
+  var loaded = false;
   try {
     var resp = await fetch(API_URL);
     if(!resp.ok) throw new Error('API '+resp.status);
     var data = await resp.json();
     if(data.restaurants && data.restaurants.length>0){
+      loaded = true;
       RESTAURANTS = data.restaurants.map(function(r){
         return {
           id: r.id||r.slug, name: r.name,
@@ -708,15 +710,8 @@ async function loadFromAPI(){
       });
     }
   } catch(e){
-    console.log('API unavailable, using demo data:', e.message);
+    console.log('API unavailable:', e.message);
   }
-  filterCards();
-}
-
-// ── Init ──
-applyI18n();
-filterCards();
-loadFromAPI();
-</script>
-</body>
-</html>
+  // Production : si API vide ET pas de ?demo=1 → afficher un \u00e9tat vide
+  if(!loaded && !_isDemo){
+    RESTAURANTS = []

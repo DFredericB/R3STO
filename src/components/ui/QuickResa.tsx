@@ -57,8 +57,8 @@ const selGroup: React.CSSProperties = {
 }
 
 const selRow: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', flexWrap: 'nowrap',
-  width: '100%', gap: 0, minHeight: 40, overflowX: 'auto',
+  display: 'flex', alignItems: 'center', flexWrap: 'wrap',
+  width: '100%', gap: 0, minHeight: 40,
 }
 
 export function QuickResa({ onOpenFullModal }: QuickResaProps) {

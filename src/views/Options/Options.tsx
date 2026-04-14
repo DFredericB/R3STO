@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
+import { api } from '../../api/apiService'
+import { useToast } from '../../components/ui/Toast'
 
 export function Options() {
+  const { toast } = useToast()
   const { theme, setTheme, updateOptions: storeUpdateOptions } = useAppStore()
-  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [options, setOptions] = useState({
     // Équipements
     wifi: true,
@@ -140,11 +143,19 @@ export function Options() {
 
   const handleSave = async () => {
     setSaveState('saving')
-    storeUpdateOptions(options as any)
-    setTimeout(() => {
+    try {
+      await api.options.update(options as any)
+      storeUpdateOptions(options as any)
       setSaveState('saved')
-      setTimeout(() => setSaveState('idle'), 2000)
-    }, 400)
+      toast('Options enregistrées ✓', 'success')
+    } catch (e: any) {
+      console.warn('[Options] save failed', e)
+      setSaveState('error')
+      toast(`Erreur : ${e?.message || 'impossible d\'enregistrer les options'}`, 'error')
+      setTimeout(() => setSaveState('idle'), 3000)
+      return
+    }
+    setTimeout(() => setSaveState('idle'), 2000)
   }
 
   const Toggle = ({ label, desc, keyName }: { label: string; desc?: string; keyName: string }) => {
@@ -222,7 +233,7 @@ export function Options() {
               padding: '8px 16px',
               borderRadius: 6,
               border: 'none',
-              background: saveState === 'saved' ? 'var(--gn)' : 'var(--bl)',
+              background: saveState === 'saved' ? 'var(--gn)' : saveState === 'error' ? 'var(--rd)' : 'var(--bl)',
               color: 'white',
               fontWeight: 600,
               fontSize: 12,
@@ -232,6 +243,7 @@ export function Options() {
           >
             {saveState === 'saving' && '⏳ Enregistrement...'}
             {saveState === 'saved' && '✓ Enregistré'}
+            {saveState === 'error' && '✕ Erreur'}
             {saveState === 'idle' && '💾 Enregistrer'}
           </button>
         </div>
@@ -664,15 +676,4 @@ export function Options() {
                 <NumField label="Nombre de chaises bébé" keyName="chaises_bebe" min={0} max={20} unit="chaises" />
               </div>
               <Toggle label="Places PMR / accessibilité" desc="Tables accessibles fauteuil roulant" keyName="places_pmr_active" />
-              <div style={{ marginTop: 6 }}>
-                <NumField label="Nombre de places PMR" keyName="places_pmr" min={0} max={20} unit="places" />
-              </div>
-              <Toggle label="Gérer par table" desc="Cocher les tables avec équipement PMR/bébé (vs global)" keyName="chaises_bebe_par_table" />
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+              <div styl

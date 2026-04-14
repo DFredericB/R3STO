@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { api } from '../../api/apiService'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import { useT } from '../../i18n/useTranslation'
@@ -66,12 +67,13 @@ export function Salles() {
   const storeSalles = useAppStore(s => s.salles)
   const storeServices = useAppStore(s => s.services)
   const storeTables = useAppStore(s => s.tables)
+  const isDemo = useAppStore(s => s.isDemo)
   const { setSalles: setStoreSalles, setServices: setStoreServices } = useAppStore()
   const [activeTab, setActiveTab] = useState<TabType>('salles')
-  // Use store data (fall back to demo only if store completely empty AND not in prod)
-  const salles = storeSalles.length > 0 ? storeSalles : DEMO_SALLES
-  const services = storeServices.length > 0 ? storeServices : DEMO_SERVICES
-  const tables = storeTables.length > 0 ? storeTables : DEMO_TABLES
+  // Source réelle = store ; fallback démo uniquement en mode démo
+  const salles = storeSalles.length > 0 ? storeSalles : (isDemo ? DEMO_SALLES : [])
+  const services = storeServices.length > 0 ? storeServices : (isDemo ? DEMO_SERVICES : [])
+  const tables = storeTables.length > 0 ? storeTables : (isDemo ? DEMO_TABLES : [])
   // Wrapper to persist salles to store
   const setSalles = (updater: typeof DEMO_SALLES | ((prev: typeof DEMO_SALLES) => typeof DEMO_SALLES)) => {
     const next = typeof updater === 'function' ? updater(salles as any) : updater
@@ -110,7 +112,8 @@ export function Salles() {
     if (!salleForm.name.trim()) return
     if (modal === 'add-salle') {
       const newId = `sa${Date.now()}`
-      setSalles(prev => [...prev, { id: newId, ...salleForm, priority: prev.length + 1 }])
+      const newSalle = { id: newId, ...salleForm, priority: salles.length + 1 }
+      setSalles(prev => [...prev, newSalle])
       toast('Salle ajoutée', 'success')
     } else if (editSalleId) {
       setSalles(prev => prev.map(s => s.id === editSalleId ? { ...s, ...salleForm } : s))
@@ -137,7 +140,8 @@ export function Salles() {
     if (!svcForm.name.trim()) return
     if (modal === 'add-service') {
       const newId = `s${Date.now()}`
-      setServices(prev => [...prev, { id: newId, ...svcForm }])
+      const newSvc = { id: newId, ...svcForm }
+      setServices(prev => [...prev, newSvc])
       toast('Service ajouté', 'success')
     } else if (editSvcId) {
       setServices(prev => prev.map(s => s.id === editSvcId ? { ...s, ...svcForm } : s))
@@ -1066,11 +1070,4 @@ export function Salles() {
                     {modal === 'add-service' ? t('action.add') : t('action.save')}
                   </button>
                 </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+              </

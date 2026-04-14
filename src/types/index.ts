@@ -252,6 +252,20 @@ export interface Resto {
   email: string
   web: string
   avg_ticket?: number
+  // ── Marketplace (r3sto.ch/restaurants) ──
+  marketplace?: 0 | 1            // visible dans le marketplace
+  boost_score?: number           // 0 = standard, 70+ = boosté
+  photo?: string                 // URL image
+  cuisine_tag?: string           // 'italien', 'français', etc.
+  description?: string           // libellé cuisine / pitch court
+  features?: string[] | string   // ['terrasse', 'vegan'] ou CSV
+  avg_price?: number             // ticket moyen CHF
+  price_range?: string           // '$', '$$', '$$$'
+  promos?: string[] | string     // ['2pour1', 'happy-hour']
+  booking_url?: string           // lien widget résa
+  vitrine_url?: string           // site vitrine
+  rating?: number                // note /5
+  reviews_count?: number
 }
 
 // ── Fermeture ──────────────────────────────────────
@@ -528,34 +542,4 @@ export interface GroupRequest {
   tel?: string
   email?: string
   note?: string
-  mode: 'auto' | 'manuel'
-  status: 'pending' | 'accepted' | 'refused'
-  createdAt: number
-}
-
-// ── État global de l'app ───────────────────────────
-export interface AppState {
-  resas: Resa[]
-  tables: Table[]
-  combos: Combo[]
-  services: Service[]
-  salles: Salle[]
-  resto: Resto
-  options: OptionsData
-  users: User[]
-  fermetures: Fermeture[]
-  clients: Client[]
-  giftCards: GiftCard[]
-  reviews: Review[]
-  loyaltyConfig: LoyaltyConfig
-  loyaltyCards: LoyaltyCard[]
-  // Multi-site (Gastro)
-  sites: Site[]
-  activeSiteId: string | null  // null = site principal (mono-site)
-  // Navigation
-  activeDate: string  // ISO YYYY-MM-DD
-  // UI state
-  isDemo: boolean
-  userRole: UserRole
-  lang: 'fr' | 'en' | 'de' | 'it'
-}
+  mode: 'auto' | 'manue

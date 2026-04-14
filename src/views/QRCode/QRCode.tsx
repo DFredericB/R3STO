@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useToast } from '../../components/ui/Toast'
+import { useAppStore } from '../../store/useAppStore'
 
 interface Room {
   name: string
@@ -16,12 +17,12 @@ interface Table {
   active: boolean
 }
 
-const SALLES: Room[] = [
+// Fallback démo utilisé SEULEMENT quand le store est vide ET qu'on est en mode démo
+const DEMO_SALLES: Room[] = [
   { name: 'Salle 1', color: '#4480d8', active: true },
   { name: 'Terrasse', color: '#2d6a4f', active: true },
 ]
-
-const TABLES: Table[] = [
+const DEMO_TABLES: Table[] = [
   { n: 'T1', nm: 'Fenêtre', salle: 'Salle 1', capMin: 2, capMax: 4, active: true },
   { n: 'T2', nm: 'Bar', salle: 'Salle 1', capMin: 1, capMax: 2, active: true },
   { n: 'T3', nm: 'Coin', salle: 'Salle 1', capMin: 4, capMax: 6, active: true },
@@ -31,6 +32,15 @@ const TABLES: Table[] = [
 
 export function QRCode() {
   const { toast } = useToast()
+  const { salles: storeSalles, tables: storeTables, isDemo } = useAppStore()
+
+  // Source réelle = store ; fallback démo uniquement si isDemo ET store vide
+  const SALLES: Room[] = storeSalles && storeSalles.length > 0
+    ? storeSalles.filter(s => s.active).map(s => ({ name: s.name, color: s.color || '#4480d8', active: s.active }))
+    : (isDemo ? DEMO_SALLES : [])
+  const TABLES: Table[] = storeTables && storeTables.length > 0
+    ? storeTables.filter(t => t.active).map(t => ({ n: t.n, salle: t.salle, capMin: t.capMin, capMax: t.capMax, active: t.active }))
+    : (isDemo ? DEMO_TABLES : [])
   const [qrMode, setQrMode] = useState<'reservation' | 'menu' | 'both' | 'payment'>('reservation')
   const [qrSize, setQrSize] = useState(180)
   const [qrColor, setQrColor] = useState('#1c4f90')
@@ -258,30 +268,4 @@ export function QRCode() {
                   background: 'var(--surf2)',
                   color: 'var(--text)',
                   cursor: 'pointer',
-                }}
-              >
-                PDF A4 — prêt à imprimer
-              </button>
-              <button
-                onClick={() => toast('Fichier ZIP téléchargé', 'success')}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  borderRadius: 4,
-                  border: '1px solid var(--border)',
-                  background: 'var(--surf2)',
-                  color: 'var(--text)',
-                  cursor: 'pointer',
-                }}
-              >
-                ZIP — un fichier par table
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+           

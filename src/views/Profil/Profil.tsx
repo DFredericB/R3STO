@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
@@ -14,7 +14,7 @@ interface HoraireDay {
   to2?: string
 }
 
-// Demo Google Places results
+// Demo Google Places results — utilisés UNIQUEMENT en mode démo
 const GPLACES_RESULTS = [
   {
     name: 'Le Gourmet',
@@ -51,7 +51,7 @@ const GPLACES_RESULTS = [
 export function Profil() {
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { updateResto } = useAppStore()
+  const { resto, updateResto, isDemo } = useAppStore()
   const [gplInput, setGplInput] = useState('')
   const [gplResults, setGplResults] = useState<typeof GPLACES_RESULTS>([])
   const [geoLocation, setGeoLocation] = useState<{ lat: number; lng: number } | null>(null)
@@ -62,7 +62,8 @@ export function Profil() {
     confirm: '',
   })
 
-  const [formData, setFormData] = useState({
+  // Valeurs démo initiales (utilisées uniquement si isDemo et store vide)
+  const DEMO_FORM = {
     nom: 'Le Gourmet',
     cuisine: 'Française',
     adr: 'Rue du Lac 12, 1006 Lausanne',
@@ -70,7 +71,40 @@ export function Profil() {
     telInd: '+41',
     email: 'contact@legourmet.ch',
     web: 'www.legourmet.ch',
+  }
+  const EMPTY_FORM = { nom: '', cuisine: '', adr: '', tel: '', telInd: '+41', email: '', web: '' }
+
+  const [formData, setFormData] = useState(() => {
+    if (resto?.name) {
+      return {
+        nom: resto.name || '',
+        cuisine: (resto as any).cuisine_tag || '',
+        adr: (resto as any).adresse || (resto as any).address || '',
+        tel: resto.tel || '',
+        telInd: (resto as any).telInd || '+41',
+        email: resto.email || '',
+        web: resto.web || '',
+      }
+    }
+    return isDemo ? DEMO_FORM : EMPTY_FORM
   })
+
+  // Re-hydrate quand le store resto change (connexion, reload)
+  useEffect(() => {
+    if (resto?.name) {
+      setFormData({
+        nom: resto.name || '',
+        cuisine: (resto as any).cuisine_tag || '',
+        adr: (resto as any).adresse || (resto as any).address || '',
+        tel: resto.tel || '',
+        telInd: (resto as any).telInd || '+41',
+        email: resto.email || '',
+        web: resto.web || '',
+      })
+      if ((resto as any).description) setDescription((resto as any).description)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resto?.name, resto?.email, resto?.tel, resto?.web])
 
   const [horaires, setHoraires] = useState<HoraireDay[]>([
     { d: 'Lundi', open: false, from: '', to: '' },
@@ -82,9 +116,11 @@ export function Profil() {
     { d: 'Dimanche', open: false, from: '', to: '' },
   ])
 
-  const [ambiances, setAmbiances] = useState<string[]>(['Romantique', 'Gastronomique'])
-  const [description, setDescription] = useState('Restaurant au bord du lac, cuisine raffinée, produits locaux…')
-  const [plan] = useState<'bistro' | 'resto' | 'gastro'>('gastro')
+  const [ambiances, setAmbiances] = useState<string[]>(isDemo ? ['Romantique', 'Gastronomique'] : [])
+  const [description, setDescription] = useState(
+    (resto as any)?.description || (isDemo ? 'Restaurant au bord du lac, cuisine raffinée, produits locaux…' : '')
+  )
+  const [plan] = useState<'bistro' | 'resto' | 'gastro'>((resto?.plan as any) || 'gastro')
 
   const ambianceOptions = [
     '🕯 Romantique',
@@ -138,6 +174,11 @@ export function Profil() {
   const handleGplSearch = () => {
     const q = gplInput.trim().toLowerCase()
     if (!q) {
+      setGplResults([])
+      return
+    }
+    if (!isDemo) {
+      toast('Recherche Google Places — API non encore branchée', 'info')
       setGplResults([])
       return
     }
@@ -196,21 +237,30 @@ export function Profil() {
     setPasswordForm({ current: '', new: '', confirm: '' })
   }
 
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+
   const handleSave = async () => {
+    setSaveState('saving')
     try {
+      // Mappe sur les colonnes DB du backend (voir backend/src/modules/restaurants/service.js)
       await updateResto({
-        // @ts-ignore
         name: formData.nom,
-        // @ts-ignore cuisine field
-        cuisine: formData.cuisine,
-        adresse: formData.adr,
         tel: formData.tel,
         email: formData.email,
         web: formData.web,
-      })
+        // @ts-ignore — extensions backend (address/cuisine_tag/description)
+        address: formData.adr,
+        // @ts-ignore
+        cuisine_tag: formData.cuisine,
+        description,
+      } as any)
+      setSaveState('saved')
       toast('Profil enregistré ✓', 'success')
+      setTimeout(() => setSaveState('idle'), 2000)
     } catch (err: any) {
-      toast(`Erreur : ${err.message}`, 'error')
+      setSaveState('error')
+      toast(`Erreur : ${err.message || 'impossible d\'enregistrer'}`, 'error')
+      setTimeout(() => setSaveState('idle'), 3000)
     }
   }
 
@@ -228,19 +278,25 @@ export function Profil() {
         <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--text)', marginBottom: 3 }}>Mon restaurant</div>
         <button
           onClick={handleSave}
+          disabled={saveState === 'saving'}
+          aria-label="Enregistrer le profil du restaurant"
           style={{
             padding: '8px 14px',
             borderRadius: 8,
             border: 'none',
-            background: 'var(--bl)',
+            background: saveState === 'saved' ? 'var(--gn)' : saveState === 'error' ? 'var(--rd)' : 'var(--bl)',
             color: 'white',
             fontSize: 11,
             fontWeight: 700,
-            cursor: 'pointer',
+            cursor: saveState === 'saving' ? 'wait' : 'pointer',
             marginTop: 8,
+            opacity: saveState === 'saving' ? 0.7 : 1,
           }}
         >
-          💾 Enregistrer
+          {saveState === 'saving' && '⏳ Enregistrement…'}
+          {saveState === 'saved' && '✓ Enregistré'}
+          {saveState === 'error' && '✕ Erreur'}
+          {saveState === 'idle' && '💾 Enregistrer'}
         </button>
       </div>
 
@@ -820,72 +876,4 @@ export function Profil() {
                       fontSize: 11,
                       padding: '6px 12px',
                       borderRadius: 6,
-                      border: 'none',
-                      background: 'var(--bl)',
-                      color: 'white',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Enregistrer
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowPasswordForm(false)
-                      setPasswordForm({ current: '', new: '', confirm: '' })
-                    }}
-                    style={{
-                      flex: 1,
-                      fontSize: 11,
-                      padding: '6px 12px',
-                      borderRadius: 6,
-                      border: '1px solid var(--border)',
-                      background: 'var(--surf2)',
-                      color: 'var(--text)',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Annuler
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick shortcuts */}
-      <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', marginBottom: 30 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>⚡ Configuration rapide</div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {shortcuts.map((s) => (
-            <div
-              key={s.path}
-              onClick={() => navigate(s.path)}
-              style={{
-                background: 'var(--surf2)',
-                border: '1px solid var(--border)',
-                borderRadius: 10,
-                padding: '11px 13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                transition: '.15s',
-              }}
-            >
-              <span style={{ fontSize: 20 }}>{s.icon}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{s.lbl}</div>
-                <div style={{ fontSize: 11, color: 'var(--t3)' }}>{s.sub}</div>
-              </div>
-              <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--t3)' }}>›</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
+ 

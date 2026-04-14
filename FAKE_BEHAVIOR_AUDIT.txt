@@ -1,0 +1,308 @@
+# R3STO REACT APP - FAKE/MOCK BEHAVIOR AUDIT
+# Comprehensive findings of unconnected, fake, or placeholder functionality
+# Generated: April 2026
+
+## SUMMARY
+Found 80+ instances of toast notifications without real API calls, hardcoded mock data, buttons showing UI feedback without persistence, and placeholder features marked "coming soon".
+
+---
+
+## CATEGORY 1: TOAST NOTIFICATIONS WITHOUT API CALLS (Validation/Error toasts are OK, but success toasts without actions are NOT)
+
+### 1.1 BUTTONS WITH ONLY TOAST - NO ACTUAL ACTION
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Marketing/Marketing.tsx
+Lines: 152, 227
+Issue: "New Automation" button and template preview buttons only show toast, no actual creation
+  - Line 152: onClick={() => toast(t('mkt.newAuto'), 'success')}  // Should open form or API call
+  - Line 227: onClick={() => toast(t(tp.nameKey) + ' — ' + t('mkt.tpl.preview'), 'success')}  // Should show preview
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Salles/Salles.tsx
+Lines: 710, 749
+Issue: Flow rule and group creation buttons only show toast
+  - Line 710: onClick={() => toast('Règle de flux ajoutée', 'success')}  // No actual creation
+  - Line 749: onClick={() => toast('Nouveau groupe de flux créé', 'success')}  // No actual creation
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Support/Support.tsx
+Lines: 276, 453
+Issue: Video click and ticket submission show toast without real action
+  - Line 276: onClick={() => toast('▶ ' + t(v.titleKey), 'success')}  // Should play video or open modal
+  - Line 453: onClick={() => toast(t('support.ticket.sent'), 'success')}  // No form validation or API call before showing
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Waitlist/Waitlist.tsx
+Line: 168
+Issue: "Add to waitlist" button only shows toast
+  - onClick={() => toast('Ouvrir formulaire ajout liste d\'attente', 'info')}  // Should open form, not just show message
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/QRCode/QRCode.tsx
+Lines: 234, 250, 266
+Issue: All download buttons show success toast without actual download logic
+  - Line 234: onClick={() => toast('QR codes téléchargés (PNG)', 'success')}  // No download implementation
+  - Line 250: onClick={() => toast('PDF généré — impression A4', 'success')}  // No PDF generation
+  - Line 266: onClick={() => toast('Fichier ZIP téléchargé', 'success')}  // No ZIP creation
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/SiteVitrine/SiteVitrine.tsx
+Line: 874
+Issue: Download index.html marked as "coming soon" feature but shows success toast
+  - onClick={() => toast('Fichier index.html prêt au téléchargement (fonctionnalité à venir)', 'success')}
+  - Should be disabled or show warning, not success toast
+
+### 1.2 COPY-TO-CLIPBOARD WITH TOAST (These are OK - actual action):
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Cadeaux/Cadeaux.tsx
+Lines: 458, 646, 656
+- These ARE functional (copy-to-clipboard is real action)
+- Line 458: Lien copié\! ✓
+- Line 646: Email envoyé à... (MIGHT BE FAKE - no actual email API call)
+- Line 656: Code copié\! ✓
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Widget/Widget.tsx
+Lines: 58, 131
+- These ARE functional (copy-to-clipboard is real action) ✓
+
+---
+
+## CATEGORY 2: HARDCODED/MOCK DATA - NOT LOADED FROM API
+
+### 2.1 ADMIN VIEWS WITH DEMO DATA
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Admin/AdminDashboard.tsx
+Lines: 63-96
+Issue: All data hardcoded in DEMO_ constants
+  - DEMO_KPI (line 57): MRR 28450, activeClients 312, monthlyBookings 4860
+  - DEMO_ACTIVITY (line 63): 5 hardcoded activity logs
+  - DEMO_SUBDOMAINS (line 71): Health status never fetches real data
+  - DEMO_RESTAURANTS (line 79): 5 hardcoded restaurants
+  - DEMO_SIGNUPS (line 96): 5 hardcoded new signups
+  - All used via useState with no API fetch: const [kpi] = useState<KPIData>(DEMO_KPI)
+  - refreshHealth() function (line 193): setTimeout fake delay, no real health check API call
+  - handleBackupDB() (line 197): Only shows toast, no backup logic
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Admin/Finance.tsx
+Lines: 30-64
+Issue: All financial data hardcoded
+  - INVOICES (line 30): 5 hardcoded invoices
+  - EXPENSES (line 38): 3 hardcoded expenses
+  - MONTHLY_DATA (line 55): 6 months hardcoded revenue
+  - FORECAST_MONTHS (line 64): Forecast data hardcoded
+  - No API calls to fetch real financial data
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Admin/Plateforme.tsx
+Lines: 44-73
+Issue: All infrastructure data hardcoded
+  - DEMO_SUBDOMAINS (line 44): Fake health status
+  - DEMO_DEPLOYMENTS (line 56): 3 hardcoded deployment records
+  - DEMO_SECURITY (line 64): 3 hardcoded security items
+  - DEMO_LOGS (line 73): 3 hardcoded log entries
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Admin/Equipes.tsx
+Lines: 64-93
+Issue: All employee data hardcoded
+  - INIT_EMPLOYEES (line 64): 4 hardcoded employees
+  - INIT_ABSENCES (line 75): 2 hardcoded absences
+  - INIT_SHIFTS (line 84): 3 hardcoded shifts
+  - INIT_DOCUMENTS (line 93): 3 hardcoded documents
+  - Used with useState, no API persistence
+
+### 2.2 DELIVERY MOCK DATA
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Delivery/DeliveryDashboard.tsx
+Lines: 23-31
+Issue: 6 hardcoded delivery orders never load from API
+  - DEMO_ORDERS: Sophie Martin, Marc Dupont, Anna Keller, etc.
+  - Used as: const [orders] = useState<DeliveryOrder[]>(DEMO_ORDERS)
+  - No API fetch to get real orders
+
+### 2.3 MARKETING MOCK DATA
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Marketing/Marketing.tsx
+Lines: 24-56
+Issue: All automations and templates hardcoded
+  - AUTOMATIONS (line 29): 6 hardcoded automation rules with fake sent counts
+  - TEMPLATES (line 39): 8 hardcoded email/SMS templates
+  - Data never syncs with backend, local state only
+
+---
+
+## CATEGORY 3: LOCAL STATE CHANGES WITHOUT PERSISTENCE (Toasts suggest success but no API call)
+
+### 3.1 USER MANAGEMENT WITHOUT API PERSISTENCE
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/AccesRoles/AccesRoles.tsx
+Lines: 102, 110, 118, 133, 142
+Issue: All user actions update local state only, show success toasts
+  - Line 102: submitInvite() → toast('Invitation envoyée par email', 'success') with NO email API call
+  - Line 110: updateUserRole() → toast('Rôle modifié', 'success') - NO API update, just useState
+  - Line 118: updateUserPermissions() → toast('Permissions mises à jour', 'success') - NO API call
+  - Line 133: toggleUserActive() → toast('Utilisateur réactivé', 'success') - NO API persistence
+  - Line 142: deleteUser() → toast('Utilisateur supprimé', 'success') - NO deletion persistence
+
+### 3.2 REVIEW MANAGEMENT
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Avis/Avis.tsx
+Lines: 149, 156, 161, 182, 353
+Issue: Reviews managed only in local state/store, no backend sync shown
+  - Line 149: handleReply() → toast('Réponse enregistrée', 'success') - might have API but needs verification
+  - Line 156: handleFlag() → toast('Avis signalé', 'warning') - local state only
+  - Line 161: handleToggleVisible() → toast('Avis visible', 'info') - local state only
+  - Line 182: handleAddReview() → toast('Avis ajouté', 'success') - local state only
+  - Line 353: onDelete() → toast('Avis supprimé', 'info') - local state only
+
+### 3.3 GIFT CARDS WITHOUT PAYMENT PERSISTENCE
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Cadeaux/Cadeaux.tsx
+Lines: 154, 163, 231, 646, 648
+Issue: Gift card operations show success but persistence is unclear
+  - Line 154: toast(`Bon cadeau ${gc.code} créé...`, 'success') - check if API called
+  - Line 163: toast(`${CURRENCY} ${useAmount} débité...`, 'success') - no balance tracking visible
+  - Line 231: toast(`Bon ${gc.code} annulé`, 'warning') - local state only
+  - Line 646: toast(`Email envoyé à...`, 'success') - NO EMAIL API CALL before toast
+  - Line 648: toast('Pas d\'email destinataire', 'warning') - conditional but still fake
+
+### 3.4 EMPLOYEE MANAGEMENT
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Admin/Equipes.tsx
+Lines: 123, 127, 135, 146
+Issue: Employee operations update state but no backend persistence visible
+  - Line 123: toast(form.firstName + ' mis a jour') - useState only
+  - Line 127: toast(form.firstName + ' ajoute') - no API create call visible
+  - Line 135: toast(absence status update message) - useState only
+  - Line 146: toast('CSV exporte') - download functionality, not persistence
+
+### 3.5 BLACKLIST MANAGEMENT
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Blacklist/Blacklist.tsx
+Lines: 107, 239, 365, 380
+Issue: Blacklist rules and client blocking use only local state/updateOptions
+  - Line 107: toast('Client bloqué manuellement', 'success') - useState only
+  - Line 239: toast('Règles sauvegardées', 'success') - updateOptions() not confirmed as persisting
+  - Line 365: toast(client details, 'info') - just displays info
+  - Line 380: toast(client.n + ' réhabilité', 'success') - updateClient() call exists
+
+### 3.6 ROOMS/SERVICES/COMBOS MANAGEMENT
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Salles/Salles.tsx
+Lines: 114, 117, 141, 144, 710, 749
+Issue: Room and service creation shows toasts but fake flow rule creation
+  - Line 114: toast('Salle ajoutée', 'success') - updateSalle() exists ✓
+  - Line 117: toast('Salle modifiée', 'success') - updateSalle() exists ✓
+  - Line 710: toast('Règle de flux ajoutée', 'success') - NO implementation, just toast
+  - Line 749: toast('Nouveau groupe de flux créé', 'success') - NO implementation, just toast
+
+### 3.7 RESERVATIONS & TABLES
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Plan/Plan.tsx
+Lines: 1146-1158
+Issue: Table state changes show toasts but actual API updates unclear
+  - Line 1146: toast(`${tbl.n} débloquée ✓`, 'success') - updateTable() called
+  - Line 1147: toast(`${tbl.n} → réserve 🔒`, 'info') - updateTable() called
+  - Line 1149: toast(`${tbl.n} bloquée 🚫`, 'warning') - updateTable() called
+  - (These likely have updateTable() but verification needed)
+
+---
+
+## CATEGORY 4: PLACEHOLDER FEATURES MARKED "COMING SOON"
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/SiteVitrine/SiteVitrine.tsx
+Line: 874
+Feature: "Download index.html"
+Status: Marked "fonctionnalité à venir" but shows SUCCESS toast
+Issue: Should show warning or be disabled, not success toast
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Support/Support.tsx
+Line: ~450 (approx)
+Comment: "Placeholder AI response — à remplacer par un vrai appel API"
+Status: Chat responses are hardcoded placeholder text
+Issue: AI chat not actually calling any API
+
+---
+
+## CATEGORY 5: CONSOLE.LOG AS PLACEHOLDERS (Debugging only, not critical)
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/SetupPlan/SetupPlan.tsx
+Lines: 676, 787, 1029, 1091
+Issue: console.log statements for debugging, not production issues but indicate in-development code
+- These are for development tracking, acceptable if removed before production
+
+---
+
+## CATEGORY 6: EMAIL/SMS SENDING WITHOUT VERIFICATION
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/Cadeaux/Cadeaux.tsx
+Line: 646
+Issue: "Envoyer" button shows success toast without confirming email was sent
+  - onClick={() => { if (selected.recipientEmail) { toast(`Email envoyé...`, 'success') } else toast(...) }}
+  - NO actual email API call visible before toast
+  - Should call apiService.sendGiftCardEmail() or similar
+
+File: /sessions/blissful-beautiful-gates/mnt/Desktop--R3STO/src/views/AccesRoles/AccesRoles.tsx
+Line: 102
+Issue: "Invitation envoyée par email" toast shows without email API
+  - submitInvite() shows this toast but where is the email sent?
+  - Should call apiService.sendInviteEmail() before toast
+
+---
+
+## CATEGORY 7: CSV EXPORT TOASTS (These are likely OK but verify)
+
+Multiple files show "CSV exporté" toasts
+- These likely work (creating blobs and downloads)
+- Verify they don't claim persistence:
+  - Blacklist line 136
+  - Equipes line 146
+  - Historique line 193
+  - Etc.
+
+---
+
+## CRITICAL PRIORITY ISSUES
+
+### HIGH PRIORITY (Block data integrity):
+1. AccesRoles - User invitations show success without email confirmation
+2. Cadeaux - Email sending shows success without API call
+3. Admin Dashboard - All KPI data is hardcoded demo data
+4. Admin Finance - All financial reports use fake data
+5. Marketing - All automation stats are fake
+6. Support - Chat responses are placeholder, not calling AI API
+7. Delivery - All orders are DEMO data, never fetch real orders
+
+### MEDIUM PRIORITY (Misleading UX):
+1. Marketing - "New Automation" button only toasts
+2. Salles - Flow rules show success toast without creation
+3. Blacklist - Auto rules might not persist properly
+4. Support ticket submission - No actual submission visible
+
+### LOW PRIORITY (Polish):
+1. QRCode download buttons should implement actual generation
+2. SiteVitrine HTML download should be disabled, not show success
+3. Console.log statements should be removed
+
+---
+
+## RECOMMENDATIONS
+
+1. IMMEDIATE: Add API calls for:
+   - User invitations (email service)
+   - Gift card email sending
+   - All Admin dashboard data (fetch real KPIs from API)
+   - Delivery orders (fetch from backend)
+
+2. SHORT-TERM: Implement:
+   - Marketing automation creation form and API
+   - Salles flow rules API backend
+   - Support chat actual API to AI service
+   - QRCode PDF/ZIP generation
+   - SiteVitrine HTML export
+
+3. VERIFY: Check if these already have API calls:
+   - Reservation create/update (ModalResa.tsx, NouvelleResa.tsx)
+   - Review operations (ensure they call API)
+   - Gift card operations (verify API persistence)
+   - Room/Service management (verify updateSalle/updateService API calls)
+
+4. TESTING: For each fake feature, add:
+   - Network error handling
+   - Loading states
+   - Success/failure callbacks with proper toasts
+   - Optimistic UI updates if needed
+

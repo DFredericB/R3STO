@@ -23,7 +23,8 @@ const demoWaitlist: WaitlistItem[] = [
 
 export function Waitlist() {
   const { toast } = useToast()
-  const [waitlist, setWaitlist] = useState<WaitlistItem[]>(demoWaitlist)
+  const isDemo = useAppStore((s) => s.isDemo)
+  const [waitlist, setWaitlist] = useState<WaitlistItem[]>(isDemo ? demoWaitlist : [])
   const tables = useAppStore((s) => s.tables)
   const combos = useAppStore((s) => s.combos)
   const resas = useAppStore((s) => s.resas)
@@ -165,7 +166,7 @@ export function Waitlist() {
         <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--text)', marginBottom: 3 }}>Liste d'attente</div>
         <div style={{ fontSize: 12, color: 'var(--t2)', marginBottom: 10 }}>{waitlist.length} clients en attente aujourd'hui</div>
         <button
-          onClick={() => toast('Ouvrir formulaire ajout liste d\'attente', 'info')}
+          onClick={() => toast('Formulaire d\'ajout à implémenter', 'info')}
           style={{
             padding: '8px 14px',
             borderRadius: 8,
@@ -385,10 +386,4 @@ export function Waitlist() {
                   </button>
                 </div>
               </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
+         

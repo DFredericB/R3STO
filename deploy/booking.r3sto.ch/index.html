@@ -458,7 +458,9 @@ dateInput.addEventListener('change', updateDateHint);
 /* ── URL params & slug detection ──────────────────────────── */
 var params    = new URLSearchParams(window.location.search);
 var pathSlug  = window.location.pathname.replace(/^\//, '').replace(/\/$/, '').split('/')[0];
-var restoSlug = params.get('r') || (pathSlug && pathSlug !== 'index.html' ? pathSlug : null);
+var isDemoParam = params.get('demo') === '1';
+/* En mode ?demo=1 : on ignore r/slug et on force le jeu fictif (Comptoir du Lac) */
+var restoSlug = isDemoParam ? null : (params.get('r') || (pathSlug && pathSlug !== 'index.html' ? pathSlug : null));
 if(restoSlug) document.getElementById('restoName').textContent = decodeURIComponent(restoSlug);
 
 /* ── Embed mode ───────────────────────────────────────────── */
@@ -541,8 +543,30 @@ function loadDemoFallback() {
   restoDbId = 0;
 }
 
+function loadEmptyState() {
+  /* Production : aucun resto s\u00e9lectionn\u00e9 → \u00e9cran vide "Aucun restaurant" */
+  var nameEl = document.getElementById('restoName');
+  if(nameEl) nameEl.textContent = 'Bienvenue sur R3STO';
+  var subEl = document.getElementById('restoSub');
+  if(subEl) subEl.textContent = 'S\u00e9lectionnez un restaurant';
+  var grid = document.getElementById('timeGrid');
+  if(grid) grid.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;line-height:1.6">' +
+    '<div style="font-size:48px;margin-bottom:12px;opacity:.4">\ud83c\udf74</div>' +
+    '<div style="font-weight:700;color:var(--text);margin-bottom:8px">Aucun restaurant s\u00e9lectionn\u00e9</div>' +
+    '<div>Utilisez le widget via le site officiel<br>de votre restaurant ou scannez son QR code.</div>' +
+    '<div style="margin-top:20px"><a href="https://r3sto.ch/restaurants/" style="color:var(--blue);font-weight:600;text-decoration:none">D\u00e9couvrir les restaurants \u2192</a></div>' +
+    '</div>';
+  /* D\u00e9sactive le formulaire */
+  var submitBtn = document.getElementById('btn-submit');
+  if(submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = .4; }
+  restoDbId = -1; /* sentinelle : empty, pas de booking possible */
+}
+
 function loadRestoConfig() {
-  if(!restoSlug) { loadDemoFallback(); return; }
+  /* Mode d\u00e9mo explicite : fallback jeu fictif */
+  if(isDemoParam) { loadDemoFallback(); return; }
+  /* Pas de slug \u2192 \u00e9cran vide prod (au lieu du fallback d\u00e9mo) */
+  if(!restoSlug) { loadEmptyState(); return; }
   fetch(API + '/public/booking/' + encodeURIComponent(restoSlug))
     .then(function(r){ return r.json(); })
     .then(function(data){
@@ -581,6 +605,11 @@ function fetchAvailability(date, guests) {
   grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">' + bt('loading') + '</div>';
   selectedTime = null;
 
+  // Empty state: pas de resto → pas de slots
+  if(restoDbId === -1) {
+    grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-style:italic">\u2014</div>';
+    return;
+  }
   // Demo mode: generate fake slots instead of hitting API
   if(restoDbId === 0) {
     renderDemoSlots(grid);
@@ -737,52 +766,4 @@ function submitBooking() {
       guests: selectedGuests,
       firstName: fname,
       lastName: lname,
-      email: email,
-      phone: fullPhone,
-      notes: document.getElementById('fnotes').value.trim(),
-      lang: BK_LANG
-    })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(data){
-    if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = bt('btn_submit'); }
-
-    if(!data.ok) {
-      if(data.code === 'BLACKLISTED') { alert(bt('error_blacklist')); return; }
-      alert(bt('error_book'));
-      return;
-    }
-
-    // Confirmation screen
-    var d = new Date(dateInput.value + 'T00:00:00');
-    var opts = {weekday:'long',year:'numeric',month:'long',day:'numeric'};
-    document.getElementById('confResto').textContent  = document.getElementById('restoName').textContent;
-    document.getElementById('confDate').textContent   = d.toLocaleDateString(bt('locale'), opts);
-    document.getElementById('confTime').textContent   = selectedTime;
-    document.getElementById('confGuests').textContent = selectedGuests+(selectedGuests===1?' '+bt('person'):' '+bt('persons'));
-    document.getElementById('confName').textContent   = fname+' '+lname;
-    goStep(4);
-  })
-  .catch(function(err){
-    console.error('R3STO booking error', err);
-    if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = bt('btn_submit'); }
-    alert(bt('error_book'));
-  });
-}
-</script>
-<script src="./r3sto-phone.js"></script>
-<script>
-(function(){
-  window._bkPhone = R3Phone.init('#bk-phone-wrap', {
-    country: 'CH', selector: true, light: true,
-    onInput: function(d){ document.getElementById('fphone').value = d; if(typeof bkUpdateHint==='function') bkUpdateHint(); },
-    onE164: function(e164){
-      var cc = window._bkPhone ? window._bkPhone.getCountry() : 'CH';
-      var c = R3Phone.COUNTRIES[cc];
-      if(c) document.getElementById('bk-dial-val').value = c.dial;
-    }
-  });
-})();
-</script>
-</body>
-</html>
+      email: 

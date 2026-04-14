@@ -507,10 +507,17 @@ window.addEventListener('DOMContentLoaded', function() {
   // Charger les données de la note
   var params = new URLSearchParams(window.location.search);
   var tableId = params.get('table_id');
-  
+  var isDemoParam = params.get('demo') === '1';
+
   if (!tableId) {
-    // No table_id: load demo bill
-    loadDemoBill();
+    if (isDemoParam) {
+      // ?demo=1 : note fictive d'exemple
+      loadDemoBill();
+      return;
+    }
+    // Production : pas de table_id → écran "Scannez le QR code"
+    document.getElementById('state-loading').classList.remove('show');
+    document.getElementById('state-error').classList.add('show');
     return;
   }
 
@@ -524,7 +531,11 @@ window.addEventListener('DOMContentLoaded', function() {
     .then(function(r) { return r.json(); })
     .then(loadBill)
     .catch(function(err) {
-      loadDemoBill();
+      // En production : afficher l'erreur plutôt que la démo
+      document.getElementById('state-loading').classList.remove('show');
+      document.getElementById('state-error').classList.add('show');
+      var msg = document.getElementById('error-msg');
+      if (msg) msg.textContent = 'Impossible de charger votre note. Réessayez ou appelez un serveur.';
     });
 });
 
@@ -815,30 +826,4 @@ function launchConfetti() {
       y: -20,
       r: Math.random() * 6 + 3,
       d: Math.random() * 3 + 1,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      vx: (Math.random() - 0.5) * 3,
-    });
-  }
-  var frame = 0;
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    pieces.forEach(function(p) {
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
-      p.y += p.d;
-      p.x += p.vx;
-    });
-    pieces = pieces.filter(function(p) { return p.y < canvas.height; });
-    frame++;
-    if (frame < 200 && pieces.length > 0) requestAnimationFrame(draw);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-  draw();
-}
-
-setTip('custom');
-</script>
-</body>
-</html>
+      color: colors[Math.floor(Ma

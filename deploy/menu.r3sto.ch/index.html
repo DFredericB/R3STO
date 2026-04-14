@@ -916,6 +916,7 @@ var API_BASE = 'https://api.r3sto.ch';
   var p = new URLSearchParams(window.location.search);
   TABLE_NM = p.get('table') || p.get('t') || 'T1';
   RESTO_ID = p.get('id') || p.get('resto') || '';
+  var isDemoParam = p.get('demo') === '1';
 
   // Mettre à jour l'UI
   document.getElementById('table-badge').textContent = mt('table_prefix') + ' ' + TABLE_NM;
@@ -927,7 +928,20 @@ var API_BASE = 'https://api.r3sto.ch';
   document.getElementById('welcome-name').textContent = mt(gk);
   document.getElementById('welcome-msg').textContent = mt('welcome_msg');
 
-  // Charger les données depuis l'API si disponible
+  // Production : pas de resto ni de démo → écran "scannez le QR code"
+  if (!RESTO_ID && !isDemoParam) {
+    document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;text-align:center;font-family:system-ui;background:#f7f5f0;color:#1a2033">' +
+      '<div style="max-width:420px">' +
+        '<div style="font-size:64px;margin-bottom:16px;opacity:.5">\ud83c\udf7d\ufe0f</div>' +
+        '<h1 style="font-size:24px;font-weight:800;margin:0 0 10px">Menu R3STO</h1>' +
+        '<p style="font-size:15px;color:#718096;line-height:1.6;margin:0 0 24px">Scannez le QR code pr\u00e9sent sur votre table pour d\u00e9couvrir la carte et commander.</p>' +
+        '<a href="https://r3sto.ch/restaurants/" style="display:inline-block;padding:12px 22px;background:#e89420;color:#fff;font-weight:700;text-decoration:none;border-radius:10px">Voir les restaurants \u2192</a>' +
+      '</div>' +
+    '</div>';
+    return;
+  }
+
+  // Charger les données depuis l'API si disponible, sinon menu statique (démo)
   if(RESTO_ID) loadMenuFromAPI();
   else renderMenu();
 })();
@@ -1499,24 +1513,4 @@ window.sendOrder=function(){
       <div class="twint-box">
         <div class="twint-logo">TWINT</div>
         <div class="twint-qr-wrap">
-          <img id="twint-qr-img" src="" width="180" height="180" alt="QR TWINT">
-        </div>
-        <div class="twint-amount" id="twint-amount">CHF 0.00</div>
-        <div class="twint-sub" id="twint-scan">Scannez avec votre app TWINT</div>
-        <div class="twint-alias" id="twint-alias"></div>
-      </div>
-      <div id="twint-steps" style="background:rgba(0,109,198,.08);border:1px solid rgba(0,109,198,.2);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:16px">
-        1. Ouvrez votre app TWINT<br>
-        2. Appuyez sur l'icône QR / Scanner<br>
-        3. Scannez ce code — le montant est pré-rempli<br>
-        4. Confirmez le paiement
-      </div>
-      <button id="twint-done" class="confirm-btn" onclick="paymentDone()" style="margin:0;width:100%">✅ J'ai payé</button>
-      <button id="twint-other" onclick="closeTwint();openPaySheet()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">← Autre mode de paiement</button>
-    </div>
-  </div>
-</div>
-
-
-</body>
-</html>
+          <img id="twint-qr-img" src="" width="180" height="180"
