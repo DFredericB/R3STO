@@ -654,4 +654,81 @@ function tryParse(v) {
   try { return JSON.parse(v); } catch (_) { return v; }
 }
 
+// ─── GET /public/places/search?q=... ──────────────────────────
+//   Proxy Google Places Text Search — utilisé par Profil pour
+//   pré-remplir nom/adr/tel/web/lat/lng depuis Google.
+//   Nécessite GOOGLE_PLACES_KEY dans backend/.env
+router.get('/places/search', async (req, res, next) => {
+  try {
+    const q = String(req.query.q || '').trim();
+    if (!q || q.length < 2) {
+      return res.json({ ok: true, results: [] });
+    }
+
+    const key = process.env.GOOGLE_PLACES_KEY;
+    if (!key) {
+      return res.status(503).json({
+        ok: false,
+        error: 'GOOGLE_PLACES_KEY non configurée côté backend',
+        results: [],
+      });
+    }
+
+    // Places API (New) — Text Search
+    // Biasé sur la Suisse pour de meilleurs résultats
+    const url = 'https://places.googleapis.com/v1/places:searchText';
+    const body = {
+      textQuery: q,
+      regionCode: 'CH',
+      languageCode: 'fr',
+      maxResultCount: 10,
+    };
+    const fieldMask = [
+      'places.displayName',
+      'places.formattedAddress',
+      'places.location',
+      'places.internationalPhoneNumber',
+      'places.websiteUri',
+      'places.id',
+      'places.types',
+    ].join(',');
+
+    const gRes = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': key,
+        'X-Goog-FieldMask': fieldMask,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!gRes.ok) {
+      const txt = await gRes.text().catch(() => '');
+      return res.status(502).json({
+        ok: false,
+        error: `Google Places ${gRes.status}`,
+        detail: txt.slice(0, 200),
+        results: [],
+      });
+    }
+
+    const data = await gRes.json();
+    const results = (data.places || []).map(p => ({
+      id: p.id,
+      name: p.displayName?.text || '',
+      addr: p.formattedAddress || '',
+      tel: p.internationalPhoneNumber || '',
+      web: p.websiteUri || '',
+      lat: p.location?.latitude || null,
+      lng: p.location?.longitude || null,
+      types: p.types || [],
+    }));
+
+    res.json({ ok: true, results });
+  } catch (e) {
+    next(e);
+  }
+});
+
 module.exports = router;

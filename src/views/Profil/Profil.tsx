@@ -171,21 +171,46 @@ export function Profil() {
     }
   }
 
-  const handleGplSearch = () => {
-    const q = gplInput.trim().toLowerCase()
+  const handleGplSearch = async () => {
+    const q = gplInput.trim()
     if (!q) {
       setGplResults([])
       return
     }
-    if (!isDemo) {
-      toast('Recherche Google Places — API non encore branchée', 'info')
-      setGplResults([])
+    // Mode démo → filtre la liste statique
+    if (isDemo) {
+      setTimeout(() => {
+        const res = GPLACES_RESULTS.filter((r) => r.name.toLowerCase().includes(q.toLowerCase()))
+        setGplResults(res)
+      }, 300)
       return
     }
-    setTimeout(() => {
-      const res = GPLACES_RESULTS.filter((r) => r.name.toLowerCase().includes(q))
-      setGplResults(res)
-    }, 300)
+    // Mode prod → proxy backend /public/places/search
+    try {
+      const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+      const r = await fetch(`${API_BASE}/public/places/search?q=${encodeURIComponent(q)}`)
+      const data = await r.json().catch(() => ({ ok: false }))
+      if (!r.ok || !data.ok) {
+        const msg = data?.error || `HTTP ${r.status}`
+        toast(`Google Places : ${msg}`, 'error')
+        setGplResults([])
+        return
+      }
+      // Normalise la forme pour réutiliser le même affichage que la démo
+      const mapped = (data.results || []).map((p: any) => ({
+        name: p.name || '',
+        addr: p.addr || '',
+        tel: p.tel || '',
+        web: p.web || '',
+        lat: p.lat || 0,
+        lng: p.lng || 0,
+      }))
+      setGplResults(mapped as any)
+      if (mapped.length === 0) toast('Aucun résultat Google pour cette recherche', 'info')
+    } catch (e: any) {
+      toast(`Google Places injoignable : ${e.message || e}`, 'error')
+      setGplResults([])
+    }
   }
 
   const handleGplImport = (idx: number) => {
