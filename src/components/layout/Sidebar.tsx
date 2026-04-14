@@ -50,7 +50,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/blacklist',     icon: '🚫', labelKey: 'nav.blacklist', groupKey: 'clients', minPlan: 'resto' },
   // ── CANAUX (présence en ligne + revenus) ──
   { path: '/site-vitrine',  icon: '🖥️', labelKey: 'nav.siteVitrine', groupKey: 'channels', minPlan: 'gastro' },
-  { path: '/widget',        icon: '🌐', labelKey: 'nav.widget', groupKey: 'channels', minPlan: 'resto' },
+  { path: '/widget',        icon: '🌐', labelKey: 'nav.widget', groupKey: 'channels' },
   { path: '/menu',          icon: '📋', labelKey: 'nav.menu', groupKey: 'channels', minPlan: 'resto' },
   { path: '/qrcode',        icon: '📱', labelKey: 'nav.qrcode', groupKey: 'channels', minPlan: 'resto' },
   { path: '/cadeaux',       icon: '🎁', labelKey: 'nav.giftCards', groupKey: 'channels', minPlan: 'resto' },
@@ -74,7 +74,7 @@ const NAV_ITEMS: NavItem[] = [
   // ── RÉGLAGES (toute la configuration) ──
   { path: '/profil',        icon: '🍽️', labelKey: 'nav.myRestaurant', groupKey: 'settings' },
   { path: '/salles',        icon: '🚪', labelKey: 'nav.roomsServices', groupKey: 'settings' },
-  { path: '/tables',        icon: '🪑', labelKey: 'nav.tablesCombos', groupKey: 'settings', minPlan: 'resto' },
+  { path: '/tables',        icon: '🪑', labelKey: 'nav.tablesCombos', groupKey: 'settings' },
   { path: '/setup-plan',    icon: '🔧', labelKey: 'nav.tablesPlan', groupKey: 'settings', minPlan: 'resto' },
   { path: '/fermetures',    icon: '🔒', labelKey: 'nav.closures', groupKey: 'settings' },
   { path: '/options',       icon: '⚙️', labelKey: 'nav.options', groupKey: 'settings' },

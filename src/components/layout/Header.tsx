@@ -163,6 +163,7 @@ export function Header() {
   const [showProfile, setShowProfile] = useState(false)
   const [showSiteSwitch, setShowSiteSwitch] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
+  const [showDemoSites, setShowDemoSites] = useState(false)
 
   // ⌘K / Ctrl+K raccourci recherche globale
   const handleSearchKey = useCallback((e: KeyboardEvent) => {
@@ -204,16 +205,17 @@ export function Header() {
 
   // Fermer dropdowns au clic dehors
   useEffect(() => {
-    if (!showNotif && !showProfile && !showSiteSwitch) return
+    if (!showNotif && !showProfile && !showSiteSwitch && !showDemoSites) return
     const close = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       if (showNotif && !target.closest('[data-notif-panel]')) setShowNotif(false)
       if (showProfile && !target.closest('[data-profile-panel]')) setShowProfile(false)
       if (showSiteSwitch && !target.closest('[data-site-panel]')) setShowSiteSwitch(false)
+      if (showDemoSites && !target.closest('[data-demo-sites-panel]')) setShowDemoSites(false)
     }
     document.addEventListener('click', close, true)
     return () => document.removeEventListener('click', close, true)
-  }, [showNotif, showProfile, showSiteSwitch])
+  }, [showNotif, showProfile, showSiteSwitch, showDemoSites])
 
   const markAllRead = () => setReadIds(new Set(notifs.map(n => n.id)))
 
@@ -278,26 +280,28 @@ export function Header() {
             fontSize: 13, fontWeight: 700, color: 'var(--text)',
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             display: 'flex', alignItems: 'center', gap: 6,
-            cursor: hasMultiSites ? 'pointer' : 'default',
+            cursor: (!isAdmin && hasMultiSites) ? 'pointer' : 'default',
           }}
-          onClick={() => hasMultiSites && setShowSiteSwitch(!showSiteSwitch)}
+          onClick={() => !isAdmin && hasMultiSites && setShowSiteSwitch(!showSiteSwitch)}
         >
-          {activeSite && (
+          {!isAdmin && activeSite && (
             <span style={{
               width: 8, height: 8, borderRadius: '50%',
               background: activeSite.color, flexShrink: 0,
             }} />
           )}
-          {displayName}
-          <span
-            title={t('header.connection')}
-            style={{
-              width: 7, height: 7, borderRadius: '50%',
-              background: 'var(--gn)',
-              display: 'inline-block', flexShrink: 0,
-            }}
-          />
-          {hasMultiSites && (
+          {isAdmin ? 'Admin Console' : displayName}
+          {!isAdmin && (
+            <span
+              title={t('header.connection')}
+              style={{
+                width: 7, height: 7, borderRadius: '50%',
+                background: 'var(--gn)',
+                display: 'inline-block', flexShrink: 0,
+              }}
+            />
+          )}
+          {!isAdmin && hasMultiSites && (
             <span style={{ fontSize: 10, color: 'var(--t3)', flexShrink: 0 }}>▾</span>
           )}
         </div>
@@ -485,6 +489,89 @@ export function Header() {
       </div>
 
       <SearchModal open={showSearch} onClose={() => setShowSearch(false)} />
+
+      {/* Demo: launcher sites clients */}
+      {isDemo && (() => {
+        const DEMO_SLUG = 'chez-martin'
+        const demoSites = [
+          { key: 'widget',   icon: '📅', label: 'Widget booking', url: `https://booking.r3sto.ch/${DEMO_SLUG}?demo=1`,  hint: 'Prendre une résa depuis le widget client' },
+          { key: 'menu',     icon: '📖', label: 'Menu client',    url: `https://menu.r3sto.ch/${DEMO_SLUG}?demo=1`,     hint: 'Carte vue par le client (QR code)' },
+          { key: 'delivery', icon: '🛵', label: 'Livraison',      url: `https://delivery.r3sto.ch/${DEMO_SLUG}?demo=1`, hint: 'Click & collect / livraison' },
+          { key: 'bill',     icon: '💳', label: 'Addition',       url: `https://bill.r3sto.ch/${DEMO_SLUG}?demo=1`,     hint: 'Règlement par QR en table' },
+        ] as const
+        const resetDemo = async () => {
+          try { await fetch('https://api.r3sto.ch/public/demo/reset', { method: 'POST' }) } catch {}
+          window.location.reload()
+        }
+        return (
+          <div style={{ position: 'relative' }} data-demo-sites-panel>
+            <button
+              onClick={() => setShowDemoSites(v => !v)}
+              style={{ ...iconBtn, width: 'auto', gap: 6, padding: '0 10px', fontSize: 12, fontWeight: 600 }}
+              title="Ouvrir les sites clients en mode démo"
+              aria-label="Sites clients démo"
+            >
+              🌐 <span style={{ letterSpacing: '.04em' }}>Sites clients</span>
+            </button>
+            {showDemoSites && (
+              <div style={{
+                position: 'absolute', top: 42, right: 0, width: 320,
+                background: 'var(--surf2)', border: '1px solid var(--border)',
+                borderRadius: 10, boxShadow: '0 8px 24px var(--shadow)',
+                zIndex: 200, overflow: 'hidden',
+              }}>
+                <div style={{
+                  padding: '10px 12px', borderBottom: '1px solid var(--border)',
+                  fontSize: 10, fontWeight: 700, color: 'var(--t4)',
+                  textTransform: 'uppercase', letterSpacing: '.08em',
+                }}>
+                  🎭 Sites clients — démo "Chez Martin"
+                </div>
+                <div style={{ padding: 6 }}>
+                  {demoSites.map(s => (
+                    <a
+                      key={s.key}
+                      href={s.url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      onClick={() => setShowDemoSites(false)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '8px 10px', borderRadius: 8,
+                        textDecoration: 'none', color: 'var(--text)',
+                        fontSize: 12, transition: 'background .12s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--surf3)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <span style={{ fontSize: 16 }}>{s.icon}</span>
+                      <span style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700 }}>{s.label}</div>
+                        <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2 }}>{s.hint}</div>
+                      </span>
+                      <span style={{ fontSize: 11, color: 'var(--t3)' }}>↗</span>
+                    </a>
+                  ))}
+                </div>
+                <div style={{ height: 1, background: 'var(--border)' }} />
+                <button
+                  onClick={resetDemo}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    width: '100%', padding: '10px 12px',
+                    border: 'none', background: 'transparent', cursor: 'pointer',
+                    fontFamily: 'var(--ff)', fontSize: 12, color: 'var(--am)',
+                    textAlign: 'left', fontWeight: 700,
+                  }}
+                  title="Régénérer les données de démonstration"
+                >
+                  🔄 Réinitialiser la démo
+                </button>
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Notifications */}
       <div style={{ position: 'relative' }} data-notif-panel>
@@ -695,18 +782,20 @@ export function Header() {
               >
                 ⚙️ {t('profile.settings')}
               </button>
-              <button
-                onClick={() => { setShowProfile(false); navigate('/profil') }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  width: '100%', padding: '6px 8px', borderRadius: 6,
-                  border: 'none', background: 'transparent',
-                  color: 'var(--t2)', fontSize: 12, cursor: 'pointer',
-                  fontFamily: 'var(--ff)', transition: 'background .12s',
-                }}
-              >
-                🏠 {t('general.myRestaurant')}
-              </button>
+              {!isAdmin && (
+                <button
+                  onClick={() => { setShowProfile(false); navigate('/profil') }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    width: '100%', padding: '6px 8px', borderRadius: 6,
+                    border: 'none', background: 'transparent',
+                    color: 'var(--t2)', fontSize: 12, cursor: 'pointer',
+                    fontFamily: 'var(--ff)', transition: 'background .12s',
+                  }}
+                >
+                  🏠 {t('general.myRestaurant')}
+                </button>
+              )}
               <button
                 onClick={() => { setShowProfile(false); navigate('/acces-roles') }}
                 style={{
