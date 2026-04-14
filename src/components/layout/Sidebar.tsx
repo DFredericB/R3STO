@@ -31,6 +31,17 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/plan',          icon: '📐', labelKey: 'nav.floorplan', groupKey: 'reservations', minPlan: 'resto' },
   { path: '/waitlist',      icon: '⏳', labelKey: 'nav.waitlist', badge: 'waitlist', groupKey: 'reservations', minPlan: 'resto' },
   { path: '/groupes',       icon: '👥', labelKey: 'nav.groups', badge: 'pending', groupKey: 'reservations', minPlan: 'resto' },
+  // ── R3STO ORDER (service en salle — quotidien) ──
+  { path: '/commandes',     icon: '🔔', labelKey: 'nav.orders', groupKey: 'r3sto-order' },
+  { path: '/kds-cuisine',   icon: '🍳', labelKey: 'nav.kdsCuisine', groupKey: 'r3sto-order', moduleId: 'order' },
+  { path: '/kds-bar',       icon: '🍸', labelKey: 'nav.kdsBar', groupKey: 'r3sto-order', moduleId: 'order' },
+  { path: '/service',       icon: '🧑\u200d💼', labelKey: 'nav.service', groupKey: 'r3sto-order', moduleId: 'order' },
+  { path: '/caisse',        icon: '💰', labelKey: 'nav.register', groupKey: 'r3sto-order', moduleId: 'order' },
+  // ── R3STO DELIVERY (livraison — quotidien) ──
+  { path: '/delivery',          icon: '🛵', labelKey: 'nav.delivery', groupKey: 'r3sto-delivery' },
+  { path: '/delivery-orders',   icon: '📦', labelKey: 'nav.deliveryOrders', groupKey: 'r3sto-delivery' },
+  { path: '/delivery-tracking', icon: '📍', labelKey: 'nav.deliveryTracking', groupKey: 'r3sto-delivery', moduleId: 'delivery' },
+  { path: '/delivery-zones',    icon: '🗺️', labelKey: 'nav.deliveryZones', groupKey: 'r3sto-delivery', moduleId: 'delivery' },
   // ── CLIENTS (CRM + fidélisation) ──
   { path: '/clients',       icon: '👤', labelKey: 'nav.clients', groupKey: 'clients', minPlan: 'resto' },
   { path: '/avis',          icon: '⭐', labelKey: 'nav.reviews', groupKey: 'clients', minPlan: 'gastro' },
@@ -46,28 +57,19 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/prepaiement',   icon: '💳', labelKey: 'nav.prepayment', groupKey: 'channels', minPlan: 'gastro' },
   { path: '/marketplace',   icon: '🛒', labelKey: 'nav.marketplace', groupKey: 'channels', minPlan: 'resto' },
   { path: '/modules',       icon: '🧩', labelKey: 'nav.modules', groupKey: 'channels' },
-  // ── R3STO ORDER ──
-  { path: '/commandes',     icon: '🔔', labelKey: 'nav.orders', groupKey: 'r3sto-order' },
-  { path: '/kds-cuisine',   icon: '🍳', labelKey: 'nav.kdsCuisine', groupKey: 'r3sto-order', moduleId: 'order' },
-  { path: '/kds-bar',       icon: '🍸', labelKey: 'nav.kdsBar', groupKey: 'r3sto-order', moduleId: 'order' },
-  { path: '/service',       icon: '🧑‍💼', labelKey: 'nav.service', groupKey: 'r3sto-order', moduleId: 'order' },
-  { path: '/caisse',        icon: '💰', labelKey: 'nav.register', groupKey: 'r3sto-order', moduleId: 'order' },
-  // ── R3STO DELIVERY ──
-  { path: '/delivery',          icon: '🛵', labelKey: 'nav.delivery', groupKey: 'r3sto-delivery' },
-  { path: '/delivery-orders',   icon: '📦', labelKey: 'nav.deliveryOrders', groupKey: 'r3sto-delivery' },
-  { path: '/delivery-tracking', icon: '📍', labelKey: 'nav.deliveryTracking', groupKey: 'r3sto-delivery', moduleId: 'delivery' },
-  { path: '/delivery-zones',    icon: '🗺️', labelKey: 'nav.deliveryZones', groupKey: 'r3sto-delivery', moduleId: 'delivery' },
-  // ── R3STO CRM (prospects + newsletter) ──
+  // ── R3STO CRM (admin only — prospects + newsletter) ──
   { path: '/crm',          icon: '📇', labelKey: 'nav.crm', groupKey: 'r3sto-crm' },
   { path: '/newsletter',   icon: '📧', labelKey: 'nav.newsletter', groupKey: 'r3sto-crm' },
-  // ── ADMIN MARKETPLACE (visible uniquement dans admin.r3sto.ch) ──
-  // ── ADMIN ERP (gestion complete) ──
-  { path: '/admin-dashboard', icon: '📊', labelKey: 'nav.adminDashboard', groupKey: 'admin-erp' },
-  { path: '/equipes',         icon: '👷', labelKey: 'nav.equipes', groupKey: 'admin-erp' },
-  { path: '/finance',         icon: '💶', labelKey: 'nav.finance', groupKey: 'admin-erp' },
+  // ── ADMIN ERP (admin only — gestion complète R3STO) ──
+  { path: '/admin-dashboard',   icon: '📊', labelKey: 'nav.adminDashboard', groupKey: 'admin-erp' },
+  { path: '/equipes',           icon: '👷', labelKey: 'nav.equipes', groupKey: 'admin-erp' },
+  { path: '/finance',           icon: '💶', labelKey: 'nav.finance', groupKey: 'admin-erp' },
   { path: '/data-intelligence', icon: '🧠', labelKey: 'nav.dataIntelligence', groupKey: 'admin-erp' },
-  { path: '/pricing-strategy', icon: '💰', labelKey: 'nav.pricingStrategy', groupKey: 'admin-erp' },
-  { path: '/plateforme',      icon: '🖥️', labelKey: 'nav.plateforme', groupKey: 'admin-erp' },
+  { path: '/pricing-strategy',  icon: '💰', labelKey: 'nav.pricingStrategy', groupKey: 'admin-erp' },
+  { path: '/plateforme',        icon: '🖥️', labelKey: 'nav.plateforme', groupKey: 'admin-erp' },
+  { path: '/audit',             icon: '🔍', labelKey: 'nav.audit', groupKey: 'admin-erp' },
+  { path: '/alertes',           icon: '⚠️', labelKey: 'nav.alertes', groupKey: 'admin-erp' },
+  // ── ADMIN MARKETPLACE (admin only) ──
   { path: '/admin-marketplace', icon: '🏪', labelKey: 'nav.adminMarketplace', groupKey: 'admin-marketplace' },
   // ── RÉGLAGES (toute la configuration) ──
   { path: '/profil',        icon: '🍽️', labelKey: 'nav.myRestaurant', groupKey: 'settings' },
@@ -82,8 +84,6 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/historique',    icon: '📜', labelKey: 'nav.history', groupKey: 'help' },
   { path: '/admin-tickets', icon: '🎫', labelKey: 'nav.tickets', groupKey: 'help' },
   { path: '/support',       icon: '💬', labelKey: 'nav.support', groupKey: 'help' },
-  { path: '/audit',         icon: '🔍', labelKey: 'nav.audit', groupKey: 'admin-erp' },
-  { path: '/alertes',       icon: '⚠️', labelKey: 'nav.alertes', groupKey: 'admin-erp' },
 ]
 
 export function Sidebar() {
