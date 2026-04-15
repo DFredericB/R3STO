@@ -3,7 +3,7 @@
 //  Résa rapide, agenda, KPIs, stats
 // ══════════════════════════════════════════════════
 
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useNavigate } from 'react-router-dom'
 
@@ -639,8 +639,11 @@ export function Dashboard() {
 
           {/* Tendance (période — agrégé auto) */}
           <div className="card">
-            <div style={{ ...sectionTitle, marginBottom: 10 }}>
-              📊 Tendance {period === 'day' ? '(7 derniers jours)' : numDaysInPeriod <= 14 ? '(jours)' : numDaysInPeriod <= 90 ? '(semaines)' : '(mois)'}
+            <div style={{ ...sectionTitle, marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>📊 Couverts {period === 'day' ? '(7 derniers jours)' : numDaysInPeriod <= 14 ? '(jours)' : numDaysInPeriod <= 90 ? '(semaines)' : '(mois)'}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>
+                Moy. {trendData.length > 0 ? Math.round(trendData.reduce((s,d)=>s+d.cvt,0)/trendData.length) : 0} cvts/jour
+              </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: trendData.length <= 14 ? 4 : 2, height: 70 }}>
               {(() => {
@@ -670,38 +673,48 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Canaux — version visuelle (jour) */}
+          {/* Canaux — donut + centre % majoritaire */}
           <div className="card">
-            <div style={{ ...sectionTitle, marginBottom: 10 }}>{t('dash.channels')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {([
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>🎯 Sources ({pTag})</div>
+            {(() => {
+              const canals = [
                 { key: 'telephone' as const, icon: CANAUX.telephone.icon, label: t(CANAUX.telephone.label), color: CANAUX.telephone.hex },
                 { key: 'walkin' as const, icon: CANAUX.walkin.icon, label: t(CANAUX.walkin.label), color: CANAUX.walkin.hex },
                 { key: 'widget' as const, icon: CANAUX.widget.icon, label: t(CANAUX.widget.label), color: CANAUX.widget.hex },
                 { key: 'email' as const, icon: CANAUX.email.icon, label: t(CANAUX.email.label), color: CANAUX.email.hex },
                 { key: 'whatsapp' as const, icon: CANAUX.whatsapp.icon, label: t(CANAUX.whatsapp.label), color: CANAUX.whatsapp.hex },
                 { key: 'sms' as const, icon: CANAUX.sms.icon, label: t(CANAUX.sms.label), color: CANAUX.sms.hex },
-              ]).map(canal => {
-                const cnt = canalCounts[canal.key]
-                const pct = dayResas.length > 0 ? Math.round(cnt / dayResas.length * 100) : 0
-                return (
-                  <div key={canal.key} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 13, width: 20, textAlign: 'center' }}>{canal.icon}</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text)', width: 70 }}>{canal.label}</span>
-                    <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--surf3)', overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${pct}%`, height: '100%', borderRadius: 3,
-                        background: canal.color, transition: 'width .3s ease',
-                        minWidth: cnt > 0 ? 4 : 0,
-                      }} />
+              ]
+              const total = canals.reduce((s,c)=>s+canalCounts[c.key],0) || 1
+              const segs = canals.map(c=>({...c, cnt: canalCounts[c.key], pct: Math.round(canalCounts[c.key]/total*100)}))
+              const top = segs.slice().sort((a,b)=>b.cnt-a.cnt)[0]
+              let acc = 0
+              const grad = segs.filter(s=>s.cnt>0).map(s => {
+                const from = acc
+                acc += s.cnt/total*100
+                return `${s.color} ${from}% ${acc}%`
+              }).join(', ') || 'var(--surf3) 0% 100%'
+              return (
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
+                    <div style={{ width: 90, height: 90, borderRadius: '50%', background: `conic-gradient(${grad})` }} />
+                    <div style={{ position: 'absolute', inset: 14, borderRadius: '50%', background: 'var(--surf)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', fontFamily: 'var(--fm)', lineHeight: 1 }}>{top ? top.pct : 0}%</span>
+                      <span style={{ fontSize: 7, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5, marginTop: 2 }}>{top ? top.label : '—'}</span>
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--fm)', color: 'var(--t2)', width: 36, textAlign: 'right' }}>
-                      {cnt} <span style={{ color: 'var(--t4)', fontWeight: 500 }}>({pct}%)</span>
-                    </span>
                   </div>
-                )
-              })}
-            </div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {segs.filter(s=>s.cnt>0).slice(0,6).map(s=>(
+                      <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0 }} />
+                        <span style={{ flex: 1, color: 'var(--t2)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.icon} {s.label}</span>
+                        <span style={{ fontFamily: 'var(--fm)', fontWeight: 700, color: 'var(--t3)' }}>{s.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
           </div>
 
           {/* Taux no-show — évolution période */}
@@ -725,9 +738,86 @@ export function Dashboard() {
                 ))
               })()}
             </div>
-            <div style={{ marginTop: 8, fontSize: 11, fontWeight: 700, color: noshowRate > 10 ? 'var(--rd)' : 'var(--t3)', textAlign: 'center' }}>
-              Taux : {noshowRate}% sur {periodLabel}
+            <div style={{ marginTop: 8, fontSize: 11, fontWeight: 700, color: noshowRate > 10 ? 'var(--rd)' : 'var(--t3)', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+              <span>Taux : {noshowRate}% sur {periodLabel}</span>
+              {noshowRate > 8 && (
+                <span style={{ background: 'rgba(239,68,68,.12)', color: 'var(--rd)', padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700, border: '1px solid rgba(239,68,68,.25)' }}>
+                  📈 Tendance haute
+                </span>
+              )}
             </div>
+          </div>
+        </div>
+
+        {/* ── Top tables + Heatmap heures de pointe ── */}
+        <div style={{ padding: '0 18px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+
+          {/* Top tables (période) */}
+          <div className="card">
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>🏆 Top tables ({pTag})</div>
+            {(() => {
+              const counts: Record<string, number> = {}
+              const pDates = new Set(periodDays.map(d => d.iso)); resas.filter(r => pDates.has(r.date) && r.s !== 'cancelled').forEach(r => { if (r.tbl) counts[r.tbl] = (counts[r.tbl]||0) + 1 })
+              const rows = Object.entries(counts).map(([tid,cnt]) => {
+                const tb = activeTables.find(x => x.id === tid)
+                return { name: tb?.n || tid, cnt }
+              }).sort((a,b)=>b.cnt-a.cnt).slice(0,6)
+              const max = Math.max(...rows.map(r=>r.cnt), 1)
+              if (rows.length === 0) return <div style={{ fontSize: 11, color: 'var(--t4)', textAlign: 'center', padding: '18px 0' }}>Aucune résa sur la période</div>
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {rows.map(r => (
+                    <div key={r.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--t2)', width: 34, fontFamily: 'var(--fm)' }}>{r.name}</span>
+                      <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'var(--surf3)', overflow: 'hidden' }}>
+                        <div style={{ width: `${r.cnt/max*100}%`, height: '100%', background: 'linear-gradient(90deg, var(--bl), var(--bp))', borderRadius: 4 }} />
+                      </div>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--t2)', width: 22, textAlign: 'right', fontFamily: 'var(--fm)' }}>{r.cnt}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+          </div>
+
+          {/* Heatmap heures de pointe 12h-21h × L-D */}
+          <div className="card">
+            <div style={{ ...sectionTitle, marginBottom: 10 }}>🔥 Heures de pointe ({pTag})</div>
+            {(() => {
+              const days = ['L','M','M','J','V','S','D']
+              const hours = [12,13,14,15,16,17,18,19,20,21]
+              const grid: number[][] = days.map(() => hours.map(() => 0))
+              const pDates2 = new Set(periodDays.map(d => d.iso))
+              resas.filter(r => pDates2.has(r.date) && r.s !== 'cancelled').forEach(r => {
+                const d = new Date(r.date)
+                const dow = (d.getDay() + 6) % 7
+                const hh = parseInt((r.t || '00h00').split('h')[0], 10)
+                const hi = hours.indexOf(hh)
+                if (hi >= 0) grid[dow][hi] += (r.c || 0)
+              })
+              const max = Math.max(...grid.flat(), 1)
+              return (
+                <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: `18px repeat(${hours.length}, 1fr)`, gap: 2, alignItems: 'center' }}>
+                    <span />
+                    {hours.map(h => <span key={h} style={{ fontSize: 8, color: 'var(--t4)', fontFamily: 'var(--fm)', textAlign: 'center' }}>{h}</span>)}
+                    {days.map((dl, di) => (
+                      <Fragment key={di}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{dl}</span>
+                        {grid[di].map((v, hi) => (
+                          <div key={hi} title={`${dl} ${hours[hi]}h : ${v} cvts`} style={{ aspectRatio: '1', minHeight: 14, borderRadius: 3, background: v === 0 ? 'var(--surf3)' : `rgba(59,130,246,${0.15 + (v/max)*0.75})` }} />
+                        ))}
+                      </Fragment>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 4, fontSize: 8, color: 'var(--t4)', justifyContent: 'flex-end' }}>
+                    <span>0</span>
+                    <div style={{ width: 50, height: 5, borderRadius: 3, background: 'linear-gradient(90deg, var(--surf3), rgba(59,130,246,0.9))' }} />
+                    <span>{max}</span>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         </div>
 
