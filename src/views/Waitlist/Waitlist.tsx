@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { iaPlacement } from '../../utils/placementRules'
 
 interface WaitlistItem {
@@ -271,10 +272,11 @@ export function Waitlist() {
 
       {/* Waitlist Items */}
       {waitlist.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--gn)' }}>
-          <div style={{ fontSize: 18, marginBottom: 8 }}>✅</div>
-          <div style={{ fontSize: 13 }}>Aucune liste d'attente pour le moment.</div>
-        </div>
+        <EmptyState
+          icon="⏳"
+          title="Aucune liste d'attente"
+          description="Quand un client appelle et que tu n'as plus de place, ajoute-le ici. R3STO te suggérera automatiquement la meilleure table dès qu'un créneau se libère."
+        />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {waitlist.map((w, i) => {

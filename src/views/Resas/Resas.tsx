@@ -1193,4 +1193,24 @@ export function Resas() {
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 {editingId && (
-         
+                  <div style={{ display: 'flex', gap: 4, marginRight: 'auto' }}>
+                    <button className="btn btn-danger" onClick={async () => { if (await confirmAction({ title: 'Annuler la réservation', message: 'Êtes-vous sûr de vouloir annuler cette réservation ?', danger: true, confirmLabel: 'Annuler la résa' })) { setResaStatus(editingId, 'cancelled'); closeModal() } }}
+                      style={{ minHeight: T, padding: '0 16px', fontSize: 13 }}>🚫 Annuler</button>
+                  </div>
+                )}
+                <button className="btn btn-secondary" onClick={() => closeModal()}
+                  style={{ minHeight: T, padding: '0 16px', fontSize: 13 }}>{t('modal.cancel')}</button>
+                <button className="btn btn-primary" onClick={handleSubmit}
+                  disabled={!svcId || !heure || !couverts}
+                  style={{ opacity: (!svcId || !heure || !couverts) ? .45 : 1, minWidth: 190, minHeight: T, fontWeight: 700, fontSize: 14 }}>
+                  ✓ {editingId ? t('modal.save') : t('modal.confirm')}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,25 @@
+# R3STO — normalisation des fins de ligne
+# Évite les faux diffs CRLF ↔ LF (OneDrive, éditeurs mixtes, FTP…)
+
+* text=auto eol=lf
+
+# Scripts Windows → CRLF obligatoire sinon ils ne tournent pas
+*.bat    text eol=crlf
+*.ps1    text eol=crlf
+*.cmd    text eol=crlf
+
+# Fichiers binaires à ne pas traiter
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.pdf    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.zip    binary
+*.xlsx   binary
+*.docx   binary
+*.pptx   binary

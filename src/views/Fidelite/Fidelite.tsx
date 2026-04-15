@@ -6,6 +6,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useAppStore } from '../../store/useAppStore'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { useT } from '../../i18n/useTranslation'
 import type { LoyaltyCard, LoyaltyEvent, LoyaltyMode, LoyaltyTier } from '../../types'
 
@@ -438,33 +439,21 @@ export function Fidelite() {
           )}
 
           {loyaltyCards.length === 0 && cfg.active && (
-            <div style={{ ...card(), textAlign: 'center', padding: 40 }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🏆</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--t2)', fontFamily: FF }}>
-                {t('fid.noMembers')}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--t3)', fontFamily: FF, marginTop: 4 }}>
-                {t('fid.enrollFirst')}
-              </div>
-              <button style={{ ...btn('primary'), marginTop: 16 }} onClick={() => setShowAdd(true)}>
-                {t('fid.addMember')}
-              </button>
-            </div>
+            <EmptyState
+              icon="🏆"
+              title={t('fid.noMembers')}
+              description={t('fid.enrollFirst')}
+              cta={{ label: t('fid.addMember'), onClick: () => setShowAdd(true) }}
+            />
           )}
 
           {!cfg.active && (
-            <div style={{ ...card(), textAlign: 'center', padding: 40, border: '2px dashed var(--border)' }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>⚙️</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--t2)', fontFamily: FF }}>
-                Programme non activé
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--t3)', fontFamily: FF, marginTop: 4 }}>
-                Allez dans Configuration pour choisir votre mode et activer le programme
-              </div>
-              <button style={{ ...btn('primary'), marginTop: 16 }} onClick={() => setTab('config')}>
-                Configurer
-              </button>
-            </div>
+            <EmptyState
+              icon="⚙️"
+              title="Programme non activé"
+              description="Allez dans Configuration pour choisir votre mode (tampons / points / cashback) et activer le programme fidélité."
+              cta={{ label: 'Configurer', onClick: () => setTab('config') }}
+            />
           )}
         </div>
       )}
@@ -570,9 +559,13 @@ export function Fidelite() {
             })}
 
             {filtered.length === 0 && (
-              <div style={{ ...card(), textAlign: 'center', padding: 40, color: 'var(--t3)' }}>
-                {search ? 'Aucun membre trouvé' : 'Aucun membre inscrit'}
-              </div>
+              <EmptyState
+                compact
+                icon={search ? '🔍' : '👥'}
+                title={search ? 'Aucun membre trouvé' : 'Aucun membre inscrit'}
+                description={search ? 'Essaie un autre nom ou efface la recherche.' : 'Ajoute ton premier membre pour lancer le programme.'}
+                cta={search ? { label: 'Effacer la recherche', onClick: () => setSearch(''), variant: 'secondary' } : { label: t('fid.addMember'), onClick: () => setShowAdd(true) }}
+              />
             )}
           </div>
         </div>

@@ -11,6 +11,7 @@ import { Sidebar } from './components/layout/Sidebar'
 import { BottomNav } from './components/layout/BottomNav'
 import { ToastProvider } from './components/ui/Toast'
 import { DemoShowcaseBar } from './components/ui/DemoShowcaseBar'
+import { TutorialChecklist, TutorialTooltip } from './components/ui/Tutorial'
 import { Dashboard } from './views/Dashboard/Dashboard'
 import { Grille } from './views/Grille/Grille'
 import { Resas } from './views/Resas/Resas'
@@ -239,6 +240,8 @@ export default function App() {
             </main>
           </div>
           <BottomNav />
+          <TutorialTooltip />
+          <TutorialChecklist />
         </div>
       </ToastProvider>
     </BrowserRouter>

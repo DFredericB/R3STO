@@ -7,6 +7,7 @@
 import { useState, useMemo } from 'react'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { useT } from '../../i18n/useTranslation'
 import { RADIUS, labelStyle, inputStyle, sectionTitle, filterChip } from '../../utils/design'
 import type { Review } from '../../types'
@@ -273,9 +274,12 @@ export function Avis() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {reviews.length === 0 ? (
-                  <div style={{ padding: 30, textAlign: 'center', color: 'var(--t3)', fontSize: 13 }}>
-                    Aucun avis pour le moment. Les avis seront collectés automatiquement après chaque repas.
-                  </div>
+                  <EmptyState
+                    compact
+                    icon="⭐"
+                    title="Aucun avis pour le moment"
+                    description="Les avis seront collectés automatiquement après chaque repas via le QR code ou le mail post-visite."
+                  />
                 ) : (
                   reviews.slice(0, 5).map(r => (
                     <ReviewCard
@@ -339,9 +343,13 @@ export function Avis() {
           {/* Liste des avis */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {filtered.length === 0 ? (
-              <div style={{ ...cardS, padding: 40, textAlign: 'center', color: 'var(--t3)' }}>
-                {reviews.length === 0 ? 'Aucun avis — les avis apparaîtront ici après chaque repas.' : 'Aucun résultat pour ce filtre.'}
-              </div>
+              <EmptyState
+                compact
+                icon={reviews.length === 0 ? '⭐' : '🔍'}
+                title={reviews.length === 0 ? 'Aucun avis' : 'Aucun résultat'}
+                description={reviews.length === 0 ? 'Les avis apparaîtront ici après chaque repas.' : 'Essaie de changer les filtres ou la recherche.'}
+                cta={reviews.length === 0 ? undefined : { label: 'Réinitialiser les filtres', onClick: () => { setFilterRating(null); setFilterSource(null); setSearch('') }, variant: 'secondary' }}
+              />
             ) : (
               filtered.map(r => (
                 <div key={r.id}>
