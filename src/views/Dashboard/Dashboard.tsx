@@ -437,14 +437,11 @@ export function Dashboard() {
               <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--fm)' }}>🚫 {blockedTables}</span>
             </>)}
           </div>
-        </div>
-
-        {/* ── 4 AttentionCards XL ── */}
-        <div style={{ padding: '10px 18px 6px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-          <AttentionCard icon="⭐" label="VIP" value={vips.length} sub={vips.length > 0 ? `${vips.length} client${vips.length > 1 ? 's' : ''} prioritaire${vips.length > 1 ? 's' : ''}` : 'Aucun VIP du jour'} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" onClick={() => navigate('/reservations')} />
-          <AttentionCard icon="⚠️" label="Allergies" value={allergies.length} sub={allergies.length > 0 ? 'Vigilance cuisine' : 'Aucune allergie signalée'} color="var(--am)" bg="var(--ap)" border="var(--ab)" onClick={() => navigate('/reservations')} />
-          <AttentionCard icon="👶" label="Bébés" value={babies} sub={babies > 0 ? `${babies} chaise${babies > 1 ? 's' : ''} haute${babies > 1 ? 's' : ''}` : 'Aucun bébé'} color="#06b6d4" bg="rgba(6,182,212,.08)" border="rgba(6,182,212,.25)" onClick={() => navigate('/reservations')} />
-          <AttentionCard icon="♿" label="PMR" value={pmrs} sub={pmrs > 0 ? 'Accès adapté requis' : 'Aucun PMR'} color="#a855f7" bg="rgba(168,85,247,.08)" border="rgba(168,85,247,.25)" onClick={() => navigate('/reservations')} />
+          {/* Pills inline : VIP / Allergies / Bébés / PMR (affichés si > 0) */}
+          {vips.length > 0 && <BadgePill icon="⭐" label={`${vips.length} VIP`} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" onClick={() => navigate('/reservations')} />}
+          {allergies.length > 0 && <BadgePill icon="⚠️" label={`${allergies.length} Allergies`} color="var(--am)" bg="var(--ap)" border="var(--ab)" onClick={() => navigate('/reservations')} />}
+          {babies > 0 && <BadgePill icon="👶" label={`${babies} Bébés`} color="#06b6d4" bg="rgba(6,182,212,.08)" border="rgba(6,182,212,.25)" onClick={() => navigate('/reservations')} />}
+          {pmrs > 0 && <BadgePill icon="♿" label={`${pmrs} PMR`} color="#a855f7" bg="rgba(168,85,247,.08)" border="rgba(168,85,247,.25)" onClick={() => navigate('/reservations')} />}
         </div>
 
         {/* ── ANALYSE — sélecteur de période bien visible ── */}
@@ -545,6 +542,14 @@ export function Dashboard() {
             <StatCard label={`No-shows (${pTag})`} value={pNS} valueSecondary={pTotal} pct={noshowRate} sub={`Taux : ${noshowRate}%`} color={noshowRate > 10 ? '#ef4444' : noshowRate > 5 ? '#f59e0b' : 'var(--gn)'} dotColor={slotColor} />
             <StatCard label={`Annulations (${pTag})`} value={pCancelled} valueSecondary={pTotal} pct={pTotal > 0 ? Math.round(pCancelled / pTotal * 100) : 0} sub={`sur ${pTotal} résas`} color="var(--t3)" dotColor={slotColor} />
           </div>
+        </div>
+
+        {/* ── 4 AttentionCards XL ── */}
+        <div style={{ padding: '10px 18px 6px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+          <AttentionCard icon="⭐" label="VIP" value={vips.length} sub={vips.length > 0 ? `${vips.length} client${vips.length > 1 ? 's' : ''} prioritaire${vips.length > 1 ? 's' : ''}` : 'Aucun VIP du jour'} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" onClick={() => navigate('/reservations')} />
+          <AttentionCard icon="⚠️" label="Allergies" value={allergies.length} sub={allergies.length > 0 ? 'Vigilance cuisine' : 'Aucune allergie signalée'} color="var(--am)" bg="var(--ap)" border="var(--ab)" onClick={() => navigate('/reservations')} />
+          <AttentionCard icon="👶" label="Bébés" value={babies} sub={babies > 0 ? `${babies} chaise${babies > 1 ? 's' : ''} haute${babies > 1 ? 's' : ''}` : 'Aucun bébé'} color="#06b6d4" bg="rgba(6,182,212,.08)" border="rgba(6,182,212,.25)" onClick={() => navigate('/reservations')} />
+          <AttentionCard icon="♿" label="PMR" value={pmrs} sub={pmrs > 0 ? 'Accès adapté requis' : 'Aucun PMR'} color="#a855f7" bg="rgba(168,85,247,.08)" border="rgba(168,85,247,.25)" onClick={() => navigate('/reservations')} />
         </div>
 
         {/* ── STATS — 3x2 grille ── */}
