@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
 import { useToast } from '../../components/ui/Toast'
@@ -34,8 +35,18 @@ const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> 
 
 export function Fermetures() {
   const { t } = useT()
+  const navigate = useNavigate()
   const { fermetures, salles, services, addFermeture, updateFermeture, deleteFermeture } = useAppStore()
   const { toast } = useToast()
+
+  // Message par défaut du widget pendant fermeture — persisté en localStorage
+  // jusqu'à ce qu'on ait un endpoint dédié côté API.
+  const [defaultWidgetMsg, setDefaultWidgetMsg] = useState<string>(() => {
+    try { return localStorage.getItem('r3sto_ferm_default_widget_msg') || '' } catch { return '' }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('r3sto_ferm_default_widget_msg', defaultWidgetMsg) } catch {}
+  }, [defaultWidgetMsg])
 
   // Form state
   const [fermType, setFermType] = useState('restaurant')
@@ -84,6 +95,8 @@ export function Fermetures() {
       salle: fermType === 'salle' ? selectedSalle : undefined,
       service: fermType === 'service' ? selectedService : undefined,
       active: true,
+      // Override du message widget — si vide, fallback sur defaultWidgetMsg côté booking.r3sto.ch
+      widgetMsg: widgetMsg.trim() || undefined,
     }
     addFermeture(newF)
     toast(t('ferm.added'), 'success')
@@ -379,14 +392,26 @@ export function Fermetures() {
           <div style={{ fontSize: 10, color: 'var(--t4)', marginTop: 6 }}>{t('ferm.clickToAdd')}</div>
         </div>
 
-        {/* Widget default message */}
+        {/* Widget default message — persisté en localStorage */}
         <div style={{ background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, padding: 12 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--bl)', marginBottom: 6 }}>
             🔌 {t('ferm.defaultWidgetMsg')}
           </div>
-          <input type="text" defaultValue={t('ferm.defaultWidgetValue')} style={{ ...inputS, marginBottom: 4 }} />
+          <input
+            type="text"
+            value={defaultWidgetMsg}
+            onChange={e => setDefaultWidgetMsg(e.target.value)}
+            placeholder={t('ferm.defaultWidgetValue')}
+            style={{ ...inputS, marginBottom: 4 }}
+          />
           <div style={{ fontSize: 10, color: 'var(--t3)' }}>
-            {t('ferm.defaultWidgetHint')} · <span style={{ color: 'var(--bl)', cursor: 'pointer' }}>{t('ferm.widgetSettings')} →</span>
+            {t('ferm.defaultWidgetHint')} ·{' '}
+            <span
+              onClick={() => navigate('/widget')}
+              style={{ color: 'var(--bl)', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              {t('ferm.widgetSettings')} →
+            </span>
           </div>
         </div>
       </div>

@@ -95,7 +95,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
       }
     }
 
-    // Résas
+    // Résas — deeplink via query param ?resa=<id> pour highlight dans Resas.tsx
     for (const r of resas) {
       if (out.length >= MAX) break
       const searchable = `${r.n || ''} ${r.tel || ''} ${r.tbl || ''} ${r.note || ''}`.toLowerCase()
@@ -104,12 +104,13 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
           type: 'resa', icon: '📖',
           title: `${r.n} — ${r.c} cvt · ${r.t}`,
           sub: `${r.date} · ${r.tbl || '—'} · ${r.s}`,
-          action: () => { nav('/reservations'); onClose() },
+          // Utilise le param ?edit=<id> déjà géré par Resas.tsx
+          action: () => { nav(`/reservations?edit=${encodeURIComponent(r.id)}`); onClose() },
         })
       }
     }
 
-    // Clients
+    // Clients — deeplink ?id=<id>
     for (const c of clients) {
       if (out.length >= MAX) break
       const searchable = `${c.nom} ${c.prenom} ${c.tel} ${c.email} ${c.entreprise}`.toLowerCase()
@@ -118,12 +119,12 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
           type: 'client', icon: '👤',
           title: `${c.prenom} ${c.nom}`,
           sub: `${c.tel} · ${c.totalVisits} ${t('search.visits')} · ${c.email}`,
-          action: () => { nav('/clients'); onClose() },
+          action: () => { nav(`/clients?id=${encodeURIComponent(c.id)}`); onClose() },
         })
       }
     }
 
-    // Tables
+    // Tables — deeplink ?table=<n>
     for (const tb of tables) {
       if (out.length >= MAX) break
       if (tb.n.toLowerCase().includes(q) || tb.salle.toLowerCase().includes(q)) {
@@ -131,7 +132,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
           type: 'table', icon: '🪑',
           title: `${tb.n} — ${tb.salle}`,
           sub: `${tb.capMin}–${tb.capMax} cvt · ${tb.shape}`,
-          action: () => { nav('/setup-plan'); onClose() },
+          action: () => { nav(`/setup-plan?table=${encodeURIComponent(tb.n)}`); onClose() },
         })
       }
     }

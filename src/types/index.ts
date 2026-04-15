@@ -279,6 +279,8 @@ export interface Fermeture {
   salle?: string
   service?: string
   active: boolean
+  /** Message affiché sur le widget public pendant cette fermeture (override). */
+  widgetMsg?: string
 }
 
 // ── Utilisateur ────────────────────────────────────

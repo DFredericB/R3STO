@@ -34,22 +34,23 @@ export function Clients() {
   const { confirm: confirmAction, dialog: confirmDialog } = useConfirm()
   const { t } = useT()
 
-  // Spotlight: auto-select client from ⌘K search
-  const spotlight = null as any
-  const setSpotlight = (_v: any) => {}
-
   const [search, setSearch] = useState('')
   const [filterStatut, setFilterStatut] = useState<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
 
-  // Consume spotlight on mount
+  // Deeplink ?id=<clientId> depuis SearchModal ⌘K → auto-sélection + clean URL
   useEffect(() => {
-    if (spotlight?.type === 'client' && spotlight.id) {
-      setSelectedId(spotlight.id)
-      setSpotlight(null)
+    const params = new URLSearchParams(window.location.search)
+    const id = params.get('id')
+    if (id && clients.some(c => c.id === id)) {
+      setSelectedId(id)
+      // Nettoie l'URL pour éviter re-sélection au back/forward
+      const clean = window.location.pathname
+      window.history.replaceState({}, '', clean)
     }
-  }, [spotlight, setSpotlight])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [showWarning, setShowWarning] = useState(false)
 
   // ── Batch reassignment state ──

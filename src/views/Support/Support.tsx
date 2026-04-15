@@ -66,6 +66,8 @@ const QUICK_Q_KEYS = [
 
 type SupportTab = 'chat' | 'videos' | 'faq' | 'ticket'
 
+const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+
 export function Support() {
   const { t } = useT()
   const { toast } = useToast()
@@ -77,6 +79,55 @@ export function Support() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // ── Formulaire ticket contrôlé ─────────────────────────────
+  const [ticketType, setTicketType] = useState('tech')
+  const [ticketPrio, setTicketPrio] = useState('normal')
+  const [ticketModule, setTicketModule] = useState('Dashboard')
+  const [ticketSubject, setTicketSubject] = useState('')
+  const [ticketDesc, setTicketDesc] = useState('')
+  const [ticketSending, setTicketSending] = useState(false)
+
+  const submitTicket = async () => {
+    if (!ticketSubject.trim() || !ticketDesc.trim()) {
+      toast(t('support.ticket.missing') || 'Sujet et description requis', 'error')
+      return
+    }
+    setTicketSending(true)
+    try {
+      const token = localStorage.getItem('r3sto-token') || sessionStorage.getItem('r3sto-token') || ''
+      const r = await fetch(`${API}/support/tickets`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          type: ticketType, priority: ticketPrio, module: ticketModule,
+          subject: ticketSubject, description: ticketDesc,
+          context: { url: window.location.href, userAgent: navigator.userAgent },
+        }),
+      })
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      toast(t('support.ticket.sent'), 'success')
+      setTicketSubject(''); setTicketDesc('')
+    } catch (err) {
+      console.error('[Support] ticket submit failed:', err)
+      toast('Envoi impossible — votre ticket a été enregistré localement, nous vous recontacterons', 'warning')
+      // Buffer local pour ne pas perdre la demande
+      try {
+        const buf = JSON.parse(localStorage.getItem('r3sto_pending_tickets') || '[]')
+        buf.push({
+          ts: Date.now(), type: ticketType, priority: ticketPrio, module: ticketModule,
+          subject: ticketSubject, description: ticketDesc,
+        })
+        localStorage.setItem('r3sto_pending_tickets', JSON.stringify(buf))
+      } catch {}
+      setTicketSubject(''); setTicketDesc('')
+    } finally {
+      setTicketSending(false)
+    }
+  }
 
   // Auto-scroll chat
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chatHistory, chatLoading])
@@ -155,6 +206,13 @@ export function Support() {
         {/* ═══ CHAT ═══ */}
         {tab === 'chat' && (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{
+              padding: '8px 12px', borderRadius: 6, marginBottom: 8,
+              background: 'rgba(230,130,50,.08)', border: '1px solid rgba(230,130,50,.3)',
+              fontSize: 11, color: 'var(--t2)',
+            }}>
+              ⚠ Assistant IA en démo — les réponses sont génériques tant que le provider n'est pas branché. Pour une vraie question, ouvrez un ticket.
+            </div>
             <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8, marginBottom: 10 }}>
               {chatHistory.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '32px 20px' }}>
@@ -383,25 +441,25 @@ export function Support() {
               <div style={{ marginBottom: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: GAP.md }}>
                 <div>
                   <label style={labelStyle}>{t('support.ticket.type')}</label>
-                  <select style={{ ...inputStyle, minHeight: 44 }}>
-                    <option>{t('support.ticket.typeTech')}</option>
-                    <option>{t('support.ticket.typeUsage')}</option>
-                    <option>{t('support.ticket.typeChange')}</option>
-                    <option>{t('support.ticket.typeBilling')}</option>
+                  <select value={ticketType} onChange={e => setTicketType(e.target.value)} style={{ ...inputStyle, minHeight: 44 }}>
+                    <option value="tech">{t('support.ticket.typeTech')}</option>
+                    <option value="usage">{t('support.ticket.typeUsage')}</option>
+                    <option value="change">{t('support.ticket.typeChange')}</option>
+                    <option value="billing">{t('support.ticket.typeBilling')}</option>
                   </select>
                 </div>
                 <div>
                   <label style={labelStyle}>{t('support.ticket.priority')}</label>
-                  <select style={{ ...inputStyle, minHeight: 44 }}>
-                    <option>{t('support.ticket.prioNormal')}</option>
-                    <option>{t('support.ticket.prioUrgent')}</option>
+                  <select value={ticketPrio} onChange={e => setTicketPrio(e.target.value)} style={{ ...inputStyle, minHeight: 44 }}>
+                    <option value="normal">{t('support.ticket.prioNormal')}</option>
+                    <option value="urgent">{t('support.ticket.prioUrgent')}</option>
                   </select>
                 </div>
               </div>
 
               <div style={{ marginBottom: 12 }}>
                 <label style={labelStyle}>{t('support.ticket.module')}</label>
-                <select style={{ ...inputStyle, minHeight: 44 }}>
+                <select value={ticketModule} onChange={e => setTicketModule(e.target.value)} style={{ ...inputStyle, minHeight: 44 }}>
                   <option>Dashboard</option>
                   <option>Book / Journal</option>
                   <option>Grille</option>
@@ -417,13 +475,24 @@ export function Support() {
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <label style={labelStyle}>{t('support.ticket.subject')}</label>
-                <input placeholder={t('support.ticket.subjectPlaceholder')} style={{ ...inputStyle, minHeight: 44 }} />
+                <label style={labelStyle}>{t('support.ticket.subject')} <span style={{ color: 'var(--rd)' }}>*</span></label>
+                <input
+                  value={ticketSubject}
+                  onChange={e => setTicketSubject(e.target.value)}
+                  placeholder={t('support.ticket.subjectPlaceholder')}
+                  style={{ ...inputStyle, minHeight: 44 }}
+                />
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <label style={labelStyle}>{t('support.ticket.desc')}</label>
-                <textarea rows={4} placeholder={t('support.ticket.descPlaceholder')} style={{ ...inputStyle, resize: 'vertical' as const }} />
+                <label style={labelStyle}>{t('support.ticket.desc')} <span style={{ color: 'var(--rd)' }}>*</span></label>
+                <textarea
+                  value={ticketDesc}
+                  onChange={e => setTicketDesc(e.target.value)}
+                  rows={4}
+                  placeholder={t('support.ticket.descPlaceholder')}
+                  style={{ ...inputStyle, resize: 'vertical' as const }}
+                />
               </div>
 
               <div style={{ background: 'rgba(68,128,216,.06)', border: '1px solid rgba(68,128,216,.2)', borderRadius: RADIUS.md, padding: '9px 12px', marginBottom: 12, fontSize: 11, color: 'var(--t3)' }}>
@@ -450,16 +519,20 @@ export function Support() {
                   💬 {t('support.ticket.tryChat')}
                 </button>
                 <button
-                  onClick={() => toast(t('support.ticket.sent'), 'success')}
+                  onClick={submitTicket}
+                  disabled={ticketSending}
                   style={{
                     flex: 1, padding: '8px 12px', minHeight: 44,
                     borderRadius: RADIUS.sm, border: 'none',
-                    background: 'var(--bl)', color: 'white',
-                    fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    background: ticketSending ? 'var(--surf3)' : 'var(--bl)',
+                    color: 'white',
+                    fontSize: 11, fontWeight: 700,
+                    cursor: ticketSending ? 'wait' : 'pointer',
                     fontFamily: 'var(--ff)',
+                    opacity: ticketSending ? 0.6 : 1,
                   }}
                 >
-                  {t('support.ticket.submit')} ✓
+                  {ticketSending ? '…' : `${t('support.ticket.submit')} ✓`}
                 </button>
               </div>
             </div>

@@ -246,13 +246,18 @@ export function CRM() {
         setContacts(data.contacts || [])
         setTotal(data.total || 0)
       }
-    } catch { /* silent */ } finally { setLoading(false) }
+    } catch (err) {
+      console.error('[CRM] fetchContacts failed:', err)
+      toast('Chargement CRM impossible', 'error')
+    } finally { setLoading(false) }
   }, [page, searchDebounced, filterCanton, filterStatus, filterSource])
 
   useEffect(() => { fetchContacts() }, [fetchContacts])
 
   useEffect(() => {
-    apiFetch('/crm/stats').then(d => { if (d.ok) setStats(d.stats || d) }).catch(() => {})
+    apiFetch('/crm/stats')
+      .then(d => { if (d.ok) setStats(d.stats || d) })
+      .catch(err => console.error('[CRM] /crm/stats failed:', err))
   }, [])
 
   const pipeline = useMemo(() => demoPipelineData(contacts), [contacts])

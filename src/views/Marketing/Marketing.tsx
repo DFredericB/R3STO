@@ -66,7 +66,12 @@ export function Marketing() {
     const updated = automations.map(m => m.id === id ? { ...m, active: !m.active } : m)
     setAutomations(updated)
     updateOptions({ marketingAutomations: updated } as any)
-    toast(t('mkt.toggleSuccess'), 'success')
+    const target = updated.find(m => m.id === id)
+    // Toggle persisté, mais aucun provider email/SMS branché côté API pour l'instant.
+    toast(
+      `Préférence sauvegardée : ${target?.active ? 'activée' : 'désactivée'}. ⚠ Aucun envoi réel tant qu'un provider (Mailjet/Brevo/Twilio) n'est pas branché.`,
+      'warning'
+    )
   }
 
   const totalSent = automations.reduce((s, m) => s + m.sent, 0)
@@ -104,7 +109,25 @@ export function Marketing() {
         <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--text)', margin: 0, display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
           <span>{t('mkt.title')}</span>
           <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--t2)' }}>{t('mkt.subtitle')}</span>
+          <span style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
+            padding: '3px 8px', borderRadius: 4,
+            color: 'var(--am)', background: 'rgba(232,165,48,.12)', border: '1px solid rgba(232,165,48,.35)',
+          }}>
+            ⚠ Démo — provider non branché
+          </span>
         </h2>
+      </div>
+
+      {/* Bannière d'information sur l'état "pas de provider" */}
+      <div style={{
+        background: 'rgba(232,165,48,.08)', border: '1px solid rgba(232,165,48,.3)',
+        borderRadius: RADIUS.md, padding: 12, marginBottom: 14,
+        fontSize: 12, lineHeight: 1.5, color: 'var(--t2)',
+      }}>
+        <b style={{ color: 'var(--am)' }}>⚠ Module en aperçu.</b> Les automations et templates peuvent être configurés et activés,
+        mais <b>aucun envoi réel</b> n'est effectué tant qu'un provider <b>email (Mailjet/Brevo/SendGrid)</b> et/ou <b>SMS (Twilio/MessageBird)</b> n'a pas été branché côté API.
+        Les statistiques affichées sont <b>démonstratives</b>.
       </div>
 
       {/* KPIs */}
@@ -149,7 +172,7 @@ export function Marketing() {
           <div>
             <div style={{ display: 'flex', gap: GAP.md, marginBottom: GAP.lg }}>
               <button
-                onClick={() => toast(t('mkt.newAuto'), 'success')}
+                onClick={() => toast('Création d\'automation custom : fonctionnalité à brancher — pour l\'instant, seules les 6 automations par défaut sont modifiables.', 'info')}
                 style={{
                   padding: '8px 14px', minHeight: 44,
                   borderRadius: RADIUS.sm, border: 'none',
@@ -224,7 +247,7 @@ export function Marketing() {
                     {items.map(tp => (
                       <div
                         key={tp.id}
-                        onClick={() => toast(t(tp.nameKey) + ' — ' + t('mkt.tpl.preview'), 'success')}
+                        onClick={() => toast(t(tp.nameKey) + ' — aperçu à brancher (éditeur WYSIWYG en cours)', 'info')}
                         style={{
                           background: 'var(--surf2)', border: '1.5px solid var(--border)',
                           borderRadius: RADIUS.lg, padding: 14,
@@ -253,7 +276,16 @@ export function Marketing() {
         {/* ═══ STATS ═══ */}
         {tab === 'stats' && (
           <div>
-            <div style={{ ...sectionTitle, marginBottom: GAP.lg }}>{t('mkt.stats.title')}</div>
+            <div style={{ ...sectionTitle, marginBottom: GAP.lg, display: 'flex', alignItems: 'center', gap: 8 }}>
+              {t('mkt.stats.title')}
+              <span style={{
+                fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
+                padding: '2px 6px', borderRadius: 3,
+                color: 'var(--am)', background: 'rgba(232,165,48,.12)',
+              }}>
+                Démo
+              </span>
+            </div>
 
             {/* Monthly breakdown */}
             <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: RADIUS.md, padding: 14, marginBottom: GAP.lg }}>
@@ -269,34 +301,4 @@ export function Marketing() {
                 <div style={{ textAlign: 'right', fontFamily: 'var(--fm)' }}>98.2%</div>
                 <div style={{ textAlign: 'right', fontFamily: 'var(--fm)', color: 'var(--gn)' }}>65%</div>
 
-                <div>SMS</div>
-                <div style={{ textAlign: 'right', fontFamily: 'var(--fm)' }}>1,523</div>
-                <div style={{ textAlign: 'right', fontFamily: 'var(--fm)' }}>99.1%</div>
-                <div style={{ textAlign: 'right', fontFamily: 'var(--fm)', color: 'var(--gn)' }}>—</div>
-              </div>
-            </div>
-
-            {/* Per automation stats */}
-            <div style={{ background: 'var(--surf)', border: '1px solid var(--border)', borderRadius: RADIUS.md, padding: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: GAP.lg }}>{t('mkt.stats.perAuto')}</div>
-              {automations.filter(m => m.sent > 0).map(m => (
-                <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: GAP.md, padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
-                  <div style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{t(m.nameKey)}</div>
-                  <div style={{ fontSize: 11, fontFamily: 'var(--fm)', color: 'var(--t3)', width: 60, textAlign: 'right' }}>{m.sent}</div>
-                  <div style={{ width: 80 }}>
-                    <div style={{ height: 6, borderRadius: 3, background: 'var(--surf2)', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${m.openRate}%`, background: m.openRate >= 60 ? 'var(--gn)' : m.openRate >= 40 ? 'var(--am)' : 'var(--rd)', borderRadius: 3, transition: '.3s' }} />
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 11, fontFamily: 'var(--fm)', fontWeight: 700, color: m.openRate >= 60 ? 'var(--gn)' : m.openRate >= 40 ? 'var(--am)' : 'var(--rd)', width: 40, textAlign: 'right' }}>
-                    {m.openRate}%
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+                <div>SM

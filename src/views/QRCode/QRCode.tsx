@@ -32,7 +32,7 @@ const DEMO_TABLES: Table[] = [
 
 export function QRCode() {
   const { toast } = useToast()
-  const { salles: storeSalles, tables: storeTables, isDemo } = useAppStore()
+  const { salles: storeSalles, tables: storeTables, isDemo, restaurantId } = useAppStore()
 
   // Source réelle = store ; fallback démo uniquement si isDemo ET store vide
   const SALLES: Room[] = storeSalles && storeSalles.length > 0
@@ -62,8 +62,17 @@ export function QRCode() {
     return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}&color=${hex}&bgcolor=ffffff&margin=2&format=png`
   }
 
+  // Construit l'URL scannée : ajoute table + tenant (r) — sans `r`, la landing publique
+  // ne sait pas sur quel restaurant pointer (affiche une page générique).
+  const buildScanUrl = (tableN: string) => {
+    const p = new URLSearchParams()
+    p.set('table', tableN)
+    if (restaurantId) p.set('r', String(restaurantId))
+    return `${baseUrl}?${p.toString()}`
+  }
+
   const qrCard = (t: Table) => {
-    const url = baseUrl + '?table=' + encodeURIComponent(t.n)
+    const url = buildScanUrl(t.n)
     return (
       <div key={t.n} style={{
         background: '#ffffff',
@@ -81,6 +90,30 @@ export function QRCode() {
         <div style={{ fontSize: 11, color: '#888' }}>{modeLabel}</div>
       </div>
     )
+  }
+
+  // Téléchargement PNG séquentiel : un fichier par table active
+  const downloadAll = async () => {
+    const actives = TABLES.filter(t => t.active !== false)
+    if (!actives.length) { toast('Aucune table active à exporter', 'warning'); return }
+    toast(`Téléchargement de ${actives.length} QR code${actives.length > 1 ? 's' : ''}…`, 'info')
+    for (const t of actives) {
+      try {
+        const res = await fetch(qrImg(buildScanUrl(t.n), qrSize, qrColor))
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const blob = await res.blob()
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = `qr-${t.n}.png`
+        document.body.appendChild(a); a.click(); a.remove()
+        URL.revokeObjectURL(a.href)
+        // Petite pause pour éviter que le navigateur bloque les téléchargements multiples
+        await new Promise(r => setTimeout(r, 150))
+      } catch (err) {
+        console.error(`[QRCode] export ${t.n} failed:`, err)
+        toast(`Échec téléchargement QR ${t.n}`, 'error')
+      }
+    }
   }
 
   const salles = SALLES.filter(s => s.active)
@@ -152,6 +185,24 @@ export function QRCode() {
                 </button>
               ))}
             </div>
+            {qrMode === 'payment' && (
+              <div style={{
+                marginTop: 10, padding: '8px 10px', borderRadius: 6,
+                background: 'rgba(230,130,50,.08)', border: '1px solid rgba(230,130,50,.3)',
+                fontSize: 11, color: 'var(--text)', lineHeight: 1.4,
+              }}>
+                ⚠ Le QR paiement exige une commande ouverte sur la table. Sans session de caisse active, la page bill.r3sto.ch affichera « aucune note à régler ».
+              </div>
+            )}
+            {!restaurantId && (
+              <div style={{
+                marginTop: 10, padding: '8px 10px', borderRadius: 6,
+                background: 'rgba(230,130,50,.08)', border: '1px solid rgba(230,130,50,.3)',
+                fontSize: 11, color: 'var(--text)', lineHeight: 1.4,
+              }}>
+                ⚠ Aucun restaurant lié — les QR pointeront sur une page générique. Complétez votre profil.
+              </div>
+            )}
           </div>
 
           {/* Size */}
@@ -241,7 +292,7 @@ export function QRCode() {
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', marginBottom: 10 }}>Export</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <button
-                onClick={() => toast('QR codes téléchargés (PNG)', 'success')}
+                onClick={downloadAll}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
@@ -257,7 +308,7 @@ export function QRCode() {
                 PNG — toutes les tables
               </button>
               <button
-                onClick={() => toast('PDF généré — impression A4', 'success')}
+                onClick={() => toast('Export PDF A4 bientôt disponible — utilisez PNG en attendant', 'info')}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
@@ -273,7 +324,7 @@ export function QRCode() {
                 PDF A4 — prêt à imprimer
               </button>
               <button
-                onClick={() => toast('Fichier ZIP téléchargé', 'success')}
+                onClick={() => toast('Export ZIP bientôt disponible — utilisez PNG en attendant', 'info')}
                 style={{
                   width: '100%',
                   padding: '8px 12px',

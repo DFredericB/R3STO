@@ -53,6 +53,14 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
   const [allergie, setAllergie] = useState(false)
   const [modeIA, setModeIA] = useState(true)
 
+  // ── Mode rapide (4 champs) vs Complet (3 colonnes) — persistance locale ──
+  const [quickMode, setQuickMode] = useState<boolean>(() => {
+    try { return localStorage.getItem('r3sto_modalresa_mode') !== 'full' } catch { return true }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('r3sto_modalresa_mode', quickMode ? 'quick' : 'full') } catch {}
+  }, [quickMode])
+
   const date = preselectedDate || activeDate
 
   // Services actifs (filtrés par jour de la semaine)
@@ -305,11 +313,110 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
               )}
             </div>
           </div>
+          {/* Toggle Rapide ↔ Complet */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 2,
+            background: 'var(--surf3)', border: '1px solid var(--border)',
+            borderRadius: 8, padding: 2,
+          }}>
+            <button
+              onClick={() => setQuickMode(true)}
+              title="Mode rapide : 4 champs essentiels"
+              style={{
+                padding: '5px 10px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: quickMode ? 'var(--bl)' : 'transparent',
+                color: quickMode ? '#fff' : 'var(--t3)',
+                fontSize: 11, fontWeight: 700, fontFamily: 'var(--ff)',
+              }}>
+              ⚡ Rapide
+            </button>
+            <button
+              onClick={() => setQuickMode(false)}
+              title="Mode complet : toutes les options"
+              style={{
+                padding: '5px 10px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: !quickMode ? 'var(--bl)' : 'transparent',
+                color: !quickMode ? '#fff' : 'var(--t3)',
+                fontSize: 11, fontWeight: 700, fontFamily: 'var(--ff)',
+              }}>
+              ⚙ Complet
+            </button>
+          </div>
           <button onClick={onClose} aria-label="Fermer" title="Fermer" style={{ background:'none', border:'none', color:'var(--t3)', fontSize:20, cursor:'pointer', padding:'0 4px' }}>✕</button>
         </div>
 
-        {/* Corps — 3 colonnes */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0, overflow: 'auto', flex: 1 }}>
+        {/* Corps — Mode RAPIDE (4 champs : Nom · Téléphone · Couverts · Créneau) */}
+        {quickMode && (
+          <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14, overflow: 'auto', flex: 1 }}>
+            <div style={{ fontSize: 11, color: 'var(--t3)', lineHeight: 1.5 }}>
+              ⚡ <b>Mode rapide</b> — service <b>{activeServices.find(s => s.name.toLowerCase() === svc)?.name || '…'}</b>, table auto-assignée par l'IA.
+              Pour ajouter allergies, bébé, PMR, statut VIP ou une note, passe en <b>Complet</b>.
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <label style={labelStyle}>{t('modal.name')} *</label>
+                <input style={inputStyle} value={nom} onChange={e => setNom(e.target.value)} placeholder="Dupont" autoFocus />
+              </div>
+              <div>
+                <label style={labelStyle}>{t('modal.phone')}{options.require_phone ? ' *' : ''}</label>
+                <PhoneInput value={tel} onChange={setTel} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
+              <div>
+                <label style={labelStyle}>{t('modal.covers')}</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button
+                    type="button"
+                    onClick={() => setCvt(Math.max(1, cvt - 1))}
+                    style={{ width: 32, height: 34, borderRadius: 7, border: '1.5px solid var(--border)', background: 'var(--surf3)', color: 'var(--text)', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>−</button>
+                  <input
+                    type="number"
+                    min={1}
+                    value={cvt}
+                    onChange={e => setCvt(Math.max(1, parseInt(e.target.value) || 1))}
+                    style={{ ...inputStyle, textAlign: 'center', fontWeight: 700, fontSize: 14 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCvt(cvt + 1)}
+                    style={{ width: 32, height: 34, borderRadius: 7, border: '1.5px solid var(--border)', background: 'var(--surf3)', color: 'var(--text)', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>+</button>
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>{t('modal.slot')} *</label>
+                <select value={slot} onChange={e => setSlot(e.target.value)} style={inputStyle}>
+                  <option value="">—</option>
+                  {slots.map(sl => {
+                    const col = slotColor(sl)
+                    const data = availability.slotSaturation[sl]
+                    return (
+                      <option key={sl} value={sl}>
+                        {sl.replace('h',':')}{data?.resas ? ` · ${data.resas} résa${data.resas > 1 ? 's' : ''}` : ''}{col === '#ef4444' ? ' 🔴' : col === '#f59e0b' ? ' 🟡' : col === '#22c55e' ? ' 🟢' : ''}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            </div>
+
+            {/* Suggestion IA de table */}
+            {suggestedTable && (
+              <div style={{
+                padding: '10px 12px', borderRadius: 8,
+                background: 'rgba(68,128,216,.08)', border: '1px solid rgba(68,128,216,.25)',
+                fontSize: 12, color: 'var(--bl)',
+              }}>
+                💡 Table suggérée : <b>{suggestedTable}</b>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Corps — Mode COMPLET — 3 colonnes */}
+        <div style={{ display: quickMode ? 'none' : 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0, overflow: 'auto', flex: 1 }}>
 
           {/* ── Col 1 : Client ── */}
           <div style={{ padding: 16, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -580,114 +687,4 @@ export function ModalResa({ isOpen, onClose, preselectedTable, preselectedDate }
             {/* Statut client */}
             <div>
               <label style={labelStyle}>{t('modal.clientStatus')}</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {STATUTS.map((s, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setStatut(i)}
-                    style={{
-                      padding: '6px 10px', borderRadius: 7, textAlign: 'left',
-                      border: `1.5px solid ${statut === i ? STATUTS_BCOL[i] : 'var(--border)'}`,
-                      background: statut === i ? STATUTS_COL[i] : 'transparent',
-                      color: statut === i ? STATUTS_TCOL[i] : 'var(--t3)',
-                      fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--ff)',
-                    }}
-                  >
-                    {['⬜','🔵','⭐','🔴'][i]} {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Besoins spéciaux */}
-            <div>
-              <label style={labelStyle}>{t('modal.specialNeeds')}</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {/* Chaise bébé */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12 }}>👶 {t('modal.babyChair')}</span>
-                  <input type="number" min={0} max={5} value={bebe} onChange={e => setBebe(Math.max(0, Math.min(5, Number(e.target.value) || 0)))} style={{ width: 48, height: 24, textAlign: 'center', fontSize: 12, fontWeight: 700, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf)', color: 'var(--text)', fontFamily: 'DM Mono,monospace', outline: 'none' }} />
-                </div>
-                {/* PMR */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12 }}>♿ {t('modal.pmrSeat')}</span>
-                  <input type="number" min={0} max={5} value={pmr} onChange={e => setPmr(Math.max(0, Math.min(5, Number(e.target.value) || 0)))} style={{ width: 48, height: 24, textAlign: 'center', fontSize: 12, fontWeight: 700, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surf)', color: 'var(--text)', fontFamily: 'DM Mono,monospace', outline: 'none' }} />
-                </div>
-                {/* Allergie */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12 }}>⚠️ {t('modal.allergy')}</span>
-                  <button
-                    onClick={() => setAllergie(!allergie)}
-                    style={{
-                      padding: '3px 10px', borderRadius: 6,
-                      border: `1px solid ${allergie ? 'var(--am)' : 'var(--border)'}`,
-                      background: allergie ? 'var(--ap)' : 'transparent',
-                      color: allergie ? 'var(--am)' : 'var(--t4)',
-                      fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--ff)',
-                    }}
-                  >
-                    {allergie ? `✓ ${t('modal.yes')}` : t('modal.no')}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Notes */}
-            <div style={{ flex: 1 }}>
-              <label style={labelStyle}>{t('modal.internalNotes')}</label>
-              <textarea
-                value={note}
-                onChange={e => setNote(e.target.value)}
-                placeholder={t('modal.notesPlaceholder')}
-                rows={3}
-                style={{ ...inputStyle, resize: 'none', height: 72 }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          padding: '12px 20px',
-          borderTop: '1px solid var(--border)',
-          display: 'flex', alignItems: 'center', gap: 8,
-          background: 'var(--surf3)',
-        }}>
-          {/* Disponibilité par salle */}
-          <div style={{ display: 'flex', gap: 8, flex: 1 }}>
-            {availability.perSalle.map(s => (
-              <span key={s.id} style={{
-                fontSize: 10, fontWeight: 600,
-                color: s.free === 0 ? '#ef4444' : s.free <= 2 ? '#f59e0b' : 'var(--t3)',
-                display: 'flex', alignItems: 'center', gap: 4,
-              }}>
-                <span style={{
-                  width: 8, height: 8, borderRadius: '50%',
-                  background: s.color || 'var(--t4)',
-                  display: 'inline-block', flexShrink: 0,
-                }} />
-                {s.name}: {s.free}/{s.total}
-              </span>
-            ))}
-          </div>
-          <button onClick={onClose} style={{
-            padding: '8px 16px', borderRadius: 8,
-            border: '1.5px solid var(--border)', background: 'transparent',
-            color: 'var(--t2)', fontSize: 12, fontWeight: 600,
-            cursor: 'pointer', fontFamily: 'var(--ff)',
-          }}>
-            {t('modal.cancel')}
-          </button>
-          <button onClick={handleSave} style={{
-            padding: '8px 20px', borderRadius: 8,
-            border: 'none', background: 'var(--bl)',
-            color: '#fff', fontSize: 12, fontWeight: 700,
-            cursor: 'pointer', fontFamily: 'var(--ff)',
-          }}>
-            ➕ {t('modal.confirmResa')}
-          </button>
-        </div>
-      </div>
-    </>
-  )
-}
+              <div 

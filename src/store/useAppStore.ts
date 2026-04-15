@@ -14,8 +14,39 @@ import type {
   LoyaltyConfig, LoyaltyCard, LoyaltyEvent, Site
 } from '../types'
 
-// ── Fire-and-forget API sync (non-blocking, errors silenced) ──
-const sync = (fn: () => Promise<any>) => { fn().catch(() => {}) }
+// ── Toast bridge : permet au store (hors React) d'afficher des toasts ──
+// Wiré depuis App via <ToastBridge/> après ToastProvider.
+type ToastKind = 'success' | 'error' | 'warning' | 'info'
+let _toastHandler: ((msg: string, type?: ToastKind) => void) | null = null
+export const setStoreToastHandler = (fn: ((msg: string, type?: ToastKind) => void) | null) => {
+  _toastHandler = fn
+}
+
+// ── API sync avec rollback + toast en cas d'échec ──
+// - fn      : appel API (optimistic déjà appliqué au state local)
+// - rollback: restore du state local si l'API refuse (facultatif mais recommandé)
+// - label   : libellé court pour le message d'erreur ("suppression réservation", etc.)
+const sync = (
+  fn: () => Promise<any>,
+  rollback?: () => void,
+  label?: string
+) => {
+  fn().catch((err) => {
+    // Log toujours (remplace le catch silencieux historique)
+    console.error(`[R3STO] API sync failed${label ? ` (${label})` : ''}:`, err)
+    // Rollback du state local si fourni
+    if (rollback) {
+      try { rollback() } catch (e) { console.error('[R3STO] rollback failed:', e) }
+    }
+    // Toast utilisateur via le bridge (si monté)
+    if (_toastHandler) {
+      const msg = label
+        ? `Échec : ${label}${rollback ? '. Modification annulée.' : '.'}`
+        : `Échec de synchronisation${rollback ? '. Modification annulée.' : '.'}`
+      _toastHandler(msg, 'error')
+    }
+  })
+}
 
 // ── Données par défaut ─────────────────────────────
 const DEFAULT_SERVICES: Service[] = [
@@ -214,24 +245,81 @@ export const useAppStore = create<AppStore>()(
 
       // Réservations
       addResa: (resa) => set((s) => {
-        // ── Garde-fou double-booking : empêcher 2 résas actives sur la même table/date/service ──
-        if (resa.tbl && resa.date && resa.svc) {
-          const occupied = s.resas.some(r =>
-            r.date === resa.date && r.svc === resa.svc && r.tbl === resa.tbl &&
-            (r.s === 'reserved' || r.s === 'arrived')
-          )
-          if (occupied) {
-            console.warn(`[R3STO] Double-booking bloqué : ${resa.tbl} déjà occupée (${resa.date} ${resa.svc})`)
-            return s // ne pas ajouter
+        // ── Garde-fou complet via canPlaceResa : capacité, blocage, double-booking, fermeture ──
+        // Ne s'applique que si la résa est placée sur une table connue (sinon double-booking-only)
+        if (resa.tbl && resa.date && resa.svc && resa.s !== 'waitlist') {
+          const tableExists = s.tables.some(t => t.id === resa.tbl || t.n === resa.tbl)
+          if (tableExists && resa.c) {
+            const check = canPlaceResa(resa.tbl, resa.date, resa.svc, resa.c)
+            if (!check.ok) {
+              console.warn(`[R3STO] Résa refusée (${resa.tbl} ${resa.date} ${resa.svc}) : ${check.reason}`)
+              if (_toastHandler) _toastHandler(`Réservation refusée : ${check.reason}`, 'error')
+              return s
+            }
+          } else {
+            // Fallback : au minimum bloquer le double-booking même si la table n'est pas dans state.tables
+            const occupied = s.resas.some(r =>
+              r.date === resa.date && r.svc === resa.svc && r.tbl === resa.tbl &&
+              (r.s === 'reserved' || r.s === 'arrived')
+            )
+            if (occupied) {
+              console.warn(`[R3STO] Double-booking bloqué : ${resa.tbl} déjà occupée (${resa.date} ${resa.svc})`)
+              if (_toastHandler) _toastHandler(`Table ${resa.tbl} déjà occupée pour ce service`, 'error')
+              return s
+            }
           }
         }
-        sync(() => api.resas.create(resa))
+        const prev = s.resas
+        sync(
+          () => api.resas.create(resa),
+          () => set({ resas: prev }),
+          'création réservation'
+        )
         return { resas: [...s.resas, resa] }
       }),
-      updateResa: (id, patch) => { sync(() => api.resas.update(id, patch)); set((s) => ({
-        resas: s.resas.map((r) => r.id === id ? { ...r, ...patch } : r)
-      })) },
-      deleteResa: (id) => { sync(() => api.resas.delete(id)); set((s) => ({ resas: s.resas.filter((r) => r.id !== id) })) },
+      updateResa: (id, patch) => {
+        // Si on déplace la résa sur une autre table/date/svc, vérifier canPlaceResa
+        const current = useAppStore.getState().resas.find(r => r.id === id)
+        if (current) {
+          const next = { ...current, ...patch }
+          const movingSlot = ('tbl' in patch) || ('date' in patch) || ('svc' in patch) || ('cvt' in patch)
+          if (movingSlot && next.tbl && next.date && next.svc && next.c && next.s !== 'waitlist') {
+            // Ignorer soi-même dans le check double-booking
+            const others = useAppStore.getState().resas.filter(r => r.id !== id)
+            const conflict = others.some(r =>
+              r.date === next.date && r.svc === next.svc && r.tbl === next.tbl &&
+              (r.s === 'reserved' || r.s === 'arrived')
+            )
+            if (conflict) {
+              console.warn(`[R3STO] updateResa refusé : table ${next.tbl} déjà occupée`)
+              if (_toastHandler) _toastHandler(`Déplacement refusé : table déjà occupée`, 'error')
+              return
+            }
+            // Vérifie capacité/blocage/fermeture via canPlaceResa si la table est connue
+            const tableExists = useAppStore.getState().tables.some(t => t.id === next.tbl || t.n === next.tbl)
+            if (tableExists) {
+              const check = canPlaceResa(next.tbl, next.date, next.svc, next.c)
+              if (!check.ok && check.reason !== 'Table déjà occupée pour ce service') {
+                console.warn(`[R3STO] updateResa refusé : ${check.reason}`)
+                if (_toastHandler) _toastHandler(`Déplacement refusé : ${check.reason}`, 'error')
+                return
+              }
+            }
+          }
+        }
+        const prevResas = useAppStore.getState().resas
+        set((s) => ({ resas: s.resas.map((r) => r.id === id ? { ...r, ...patch } : r) }))
+        sync(
+          () => api.resas.update(id, patch),
+          () => set({ resas: prevResas }),
+          'mise à jour réservation'
+        )
+      },
+      deleteResa: (id) => {
+        const prev = useAppStore.getState().resas
+        set((s) => ({ resas: s.resas.filter((r) => r.id !== id) }))
+        sync(() => api.resas.delete(id), () => set({ resas: prev }), 'suppression réservation')
+      },
       setResaStatus: (id, status) => set((s) => {
         const resa = s.resas.find(r => r.id === id)
         if (!resa) return s
@@ -276,21 +364,33 @@ export const useAppStore = create<AppStore>()(
       updateFermeture: (id, patch) => { sync(() => api.fermetures.update(id, patch)); set((s) => ({
         fermetures: s.fermetures.map((f) => f.id === id ? { ...f, ...patch } : f)
       })) },
-      deleteFermeture: (id) => { sync(() => api.fermetures.delete(id)); set((s) => ({ fermetures: s.fermetures.filter((f) => f.id !== id) })) },
+      deleteFermeture: (id) => {
+        const prev = useAppStore.getState().fermetures
+        set((s) => ({ fermetures: s.fermetures.filter((f) => f.id !== id) }))
+        sync(() => api.fermetures.delete(id), () => set({ fermetures: prev }), 'suppression fermeture')
+      },
 
       // Clients
       addClient: (client) => { sync(() => api.clients.create(client)); set((s) => ({ clients: [...s.clients, client] })) },
       updateClient: (id, patch) => { sync(() => api.clients.update(id, patch)); set((s) => ({
         clients: s.clients.map((c) => c.id === id ? { ...c, ...patch } : c)
       })) },
-      deleteClient: (id) => { sync(() => api.clients.delete(id)); set((s) => ({ clients: s.clients.filter((c) => c.id !== id) })) },
+      deleteClient: (id) => {
+        const prev = useAppStore.getState().clients
+        set((s) => ({ clients: s.clients.filter((c) => c.id !== id) }))
+        sync(() => api.clients.delete(id), () => set({ clients: prev }), 'suppression client')
+      },
 
       // Gift Cards
       addGiftCard: (gc) => { sync(() => api.giftCards.create(gc)); set((s) => ({ giftCards: [...s.giftCards, gc] })) },
       updateGiftCard: (id, patch) => { sync(() => api.giftCards.update(id, patch)); set((s) => ({
         giftCards: s.giftCards.map((g) => g.id === id ? { ...g, ...patch } : g)
       })) },
-      deleteGiftCard: (id) => { sync(() => api.giftCards.delete(id)); set((s) => ({ giftCards: s.giftCards.filter((g) => g.id !== id) })) },
+      deleteGiftCard: (id) => {
+        const prev = useAppStore.getState().giftCards
+        set((s) => ({ giftCards: s.giftCards.filter((g) => g.id !== id) }))
+        sync(() => api.giftCards.delete(id), () => set({ giftCards: prev }), 'suppression carte cadeau')
+      },
       useGiftCard: (id, amount, resaId) => { sync(() => api.giftCards.use(id, amount, resaId)); set((s) => ({
         giftCards: s.giftCards.map((g) => {
           if (g.id !== id) return g
@@ -310,7 +410,11 @@ export const useAppStore = create<AppStore>()(
       updateReview: (id, patch) => { sync(() => api.reviews.update(id, patch)); set((s) => ({
         reviews: s.reviews.map((r) => r.id === id ? { ...r, ...patch } : r)
       })) },
-      deleteReview: (id) => { sync(() => api.reviews.delete(id)); set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) })) },
+      deleteReview: (id) => {
+        const prev = useAppStore.getState().reviews
+        set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) }))
+        sync(() => api.reviews.delete(id), () => set({ reviews: prev }), 'suppression avis')
+      },
 
       // Loyalty
       updateLoyaltyConfig: (patch) => { sync(() => api.loyalty.updateConfig(patch)); set((s) => ({
@@ -322,9 +426,11 @@ export const useAppStore = create<AppStore>()(
       updateLoyaltyCard: (id, patch) => { sync(() => api.loyalty.updateCard(id, patch)); set((s) => ({
         loyaltyCards: s.loyaltyCards.map((c) => c.id === id ? { ...c, ...patch } : c)
       })) },
-      deleteLoyaltyCard: (id) => { sync(() => api.loyalty.deleteCard(id)); set((s) => ({
-        loyaltyCards: s.loyaltyCards.filter((c) => c.id !== id)
-      })) },
+      deleteLoyaltyCard: (id) => {
+        const prev = useAppStore.getState().loyaltyCards
+        set((s) => ({ loyaltyCards: s.loyaltyCards.filter((c) => c.id !== id) }))
+        sync(() => api.loyalty.deleteCard(id), () => set({ loyaltyCards: prev }), 'suppression carte fidélité')
+      },
       addLoyaltyEvent: (cardId, event) => { sync(() => api.loyalty.addEvent(cardId, event)); set((s) => ({
         loyaltyCards: s.loyaltyCards.map((c) => {
           if (c.id !== cardId) return c
@@ -348,10 +454,20 @@ export const useAppStore = create<AppStore>()(
       updateSite: (id: string, patch: Partial<Site>) => { sync(() => api.sites.update(id, patch)); set((s: AppStore) => ({
         sites: s.sites.map((si: Site) => si.id === id ? { ...si, ...patch } : si)
       })) },
-      deleteSite: (id: string) => { sync(() => api.sites.delete(id)); set((s: AppStore) => ({
-        sites: s.sites.filter((si: Site) => si.id !== id),
-        activeSiteId: s.activeSiteId === id ? null : s.activeSiteId
-      })) },
+      deleteSite: (id: string) => {
+        const prevState = useAppStore.getState()
+        const prevSites = prevState.sites
+        const prevActiveSiteId = prevState.activeSiteId
+        set((s: AppStore) => ({
+          sites: s.sites.filter((si: Site) => si.id !== id),
+          activeSiteId: s.activeSiteId === id ? null : s.activeSiteId
+        }))
+        sync(
+          () => api.sites.delete(id),
+          () => set({ sites: prevSites, activeSiteId: prevActiveSiteId }),
+          'suppression site'
+        )
+      },
       setActiveSite: (id: string | null) => set({ activeSiteId: id }),
 
       // Auth & UI

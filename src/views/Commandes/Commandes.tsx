@@ -43,20 +43,42 @@ interface Notification {
 //  SOUND SYSTEM
 // ══════════════════════════════════════════════════════════════════
 
-const audioContext = typeof window !== 'undefined' ? new (window.AudioContext || (window as any).webkitAudioContext)() : null;
+// AudioContext créé LAZY au premier beep (user gesture requis par les navigateurs modernes).
+// Sinon Chrome/Safari bloquent et log un warning « The AudioContext was not allowed to start ».
+let _audioContext: AudioContext | null = null;
+function getAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  if (_audioContext) return _audioContext;
+  try {
+    const Ctor = (window as any).AudioContext || (window as any).webkitAudioContext;
+    if (!Ctor) return null;
+    _audioContext = new Ctor();
+    return _audioContext;
+  } catch (err) {
+    console.warn('[Commandes] AudioContext unavailable:', err);
+    return null;
+  }
+}
 
 function playBeep(freq: number = 800, duration: number = 200, volume: number = 0.3) {
-  if (!audioContext) return;
-  const osc = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  osc.connect(gain);
-  gain.connect(audioContext.destination);
-  osc.frequency.value = freq;
-  osc.type = 'sine';
-  gain.gain.setValueAtTime(volume, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
-  osc.start(audioContext.currentTime);
-  osc.stop(audioContext.currentTime + duration / 1000);
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  // Si le contexte est suspendu (pas de user-gesture), on tente de le reprendre.
+  if (ctx.state === 'suspended') { ctx.resume().catch(() => {}); }
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(volume, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration / 1000);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration / 1000);
+  } catch (err) {
+    console.warn('[Commandes] playBeep failed:', err);
+  }
 }
 
 function playDingSound(volume: number = 0.3) {
@@ -134,6 +156,7 @@ const DEMO_BELL_ALERTS: BellAlert[] = [
 ];
 
 export function Commandes() {
+  const { toast } = useToast();
   const isDemo = useAppStore(s => s.isDemo);
   // State
   const [filter, setFilter] = useState<'actives' | 'alertes' | 'terminees'>('actives');
@@ -142,8 +165,21 @@ export function Commandes() {
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifPanel, setShowNotifPanel] = useState(false);
-  const [soundVolume, setSoundVolume] = useState(0.3);
-  const [soundMuted, setSoundMuted] = useState(false);
+  // Préférences son persistées (sinon Didier doit re-mute à chaque refresh)
+  const [soundVolume, setSoundVolume] = useState<number>(() => {
+    try {
+      const v = parseFloat(localStorage.getItem('r3sto_cmd_vol') || '');
+      return isFinite(v) && v >= 0 && v <= 1 ? v : 0.3;
+    } catch { return 0.3; }
+  });
+  const [soundMuted, setSoundMuted] = useState<boolean>(() => {
+    try { return localStorage.getItem('r3sto_cmd_mute') === '1'; } catch { return false; }
+  });
+  useEffect(() => { try { localStorage.setItem('r3sto_cmd_vol', String(soundVolume)); } catch {} }, [soundVolume]);
+  useEffect(() => { try { localStorage.setItem('r3sto_cmd_mute', soundMuted ? '1' : '0'); } catch {} }, [soundMuted]);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
+    typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'denied'
+  );
   const [showNewOrderForm, setShowNewOrderForm] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const [tableFilter, setTableFilter] = useState<string | null>(null);
@@ -153,12 +189,22 @@ export function Commandes() {
   // Available tables (demo data)
   const tables = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10'];
 
-  // Request notification permission on mount
-  useEffect(() => {
-    if ('Notification' in window) {
-      Notification.requestPermission();
+  // Demande de permission déclenchée par USER GESTURE (bouton) — pas au mount,
+  // sinon Chrome/Firefox refusent silencieusement et bloquent toute demande future.
+  const requestNotifPermission = () => {
+    if (!('Notification' in window)) {
+      toast('Notifications navigateur non supportées', 'warning');
+      return;
     }
-  }, []);
+    Notification.requestPermission().then(p => {
+      setNotifPermission(p);
+      if (p === 'granted') toast('Notifications activées', 'success');
+      else if (p === 'denied') toast('Notifications bloquées — ouvrir les paramètres du navigateur', 'warning');
+    }).catch(err => {
+      console.error('[Commandes] requestPermission failed:', err);
+      toast('Échec activation notifications', 'error');
+    });
+  };
 
   // Calculate statistics
   const actives = orders.filter(c => c.status !== 'done');
@@ -172,7 +218,8 @@ export function Commandes() {
     .filter(o => o.status === 'done')
     .reduce((sum, o) => sum + o.total, 0);
 
-  const ordersPerHour = actives.length > 0 ? Math.round((orders.length / 60) * 60) : 0;
+  // Commandes créées dans la dernière heure (vraie métrique, pas `orders.length * 1`)
+  const ordersPerHour = orders.filter(o => (Date.now() - o.createdAt) <= 60 * 60 * 1000).length;
 
   // Add notification
   const addNotification = (type: Notification['type'], message: string, table: string) => {
@@ -553,10 +600,35 @@ export function Commandes() {
 
         <div style={{ flex: 1 }} />
 
+        {/* Bouton activation notifications navigateur — requiert user gesture */}
+        {notifPermission !== 'granted' && (
+          <button
+            onClick={requestNotifPermission}
+            title="Activer les notifications navigateur"
+            style={{
+              fontSize: '11px',
+              padding: '4px 10px',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              background: notifPermission === 'denied' ? 'rgba(220,80,80,0.08)' : 'transparent',
+              color: notifPermission === 'denied' ? 'var(--rd)' : 'var(--t3)',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            {notifPermission === 'denied' ? '🔕 Bloquées' : '🔔 Activer notifs'}
+          </button>
+        )}
+
         {/* Sound controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', borderRight: '1px solid var(--border)', paddingRight: '8px' }}>
           <button
-            onClick={() => setSoundMuted(!soundMuted)}
+            onClick={() => {
+              // Premier clic = user gesture → on initialise l'AudioContext
+              const ctx = getAudioContext();
+              if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+              setSoundMuted(!soundMuted);
+            }}
             style={{
               fontSize: '14px',
               background: 'transparent',

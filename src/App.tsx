@@ -5,11 +5,21 @@
 
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAppStore } from './store/useAppStore'
+import { useAppStore, setStoreToastHandler } from './store/useAppStore'
 import { Header } from './components/layout/Header'
 import { Sidebar } from './components/layout/Sidebar'
 import { BottomNav } from './components/layout/BottomNav'
-import { ToastProvider } from './components/ui/Toast'
+import { ToastProvider, useToast } from './components/ui/Toast'
+
+// Relie le toast React au store (hors React) : erreurs API -> toast utilisateur.
+function ToastBridge() {
+  const { toast } = useToast()
+  useEffect(() => {
+    setStoreToastHandler((msg, type) => toast(msg, type ?? 'info'))
+    return () => { setStoreToastHandler(null) }
+  }, [toast])
+  return null
+}
 import { DemoShowcaseBar } from './components/ui/DemoShowcaseBar'
 import { TutorialChecklist, TutorialTooltip } from './components/ui/Tutorial'
 import { Dashboard } from './views/Dashboard/Dashboard'
@@ -67,6 +77,7 @@ import { DataIntelligence } from './views/Admin/DataIntelligence'
 import { PricingStrategy } from './views/Admin/PricingStrategy'
 import { loadDemoFallback } from './utils/demoData'
 import { useAuth } from './auth/useAuth'
+import { ProtectedRoute } from './auth/ProtectedRoute'
 import { useApiSync } from './hooks/useApiSync'
 import { Login } from './views/Auth/Login'
 import { Signup } from './views/Auth/Signup'
@@ -127,9 +138,13 @@ export default function App() {
             // Nettoyer l'URL et recharger
             window.history.replaceState({}, '', window.location.pathname)
             window.location.reload()
+          } else {
+            console.warn('[R3STO] Token SSO refusé par /auth/me:', data)
           }
         })
-        .catch(() => {})
+        .catch(err => {
+          console.error('[R3STO] Échec validation token SSO:', err)
+        })
     }
   }, [])
 
@@ -150,6 +165,18 @@ export default function App() {
     return <Login />
   }
 
+  // ── Gate hostname ↔ rôle : admin.r3sto.ch exige role=superadmin ──
+  // Avant, n'importe quel user authentifié sur admin.* voyait l'admin console.
+  // Désormais : redirigé vers app.r3sto.ch (ou /dashboard en local) si rôle insuffisant.
+  if (isAdmin && user && (user.role || '').toLowerCase() !== 'superadmin') {
+    console.warn(`[R3STO] Accès admin.r3sto.ch refusé pour le rôle "${user.role}" — redirection`)
+    const target = window.location.hostname === 'admin.r3sto.ch'
+      ? 'https://app.r3sto.ch/dashboard'
+      : '/dashboard'
+    window.location.replace(target)
+    return null
+  }
+
   // ── Gate de setup : onboarding tant que config min absente ──
   // Demo = pas d'onboarding, données chargées automatiquement
   // Admin = pas d'onboarding, accès direct au panel
@@ -160,6 +187,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
+        <ToastBridge />
         <div className="app-layout">
           {isDemo && <DemoShowcaseBar />}
           <Header />
@@ -211,25 +239,25 @@ export default function App() {
                 <Route path="/tables" element={<TablesSetup />} />
                 <Route path="/options" element={<Options />} />
                 <Route path="/multisite" element={<MultiSite />} />
-                {/* CRM & NEWSLETTER R3STO */}
-                <Route path="/crm" element={<CRM />} />
-                <Route path="/newsletter" element={<Newsletter />} />
-                {/* ADMIN MARKETPLACE */}
-                <Route path="/admin-marketplace" element={<AdminMarketplace />} />
-                {/* ADMIN ERP */}
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/equipes" element={<Equipes />} />
-                <Route path="/finance" element={<Finance />} />
-                <Route path="/plateforme" element={<Plateforme />} />
-                <Route path="/data-intelligence" element={<DataIntelligence />} />
-                <Route path="/pricing-strategy" element={<PricingStrategy />} />
+                {/* CRM & NEWSLETTER R3STO — superadmin only */}
+                <Route path="/crm" element={<ProtectedRoute roles={['superadmin']}><CRM /></ProtectedRoute>} />
+                <Route path="/newsletter" element={<ProtectedRoute roles={['superadmin']}><Newsletter /></ProtectedRoute>} />
+                {/* ADMIN MARKETPLACE — superadmin only */}
+                <Route path="/admin-marketplace" element={<ProtectedRoute roles={['superadmin']}><AdminMarketplace /></ProtectedRoute>} />
+                {/* ADMIN ERP — superadmin only */}
+                <Route path="/admin-dashboard" element={<ProtectedRoute roles={['superadmin']}><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/equipes" element={<ProtectedRoute roles={['superadmin']}><Equipes /></ProtectedRoute>} />
+                <Route path="/finance" element={<ProtectedRoute roles={['superadmin']}><Finance /></ProtectedRoute>} />
+                <Route path="/plateforme" element={<ProtectedRoute roles={['superadmin']}><Plateforme /></ProtectedRoute>} />
+                <Route path="/data-intelligence" element={<ProtectedRoute roles={['superadmin']}><DataIntelligence /></ProtectedRoute>} />
+                <Route path="/pricing-strategy" element={<ProtectedRoute roles={['superadmin']}><PricingStrategy /></ProtectedRoute>} />
                 {/* ADMINISTRATION */}
-                <Route path="/acces-roles" element={<AccesRoles />} />
+                <Route path="/acces-roles" element={<ProtectedRoute roles={['superadmin', 'admin']}><AccesRoles /></ProtectedRoute>} />
                 <Route path="/historique" element={<Historique />} />
                 <Route path="/support" element={<Support />} />
-                <Route path="/admin-tickets" element={<AdminTickets />} />
-                <Route path="/audit" element={<Audit />} />
-                <Route path="/alertes" element={<Alertes />} />
+                <Route path="/admin-tickets" element={<ProtectedRoute roles={['superadmin']}><AdminTickets /></ProtectedRoute>} />
+                <Route path="/audit" element={<ProtectedRoute roles={['superadmin', 'admin']}><Audit /></ProtectedRoute>} />
+                <Route path="/alertes" element={<ProtectedRoute roles={['superadmin', 'admin']}><Alertes /></ProtectedRoute>} />
                 {/* Fallback */}
                 <Route path="*" element={
                   <div style={{ padding: 40, textAlign: 'center', color: 'var(--t3)' }}>

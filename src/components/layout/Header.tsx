@@ -500,7 +500,8 @@ export function Header() {
           { key: 'bill',     icon: '💳', label: 'Addition',       url: `https://bill.r3sto.ch/${DEMO_SLUG}?demo=1`,     hint: 'Règlement par QR en table' },
         ] as const
         const resetDemo = async () => {
-          try { await fetch('https://api.r3sto.ch/public/demo/reset', { method: 'POST' }) } catch {}
+          try { await fetch('https://api.r3sto.ch/public/demo/reset', { method: 'POST' }) }
+          catch (err) { console.error('[demo] reset API failed:', err) }
           window.location.reload()
         }
         return (
