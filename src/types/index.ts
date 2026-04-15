@@ -362,6 +362,12 @@ export interface OptionsData {
   auto_confirm: boolean
   auto_remind_24h: boolean
   auto_noshow_flag: boolean
+  /** Délai (minutes) après l'heure prévue avant marquage no-show automatique */
+  auto_noshow_delay_mins?: number
+  /** Email auto au client lors du passage en no-show */
+  auto_noshow_email_client?: boolean
+  /** Email auto au client lors d'une annulation */
+  auto_cancel_email_client?: boolean
   // Familles
   chaises_bebe: number
   places_pmr: number
@@ -523,4 +529,82 @@ export type TicketType = 'tech' | 'usage' | 'feature' | 'billing'
 
 export interface TicketMessage {
   id: string
-  role: 'clien
+  role: 'client' | 'admin'
+  content: string
+  ts: number
+  by?: string           // nom de l'auteur (admin side)
+}
+
+export interface Ticket {
+  id: string            // TKT-XXXXX
+  siteId?: string       // multi-site context
+  createdAt: number
+  updatedAt: number
+  status: TicketStatus
+  priority: TicketPriority
+  type: TicketType
+  module: string
+  subject: string
+  description: string
+  messages: TicketMessage[]
+  userAgent?: string
+  plan?: string
+  assignee?: string     // admin who handles it
+  rating?: number       // 1-5 after resolution
+  resolvedAt?: number
+}
+
+// ── Liste d'attente ───────────────────────────────
+export interface WaitlistItem {
+  id: string
+  n: string
+  c: number
+  svc: string
+  t: string
+  tel?: string
+  note?: string
+  createdAt: number
+}
+
+// ── Demande groupe ────────────────────────────────
+export interface GroupRequest {
+  id: string
+  n: string           // nom du contact
+  c: number           // couverts demandés
+  svc: string
+  date: string        // ISO
+  t: string           // heure souhaitée
+  tel?: string
+  email?: string
+  note?: string
+  mode: 'auto' | 'manuel'
+  status: 'pending' | 'accepted' | 'refused'
+  createdAt: number
+}
+
+// ── État global de l'app ───────────────────────────
+export interface AppState {
+  resas: Resa[]
+  tables: Table[]
+  combos: Combo[]
+  services: Service[]
+  salles: Salle[]
+  resto: Resto
+  options: OptionsData
+  users: User[]
+  fermetures: Fermeture[]
+  clients: Client[]
+  giftCards: GiftCard[]
+  reviews: Review[]
+  loyaltyConfig: LoyaltyConfig
+  loyaltyCards: LoyaltyCard[]
+  // Multi-site (Gastro)
+  sites: Site[]
+  activeSiteId: string | null  // null = site principal (mono-site)
+  // Navigation
+  activeDate: string  // ISO YYYY-MM-DD
+  // UI state
+  isDemo: boolean
+  userRole: UserRole
+  lang: 'fr' | 'en' | 'de' | 'it'
+}

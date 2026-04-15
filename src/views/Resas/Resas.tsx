@@ -611,10 +611,10 @@ export function Resas() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: r.nom ? 'var(--text)' : 'var(--t4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: r.nom ? 'normal' : 'italic' }}>{r.n || 'Anonyme'}</span>
                       <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center', flexShrink: 0 }}>
-                        {r.statut === 1 && <span title="Habitué" style={{ fontSize: 10 }}>🔄</span>}
+                        {r.statut === 1 && <span title={t('resa.regular')} style={{ fontSize: 10 }}>🔄</span>}
                         {r.statut === 2 && <span title="VIP" style={{ fontSize: 10 }}>⭐</span>}
-                        {r.statut === 3 && <span title="Surveillé" style={{ fontSize: 10 }}>👁</span>}
-                        {r.allergie && <span title="Allergie" style={{ fontSize: 10 }}>⚠️</span>}
+                        {r.statut === 3 && <span title={t('resa.monitored')} style={{ fontSize: 10 }}>👁</span>}
+                        {r.allergie && <span title={t('resa.allergyWarning')} style={{ fontSize: 10 }}>⚠️</span>}
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 1 }}>
@@ -673,7 +673,7 @@ export function Resas() {
                           style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(60,200,112,.3)', background: 'rgba(60,200,112,.1)', color: 'var(--gn)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>📞</a>
                       )}
                       {r.s === 'arrived' && (
-                        <button title="Libérer la table" onClick={() => setResaStatus(r.id, 'done')}
+                        <button title={t('resa.releaseTable')} onClick={() => setResaStatus(r.id, 'done')}
                           style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(60,200,112,.4)', background: 'rgba(60,200,112,.12)', color: 'var(--gn)', cursor: 'pointer', fontSize: 12 }}>🏁</button>
                       )}
                       {(r.s === 'reserved' || r.s === 'arrived') && (
@@ -681,13 +681,13 @@ export function Resas() {
                           style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(220,80,80,.4)', background: 'rgba(220,80,80,.16)', color: 'var(--rd)', cursor: 'pointer', fontSize: 12 }}>🚫</button>
                       )}
                       {r.s === 'cancelled' ? (
-                        <button title="Réactiver" onClick={() => setResaStatus(r.id, 'reserved')}
+                        <button title={t('resa.reactivate')} onClick={() => setResaStatus(r.id, 'reserved')}
                           style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(91,156,246,.4)', background: 'rgba(91,156,246,.1)', color: 'var(--bl)', cursor: 'pointer', fontSize: 11 }}>↩️</button>
                       ) : r.s === 'noshow' ? (
-                        <button title="Réactiver" onClick={() => setResaStatus(r.id, 'reserved')}
+                        <button title={t('resa.reactivate')} onClick={() => setResaStatus(r.id, 'reserved')}
                           style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(91,156,246,.4)', background: 'rgba(91,156,246,.1)', color: 'var(--bl)', cursor: 'pointer', fontSize: 11 }}>↩️</button>
                       ) : r.s !== 'done' ? (
-                        <button title="Annuler" onClick={async () => { if (await confirmAction({ title: 'Annuler la réservation', message: `Annuler la réservation de ${r.n || 'Anonyme'} (${r.c}p à ${r.t}) ?`, danger: true, confirmLabel: 'Annuler la résa' })) setResaStatus(r.id, 'cancelled') }}
+                        <button title={t('resa.cancel')} onClick={async () => { if (await confirmAction({ title: 'Annuler la réservation', message: `Annuler la réservation de ${r.n || 'Anonyme'} (${r.c}p à ${r.t}) ?`, danger: true, confirmLabel: 'Annuler la résa' })) setResaStatus(r.id, 'cancelled') }}
                           style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surf3)', color: 'var(--t4)', cursor: 'pointer', fontSize: 11 }}>✕</button>
                       ) : null}
                     </div>

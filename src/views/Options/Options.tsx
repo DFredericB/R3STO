@@ -67,6 +67,9 @@ export function Options() {
     // Automatisations
     auto_confirm: false,
     auto_noshow_flag: true,
+    auto_noshow_delay_mins: 30,
+    auto_noshow_email_client: true,
+    auto_cancel_email_client: true,
     auto_cancel_noreply: false,
     auto_confirm_delay: 0,
 
@@ -598,10 +601,13 @@ export function Options() {
             <div className="card">
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>⚡ Automatisations</div>
               <Toggle label="Confirmation automatique" desc="Réservations confirmées instantanément sans validation" keyName="auto_confirm" />
-              <Toggle label="Marquage auto no-show" desc="Après 15 min sans arrivée confirmée" keyName="auto_noshow_flag" />
+              <Toggle label="Marquage auto no-show" desc="Bascule la résa en no-show et libère la table après le délai ci-dessous" keyName="auto_noshow_flag" />
+              <Toggle label="Email client lors d'un no-show" desc="Notifie automatiquement le client que sa réservation a été marquée no-show" keyName="auto_noshow_email_client" />
+              <Toggle label="Email client lors d'une annulation" desc="Notifie automatiquement le client de l'annulation de sa réservation" keyName="auto_cancel_email_client" />
               <Toggle label="Annulation si pas de réponse" desc="Si le client ne confirme pas dans les 24h" keyName="auto_cancel_noreply" />
-              <div style={{ marginTop: 10 }}>
+              <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
                 <NumField label="Délai confirmation auto" keyName="auto_confirm_delay" min={0} max={120} unit="min" />
+                <NumField label="Délai avant no-show auto" keyName="auto_noshow_delay_mins" min={5} max={180} unit="min" />
               </div>
             </div>
 

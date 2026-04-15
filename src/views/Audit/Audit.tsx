@@ -79,11 +79,14 @@ export function Audit() {
       detail: `${clients.length} ${t('audit.ficheClient')}`,
       severity: clients.length > 0 ? 'ok' : 'warn',
     })
+    // R3STO concept : auto-assign systématique → ce check est désormais une
+    // garde d'intégrité système (doit toujours être 0). Si > 0 c'est un bug
+    // dans le flow de création de résa, à fix côté API/store, pas une action resto.
     const orphanResas = resas.filter(r => !r.tbl || r.tbl === '—').length
     list.push({
-      id: 'd3', category: 'data', label: t('audit.resaSansTable'),
-      detail: orphanResas === 0 ? t('audit.toutesAssign') : `${orphanResas} ${t('audit.aAssigner')}`,
-      severity: orphanResas === 0 ? 'ok' : orphanResas > 5 ? 'err' : 'warn',
+      id: 'd3', category: 'data', label: t('audit.integrityAutoAssign'),
+      detail: orphanResas === 0 ? t('audit.integrityOk') : `${orphanResas} ${t('audit.integrityBugDetected')}`,
+      severity: orphanResas === 0 ? 'ok' : 'err',
     })
 
     // TABLES

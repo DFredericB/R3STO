@@ -60,12 +60,12 @@ export const NAV_GROUPS: Record<NavGroupKey, string> = {
  */
 export const NAV_ITEMS: NavItem[] = [
   // ── RÉSERVATIONS ──
-  { path: '/dashboard',     icon: '🏠', labelKey: 'nav.dashboard',     badge: 'count',    groupKey: 'reservations' },
+  { path: '/dashboard',     icon: '📊', labelKey: 'nav.dashboard',     badge: 'count',    groupKey: 'reservations' },
   { path: '/agenda',        icon: '📅', labelKey: 'nav.agenda',                          groupKey: 'reservations' },
   { path: '/reservations',  icon: '📖', labelKey: 'nav.journal',                         groupKey: 'reservations' },
   { path: '/plan',          icon: '🗺️', labelKey: 'nav.floorplan',                       groupKey: 'reservations', minPlan: 'resto' },
   { path: '/grille',        icon: '🔲', labelKey: 'nav.grid',                            groupKey: 'reservations' },
-  { path: '/nouvelle-resa', icon: '➕', labelKey: 'nav.nouvelleResa',                    groupKey: 'reservations' },
+  { path: '/nouvelle-resa', icon: '⚡', labelKey: 'nav.nouvelleResa',                    groupKey: 'reservations' },
   { path: '/waitlist',      icon: '⏳', labelKey: 'nav.waitlist',      badge: 'waitlist', groupKey: 'reservations', minPlan: 'resto' },
   { path: '/groupes',       icon: '👥', labelKey: 'nav.groups',        badge: 'pending',  groupKey: 'reservations', minPlan: 'resto' },
 

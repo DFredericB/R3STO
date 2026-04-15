@@ -21,9 +21,9 @@ const LINKS: ShowcaseLink[] = [
   { label: 'Addition QR',    icon: '🧾', url: 'https://bill.r3sto.ch/?demo=1',                    tag: 'Bill',    color: '#1a9e6e' },
   { label: 'Delivery',       icon: '🛵', url: 'https://delivery.r3sto.ch/?demo=1',                tag: 'Delivery',color: '#dc5050' },
   { label: 'Marketplace',    icon: '🏪', url: 'https://r3sto.ch/restaurants/?demo=1',             tag: 'Public',  color: '#7c5cbe' },
-  { label: 'Le Petit Bœuf',  icon: '🥩', url: 'https://demo.r3sto.ch/lepetitboeuf/?demo=1',       tag: 'Vitrine', color: '#c8a050' },
-  { label: 'Comptoir du Lac',icon: '🌊', url: 'https://demo.r3sto.ch/lecomptoirdulac/?demo=1',    tag: 'Vitrine', color: '#3b7ca8' },
-  { label: 'Le Gourmet',     icon: '⭐', url: 'https://demo.r3sto.ch/legourmet/?demo=1',          tag: 'Vitrine', color: '#a08050' },
+  { label: "Bunny's Lausanne", icon: '🐰', url: 'https://demo.r3sto.ch/chezbunnys-lausanne/', tag: 'Vitrine', color: '#e89420' },
+  { label: "Bunny's Bern",     icon: '🥨', url: 'https://demo.r3sto.ch/chezbunnys-bern/',     tag: 'Vitrine', color: '#b85a3c' },
+  { label: "Bunny's Zürich",   icon: '🍷', url: 'https://demo.r3sto.ch/chezbunnys-zurich/',   tag: 'Vitrine', color: '#3b7ca8' },
 ]
 
 export function DemoShowcaseBar() {

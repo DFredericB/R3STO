@@ -1,0 +1,80 @@
+{
+  "name": "Chez Bunny's — Zürich",
+  "slug": "chezbunnys-zurich",
+  "tagline": "Cuisine signature & cave d'exception",
+  "cuisine": "Gastronomique moderne",
+  "description": "Chez Bunny's Zürich incarne la gastronomie contemporaine à la Bahnhofstrasse. Le chef signe une cuisine créative qui marie produits d'exception, techniques précises et mise en scène élégante. Cave à vins de 600 références, salon principal épuré et salle privée pour vos événements. Une adresse d'exception au cœur de Zürich.",
+  "primaryColor": "#3b7ca8",
+  "theme": "dark",
+  "phone": "+41 44 555 00 00",
+  "email": "zurich@chez-bunnys.ch",
+  "address": "Bahnhofstrasse 88, 8001 Zürich",
+  "website": "https://chezbunnys-zurich.ch",
+  "hours": [
+    { "day": "Sonntag", "status": "Geschlossen" },
+    { "day": "Montag", "status": "Geschlossen" },
+    { "day": "Dienstag – Freitag", "lunch": "12:00 – 14:00", "dinner": "19:00 – 23:00" },
+    { "day": "Samstag", "lunch": "", "dinner": "19:00 – 23:30" }
+  ],
+  "menu": [
+    {
+      "category": "Amuse-Bouche",
+      "items": [
+        { "name": "Signature Bunny's", "price": 0, "desc": "Offert — selon inspiration du chef" }
+      ]
+    },
+    {
+      "category": "Entrées",
+      "items": [
+        { "name": "Langoustines de Norvège", "price": 38, "desc": "Consommé de carapaces, caviar Osciètre, coriandre" },
+        { "name": "Foie gras de canard mi-cuit", "price": 34, "desc": "Coing, pain d'épices, Gewürztraminer en gelée" },
+        { "name": "Saint-Jacques de Normandie", "price": 36, "desc": "Topinambour, truffe noire Mélanosporum, noisette" },
+        { "name": "Tartare de bœuf Wagyu", "price": 42, "desc": "Couteaux du moment, huile de truffe blanche, jaune confit" }
+      ]
+    },
+    {
+      "category": "Poissons",
+      "items": [
+        { "name": "Omble chevalier du Léman", "price": 48, "desc": "Peau croustillante, beurre blanc au yuzu, fenouil braisé" },
+        { "name": "Turbot de ligne", "price": 58, "desc": "Rôti sur l'arête, sauce champagne, asperges vertes" },
+        { "name": "Homard bleu breton", "price": 72, "desc": "Flambé au cognac, bisque onctueuse, riz vénéré" }
+      ]
+    },
+    {
+      "category": "Viandes",
+      "items": [
+        { "name": "Filet de bœuf Angus Black", "price": 62, "desc": "Moelle rôtie, pommes soufflées, jus corsé au Barolo" },
+        { "name": "Pigeonneau de Bresse", "price": 68, "desc": "Cuisses confites, cerises griottes, pommes Anna" },
+        { "name": "Ris de veau croustillant", "price": 54, "desc": "Morilles, vin jaune, purée à la truffe" },
+        { "name": "Agneau de lait des Pyrénées", "price": 56, "desc": "Selle rôtie, légumes glacés, jus à l'ail noir" }
+      ]
+    },
+    {
+      "category": "Menu Signature",
+      "items": [
+        { "name": "Menu Bunny's — 5 services", "price": 145, "desc": "Création du chef, à partager à table entière" },
+        { "name": "Menu Bunny's — 7 services", "price": 185, "desc": "Dégustation complète, accord mets-vins +95 CHF" }
+      ]
+    },
+    {
+      "category": "Desserts",
+      "items": [
+        { "name": "Soufflé au chocolat Grand Cru", "price": 22, "desc": "Valrhona 70%, glace à la fleur de sel" },
+        { "name": "Pavlova fruits exotiques", "price": 18, "desc": "Meringue croquante, mangue, passion, combava" },
+        { "name": "Millefeuille vanille Tahiti", "price": 19, "desc": "Feuilletage caramélisé, crème légère, éclats d'or" },
+        { "name": "Fromages affinés", "price": 24, "desc": "Sélection de 5 fromages, confiture de coings, pain aux noix" }
+      ]
+    }
+  ],
+  "reviews": [
+    { "name": "Dr. M. Keller", "rating": 5, "text": "Une adresse d'exception. Service impeccable, produits remarquables, cave extraordinaire.", "date": "2026-04-08" },
+    { "name": "Claudia W.", "rating": 5, "text": "Menu signature 7 services : inoubliable. Chaque plat raconte une histoire.", "date": "2026-03-25" },
+    { "name": "Stefan B.", "rating": 4, "text": "Haute gastronomie dans un cadre épuré. Prix à la hauteur mais totalement justifiés.", "date": "2026-03-12" },
+    { "name": "Nathalie R.", "rating": 5, "text": "Pigeonneau de Bresse parfait. Accord mets-vins magistral. On reviendra.", "date": "2026-03-01" }
+  ],
+  "bookingUrl": "https://booking.r3sto.ch/chez-bunnys-zurich",
+  "socialMedia": {
+    "instagram": "https://instagram.com/chezbunnys.zurich",
+    "facebook": "https://facebook.com/chezbunnys.zurich"
+  }
+}

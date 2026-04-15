@@ -35,47 +35,15 @@ function daysInMonth(year: number, month: number) {
 }
 
 // ── StatCard ─────────────────────────────────────
-function StatCard({ label, value, valueSecondary, pct, sub, color = 'var(--bl)', dotColor }: {
-  label: string; value: string | number; valueSecondary?: string | number; pct?: number; sub?: string; color?: string; dotColor?: string
+function StatCard({ label, value, sub, color = 'var(--bl)' }: {
+  label: string; value: string | number; sub?: string; color?: string
 }) {
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <div style={{ ...sectionTitle, display: 'flex', alignItems: 'center', gap: 6 }}>
-        {dotColor && <span style={{ width: 8, height: 8, borderRadius: '50%', background: dotColor, flexShrink: 0 }} />}
-        <span>{label}</span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 28, fontWeight: 900, color, fontFamily: 'var(--fm)', letterSpacing: '-.02em', lineHeight: 1 }}>
-          {value}{valueSecondary !== undefined && <span style={{ color: 'var(--t4)', fontWeight: 700 }}>/{valueSecondary}</span>}
-        </span>
-        {pct !== undefined && (
-          <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--t2)', fontFamily: 'var(--fm)' }}>{pct}%</span>
-        )}
-      </div>
+      <div style={{ ...sectionTitle }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 900, color, fontFamily: 'var(--fm)', letterSpacing: '-.02em' }}>{value}</div>
       {sub && <div style={{ fontSize: 11, color: 'var(--t3)' }}>{sub}</div>}
     </div>
-  )
-}
-
-// ── AttentionCard XL ─────────────────────────────
-function AttentionCard({ icon, label, value, sub, color, bg, border, onClick }: {
-  icon: string; label: string; value: number | string; sub: string; color: string; bg: string; border: string; onClick?: () => void
-}) {
-  return (
-    <button onClick={onClick} style={{
-      textAlign: 'left', cursor: onClick ? 'pointer' : 'default',
-      display: 'flex', flexDirection: 'column', gap: 4,
-      padding: '12px 14px', borderRadius: 10,
-      background: bg, border: `1px solid ${border}`,
-      fontFamily: 'var(--ff)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 20 }}>{icon}</span>
-        <span style={{ fontSize: 11, fontWeight: 800, color, textTransform: 'uppercase', letterSpacing: '.04em' }}>{label}</span>
-      </div>
-      <div style={{ fontSize: 26, fontWeight: 900, color, fontFamily: 'var(--fm)', lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--t3)' }}>{sub}</div>
-    </button>
   )
 }
 
@@ -122,10 +90,6 @@ export function Dashboard() {
 
   // ── Période d'analyse ──────────────────────────
   const [period, setPeriod] = useState<PeriodKey>('day')
-  const [direction, setDirection] = useState<'past' | 'future'>('past')
-  const [mealSlot, setMealSlot] = useState<'service' | 'midi' | 'soir' | 'jour'>('midi')
-  const slotColor = mealSlot === 'midi' ? '#f5c518' : mealSlot === 'soir' ? '#4a7fd6' : mealSlot === 'jour' ? 'var(--gn)' : 'var(--bl)'
-  void direction // TODO Phase2: filtrer past/future
   const now = new Date()
   const [selMonth, setSelMonth] = useState(now.getMonth())
   const [selYear, setSelYear] = useState(now.getFullYear())
@@ -437,14 +401,10 @@ export function Dashboard() {
               <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--fm)' }}>🚫 {blockedTables}</span>
             </>)}
           </div>
-        </div>
-
-        {/* ── 4 AttentionCards XL ── */}
-        <div style={{ padding: '10px 18px 6px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-          <AttentionCard icon="⭐" label="VIP" value={vips.length} sub={vips.length > 0 ? `${vips.length} client${vips.length > 1 ? 's' : ''} prioritaire${vips.length > 1 ? 's' : ''}` : 'Aucun VIP du jour'} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" onClick={() => navigate('/reservations')} />
-          <AttentionCard icon="⚠️" label="Allergies" value={allergies.length} sub={allergies.length > 0 ? 'Vigilance cuisine' : 'Aucune allergie signalée'} color="var(--am)" bg="var(--ap)" border="var(--ab)" onClick={() => navigate('/reservations')} />
-          <AttentionCard icon="👶" label="Bébés" value={babies} sub={babies > 0 ? `${babies} chaise${babies > 1 ? 's' : ''} haute${babies > 1 ? 's' : ''}` : 'Aucun bébé'} color="#06b6d4" bg="rgba(6,182,212,.08)" border="rgba(6,182,212,.25)" onClick={() => navigate('/reservations')} />
-          <AttentionCard icon="♿" label="PMR" value={pmrs} sub={pmrs > 0 ? 'Accès adapté requis' : 'Aucun PMR'} color="#a855f7" bg="rgba(168,85,247,.08)" border="rgba(168,85,247,.25)" onClick={() => navigate('/reservations')} />
+          {vips.length > 0 && <BadgePill icon="⭐" label={`${vips.length} ${t('dash.vips')}`} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" onClick={() => navigate('/reservations')} />}
+          {allergies.length > 0 && <BadgePill icon="⚠️" label={`${allergies.length} ${t('dash.allergies')}`} color="var(--am)" bg="var(--ap)" border="var(--ab)" onClick={() => navigate('/reservations')} />}
+          {babies > 0 && <BadgePill icon="👶" label={`${babies} ${t('dash.babies')}`} color="var(--t2)" bg="var(--surf3)" border="var(--border)" onClick={() => navigate('/reservations')} />}
+          {pmrs > 0 && <BadgePill icon="♿" label={`${pmrs} ${t('dash.pmr')}`} color="var(--t2)" bg="var(--surf3)" border="var(--border)" onClick={() => navigate('/reservations')} />}
         </div>
 
         {/* ── ANALYSE — sélecteur de période bien visible ── */}
@@ -454,36 +414,6 @@ export function Dashboard() {
           background: 'var(--surf)',
         }}>
           <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>📈 Analyse</span>
-          {/* Passé / Futur */}
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center', borderRight: '1px solid var(--border)', paddingRight: 10, marginRight: 4 }}>
-            <button onClick={() => setDirection('past')}
-              style={{ ...filterChip(direction === 'past'), fontSize: 11, padding: '5px 12px' }}>
-              Passé
-            </button>
-            <button onClick={() => setDirection('future')}
-              style={{ ...filterChip(direction === 'future'), fontSize: 11, padding: '5px 12px' }}>
-              Futur
-            </button>
-          </div>
-          {/* Service / Midi / Soir / Jour */}
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center', borderRight: '1px solid var(--border)', paddingRight: 10, marginRight: 4 }}>
-            <button onClick={() => setMealSlot('service')}
-              style={{ ...filterChip(mealSlot === 'service'), fontSize: 11, padding: '5px 12px' }}>
-              Service
-            </button>
-            <button onClick={() => setMealSlot('midi')}
-              style={{ ...filterChip(mealSlot === 'midi'), fontSize: 11, padding: '5px 12px' }}>
-              ☀ Midi
-            </button>
-            <button onClick={() => setMealSlot('soir')}
-              style={{ ...filterChip(mealSlot === 'soir'), fontSize: 11, padding: '5px 12px' }}>
-              🌙 Soir
-            </button>
-            <button onClick={() => setMealSlot('jour')}
-              style={{ ...filterChip(mealSlot === 'jour'), fontSize: 11, padding: '5px 12px' }}>
-              Jour
-            </button>
-          </div>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             {PERIODS.map(p => (
               <button key={p.key} onClick={() => setPeriod(p.key)}
@@ -539,11 +469,11 @@ export function Dashboard() {
         {/* ── KPIs période ── */}
         <div style={{ padding: '12px 18px 14px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
-            <StatCard label={`Résas (${pTag})`} value={pResas} valueSecondary={pTotal} pct={pTotal > 0 ? Math.round(pResas / pTotal * 100) : 0} sub={`${avgResaPerDay}/jour en moy.`} color="var(--bl)" dotColor={slotColor} />
-            <StatCard label={`Couverts (${pTag})`} value={pCvt} pct={activeTables.length > 0 && numDaysInPeriod > 0 ? Math.round(pCvt / (activeTables.reduce((s, tb) => s + tb.capMax, 0) * numDaysInPeriod) * 100) : 0} sub={`${avgCvtPerResa} cvt/résa`} color="var(--gn)" dotColor={slotColor} />
-            <StatCard label={`Remplissage (${pTag})`} value={period === 'day' ? occTables : pResas} valueSecondary={period === 'day' ? activeTables.length : activeTables.length * numDaysInPeriod} pct={period === 'day' ? (activeTables.length > 0 ? Math.round(occTables / activeTables.length * 100) : 0) : (activeTables.length > 0 && numDaysInPeriod > 0 ? Math.min(100, Math.round(pResas / (activeTables.length * numDaysInPeriod) * 100)) : 0)} sub={period === 'day' ? `${activeTables.length} tables actives` : `${numDaysInPeriod > 0 ? (pResas / numDaysInPeriod).toFixed(0) : 0} résas/jour`} color={period === 'day' ? (occTables >= activeTables.length ? '#ef4444' : occTables >= activeTables.length * 0.7 ? '#f59e0b' : 'var(--gn)') : 'var(--bl)'} dotColor={slotColor} />
-            <StatCard label={`No-shows (${pTag})`} value={pNS} valueSecondary={pTotal} pct={noshowRate} sub={`Taux : ${noshowRate}%`} color={noshowRate > 10 ? '#ef4444' : noshowRate > 5 ? '#f59e0b' : 'var(--gn)'} dotColor={slotColor} />
-            <StatCard label={`Annulations (${pTag})`} value={pCancelled} valueSecondary={pTotal} pct={pTotal > 0 ? Math.round(pCancelled / pTotal * 100) : 0} sub={`sur ${pTotal} résas`} color="var(--t3)" dotColor={slotColor} />
+            <StatCard label={`Résas (${pTag})`} value={pResas} sub={`${avgResaPerDay}/jour en moy.`} color="var(--bl)" />
+            <StatCard label={`Couverts (${pTag})`} value={pCvt} sub={`${avgCvtPerResa} cvt/résa`} color="var(--gn)" />
+            <StatCard label={`Remplissage (${pTag})`} value={period === 'day' ? `${occTables}/${activeTables.length}` : `${pResas > 0 ? Math.min(100, Math.round(pResas / (activeTables.length * numDaysInPeriod) * 100)) : 0}%`} sub={period === 'day' ? `${activeTables.length} tables actives` : `${numDaysInPeriod > 0 ? (pResas / numDaysInPeriod).toFixed(0) : 0} résas/jour · ${activeTables.length} tables`} color={period === 'day' ? (occTables >= activeTables.length ? 'var(--rd)' : occTables >= activeTables.length * 0.7 ? 'var(--am)' : 'var(--gn)') : 'var(--bl)'} />
+            <StatCard label={`No-shows (${pTag})`} value={pNS} sub={`Taux : ${noshowRate}%`} color={noshowRate > 10 ? 'var(--rd)' : noshowRate > 5 ? 'var(--am)' : 'var(--gn)'} />
+            <StatCard label={`Annulations (${pTag})`} value={pCancelled} sub={`sur ${pTotal} résas`} color="var(--t3)" />
           </div>
         </div>
 

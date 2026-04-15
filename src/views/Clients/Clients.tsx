@@ -304,7 +304,7 @@ export function Clients() {
             </button>
           </div>
           <input
-            type="text" placeholder="🔍 Rechercher nom, tél, email, tag…"
+            type="text" placeholder={t('clients.searchPlaceholder')}
             value={search} onChange={e => setSearch(e.target.value)}
             style={{ ...inp, fontSize: 12, padding: '6px 10px' }}
           />
@@ -502,7 +502,7 @@ export function Clients() {
               </div>
               <div>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Prénom</label>
-                <input value={fPrenom} onChange={e => setFPrenom(e.target.value)} style={inp} placeholder="Prénom" />
+                <input value={fPrenom} onChange={e => setFPrenom(e.target.value)} style={inp} placeholder={t('clients.firstNamePlaceholder')} />
               </div>
               <div>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Téléphone</label>
@@ -514,7 +514,7 @@ export function Clients() {
               </div>
               <div>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Entreprise</label>
-                <input value={fEntreprise} onChange={e => setFEntreprise(e.target.value)} style={inp} placeholder="Société" />
+                <input value={fEntreprise} onChange={e => setFEntreprise(e.target.value)} style={inp} placeholder={t('clients.companyPlaceholder')} />
               </div>
               <div>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Langue</label>
@@ -644,7 +644,7 @@ export function Clients() {
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={{ fontSize: 10, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: .5 }}>Notes internes</label>
                 <textarea value={fNotes} onChange={e => setFNotes(e.target.value)} rows={3}
-                  style={{ ...inp, resize: 'vertical' }} placeholder="Préférences, remarques…" />
+                  style={{ ...inp, resize: 'vertical' }} placeholder={t('clients.notesPlaceholder')} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>

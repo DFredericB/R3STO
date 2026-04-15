@@ -885,28 +885,25 @@ export function NouvelleResa() {
                     </div>
                   </>
                 ) : selCvt > 0 && selSlot ? (
+                  // R3STO concept : auto-assign systématique. Pas de "Réserver sans table".
+                  // Si aucune table n'est dispo → la mettre en waitlist proprement.
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                    <button
-                      onClick={() => openModal(t('modal.toAssign'))}
-                      style={{
-                        padding: '10px 28px', borderRadius: 10,
-                        border: `2px dashed rgba(168,85,247,.4)`,
-                        background: 'rgba(168,85,247,.06)',
-                        color: '#a855f7', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: S.ff,
-                      }}
-                    >📝 Réserver sans table</button>
-                    <button
-                      onClick={() => quickReserve(t('modal.toAssign'))}
-                      style={{
-                        padding: '4px 14px', borderRadius: 7, border: 'none',
-                        background: 'transparent', color: S.t3,
-                        fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: S.ff,
-                        textDecoration: 'underline', opacity: .7,
-                      }}
-                    >sans détails (Anonyme)</button>
-                    <div style={{ fontSize: 10, color: S.t3, marginTop: 2 }}>
-                      Table assignée plus tard
+                    <div style={{
+                      padding: '10px 16px', borderRadius: 10,
+                      border: '1px dashed var(--border)', background: 'var(--surf3)',
+                      color: 'var(--t2)', fontSize: 12, fontWeight: 600, fontFamily: S.ff,
+                      textAlign: 'center', maxWidth: 280,
+                    }}>
+                      {t('nouvelleResa.pickTableHint') || 'Sélectionnez une table compatible dans le plan ci-dessus'}
                     </div>
+                    <button
+                      onClick={() => openModal('waitlist')}
+                      style={{
+                        padding: '6px 16px', borderRadius: 8, border: '1px solid rgba(232,165,48,.4)',
+                        background: 'rgba(232,165,48,.08)', color: '#e8a530',
+                        fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: S.ff,
+                      }}
+                    >⏳ {t('nouvelleResa.addToWaitlist') || 'Mettre en liste d\'attente'}</button>
                   </div>
                 ) : null}
               </div>

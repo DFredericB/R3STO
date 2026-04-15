@@ -161,12 +161,32 @@ export const TABLE_STATE: Record<TableStateKey, TableStateMeta> = {
   },
   combo: {
     label: 'table.combo', labelFr: 'Combo', icon: '🔗',
-    color: 'var(--pu)', hex: '#9060e0',
-    fill: 'rgba(144,96,224,.30)',
-    bg: 'rgba(144,96,224,.10)',
-    border: 'rgba(144,96,224,.55)',
+    color: '#06b6d4', hex: '#06b6d4',
+    fill: 'rgba(6,182,212,.22)',
+    bg: 'rgba(6,182,212,.10)',
+    border: 'rgba(6,182,212,.55)',
   },
 }
+
+// ── Modes d'attribution (IA vs Manuel) ──────────
+export const MODE_COLORS = {
+  ia: {
+    label: 'IA', labelFr: 'IA', icon: '🤖',
+    color: '#a855f7', hex: '#a855f7',
+    fill: 'rgba(168,85,247,.15)',
+    bg: 'rgba(168,85,247,.08)',
+    border: 'rgba(168,85,247,.55)',
+    gradient: 'linear-gradient(135deg,#6b3fa0,#a855f7)',
+  },
+  manuel: {
+    label: 'Manu', labelFr: 'Manuel', icon: '✋',
+    color: '#e87b20', hex: '#e87b20',
+    fill: 'rgba(232,123,32,.15)',
+    bg: 'rgba(232,123,32,.08)',
+    border: 'rgba(232,123,32,.55)',
+    gradient: 'linear-gradient(135deg,#c4500a,#e87b20)',
+  },
+} as const
 
 /**
  * Dérive l'état visuel d'une table depuis son état fonctionnel.

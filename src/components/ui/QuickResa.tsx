@@ -11,7 +11,7 @@ import { useAppStore, isDoubleBooked } from '../../store/useAppStore'
 import { useToast } from '../ui/Toast'
 import PhoneInput, { toE164 } from '../ui/PhoneInput'
 import { useT } from '../../i18n/useTranslation'
-import { TABLE_STATE } from '../../utils/design'
+import { TABLE_STATE, MODE_COLORS } from '../../utils/design'
 import type { Resa } from '../../types'
 
 function todayISO(): string {
@@ -272,6 +272,10 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
     if (!slot) { toast(t('modal.selectSlot'), 'error'); return }
     if (!svc) { toast(t('modal.selectService'), 'error'); return }
     const finalTbl = modeIA ? (suggestedTable || '') : (manualTable || '')
+    if (!finalTbl) {
+      toast(modeIA ? '⚠️ Aucune table dispo · résa en liste d\'attente' : '⚠️ Sélectionnez une table (mode manuel)', modeIA ? 'info' : 'error')
+      if (!modeIA) return
+    }
     const newResa: Resa = {
       id: 'r' + Date.now(), n: nom.trim(), nom: nom.trim(), prenom: '',
       c: cvt, tbl: finalTbl, t: slot, svc, s: finalTbl ? 'reserved' : 'waitlist', note: '', date: activeDate,
@@ -297,7 +301,9 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
   }
 
   const nowM = new Date().getHours() * 60 + new Date().getMinutes()
-  const nextSlots = slots.filter(s => timeToMins(s) >= nowM - 15).slice(0, 5)
+  const nextSlots = isToday
+    ? slots.filter(s => timeToMins(s) >= nowM - 15).slice(0, 5)
+    : slots.slice(0, 5)
   if (nextSlots.length === 0 && slots.length > 0) nextSlots.push(...slots.slice(-5))
 
   // ── Styles proto ──
@@ -515,6 +521,8 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
 
             {/* Popup stepper 7+ (style proto .cvt-popup) */}
             {showCvtPop && (
+              <>
+              <div onClick={() => setShowCvtPop(false)} style={{ position: 'fixed', inset: 0, zIndex: 199, background: 'transparent' }} />
               <div style={{
                 position: 'absolute', zIndex: 200, top: '100%', left: '50%', transform: 'translateX(-50%)',
                 marginTop: 4,
@@ -551,6 +559,7 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
                   }}>Valider</button>
                 </div>
               </div>
+              </>
             )}
           </div>
         </div>
@@ -611,8 +620,11 @@ export function QuickResa({ onOpenFullModal }: QuickResaProps) {
               const isSelected = slot === s
               const data = availability.slotSaturation[s]
               const fillPct = data ? Math.min(data.ratio * 100, 100) : 0
+              const isPast = isToday && timeToMins(s) < nowM
               return (
-                <button key={s} onClick={() => setSlot(s)} style={{
+                <button key={s} onClick={() => { if (!isPast) setSlot(s) }} disabled={isPast} style={{
+                  opacity: isPast ? .35 : 1,
+                  pointerEvents: isPast ? 'none' : 'auto',
                   padding: '6px 10px 4px', borderRadius: 6, height: 34,
                   border: `2px solid ${isSelected ? 'var(--ac, var(--bl))' : sc ? `${sc}60` : 'var(--border)'}`,
                   background: isSelected ? 'rgba(91,156,246,.15)' : 'transparent',
@@ -827,16 +839,19 @@ function TableGrid({ tables, combos, resas, activeDate, svc, cvt, salles, salleI
                   borderLeft = `5px solid ${TABLE_STATE.blocked.border}`
                   statusText = '🚫 Bloquée'; statusBg = TABLE_STATE.blocked.bg; statusColor = 'var(--muted, var(--t4))'
                 } else if (isOcc) {
-                  bg = TABLE_STATE.reserved.bg; borderLeft = `5px solid ${TABLE_STATE.reserved.border}`
+                  bg = TABLE_STATE.reserved.bg
+                  const resaFull = resas.find((r: any) => r.tbl === tb.n && r.date === activeDate && r.svc === svc)
+                  const resaMode = resaFull?.mode
+                  const modeBorder = resaMode === 'ia' ? MODE_COLORS.ia.border : resaMode === 'manuel' ? MODE_COLORS.manuel.border : TABLE_STATE.reserved.border
+                  borderLeft = `5px solid ${modeBorder}`
                   nameColor = '#3b82f6'; boxShadow = `inset 0 0 0 1px ${TABLE_STATE.reserved.border}`
                   statusText = resa ? `${resa.n} · ${resa.c}p` : 'Occupée'
                   statusBg = 'rgba(59,130,246,.85)'; statusColor = '#fff'
                   if (cvt > 0) opacity = .35
                 } else if (isSuggested) {
-                  // IA suggestion — violet spécifique (pas un état de table)
-                  bg = 'rgba(168,85,247,.15)'; borderLeft = '5px solid rgba(168,85,247,.85)'
-                  nameColor = '#a855f7'; boxShadow = '0 0 12px rgba(168,85,247,.3)'
-                  statusText = '🤖 IA →'; statusBg = 'rgba(168,85,247,.85)'; statusColor = '#fff'
+                  bg = MODE_COLORS.ia.fill; borderLeft = `5px solid ${MODE_COLORS.ia.border}`
+                  nameColor = MODE_COLORS.ia.color; boxShadow = `0 0 12px ${MODE_COLORS.ia.bg}`
+                  statusText = `${MODE_COLORS.ia.icon} IA →`; statusBg = MODE_COLORS.ia.border; statusColor = '#fff'
                   cursor = 'pointer'
                 } else if (fits) {
                   bg = TABLE_STATE.free.fill; borderLeft = `5px solid ${TABLE_STATE.free.border}`
@@ -863,11 +878,11 @@ function TableGrid({ tables, combos, resas, activeDate, svc, cvt, salles, salleI
                     <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', marginBottom: 2, color: nameColor }}>
                       {tb.n}
                     </div>
-                    <div style={{ fontSize: 9, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>
-                      {tb.capMin}–{tb.capMax} cvt
+                    <div style={{ fontSize: 10, color: 'var(--t3)', fontFamily: 'var(--fm)', fontWeight: 700 }}>
+                      {tb.capMax}p
                     </div>
                     {/* Shape icon */}
-                    <span style={{ fontSize: 14, position: 'absolute', top: 8, right: 8, opacity: .15 }}>
+                    <span style={{ fontSize: 18, position: 'absolute', top: 6, right: 8, opacity: .4, color: nameColor }}>
                       {SHAPE_SYM[tb.shape] || '◻'}
                     </span>
                     {/* Status badge */}
@@ -892,8 +907,8 @@ function TableGrid({ tables, combos, resas, activeDate, svc, cvt, salles, salleI
                     gridColumn: 'span 2',
                     display: 'flex', alignItems: 'stretch', gap: 0,
                     position: 'relative', borderRadius: 13,
-                    background: 'rgba(144,96,224,.12)', border: '2px solid rgba(144,96,224,.50)',
-                    overflow: 'hidden', borderLeft: '5px solid rgba(144,96,224,.85)',
+                    background: 'rgba(6,182,212,.15)', border: '2px solid rgba(6,182,212,.50)',
+                    overflow: 'hidden', borderLeft: '5px solid rgba(6,182,212,.85)',
                     cursor: 'pointer', transition: '.2s',
                   }}
                 >
@@ -905,11 +920,11 @@ function TableGrid({ tables, combos, resas, activeDate, svc, cvt, salles, salleI
                         flex: 1, padding: 10, background: 'transparent',
                         borderRadius: i === 0 ? '11px 0 0 11px' : i === c.tables.length - 1 ? '0 11px 11px 0' : 0,
                       }}>
-                        <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: '#a855f7', marginBottom: 2 }}>
+                        <div style={{ fontSize: 14, fontWeight: 900, fontFamily: 'var(--fm)', color: '#06b6d4', marginBottom: 2 }}>
                           {tb.n}
                         </div>
-                        <div style={{ fontSize: 9, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>
-                          {tb.capMin}–{tb.capMax} cvt
+                        <div style={{ fontSize: 10, color: 'var(--t3)', fontFamily: 'var(--fm)', fontWeight: 700 }}>
+                          {tb.capMax}p
                         </div>
                       </div>
                     )
@@ -917,11 +932,11 @@ function TableGrid({ tables, combos, resas, activeDate, svc, cvt, salles, salleI
                   {/* Combo link info */}
                   <div style={{
                     position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-                    fontSize: 9, fontWeight: 800, color: '#a855f7',
-                    background: 'rgba(144,96,224,.2)', padding: '2px 8px', borderRadius: 6,
+                    fontSize: 10, fontWeight: 800, color: '#06b6d4',
+                    background: 'rgba(6,182,212,.2)', padding: '2px 8px', borderRadius: 6,
                     whiteSpace: 'nowrap',
                   }}>
-                    Combo {c.label} · {c.cap}p
+                    🔗 {c.label} · {c.cap}p
                   </div>
                 </div>
               ))}

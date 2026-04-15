@@ -6,10 +6,11 @@
 
 import type { Resa } from '../types'
 
+// R3STO concept : auto-assign systématique → pas d'état "non assignée".
+// Voir feedback_no_unassigned_resa.md. Le champ unassigned est retiré.
 export interface AlertCounts {
   waitlist: number      // résas en attente de confirmation
   groups: number        // groupes (≥6 couverts) non confirmés
-  unassigned: number    // résas sans table assignée (tbl vide)
   noshow: number        // no-shows du jour
   arriving: number      // résas arrivant dans les 30 prochaines minutes
 }
@@ -19,7 +20,6 @@ export function computeAlerts(resas: Resa[], date: string): AlertCounts {
 
   const waitlist = dayResas.filter(r => r.s === 'waitlist').length
   const groups = dayResas.filter(r => r.c >= 6 && (r.s === 'reserved' || r.s === 'waitlist')).length
-  const unassigned = dayResas.filter(r => (r.s === 'reserved' || r.s === 'waitlist') && !r.tbl).length
   const noshow = dayResas.filter(r => r.s === 'noshow').length
 
   // Résas arrivant dans les 30 prochaines minutes
@@ -32,5 +32,5 @@ export function computeAlerts(resas: Resa[], date: string): AlertCounts {
     return m >= nowMins && m <= nowMins + 30
   }).length
 
-  return { waitlist, groups, unassigned, noshow, arriving }
+  return { waitlist, groups, noshow, arriving }
 }

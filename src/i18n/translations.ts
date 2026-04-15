@@ -36,6 +36,9 @@ const translations: Record<string, Record<Lang, string>> = {
   'header.closeMenu': { FR: 'Réduire menu', DE: 'Menü schliessen', IT: 'Chiudi menu', EN: 'Close menu' },
   'header.lightMode': { FR: 'Mode clair', DE: 'Heller Modus', IT: 'Modo chiaro', EN: 'Light mode' },
   'header.darkMode': { FR: 'Mode sombre', DE: 'Dunkler Modus', IT: 'Modo scuro', EN: 'Dark mode' },
+  'header.fullscreen': { FR: 'Plein écran', DE: 'Vollbild', IT: 'Schermo intero', EN: 'Fullscreen' },
+  'nouvelleResa.pickTableHint': { FR: 'Sélectionnez une table compatible dans le plan ci-dessus', DE: 'Wählen Sie einen passenden Tisch im Plan oben', IT: 'Selezionare un tavolo compatibile nella piantina sopra', EN: 'Pick a compatible table in the floor plan above' },
+  'nouvelleResa.addToWaitlist': { FR: 'Mettre en liste d\'attente', DE: 'Auf Warteliste setzen', IT: 'Mettere in lista d\'attesa', EN: 'Add to waitlist' },
   'header.notifications': { FR: 'Notifications', DE: 'Benachrichtigungen', IT: 'Notifiche', EN: 'Notifications' },
   'header.profile': { FR: 'Profil', DE: 'Profil', IT: 'Profilo', EN: 'Profile' },
   'header.demoMode': { FR: 'Mode test', DE: 'Testmodus', IT: 'Modalità test', EN: 'Test mode' },
@@ -966,6 +969,10 @@ const translations: Record<string, Record<Lang, string>> = {
   'audit.resaSansTable':  { FR: 'Résas sans table assignée', DE: 'Reservierungen ohne Tisch', IT: 'Prenotazioni senza tavolo', EN: 'Reservations without table' },
   'audit.toutesAssign':   { FR: 'Toutes les résas ont une table', DE: 'Alle Reservierungen haben einen Tisch', IT: 'Tutte le prenotazioni hanno un tavolo', EN: 'All reservations have a table' },
   'audit.aAssigner':      { FR: 'résa(s) à assigner', DE: 'Reservierung(en) zuzuweisen', IT: 'prenotazione/i da assegnare', EN: 'reservation(s) to assign' },
+  // Nouvelles clés intégrité auto-assign R3STO (15 avril 2026)
+  'audit.integrityAutoAssign': { FR: 'Intégrité auto-assignation', DE: 'Auto-Zuweisung Integrität', IT: 'Integrità auto-assegnazione', EN: 'Auto-assign integrity' },
+  'audit.integrityOk':         { FR: 'Système OK — toutes les résas ont une table', DE: 'System OK — alle Reservierungen haben einen Tisch', IT: 'Sistema OK — tutte le prenotazioni hanno un tavolo', EN: 'System OK — all reservations have a table' },
+  'audit.integrityBugDetected':{ FR: 'résa(s) sans table — bug à signaler au support', DE: 'Reservierung(en) ohne Tisch — Support kontaktieren', IT: 'prenotazione/i senza tavolo — contattare il supporto', EN: 'reservation(s) without table — please contact support' },
   'audit.tablesActives':  { FR: 'Tables actives', DE: 'Aktive Tische', IT: 'Tavoli attivi', EN: 'Active tables' },
   'audit.tablesBloquees': { FR: 'Tables bloquées', DE: 'Blockierte Tische', IT: 'Tavoli bloccati', EN: 'Blocked tables' },
   'audit.aucuneBloq':     { FR: 'Aucune table bloquée', DE: 'Kein blockierter Tisch', IT: 'Nessun tavolo bloccato', EN: 'No blocked table' },
@@ -1067,8 +1074,166 @@ const translations: Record<string, Record<Lang, string>> = {
   'fid.since':            { FR: 'Depuis', DE: 'Seit', IT: 'Dal', EN: 'Since' },
   'fid.lastActivity':     { FR: 'Dernière activité', DE: 'Letzte Aktivität', IT: 'Ultima attività', EN: 'Last activity' },
   'fid.delete':           { FR: 'Supprimer', DE: 'Löschen', IT: 'Elimina', EN: 'Delete' },
+
+  // ── Communs ─────────────────────────────────────
+  'common.cancel':        { FR: 'Annuler', DE: 'Abbrechen', IT: 'Annulla', EN: 'Cancel' },
+  'common.validate':      { FR: 'Valider', DE: 'Bestätigen', IT: 'Conferma', EN: 'Validate' },
+  'common.save':          { FR: 'Enregistrer', DE: 'Speichern', IT: 'Salva', EN: 'Save' },
+  'common.edit':          { FR: 'Modifier', DE: 'Bearbeiten', IT: 'Modifica', EN: 'Edit' },
+  'common.delete':        { FR: 'Supprimer', DE: 'Löschen', IT: 'Elimina', EN: 'Delete' },
+  'common.close':         { FR: 'Fermer', DE: 'Schliessen', IT: 'Chiudi', EN: 'Close' },
+  'common.firstName':     { FR: 'Prénom', DE: 'Vorname', IT: 'Nome', EN: 'First name' },
+  'common.lastName':      { FR: 'Nom', DE: 'Nachname', IT: 'Cognome', EN: 'Last name' },
+  'common.email':         { FR: 'Email', DE: 'E-Mail', IT: 'Email', EN: 'Email' },
+  'common.phone':         { FR: 'Téléphone', DE: 'Telefon', IT: 'Telefono', EN: 'Phone' },
+  'common.role':          { FR: 'Rôle', DE: 'Rolle', IT: 'Ruolo', EN: 'Role' },
+
+  // ── Colonnes table résas ────────────────────────
+  'table.time':           { FR: 'Heure', DE: 'Zeit', IT: 'Ora', EN: 'Time' },
+  'table.client':         { FR: 'Client', DE: 'Kunde', IT: 'Cliente', EN: 'Client' },
+  'table.covers':         { FR: 'Cvt', DE: 'Pers.', IT: 'Cop.', EN: 'Pax' },
+  'table.table':          { FR: 'Table', DE: 'Tisch', IT: 'Tavolo', EN: 'Table' },
+  'table.status':         { FR: 'Statut', DE: 'Status', IT: 'Stato', EN: 'Status' },
+  'table.phone':          { FR: 'Tél', DE: 'Tel.', IT: 'Tel.', EN: 'Phone' },
+
+  // ── Actions résa ────────────────────────────────
+  'resa.regular':         { FR: 'Habitué', DE: 'Stammkunde', IT: 'Abituale', EN: 'Regular' },
+  'resa.monitored':       { FR: 'Surveillé', DE: 'Beobachtet', IT: 'Sorvegliato', EN: 'Monitored' },
+  'resa.allergyWarning':  { FR: 'Allergie', DE: 'Allergie', IT: 'Allergia', EN: 'Allergy' },
+  'resa.releaseTable':    { FR: 'Libérer la table', DE: 'Tisch freigeben', IT: 'Liberare il tavolo', EN: 'Release table' },
+  'resa.reactivate':      { FR: 'Réactiver', DE: 'Reaktivieren', IT: 'Riattivare', EN: 'Reactivate' },
+  'resa.cancel':          { FR: 'Annuler', DE: 'Stornieren', IT: 'Annullare', EN: 'Cancel' },
+
+  // ── Clients ─────────────────────────────────────
+  'clients.searchPlaceholder': { FR: '🔍 Rechercher nom, tél, email, tag…', DE: '🔍 Suche Name, Tel, E-Mail, Tag…', IT: '🔍 Cerca nome, tel, email, tag…', EN: '🔍 Search name, phone, email, tag…' },
+  'clients.firstNamePlaceholder': { FR: 'Prénom', DE: 'Vorname', IT: 'Nome', EN: 'First name' },
+  'clients.companyPlaceholder':   { FR: 'Société', DE: 'Firma', IT: 'Azienda', EN: 'Company' },
+  'clients.notesPlaceholder':     { FR: 'Préférences, remarques…', DE: 'Präferenzen, Bemerkungen…', IT: 'Preferenze, note…', EN: 'Preferences, notes…' },
+  'clients.noResultsFound':       { FR: 'Aucun client trouvé', DE: 'Kein Kunde gefunden', IT: 'Nessun cliente trovato', EN: 'No client found' },
+
+  // ── Acces / Invitations ─────────────────────────
+  'acces.inviteNamePlaceholder':  { FR: 'Prénom Nom', DE: 'Vorname Nachname', IT: 'Nome Cognome', EN: 'First Last' },
+  'acces.inviteEmailPlaceholder': { FR: 'email@restaurant.ch', DE: 'email@restaurant.ch', IT: 'email@ristorante.ch', EN: 'email@restaurant.ch' },
+  'acces.editPermissions':        { FR: 'Éditer permissions', DE: 'Berechtigungen bearbeiten', IT: 'Modifica permessi', EN: 'Edit permissions' },
+
+  // ── Auth signup ─────────────────────────────────
+  'auth.passwordMinPlaceholder':     { FR: '8 caractères minimum', DE: 'Mindestens 8 Zeichen', IT: 'Minimo 8 caratteri', EN: '8 characters minimum' },
+  'auth.passwordConfirmPlaceholder': { FR: 'Répéter', DE: 'Wiederholen', IT: 'Ripetere', EN: 'Repeat' },
+
+  // ── NouvelleResa ────────────────────────────────
+  'nouvelleResa.notesPlaceholder': { FR: 'Allergies, préférences, occasion spéciale...', DE: 'Allergien, Präferenzen, besonderer Anlass...', IT: 'Allergie, preferenze, occasione speciale...', EN: 'Allergies, preferences, special occasion...' },
+
+  // ── QuickResa ───────────────────────────────────
+  'quickResa.mode':        { FR: 'Mode', DE: 'Modus', IT: 'Modalità', EN: 'Mode' },
+  'quickResa.date':        { FR: 'Date', DE: 'Datum', IT: 'Data', EN: 'Date' },
+  'quickResa.service':     { FR: 'Service', DE: 'Service', IT: 'Servizio', EN: 'Service' },
+  'quickResa.salle':       { FR: 'Salle', DE: 'Raum', IT: 'Sala', EN: 'Room' },
+  'quickResa.covers':      { FR: 'Couverts', DE: 'Personen', IT: 'Coperti', EN: 'Covers' },
+
+  // ── Avis ────────────────────────────────────────
+  'reviews.replyPlaceholder': { FR: 'Votre réponse…', DE: 'Ihre Antwort…', IT: 'La vostra risposta…', EN: 'Your reply…' },
+  'reviews.reply':            { FR: 'Répondre', DE: 'Antworten', IT: 'Rispondere', EN: 'Reply' },
+
+  // ── CRM ─────────────────────────────────────────
+  'crm.notesPlaceholder': { FR: 'Notes sur le contact, historique, préférences...', DE: 'Notizen zum Kontakt, Verlauf, Präferenzen...', IT: 'Note sul contatto, cronologia, preferenze...', EN: 'Contact notes, history, preferences...' },
+
+  // ── Dashboard ───────────────────────────────────
+  'dashboard.backToday': { FR: "Revenir à aujourd'hui", DE: 'Zurück zu heute', IT: 'Tornare a oggi', EN: 'Back to today' },
+  'dashboard.quickResa': { FR: 'Créer une réservation en 3 secondes', DE: 'Reservierung in 3 Sekunden erstellen', IT: 'Crea una prenotazione in 3 secondi', EN: 'Create a booking in 3 seconds' },
+  'dashboard.agenda': { FR: 'Agenda', DE: 'Agenda', IT: 'Agenda', EN: 'Agenda' },
+  'dashboard.journal': { FR: 'Journal', DE: 'Reservierungen', IT: 'Prenotazioni', EN: 'Reservations' },
+  'dashboard.floorplan': { FR: 'Plan de salle', DE: 'Saalplan', IT: 'Piantina', EN: 'Floor plan' },
+  'dashboard.grid': { FR: 'Grille', DE: 'Rasterplan', IT: 'Piano griglia', EN: 'Grid plan' },
+  'dashboard.analysis': { FR: 'Analyse', DE: 'Analyse', IT: 'Analisi', EN: 'Analysis' },
+  'dashboard.past': { FR: 'Passé', DE: 'Vergangenheit', IT: 'Passato', EN: 'Past' },
+  'dashboard.future': { FR: 'Futur', DE: 'Zukunft', IT: 'Futuro', EN: 'Future' },
+  'dashboard.period.service': { FR: 'Service', DE: 'Service', IT: 'Servizio', EN: 'Service' },
+  'dashboard.period.day': { FR: 'Jour', DE: 'Tag', IT: 'Giorno', EN: 'Day' },
+  'dashboard.period.7d': { FR: '7 jours', DE: '7 Tage', IT: '7 giorni', EN: '7 days' },
+  'dashboard.period.30d': { FR: '30 jours', DE: '30 Tage', IT: '30 giorni', EN: '30 days' },
+  'dashboard.period.90d': { FR: '90 jours', DE: '90 Tage', IT: '90 giorni', EN: '90 days' },
+  'dashboard.period.year': { FR: 'Année', DE: 'Jahr', IT: 'Anno', EN: 'Year' },
+  'dashboard.period.month': { FR: 'Mois', DE: 'Monat', IT: 'Mese', EN: 'Month' },
+  'dashboard.resas': { FR: 'Résas', DE: 'Reservierungen', IT: 'Prenotazioni', EN: 'Bookings' },
+  'dashboard.couverts': { FR: 'Couverts', DE: 'Gedecke', IT: 'Coperti', EN: 'Covers' },
+  'dashboard.occupancy': { FR: 'Remplissage', DE: 'Auslastung', IT: 'Occupazione', EN: 'Occupancy' },
+  'dashboard.noshows': { FR: 'No-shows', DE: 'No-Shows', IT: 'No-show', EN: 'No-shows' },
+  'dashboard.cancellations': { FR: 'Annulations', DE: 'Stornierungen', IT: 'Annullamenti', EN: 'Cancellations' },
+  'dashboard.vip': { FR: 'VIP', DE: 'VIP', IT: 'VIP', EN: 'VIP' },
+  'dashboard.allergies': { FR: 'Allergies', DE: 'Allergien', IT: 'Allergie', EN: 'Allergies' },
+  'dashboard.babies': { FR: 'Bébés', DE: 'Babys', IT: 'Bambini', EN: 'Babies' },
+  'dashboard.pmr': { FR: 'PMR', DE: 'Behinderte', IT: 'PMR', EN: 'Accessibility' },
+  'dashboard.avgPerDay': { FR: '/jour en moy.', DE: '/Tag im Durchschnitt', IT: '/giorno in media', EN: '/day avg.' },
+  'dashboard.cvtPerResa': { FR: 'cvt/résa', DE: 'Gedecke/Reservierung', IT: 'coperti/prenotazione', EN: 'cvt/booking' },
+  'dashboard.priorityClients': { FR: 'clients prioritaires', DE: 'Prioritätskunden', IT: 'clienti prioritari', EN: 'priority clients' },
+  'dashboard.noCoverts': { FR: 'Aucune réservation', DE: 'Keine Reservierungen', IT: 'Nessuna prenotazione', EN: 'No bookings' },
+  'dashboard.activeTables': { FR: 'tables actives', DE: 'aktive Tische', IT: 'tavoli attivi', EN: 'active tables' },
+  'dashboard.calm': { FR: 'Calme', DE: 'Ruhig', IT: 'Tranquillo', EN: 'Calm' },
+  'dashboard.busy': { FR: 'Plein', DE: 'Voll', IT: 'Pieno', EN: 'Busy' },
+  'dashboard.kitchenAlert': { FR: 'Vigilance cuisine', DE: 'Küchen-Warnung', IT: 'Attenzione cucina', EN: 'Kitchen alert' },
+  'dashboard.noVipToday': { FR: 'Aucun VIP aujourd\'hui', DE: 'Keine VIPs heute', IT: 'Nessun VIP oggi', EN: 'No VIP today' },
+  'dashboard.noBabiestoday': { FR: 'Pas de bébé', DE: 'Keine Babys', IT: 'Nessun bambino', EN: 'No babies' },
+  'dashboard.noPmr': { FR: 'Pas de PMR', DE: 'Keine Behinderten', IT: 'Nessun PMR', EN: 'No accessibility' },
+  'dashboard.widget': { FR: 'widget', DE: 'Widget', IT: 'widget', EN: 'widget' },
+  'dashboard.phone': { FR: 'téléphone', DE: 'Telefon', IT: 'telefono', EN: 'phone' },
+  'dashboard.walkin': { FR: 'walkin', DE: 'Walk-in', IT: 'walk-in', EN: 'walk-in' },
+  'dashboard.email': { FR: 'email', DE: 'E-Mail', IT: 'email', EN: 'email' },
+  'dashboard.onlineWidget': { FR: 'Widget en ligne', DE: 'Online-Widget', IT: 'Widget online', EN: 'Online widget' },
+  'dashboard.sources': { FR: 'Sources', DE: 'Quellen', IT: 'Fonti', EN: 'Sources' },
+  'dashboard.topTables': { FR: 'Top tables', DE: 'Beliebte Tische', IT: 'Tavoli principali', EN: 'Top tables' },
+  'dashboard.peakHours': { FR: 'Heures de pointe', DE: 'Stoßzeiten', IT: 'Ore di punta', EN: 'Peak hours' },
+  'dashboard.lunchVsDinner': { FR: 'Midi vs Soir', DE: 'Mittag vs Abend', IT: 'Pranzo vs Cena', EN: 'Lunch vs Dinner' },
+  'dashboard.lunch': { FR: 'Midi', DE: 'Mittag', IT: 'Pranzo', EN: 'Lunch' },
+  'dashboard.dinner': { FR: 'Soir', DE: 'Abend', IT: 'Cena', EN: 'Dinner' },
+  'dashboard.noBookingsOnPeriod': { FR: 'Aucune réservation sur la période', DE: 'Keine Reservierungen im Zeitraum', IT: 'Nessuna prenotazione nel periodo', EN: 'No bookings on period' },
+  'dashboard.rate': { FR: 'Taux', DE: 'Quote', IT: 'Tasso', EN: 'Rate' },
+  'dashboard.daysAgo': { FR: 'il y a {count} jours', DE: 'vor {count} Tagen', IT: '{count} giorni fa', EN: '{count} days ago' },
+  'dashboard.today': { FR: 'Aujourd\'hui', DE: 'Heute', IT: 'Oggi', EN: 'Today' },
+  'dashboard.chairsHigh': { FR: 'chaise{plural} haute{plural}', DE: 'Hochstuhl{plural}', IT: 'seggiolone{plural}', EN: 'high chair{plural}' },
+  'dashboard.accessRequired': { FR: 'Accès adapté requis', DE: 'Angepasster Zugang erforderlich', IT: 'Accesso adattato richiesto', EN: 'Adapted access required' },
+  'dashboard.bookingsByDay': { FR: 'résas/jour', DE: 'Reservierungen/Tag', IT: 'prenotazioni/giorno', EN: 'bookings/day' },
+  'dashboard.export': { FR: 'Exporter', DE: 'Exportieren', IT: 'Esportare', EN: 'Export' },
+  'dashboard.exportPDF': { FR: 'Télécharger PDF', DE: 'PDF herunterladen', IT: 'Scarica PDF', EN: 'Download PDF' },
+  'dashboard.exportPNG': { FR: 'Télécharger PNG', DE: 'PNG herunterladen', IT: 'Scarica PNG', EN: 'Download PNG' },
+  'dashboard.downloadingExport': { FR: 'Téléchargement en cours…', DE: 'Download läuft…', IT: 'Download in corso…', EN: 'Downloading…' },
+  'dashboard.dayLabel': { FR: '{day} {date} {month} {year}', DE: '{day} {date}. {month} {year}', IT: '{day} {date} {month} {year}', EN: '{day} {date} {month} {year}' },
+  'dashboard.year': { FR: 'Année {year}', DE: 'Jahr {year}', IT: 'Anno {year}', EN: 'Year {year}' },
+  'dashboard.goodTrend': { FR: 'Tendance bonne', DE: 'Guter Trend', IT: 'Tendenza buona', EN: 'Good trend' },
+  'dashboard.okTrend': { FR: 'Tendance OK', DE: 'OK Trend', IT: 'Tendenza OK', EN: 'OK trend' },
+  'dashboard.highTrend': { FR: 'Tendance haute', DE: 'Hoher Trend', IT: 'Tendenza alta', EN: 'High trend' },
+  'dashboard.openService': { FR: 'LO {time}', DE: 'LO {time}', IT: 'LO {time}', EN: 'LO {time}' },
+  'dashboard.delta.positive': { FR: '+{delta}%', DE: '+{delta}%', IT: '+{delta}%', EN: '+{delta}%' },
+  'dashboard.delta.negative': { FR: '{delta}%', DE: '{delta}%', IT: '{delta}%', EN: '{delta}%' },
+  'dashboard.delta.same': { FR: '=', DE: '=', IT: '=', EN: '=' },
+  'dashboard.avgCovers': { FR: 'Moy. {count} cvts/jour', DE: 'Ø {count} Gedecke/Tag', IT: 'Media {count} coperti/giorno', EN: 'Avg. {count} cvts/day' },
+
+  // ── Demo bar ────────────────────────────────────
+  'demo.showBar':        { FR: 'Afficher la barre de démo', DE: 'Demo-Leiste anzeigen', IT: 'Mostra barra demo', EN: 'Show demo bar' },
+  'demo.hideBar':        { FR: 'Masquer la barre de démo', DE: 'Demo-Leiste ausblenden', IT: 'Nascondi barra demo', EN: 'Hide demo bar' },
+  'demo.subsitesAccess': { FR: 'Accès aux sous-sites de démonstration', DE: 'Zugriff auf Demo-Subsites', IT: 'Accesso ai sottosito demo', EN: 'Access demo subsites' },
+
+  // ── Options auto-noshow ─────────────────────────
+  'options.autoNoshowFlag':         { FR: 'Marquage auto no-show', DE: 'Automatische No-Show-Markierung', IT: 'Marcatura automatica no-show', EN: 'Auto no-show flag' },
+  'options.autoNoshowDelay':        { FR: 'Délai avant no-show auto', DE: 'Zeit bis Auto-No-Show', IT: 'Ritardo prima di no-show automatico', EN: 'Delay before auto no-show' },
+  'options.autoNoshowEmailClient':  { FR: 'Email client lors d\'un no-show', DE: 'Kunden-E-Mail bei No-Show', IT: 'Email cliente in caso di no-show', EN: 'Email client on no-show' },
+  'options.autoCancelEmailClient':  { FR: 'Email client lors d\'une annulation', DE: 'Kunden-E-Mail bei Stornierung', IT: 'Email cliente in caso di annullamento', EN: 'Email client on cancellation' },
 }
 
 // ── Helper arrays pour dates ─────────────────────
 const DAY_KEYS = ['day.dim','day.lun','day.mar','day.mer','day.jeu','day.ven','day.sam'] as const
-const MONTH_KEYS = ['month.jan'
+const MONTH_KEYS = ['month.jan','month.feb','month.mar','month.apr','month.may','month.jun','month.jul','month.aug','month.sep','month.oct','month.nov','month.dec'] as const
+
+export function getDays(lang: Lang): string[] {
+  return DAY_KEYS.map(k => translations[k]?.[lang] ?? translations[k]?.FR ?? k)
+}
+
+export function getMonths(lang: Lang): string[] {
+  return MONTH_KEYS.map(k => translations[k]?.[lang] ?? translations[k]?.FR ?? k)
+}
+
+// ── Fonction t() ─────────────────────────────────
+export function t(key: string, lang: Lang): string {
+  return translations[key]?.[lang] ?? translations[key]?.FR ?? key
+}
+
+export default translations

@@ -429,7 +429,7 @@ export function AccesRoles() {
               <input
                 value={inviteForm.name}
                 onChange={e => setInviteForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="Prénom Nom"
+                placeholder={t('acces.inviteNamePlaceholder')}
                 style={{
                   width: '100%',
                   padding: `${GAP.md}px ${GAP.lg}px`,
@@ -458,7 +458,7 @@ export function AccesRoles() {
               <input
                 value={inviteForm.email}
                 onChange={e => setInviteForm(f => ({ ...f, email: e.target.value }))}
-                placeholder="email@restaurant.ch"
+                placeholder={t('acces.inviteEmailPlaceholder')}
                 type="email"
                 style={{
                   width: '100%',
@@ -827,7 +827,7 @@ export function AccesRoles() {
                       }}>
                         <button
                           onClick={() => setEditingPermUserId(u.id)}
-                          title="Éditer permissions"
+                          title={t('acces.editPermissions')}
                           style={{
                             padding: `${GAP.sm}px ${GAP.md}px`,
                             fontSize: 10,

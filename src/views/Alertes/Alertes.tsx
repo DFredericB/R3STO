@@ -10,7 +10,8 @@ import { useT } from '../../i18n/useTranslation'
 import { ViewToolbar } from '../../components/ui/ViewToolbar'
 import { RADIUS } from '../../utils/design'
 
-type AlertType = 'waitlist' | 'unassigned' | 'noshow' | 'arriving' | 'group' | 'overbooking'
+// R3STO concept : auto-assign systématique → 'unassigned' retiré (cf. feedback_no_unassigned_resa)
+type AlertType = 'waitlist' | 'noshow' | 'arriving' | 'group' | 'overbooking'
 
 interface Alert {
   id: string
@@ -45,17 +46,7 @@ export function Alertes() {
       })
     })
 
-    // Unassigned tables
-    dayResas.filter(r => (r.s === 'reserved' || r.s === 'waitlist') && !r.tbl).forEach(r => {
-      out.push({
-        id: `ua-${r.id}`, type: 'unassigned', icon: '🪑',
-        title: `${r.n} — ${r.c} cvt · ${r.t}`,
-        sub: t('alerts.noTableAssigned'),
-        severity: 'critical',
-        action: () => nav('/plan'),
-        actionLabel: t('alerts.assignTable'),
-      })
-    })
+    // R3STO concept : pas de "Unassigned tables" — auto-assign systématique. Bloc supprimé.
 
     // No-shows
     dayResas.filter(r => r.s === 'noshow').forEach(r => {
@@ -131,7 +122,6 @@ export function Alertes() {
   const FILTERS: { id: 'all' | AlertType; label: string; icon: string }[] = [
     { id: 'all', label: t('alerts.all'), icon: '📋' },
     { id: 'waitlist', label: t('alerts.waitlistLabel'), icon: '⏳' },
-    { id: 'unassigned', label: t('alerts.unassignedLabel'), icon: '🪑' },
     { id: 'noshow', label: 'No-show', icon: '🚫' },
     { id: 'arriving', label: t('alerts.arrivingLabel'), icon: '🔜' },
     { id: 'group', label: t('alerts.groupLabel'), icon: '👥' },

@@ -1,0 +1,67 @@
+{
+  "name": "Chez Bunny's — Lausanne",
+  "slug": "chezbunnys-lausanne",
+  "tagline": "Bistro contemporain au cœur de Lausanne",
+  "cuisine": "Bistronomie",
+  "description": "Chez Bunny's Lausanne, c'est un bistro contemporain qui célèbre les produits du terroir vaudois avec une touche créative. Notre chef revisite les classiques du bistrot avec des produits locaux de saison, dans une ambiance chaleureuse et décontractée. Terrasse ombragée au cœur de la ville, cave à vins 100% suisse romande.",
+  "primaryColor": "#e89420",
+  "theme": "light",
+  "phone": "+41 21 555 00 00",
+  "email": "lausanne@chez-bunnys.ch",
+  "address": "Rue du Marché 12, 1003 Lausanne",
+  "website": "https://chezbunnys-lausanne.ch",
+  "hours": [
+    { "day": "Lundi", "status": "Fermé" },
+    { "day": "Mardi – Vendredi", "lunch": "11:45 – 14:30", "dinner": "18:30 – 22:30" },
+    { "day": "Samedi", "lunch": "11:45 – 14:30", "dinner": "18:30 – 23:00" },
+    { "day": "Dimanche", "lunch": "11:45 – 14:30", "status": "Fermé le soir" }
+  ],
+  "menu": [
+    {
+      "category": "Pour commencer",
+      "items": [
+        { "name": "Tartare de féra du Léman", "price": 22, "desc": "Citron confit, aneth, huile d'olive de Villeneuve" },
+        { "name": "Burrata & tomates anciennes", "price": 19, "desc": "Basilic frais, huile de la Côte, fleur de sel" },
+        { "name": "Œuf parfait, champignons", "price": 16, "desc": "Girolles du Jorat, crème de parmesan, chips de pain" },
+        { "name": "Soupe du moment", "price": 12, "desc": "Selon le marché et l'inspiration du chef" }
+      ]
+    },
+    {
+      "category": "À partager",
+      "items": [
+        { "name": "Planche du bistro", "price": 28, "desc": "Charcuteries vaudoises, fromages d'alpage, cornichons maison" },
+        { "name": "Friture du lac", "price": 24, "desc": "Perchettes croustillantes, sauce tartare, citron" }
+      ]
+    },
+    {
+      "category": "Plats",
+      "items": [
+        { "name": "Filet de bœuf du pays", "price": 42, "desc": "Sauce au poivre vert, pommes grenaille, légumes du marché" },
+        { "name": "Filets de perche du Léman", "price": 38, "desc": "Beurre noisette, amandes effilées, pommes frites" },
+        { "name": "Risotto aux chanterelles", "price": 32, "desc": "Carnaroli, chanterelles du Jura, parmesan 24 mois" },
+        { "name": "Burger Bunny's", "price": 26, "desc": "Bœuf Angus, cheddar affiné, oignons confits, frites maison" },
+        { "name": "Poke bowl saumon", "price": 24, "desc": "Saumon mariné, quinoa, avocat, edamame, mangue, sésame" }
+      ]
+    },
+    {
+      "category": "Desserts",
+      "items": [
+        { "name": "Meringue double crème", "price": 12, "desc": "Crème de la Gruyère, meringue croquante" },
+        { "name": "Tarte du jour", "price": 11, "desc": "Fruits de saison, pâte sablée, crème vanille" },
+        { "name": "Moelleux au chocolat", "price": 13, "desc": "Cœur coulant, glace vanille bourbon" },
+        { "name": "Carpaccio d'ananas", "price": 10, "desc": "Menthe fraîche, sorbet citron vert" }
+      ]
+    }
+  ],
+  "reviews": [
+    { "name": "Marie D.", "rating": 5, "text": "Un bistro avec une vraie âme ! Les perches sont à tomber et l'accueil est super chaleureux.", "date": "2026-04-02" },
+    { "name": "Thomas R.", "rating": 5, "text": "On y va en famille depuis 2 ans, jamais déçu. La terrasse en été c'est le paradis.", "date": "2026-03-18" },
+    { "name": "Sophie L.", "rating": 4, "text": "Très bonne bistronomie, prix honnêtes pour la qualité. Cave à vins romande top.", "date": "2026-03-05" },
+    { "name": "Julien M.", "rating": 5, "text": "Le burger Bunny's est de loin le meilleur de Lausanne. On revient!", "date": "2026-02-24" }
+  ],
+  "bookingUrl": "https://booking.r3sto.ch/chez-bunnys",
+  "socialMedia": {
+    "instagram": "https://instagram.com/chezbunnys.lausanne",
+    "facebook": "https://facebook.com/chezbunnys.lausanne"
+  }
+}

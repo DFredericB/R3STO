@@ -424,17 +424,9 @@ describe('Alerts', () => {
     expect(alerts.groups).toBe(1)
   })
 
-  it('computeAlerts: counts unassigned', () => {
-    const resa: Resa = {
-      id: 'r1', n: 'Dupont', nom: 'Dupont', prenom: 'Jean', c: 2,
-      tbl: '', t: '19h30', svc: 'soir', s: 'reserved', note: '',
-      date: '2026-03-30', createdAt: Date.now(), statut: 0, mode: 'manuel',
-      tel: '+41791234567', email: 'jean@example.com', canal: 'telephone',
-      prisPar: 'user1', bebe: 0, pmr: 0, allergie: false
-    }
-    const alerts = computeAlerts([resa], '2026-03-30')
-    expect(alerts.unassigned).toBe(1)
-  })
+  // R3STO concept : auto-assign systématique → pas de champ "unassigned" dans
+  // computeAlerts. Ce test a été retiré le 15 avril 2026.
+  // Voir feedback_no_unassigned_resa.md.
 
   it('computeAlerts: counts noshow', () => {
     const resa: Resa = {

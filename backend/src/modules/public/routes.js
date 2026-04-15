@@ -295,26 +295,34 @@ router.post('/book', async (req, res, next) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-//  DEMO — endpoints publics pour le tenant de demonstration
-//  Slug fige: 'chez-bunnys'. Pas d'auth, donnees regenerables.
+//  DEMO — endpoints publics pour les tenants de demonstration
+//  3 slugs : chez-bunnys (Lausanne) | chez-bunnys-bern | chez-bunnys-zurich
+//  Pas d'auth, donnees regenerables et evolutives.
 // ═══════════════════════════════════════════════════════════════
 
-const DEMO_SLUG = 'chez-bunnys';
+const DEMO_SLUGS = ['chez-bunnys', 'chez-bunnys-bern', 'chez-bunnys-zurich'];
+const DEFAULT_DEMO_SLUG = 'chez-bunnys';
 
-async function getDemoRestaurantId() {
+function resolveDemoSlug(raw) {
+  if (!raw) return DEFAULT_DEMO_SLUG;
+  return DEMO_SLUGS.includes(raw) ? raw : DEFAULT_DEMO_SLUG;
+}
+
+async function getRestaurantIdBySlug(slug) {
   const [rows] = await db.query(
     'SELECT id FROM restaurants WHERE slug = ? LIMIT 1',
-    [DEMO_SLUG]
+    [slug]
   );
   return rows[0]?.id || null;
 }
 
-// ─── GET /public/demo/status ────────────────────────────────
-router.get('/demo/status', async (_req, res, next) => {
+// ─── GET /public/demo/status?slug=... ───────────────────────
+router.get('/demo/status', async (req, res, next) => {
   try {
-    const id = await getDemoRestaurantId();
+    const slug = resolveDemoSlug(req.query.slug);
+    const id = await getRestaurantIdBySlug(slug);
     if (!id) {
-      return res.json({ ok: true, exists: false, slug: DEMO_SLUG });
+      return res.json({ ok: true, exists: false, slug });
     }
     const [[r]] = await db.query(
       `SELECT
@@ -324,66 +332,177 @@ router.get('/demo/status', async (_req, res, next) => {
          (SELECT COUNT(*) FROM services     WHERE restaurant_id = ?) AS services`,
       [id, id, id, id]
     );
-    res.json({
-      ok: true, exists: true, slug: DEMO_SLUG, restaurantId: id,
-      counts: r,
-    });
+    res.json({ ok: true, exists: true, slug, restaurantId: id, counts: r });
   } catch (e) { next(e); }
 });
 
-// ─── POST /public/demo/reset ────────────────────────────────
-// Purge reservations / clients / logs du tenant demo et reseed un set minimal.
-router.post('/demo/reset', async (_req, res, next) => {
+// ─── GET /public/demo/list ──────────────────────────────────
+// Liste les 3 tenants démo avec leur statut
+router.get('/demo/list', async (_req, res, next) => {
   try {
-    const id = await getDemoRestaurantId();
+    const [rows] = await db.query(
+      `SELECT r.id, r.slug, r.name, r.city, r.canton,
+              (SELECT COUNT(*) FROM reservations WHERE restaurant_id = r.id) AS reservations,
+              (SELECT COUNT(*) FROM clients      WHERE restaurant_id = r.id) AS clients
+         FROM restaurants r
+        WHERE r.slug IN (?, ?, ?)
+        ORDER BY FIELD(r.slug, ?, ?, ?)`,
+      [...DEMO_SLUGS, ...DEMO_SLUGS]
+    );
+    res.json({ ok: true, tenants: rows });
+  } catch (e) { next(e); }
+});
+
+// ─── POST /public/demo/reset?slug=... ───────────────────────
+// Purge reservations/clients/logs/waitlist du tenant demo, reseed un dataset
+// riche et evolutif (dates glissantes a partir d'aujourd'hui).
+// Chaque slug a son propre profil de donnees :
+//   - chez-bunnys          : bistro moyen, mix midi/soir, 40 resas ~7j
+//   - chez-bunnys-bern     : brasserie grosse volumetrie, 60 resas, 2 groupes
+//   - chez-bunnys-zurich   : gastro faible volume/gros panier, 28 resas
+router.post('/demo/reset', async (req, res, next) => {
+  try {
+    const slug = resolveDemoSlug(req.query.slug);
+    const id = await getRestaurantIdBySlug(slug);
     if (!id) {
       return res.status(404).json({
-        ok: false, message: `Tenant demo "${DEMO_SLUG}" introuvable - run seed first`,
+        ok: false, message: `Tenant demo "${slug}" introuvable - run seed SQL first`,
       });
     }
+
+    // 1) Purge
     await db.query('DELETE FROM action_logs WHERE restaurant_id = ?', [id]).catch(() => {});
     await db.query('DELETE FROM reservations WHERE restaurant_id = ?', [id]);
     await db.query('DELETE FROM clients WHERE restaurant_id = ?', [id]);
     await db.query('DELETE FROM waitlist WHERE restaurant_id = ?', [id]).catch(() => {});
 
+    // 2) Helpers dates glissantes
     const today = new Date();
     const fmt = (d) => d.toISOString().slice(0, 10);
-    const J0 = fmt(today);
-    const J1 = fmt(new Date(today.getTime() + 86400000));
-    const J7 = fmt(new Date(today.getTime() + 7 * 86400000));
+    const day = (offset) => fmt(new Date(today.getTime() + offset * 86400000));
 
-    const seedClients = [
-      { p: 'Marie',  n: 'Dupont',  e: 'marie.dupont@demo.r3sto.ch',  t: '+41 79 111 22 33' },
-      { p: 'Lucas',  n: 'Bernard', e: 'lucas.bernard@demo.r3sto.ch', t: '+41 79 222 33 44' },
-      { p: 'Sophie', n: 'Rossi',   e: 'sophie.rossi@demo.r3sto.ch',  t: '+41 79 333 44 55' },
-    ];
-    for (const c of seedClients) {
-      await db.query(
-        `INSERT INTO clients (restaurant_id, prenom, nom, email, telephone, nb_visites)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [id, c.p, c.n, c.e, c.t, Math.floor(Math.random() * 5) + 1]
-      );
+    // 3) Profil par tenant (pour que chaque resto ait un "caractere" different)
+    const profile = {
+      'chez-bunnys': {
+        clients: [
+          { p: 'Marie',    n: 'Dupont',   e: 'marie.dupont@demo.ch',  t: '+41 79 111 22 33', vip: 1, allerg: 'Gluten' },
+          { p: 'Lucas',    n: 'Bernard',  e: 'lucas.bernard@demo.ch', t: '+41 79 222 33 44', vip: 0, allerg: null },
+          { p: 'Sophie',   n: 'Rossi',    e: 'sophie.rossi@demo.ch',  t: '+41 79 333 44 55', vip: 1, allerg: 'Lactose' },
+          { p: 'Thomas',   n: 'Moreau',   e: 'thomas.moreau@demo.ch', t: '+41 79 444 55 66', vip: 0, allerg: null },
+          { p: 'Julie',    n: 'Favre',    e: 'julie.favre@demo.ch',   t: '+41 79 555 66 77', vip: 0, allerg: 'Fruits de mer' },
+          { p: 'Alexandre',n: 'Meier',    e: 'alex.meier@demo.ch',    t: '+41 79 666 77 88', vip: 1, allerg: null },
+          { p: 'Camille',  n: 'Laurent',  e: 'camille.l@demo.ch',     t: '+41 79 777 88 99', vip: 0, allerg: null },
+          { p: 'Bob',      n: 'Spammer',  e: 'spam@demo.ch',          t: '+41 79 000 00 00', vip: 0, allerg: null, blacklist: 1 },
+        ],
+        volumes: { base: 6, span: 11 },  // base resas/jour + variance
+      },
+      'chez-bunnys-bern': {
+        clients: [
+          { p: 'Hans',    n: 'Müller',    e: 'hans.mueller@demo.ch',    t: '+41 79 210 30 40', vip: 1, allerg: null },
+          { p: 'Andrea',  n: 'Brunner',   e: 'andrea.b@demo.ch',        t: '+41 79 211 31 41', vip: 0, allerg: 'Arachides' },
+          { p: 'Peter',   n: 'Zimmermann',e: 'peter.z@demo.ch',         t: '+41 79 212 32 42', vip: 0, allerg: null },
+          { p: 'Sandra',  n: 'Keller',    e: 'sandra.k@demo.ch',        t: '+41 79 213 33 43', vip: 1, allerg: null },
+          { p: 'Markus',  n: 'Schmid',    e: 'markus.s@demo.ch',        t: '+41 79 214 34 44', vip: 0, allerg: 'Gluten' },
+          { p: 'Laura',   n: 'Huber',     e: 'laura.h@demo.ch',         t: '+41 79 215 35 45', vip: 0, allerg: null },
+          { p: 'Reto',    n: 'Baumann',   e: 'reto.b@demo.ch',          t: '+41 79 216 36 46', vip: 1, allerg: null },
+          { p: 'Nadia',   n: 'Frei',      e: 'nadia.f@demo.ch',         t: '+41 79 217 37 47', vip: 0, allerg: null },
+          { p: 'Urs',     n: 'Weber',     e: 'urs.w@demo.ch',           t: '+41 79 218 38 48', vip: 0, allerg: null },
+          { p: 'Désirée', n: 'Problème',  e: 'probleme@demo.ch',        t: '+41 79 000 11 11', vip: 0, allerg: null, blacklist: 1 },
+        ],
+        volumes: { base: 9, span: 16 },
+      },
+      'chez-bunnys-zurich': {
+        clients: [
+          { p: 'Dr. Martin',n: 'Keller',   e: 'dr.keller@demo.ch',     t: '+41 79 910 20 30', vip: 1, allerg: null },
+          { p: 'Claudia',  n: 'Weber',    e: 'claudia.w@demo.ch',      t: '+41 79 911 21 31', vip: 1, allerg: 'Lactose' },
+          { p: 'Stefan',   n: 'Brunner',  e: 'stefan.b@demo.ch',       t: '+41 79 912 22 32', vip: 0, allerg: null },
+          { p: 'Nathalie', n: 'Rochat',   e: 'nathalie.r@demo.ch',     t: '+41 79 913 23 33', vip: 1, allerg: null },
+          { p: 'Olivier',  n: 'Fontaine', e: 'olivier.f@demo.ch',      t: '+41 79 914 24 34', vip: 1, allerg: 'Crustaces' },
+          { p: 'Isabelle', n: 'Grand',    e: 'isabelle.g@demo.ch',     t: '+41 79 915 25 35', vip: 0, allerg: null },
+        ],
+        volumes: { base: 3, span: 6 },
+      },
+    };
+    const P = profile[slug];
+
+    // 4) Seed clients
+    const clientIds = [];
+    for (const c of P.clients) {
+      const [r] = await db.query(
+        `INSERT INTO clients (restaurant_id, prenom, nom, email, telephone, nb_visites, vip, allergies, blacklist, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        [id, c.p, c.n, c.e, c.t, Math.floor(Math.random() * 8) + 1,
+         c.vip || 0, c.allerg || null, c.blacklist || 0]
+      ).catch(async () => {
+        // Fallback si colonnes vip/allergies/blacklist absentes
+        return await db.query(
+          `INSERT INTO clients (restaurant_id, prenom, nom, email, telephone, nb_visites)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [id, c.p, c.n, c.e, c.t, Math.floor(Math.random() * 8) + 1]
+        );
+      });
+      clientIds.push({ id: r.insertId, ...c });
     }
 
-    const seedResas = [
-      { date: J0, time: '12:30', guests: 2, name: 'Marie Dupont',  email: seedClients[0].e, phone: seedClients[0].t, source: 'widget' },
-      { date: J0, time: '19:30', guests: 4, name: 'Lucas Bernard', email: seedClients[1].e, phone: seedClients[1].t, source: 'app' },
-      { date: J1, time: '20:00', guests: 6, name: 'Sophie Rossi',  email: seedClients[2].e, phone: seedClients[2].t, source: 'widget' },
-      { date: J7, time: '12:30', guests: 3, name: 'Marie Dupont',  email: seedClients[0].e, phone: seedClients[0].t, source: 'widget' },
-    ];
-    for (const r of seedResas) {
+    // 5) Genere des resas sur -3j (historique) a +14j (futur)
+    // Mix de sources, statuts, couverts, avec no-shows et annulations dans le passe
+    const SOURCES = ['widget', 'app', 'telephone', 'walkin', 'email'];
+    const STATUSES_PAST = ['honored', 'honored', 'honored', 'honored', 'noshow', 'cancelled'];
+    const STATUS_FUTURE = 'reserved';
+    const SLOTS_MIDI = ['11:45', '12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30', '14:00'];
+    const SLOTS_SOIR = ['18:30', '19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '21:00', '21:30'];
+
+    const resas = [];
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    for (let off = -3; off <= 14; off++) {
+      const nResas = rand(P.volumes.base, P.volumes.base + P.volumes.span);
+      const d = day(off);
+      for (let i = 0; i < nResas; i++) {
+        const isMidi = Math.random() < 0.45;
+        const time = pick(isMidi ? SLOTS_MIDI : SLOTS_SOIR);
+        const guests = Math.random() < 0.1 ? rand(6, 10) : rand(2, 5);
+        const c = pick(clientIds.filter(c => !c.blacklist));
+        resas.push({
+          date: d, time, guests,
+          name: `${c.p} ${c.n}`, email: c.e, phone: c.t,
+          source: pick(SOURCES),
+          status: off < 0 ? pick(STATUSES_PAST) : STATUS_FUTURE,
+          notes: c.allerg ? `Allergie : ${c.allerg}` : '',
+        });
+      }
+    }
+
+    for (const r of resas) {
       await db.query(
         `INSERT INTO reservations
           (restaurant_id, guest_name, guest_email, guest_phone, party_size, date, time, notes, source, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, '', ?, 'reserved')`,
-        [id, r.name, r.email, r.phone, r.guests, r.date, r.time, r.source]
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, r.name, r.email, r.phone, r.guests, r.date, r.time, r.notes, r.source, r.status]
       );
+    }
+
+    // 6) Waitlist : 2 entrees ce soir pour tester
+    const waitlistCount = 2;
+    for (let i = 0; i < waitlistCount; i++) {
+      const c = pick(clientIds.filter(c => !c.blacklist));
+      await db.query(
+        `INSERT INTO waitlist (restaurant_id, guest_name, guest_phone, party_size, date, time_pref, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, 'waiting', NOW())`,
+        [id, `${c.p} ${c.n}`, c.t, rand(2, 4), day(0), i === 0 ? '19:30' : '20:00']
+      ).catch(() => {});
     }
 
     res.json({
       ok: true, message: 'Demo reset OK',
-      restaurantId: id, slug: DEMO_SLUG,
-      seeded: { clients: seedClients.length, reservations: seedResas.length },
+      restaurantId: id, slug,
+      seeded: {
+        clients: clientIds.length,
+        reservations: resas.length,
+        waitlist: waitlistCount,
+        range: `${day(-3)} → ${day(14)}`,
+      },
     });
   } catch (e) { next(e); }
 });

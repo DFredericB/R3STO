@@ -1,0 +1,69 @@
+{
+  "name": "Chez Bunny's — Bern",
+  "slug": "chezbunnys-bern",
+  "tagline": "Traditionelle Brasserie im Herzen der Altstadt",
+  "cuisine": "Brasserie suisse-allemande",
+  "description": "Chez Bunny's Bern réinvente la brasserie traditionnelle suisse-allemande dans la vieille ville. Notre Stübli chaleureux et notre comptoir en bois massif vous accueillent pour déguster rösti, cordon bleu, saucisses bernoises et bières artisanales de la région. Un hommage à la gastronomie populaire, servi avec générosité.",
+  "primaryColor": "#b85a3c",
+  "theme": "light",
+  "phone": "+41 31 555 00 00",
+  "email": "bern@chez-bunnys.ch",
+  "address": "Kramgasse 45, 3011 Bern",
+  "website": "https://chezbunnys-bern.ch",
+  "hours": [
+    { "day": "Montag", "status": "Geschlossen" },
+    { "day": "Dienstag – Freitag", "lunch": "11:30 – 14:30", "dinner": "18:00 – 22:30" },
+    { "day": "Samstag", "lunch": "11:30 – 14:30", "dinner": "18:00 – 23:00" },
+    { "day": "Sonntag", "lunch": "11:30 – 14:30", "status": "Abends geschlossen" }
+  ],
+  "menu": [
+    {
+      "category": "Vorspeisen",
+      "items": [
+        { "name": "Bündnerfleisch-Teller", "price": 24, "desc": "Luftgetrocknetes Fleisch aus dem Engadin, Cornichons, Silberzwiebeln" },
+        { "name": "Käseschnitte mit Ei", "price": 18, "desc": "Gruyère & Emmentaler, Spiegelei, Schinken" },
+        { "name": "Kürbissuppe", "price": 12, "desc": "Geröstete Kürbiskerne, Crème fraîche, Kürbiskernöl" },
+        { "name": "Bretzel geröstet", "price": 9, "desc": "Hausbutter mit Kräutern, grobes Salz" }
+      ]
+    },
+    {
+      "category": "Rösti-Karte",
+      "items": [
+        { "name": "Rösti Klassik", "price": 18, "desc": "Knusprige Kartoffelrösti pur, Spiegelei" },
+        { "name": "Rösti Bernois", "price": 26, "desc": "Berner Würstli, Speck, Zwiebeln, Käse überbacken" },
+        { "name": "Rösti Alpin", "price": 28, "desc": "Alpkäse, Bergschinken, Spiegelei, Preiselbeeren" },
+        { "name": "Rösti Waldpilze", "price": 24, "desc": "Steinpilze, Eierschwämmli, Rahmsauce, Petersilie" }
+      ]
+    },
+    {
+      "category": "Hauptgerichte",
+      "items": [
+        { "name": "Cordon Bleu vom Kalb", "price": 44, "desc": "Gefüllt mit Schinken und Gruyère, Pommes frites, Salat" },
+        { "name": "Berner Platte", "price": 38, "desc": "Sauerkraut, Speck, Würstli, Schweinshaxe, Saubohnen" },
+        { "name": "Zürcher Geschnetzeltes", "price": 36, "desc": "Kalbfleisch an Rahmsauce, Rösti, Champignons" },
+        { "name": "Wienerschnitzel", "price": 34, "desc": "Kalbfleisch, Preiselbeeren, Petersilienkartoffeln" },
+        { "name": "Vegetarische Knöpfli", "price": 26, "desc": "Hausgemacht, Bergkäse, Röstzwiebeln, Apfelmus" }
+      ]
+    },
+    {
+      "category": "Desserts",
+      "items": [
+        { "name": "Meringue mit Gruyère-Doppelrahm", "price": 11, "desc": "Luftige Meringue, dicke Sahne aus der Gruyère" },
+        { "name": "Apfelstrudel warm", "price": 12, "desc": "Vanillesauce, Zimt, Puderzucker" },
+        { "name": "Toblerone-Mousse", "price": 13, "desc": "Bernische Spezialität, Schokoladenspäne" },
+        { "name": "Birchermüesli à la minute", "price": 10, "desc": "Früchte der Saison, Honig, Nüsse" }
+      ]
+    }
+  ],
+  "reviews": [
+    { "name": "Hans K.", "rating": 5, "text": "Die beste Berner Platte der Stadt! Herzliche Bedienung, urchige Atmosphäre.", "date": "2026-04-05" },
+    { "name": "Andrea B.", "rating": 5, "text": "Rösti Alpin ein Traum. Die Stübli-Atmosphäre ist wunderbar gemütlich.", "date": "2026-03-22" },
+    { "name": "Peter M.", "rating": 4, "text": "Traditionelle Küche auf hohem Niveau. Grosse Portionen, faire Preise.", "date": "2026-03-08" },
+    { "name": "Sandra L.", "rating": 5, "text": "Cordon Bleu der Extraklasse. Hausgemachte Knöpfli absolut top!", "date": "2026-02-28" }
+  ],
+  "bookingUrl": "https://booking.r3sto.ch/chez-bunnys-bern",
+  "socialMedia": {
+    "instagram": "https://instagram.com/chezbunnys.bern",
+    "facebook": "https://facebook.com/chezbunnys.bern"
+  }
+}

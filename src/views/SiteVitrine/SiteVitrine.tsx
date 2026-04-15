@@ -345,6 +345,76 @@ export function SiteVitrine() {
         </div>
       </div>
 
+      {/* ═══ SITES CLIENT — accès direct aux surfaces visibles par les clients ═══ */}
+      <div style={cardS}>
+        <div style={sectionHeaderS}>🌐 Sites client — tout voir (données démo cohérentes)</div>
+        <div style={{ fontSize: 11, color: 'var(--t3)', marginBottom: 12 }}>
+          Surfaces publiques avec <strong>Chez Bunny's</strong> comme tenant principal + 3 restos d'exemple. Ouvrent dans un nouvel onglet.
+        </div>
+
+        {/* Groupe 1 : Surfaces Chez Bunny's */}
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
+          🐰 Chez Bunny's (tenant démo)
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 16 }}>
+          {([
+            { icon: '🌐', label: 'Site Vitrine',       url: 'https://demo.r3sto.ch/chez-bunnys/?demo=1',      desc: 'demo.r3sto.ch/chez-bunnys' },
+            { icon: '📖', label: 'Menu QR',            url: 'https://menu.r3sto.ch/chez-bunnys?demo=1',       desc: 'Carte digitale (QR code)' },
+            { icon: '📅', label: 'Widget réservation', url: 'https://booking.r3sto.ch/chez-bunnys?demo=1',    desc: 'Vue client du widget' },
+            { icon: '🛵', label: 'Livraison',          url: 'https://delivery.r3sto.ch/chez-bunnys?demo=1',   desc: 'Click & collect' },
+            { icon: '💳', label: 'Addition / Paiement', url: 'https://bill.r3sto.ch/chez-bunnys?demo=1',      desc: 'Paiement table' },
+          ]).map(site => (
+            <a key={site.label} href={site.url} target="_blank" rel="noreferrer"
+              style={{
+                display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px',
+                background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8,
+                color: 'var(--text)', textDecoration: 'none', transition: 'all .12s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--ac)'; e.currentTarget.style.background = 'var(--surf2)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--bg)' }}
+            >
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{site.icon}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {site.label} <span style={{ fontSize: 10, color: 'var(--t3)' }}>↗</span>
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{site.desc}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {/* Groupe 2 : Exemples d'autres restos */}
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>
+          🍽️ Exemples d'autres sites vitrines
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
+          {([
+            { icon: '🐰', label: "Chez Bunny's · Lausanne", url: 'https://demo.r3sto.ch/chezbunnys-lausanne/', desc: 'Bistro contemporain' },
+            { icon: '🥨', label: "Chez Bunny's · Bern",     url: 'https://demo.r3sto.ch/chezbunnys-bern/',     desc: 'Brasserie tradition' },
+            { icon: '🍷', label: "Chez Bunny's · Zürich",   url: 'https://demo.r3sto.ch/chezbunnys-zurich/',   desc: 'Gastronomique moderne' },
+          ]).map(site => (
+            <a key={site.label} href={site.url} target="_blank" rel="noreferrer"
+              style={{
+                display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px',
+                background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8,
+                color: 'var(--text)', textDecoration: 'none', transition: 'all .12s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--ac)'; e.currentTarget.style.background = 'var(--surf2)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--bg)' }}
+            >
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{site.icon}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {site.label} <span style={{ fontSize: 10, color: 'var(--t3)' }}>↗</span>
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{site.desc}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+
       {/* ═══ LAYOUT: Config + Preview ═══ */}
       <div style={{ display: 'flex', gap: 16, flex: 1, minHeight: 0 }}>
         {/* LEFT: Config */}

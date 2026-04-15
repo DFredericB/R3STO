@@ -46,6 +46,7 @@ const DEFAULT_OPTIONS: OptionsData = {
   groupe_seuil: 8, groupe_max_par_service: 2,
   notif_new_resa: true, notif_new_hours: 3,
   auto_confirm: false, auto_remind_24h: true, auto_noshow_flag: true,
+  auto_noshow_delay_mins: 30, auto_noshow_email_client: true, auto_cancel_email_client: true,
   chaises_bebe: 4, places_pmr: 2
 }
 

@@ -74,8 +74,9 @@ export function Sidebar() {
   const visibleItems = useMemo<NavItem[]>(() => {
     const q = searchQ.trim().toLowerCase()
     return NAV_ITEMS.filter(item => {
-      // 1. adminOnly : visible seulement sur admin.r3sto.ch OU si on a la perm admin console
-      if (item.adminOnly && !(onAdminHost || canAccessAdmin)) return false
+      // 1. adminOnly : STRICTEMENT sur admin.r3sto.ch — jamais dans l'app resto ni en démo
+      //    (ERP/CRM/admin-dashboard ne doivent pas polluer la sidebar restaurant)
+      if (item.adminOnly && !onAdminHost) return false
       // 2. Permission requise (démo bypass dans usePermission)
       if (item.requires && !permByAction[item.requires] && !isDemo) return false
       // 3. Sur admin host : ne montrer QUE les items adminOnly + help
@@ -110,7 +111,29 @@ export function Sidebar() {
       height: 'calc(100vh - var(--hh))',
       transition: 'width .2s ease, min-width .2s ease',
     }}>
-      <div style={{ padding: collapsed ? '8px 4px' : '8px 6px', flex: 1 }}>
+      {/* Collapse toggle (top) */}
+      <div style={{
+        padding: collapsed ? '8px 4px 0' : '8px 6px 0',
+        borderBottom: '1px solid var(--border)',
+        marginBottom: 4,
+      }}>
+        <button
+          onClick={toggleSidebar}
+          title={collapsed ? t('sidebar.open') : t('sidebar.close')}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
+            gap: 8, width: '100%', padding: collapsed ? '8px 0' : '6px 8px',
+            background: 'transparent', border: 'none', borderRadius: 6,
+            color: 'var(--t3)', cursor: 'pointer', fontSize: 12,
+            fontFamily: 'var(--ff)', transition: 'color .12s',
+            marginBottom: 6,
+          }}
+        >
+          <span style={{ fontSize: 14, transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform .2s' }}>☰</span>
+          {!collapsed && <span>{t('sidebar.collapse')}</span>}
+        </button>
+      </div>
+<div style={{ padding: collapsed ? '8px 4px' : '8px 6px', flex: 1 }}>
         {visibleItems.map((item, i) => {
           const planLocked = item.minPlan ? !planAtLeast(item.minPlan) : false
           const isLocked = !!item.wip || planLocked
@@ -198,15 +221,15 @@ export function Sidebar() {
                   </span>
                 )}
                 {!collapsed && planLocked && item.minPlan && (
-                  <span style={{
-                    fontSize: 9, fontWeight: 800,
-                    padding: '2px 6px', borderRadius: 4,
-                    background: 'var(--bg3)',
-                    color: PLAN_META[item.minPlan].color,
-                    letterSpacing: '.04em',
-                    textTransform: 'uppercase',
-                    flexShrink: 0,
-                  }}>🔒 {t(PLAN_META[item.minPlan].labelKey)}</span>
+                  <span
+                    title={t(PLAN_META[item.minPlan].labelKey)}
+                    style={{
+                      fontSize: 12, lineHeight: 1,
+                      padding: '3px 5px', borderRadius: 4,
+                      background: 'var(--bg3)',
+                      color: PLAN_META[item.minPlan].color,
+                      flexShrink: 0,
+                    }}>🔒</span>
                 )}
                 {!collapsed && item.wip && (
                   <span style={{ fontSize: 8, fontWeight: 700, padding: '2px 5px', borderRadius: 4, background: 'rgba(245,158,11,.12)', color: 'var(--am)', letterSpacing: '.03em' }}>{t('sidebar.wip')}</span>
@@ -309,22 +332,6 @@ export function Sidebar() {
             </button>
           )
         )}
-
-        {/* Collapse toggle */}
-        <button
-          onClick={toggleSidebar}
-          title={collapsed ? t('sidebar.open') : t('sidebar.close')}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
-            gap: 8, width: '100%', padding: collapsed ? '8px 0' : '6px 8px',
-            background: 'transparent', border: 'none', borderRadius: 6,
-            color: 'var(--t3)', cursor: 'pointer', fontSize: 12,
-            fontFamily: 'var(--ff)', transition: 'color .12s',
-          }}
-        >
-          <span style={{ fontSize: 14, transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform .2s' }}>☰</span>
-          {!collapsed && <span>{t('sidebar.collapse')}</span>}
-        </button>
 
         {/* Version */}
         <div style={{

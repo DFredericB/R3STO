@@ -20,6 +20,31 @@ function ToastBridge() {
   }, [toast])
   return null
 }
+
+// Auto-noshow ticker : passe les résas en retard à 'noshow' selon le délai
+// configuré dans Options. Tourne toutes les 60s. Email envoyé via API si activé.
+function AutoNoshowTicker() {
+  useEffect(() => {
+    const tick = () => {
+      const s = useAppStore.getState() as any
+      if (!s.options?.auto_noshow_flag) return
+      // import dynamique pour éviter cycle
+      import('./utils/resaLifecycle').then(({ computeAutoNoshow }) => {
+        const { flagged } = computeAutoNoshow(s.resas, s.options)
+        for (const id of flagged) {
+          s.setResaStatus(id, 'noshow')
+        }
+        if (flagged.length > 0) {
+          console.info(`[R3STO] auto-noshow : ${flagged.length} résa(s) marquée(s)`)
+        }
+      })
+    }
+    tick()
+    const h = setInterval(tick, 60_000)
+    return () => clearInterval(h)
+  }, [])
+  return null
+}
 import { TutorialChecklist, TutorialTooltip } from './components/ui/Tutorial'
 import { UpgradeModal } from './components/modals/UpgradeModal'
 import { Dashboard } from './views/Dashboard/Dashboard'
@@ -188,6 +213,7 @@ export default function App() {
     <BrowserRouter>
       <ToastProvider>
         <ToastBridge />
+        <AutoNoshowTicker />
         <div className="app-layout">
           <Header />
           <div className="app-body">
@@ -275,4 +301,3 @@ export default function App() {
     </BrowserRouter>
   )
 }
-                                                                                                              

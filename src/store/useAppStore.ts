@@ -6,7 +6,7 @@
 // ══════════════════════════════════════════════════
 
 import { create } from 'zustand'
-import { api } from '../api/apiService'
+import { api, isApiMode } from '../api/apiService'
 import { persist } from 'zustand/middleware'
 import type {
   Resa, Table, Combo, Service, Salle, Resto,
@@ -31,6 +31,9 @@ const sync = (
   rollback?: () => void,
   label?: string
 ) => {
+  // Mode local (demo.r3sto.ch, localhost) : pas d'API, rien a syncer.
+  // Eviter le toast spam "Echec de synchronisation" — l'optimistic update suffit.
+  if (!isApiMode()) return
   fn().catch((err) => {
     // Log toujours (remplace le catch silencieux historique)
     console.error(`[R3STO] API sync failed${label ? ` (${label})` : ''}:`, err)
@@ -82,6 +85,7 @@ const DEFAULT_OPTIONS: OptionsData = {
   groupe_seuil: 8, groupe_max_par_service: 2,
   notif_new_resa: true, notif_new_hours: 3,
   auto_confirm: false, auto_remind_24h: true, auto_noshow_flag: true,
+  auto_noshow_delay_mins: 30, auto_noshow_email_client: true, auto_cancel_email_client: true,
   chaises_bebe: 4, places_pmr: 2
 }
 
@@ -669,4 +673,6 @@ export function hasAccess(module: PermissionModule, minLevel: PermissionLevel = 
   const state = useAppStore.getState()
   const defaults = getDefaultModuleAccess(state.userRole)
   const level = defaults[module] || 'none'
-  const levels: PermissionLevel[
+  const levels: PermissionLevel[] = ['none', 'read', 'write', 'admin']
+  return levels.indexOf(level) >= levels.indexOf(minLevel)
+}

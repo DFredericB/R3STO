@@ -15,7 +15,7 @@ export function AlertsBanner() {
 
   const alerts = useMemo(() => computeAlerts(resas, activeDate), [resas, activeDate])
 
-  const hasAlerts = alerts.waitlist > 0 || alerts.groups > 0 || alerts.unassigned > 0 || alerts.noshow > 0 || alerts.arriving > 0
+  const hasAlerts = alerts.waitlist > 0 || alerts.groups > 0 || alerts.noshow > 0 || alerts.arriving > 0
   if (!hasAlerts) return null
 
   const pills: { icon: string; label: string; count: number; color: string; bg: string; border: string; onClick: () => void; pulse?: boolean }[] = []
@@ -38,11 +38,7 @@ export function AlertsBanner() {
     onClick: () => navigate('/groupes'),
   })
 
-  if (alerts.unassigned > 0) pills.push({
-    icon: '⚠️', label: 'Sans table', count: alerts.unassigned,
-    color: 'var(--rd)', bg: 'rgba(220,80,80,.08)', border: 'rgba(220,80,80,.3)',
-    onClick: () => navigate('/reservations'), pulse: true,
-  })
+  // R3STO concept : auto-assign systématique → pas de "Sans table". Pill supprimée.
 
   if (alerts.noshow > 0) pills.push({
     icon: '👻', label: 'No-shows', count: alerts.noshow,

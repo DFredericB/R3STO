@@ -13,7 +13,7 @@ import { useToast } from '../ui/Toast'
 import { Logo } from '../ui/Logo'
 import { SearchModal } from '../ui/SearchModal'
 import { computeAlerts } from '../../utils/alerts'
-import { ROLES, RESTAURANT_ROLES, CORP_ROLES } from '../../utils/roles'
+import { ROLES, TOPBAR_RESTAURANT_ROLES, TOPBAR_CORP_ROLES } from '../../utils/roles'
 import { isPlanEligible } from '../../utils/plans'
 import { usePermission } from '../../utils/permissions'
 import type { Resa, Service, Fermeture, Site, UserRole } from '../../types'
@@ -24,6 +24,34 @@ const MAX_NOTIFS = 12
 const API_BASE = (import.meta.env.VITE_API_BASE as string) || 'https://api.r3sto.ch'
 const LANGS = ['FR', 'DE', 'IT', 'EN'] as const
 const TABLET_BP = 1100
+
+// Démo : 3 variantes Chez Bunny's — chaque ville = style/couleur/config/data distincts.
+// Slugs synchronisés avec :
+//   - backend/src/db/seeds/demo_chez_bunnys.sql (3 tenants)
+//   - backend/src/modules/public/routes.js (/public/demo/reset?slug=...)
+//   - DemoShowcaseBar + SiteVitrine
+interface DemoResto { slug: string; name: string; ville: string; icon: string; color: string; url: string; style: string }
+// L'APP démo est TOUJOURS servie depuis demo.r3sto.ch/ (racine SPA).
+// Pour switcher de tenant dans l'app, on utilise ?v={slug}.
+// Les sous-dossiers /chezbunnys-{ville}/ servent les VITRINES statiques (SiteVitrine).
+const DEMO_RESTOS: DemoResto[] = [
+  { slug: 'chez-bunnys',        name: "Chez Bunny's", ville: 'Lausanne', icon: '🐰', color: '#e89420', url: 'https://demo.r3sto.ch/?demo=1&v=chez-bunnys',        style: 'Bistro contemporain' },
+  { slug: 'chez-bunnys-bern',   name: "Chez Bunny's", ville: 'Bern',     icon: '🥨', color: '#b85a3c', url: 'https://demo.r3sto.ch/?demo=1&v=chez-bunnys-bern',   style: 'Brasserie tradition' },
+  { slug: 'chez-bunnys-zurich', name: "Chez Bunny's", ville: 'Zürich',   icon: '🍷', color: '#3b7ca8', url: 'https://demo.r3sto.ch/?demo=1&v=chez-bunnys-zurich', style: 'Gastronomique moderne' },
+]
+function getDemoSlug(): string {
+  if (typeof window === 'undefined') return 'chez-bunnys'
+  // Détection via ?v={slug} (source principale), fallback sur path.
+  const url = new URL(window.location.href)
+  const v = url.searchParams.get('v')
+  if (v) {
+    const m = DEMO_RESTOS.find(r => r.slug === v)
+    if (m) return m.slug
+  }
+  const path = url.pathname.replace(/^\//, '').split('/')[0]
+  const match = DEMO_RESTOS.find(r => r.slug === path)
+  return match ? match.slug : 'chez-bunnys'
+}
 
 function formatTime(): string {
   const n = new Date()
@@ -145,8 +173,13 @@ export function Header() {
 
   const activeSite = activeSiteId ? sites.find(s => s.id === activeSiteId) : null
   const isAdmin = window.location.hostname.startsWith('admin.')
-  const displayName = isAdmin ? t('header.adminConsole') : (activeSite ? activeSite.name : (resto.name || t('general.myRestaurant')))
+  const demoSlug = isDemo ? getDemoSlug() : null
+  const activeDemoResto = demoSlug ? DEMO_RESTOS.find(r => r.slug === demoSlug) : null
+  const displayName = isAdmin
+    ? t('header.adminConsole')
+    : (activeDemoResto ? `${activeDemoResto.name} · ${activeDemoResto.ville}` : (activeSite ? activeSite.name : (resto.name || t('general.myRestaurant'))))
   const hasMultiSites = sites.length > 0 && isPlanEligible('multiSite')
+  const canSwitchTopName = !isAdmin && (hasMultiSites || isDemo)
 
   const currentUser = users.find(u => u.active && u.role === userRole) || users.find(u => u.active) || null
   const userName = currentUser?.n || t('general.admin')
@@ -163,7 +196,7 @@ export function Header() {
   }, [restoStatus, t])
 
   const alerts = useMemo(() => computeAlerts(resas, activeDate), [resas, activeDate])
-  const unassigned = useMemo(() => resas.filter(r => r.date === activeDate && r.s !== 'cancelled' && r.s !== 'noshow' && r.s !== 'done' && !r.tbl).length, [resas, activeDate])
+  // R3STO concept : auto-assign → la const "unassigned" a été retirée (cf. feedback_no_unassigned_resa)
 
   const notifs = useMemo(() => buildNotifs(resas, activeDate, t), [resas, activeDate, t])
   const readSet = useMemo(() => new Set(readNotifIds), [readNotifIds])
@@ -229,45 +262,60 @@ export function Header() {
       borderBottom: '1px solid var(--border)',
       display: 'flex', alignItems: 'center', gap: 10,
       padding: '0 16px', flexShrink: 0, zIndex: 100,
-      flexWrap: isTablet ? 'wrap' : 'nowrap',
+      flexWrap: 'nowrap',
     }}>
-      <button
-        onClick={() => useAppStore.getState().toggleSidebar()}
-        title={t('sidebar.toggle')}
-        aria-label={t('sidebar.toggle')}
-        style={{
-          width: 36, height: 36, flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'transparent', border: '1px solid var(--border)',
-          borderRadius: 8, color: 'var(--text)', cursor: 'pointer',
-          fontSize: 16, fontFamily: 'var(--ff)',
-        }}
-      >☰</button>
       <Logo size="md" />
 
-      {isAdmin && <span style={{ background: 'var(--rd)', color: '#fff', fontSize: 9, fontWeight: 800, padding: '3px 10px', borderRadius: 4, letterSpacing: 1.2, textTransform: 'uppercase', flexShrink: 0 }}>{t('role.superadmin')}</span>}
-      {isDemo && <span style={{ background: 'var(--am)', color: '#000', fontSize: 9, fontWeight: 800, padding: '3px 10px', borderRadius: 4, letterSpacing: 1.2, textTransform: 'uppercase', flexShrink: 0 }}>{t('header.demo')}</span>}
+      {isAdmin && <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)', flexShrink: 0 }}>Console Admin</span>}
 
       <div style={{ width: 1, height: 20, background: 'var(--border)', flexShrink: 0 }} />
 
       <div style={{ flex: '1 1 180px', minWidth: 0, position: 'relative' }} data-site-panel>
         <div
-          style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: 6, cursor: (!isAdmin && hasMultiSites) ? 'pointer' : 'default' }}
-          onClick={() => !isAdmin && hasMultiSites && setShowSiteSwitch(!showSiteSwitch)}
+          style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: 6, cursor: canSwitchTopName ? 'pointer' : 'default' }}
+          onClick={() => canSwitchTopName && setShowSiteSwitch(!showSiteSwitch)}
         >
-          {!isAdmin && activeSite && <span style={{ width: 8, height: 8, borderRadius: '50%', background: activeSite.color, flexShrink: 0 }} />}
+          {!isAdmin && activeDemoResto && <span style={{ fontSize: 14, flexShrink: 0 }}>{activeDemoResto.icon}</span>}
+          {!isAdmin && !activeDemoResto && activeSite && <span style={{ width: 8, height: 8, borderRadius: '50%', background: activeSite.color, flexShrink: 0 }} />}
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayName}</span>
+          {isDemo && <span style={{ background: 'var(--am)', color: '#000', fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 4, letterSpacing: 1.2, textTransform: 'uppercase', flexShrink: 0 }}>{t('header.demo')}</span>}
           {!isAdmin && (
             <span title={online ? statusTooltip : t('header.status.offline')}
               style={{ width: 7, height: 7, borderRadius: '50%', background: online ? restoStatus.color : 'var(--t4)', display: 'inline-block', flexShrink: 0 }} />
           )}
-          {!isAdmin && hasMultiSites && <span style={{ fontSize: 10, color: 'var(--t3)', flexShrink: 0 }}>▾</span>}
+          {canSwitchTopName && <span style={{ fontSize: 10, color: 'var(--t3)', flexShrink: 0 }}>▾</span>}
         </div>
         <div style={{ fontSize: 11, color: 'var(--t2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {t('header.today') + ' · ' + fmtDate(todayDate) + ' · ' + time}
         </div>
 
-        {showSiteSwitch && (
+        {showSiteSwitch && isDemo && (
+          <div style={{ position: 'absolute', top: 42, left: 0, width: 300, background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px var(--shadow)', zIndex: 200, overflow: 'hidden' }}>
+            <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', fontSize: 10, fontWeight: 700, color: 'var(--t4)', textTransform: 'uppercase', letterSpacing: '.06em', display: 'flex', alignItems: 'center', gap: 6 }}>
+              🎬 Démo · Changer de restaurant
+              <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--am)', background: 'var(--ap)', padding: '1px 5px', borderRadius: 3, textTransform: 'uppercase', marginLeft: 'auto' }}>Vitrine</span>
+            </div>
+            {DEMO_RESTOS.map((r) => {
+              const active = r.slug === demoSlug
+              return (
+                <button key={r.slug} onClick={() => { window.location.href = r.url }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '10px 12px', border: 'none', cursor: 'pointer', fontFamily: 'var(--ff)', background: active ? (r.color + '22') : 'transparent', color: 'var(--text)', fontSize: 12, textAlign: 'left' }}>
+                  <span style={{ width: 32, height: 32, borderRadius: 8, background: r.color, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{r.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: active ? 700 : 600, fontSize: 13 }}>{r.name}</div>
+                    <div style={{ fontSize: 10, color: 'var(--t3)' }}>{r.ville}</div>
+                  </div>
+                  {active && <span style={{ color: r.color, fontWeight: 700, fontSize: 12 }}>✓</span>}
+                </button>
+              )
+            })}
+            <div style={{ borderTop: '1px solid var(--border)', padding: '6px 8px', fontSize: 10, color: 'var(--t4)', textAlign: 'center' }}>
+              Chaque vitrine = données + config + charte distinctes
+            </div>
+          </div>
+        )}
+
+        {showSiteSwitch && !isDemo && (
           <div style={{ position: 'absolute', top: 42, left: 0, width: 280, background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px var(--shadow)', zIndex: 200, overflow: 'hidden' }}>
             <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', fontSize: 10, fontWeight: 700, color: 'var(--t4)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
               🏢 {t('multisite.switchSite')}
@@ -299,78 +347,51 @@ export function Header() {
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, flexWrap: 'wrap', order: isTablet ? 10 : 0, width: isTablet ? '100%' : 'auto' }}>
-        {alerts.waitlist > 0 && <button onClick={() => navigate('/waitlist')} style={alertBtn('#e8a530', 'rgba(232,165,48,.12)', 'rgba(232,165,48,.4)', true)}>⏳ {alerts.waitlist} {t('alert.waitlist')}</button>}
-        {alerts.groups > 0 && <button onClick={() => navigate('/groupes')} style={alertBtn('#b482ff', 'rgba(144,96,224,.1)', 'rgba(144,96,224,.35)')}>👥 {alerts.groups} {t('alert.groups')}</button>}
-        {unassigned > 0 && <button onClick={() => navigate('/reservations?filter=unassigned')} style={alertBtn('var(--rd)', 'rgba(220,80,80,.1)', 'rgba(220,80,80,.35)', true)}>⚠️ {unassigned} {t('alert.unassigned')}</button>}
-        {alerts.arriving > 0 && <button onClick={() => navigate('/grille')} style={alertBtn('var(--bl)', 'rgba(91,156,246,.1)', 'rgba(91,156,246,.35)')}>🕐 {alerts.arriving} {t('alert.arriving')}</button>}
-        {alerts.noshow > 0 && <button onClick={() => navigate('/reservations?filter=noshow')} style={alertBtn('var(--t3)', 'rgba(100,116,139,.08)', 'rgba(100,116,139,.3)')}>👻 {alerts.noshow} {t('alert.noshow')}</button>}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 1, flexWrap: 'nowrap', minWidth: 0, overflow: 'hidden' }}>
+        {alerts.waitlist > 0 && <button onClick={() => navigate('/waitlist')} style={alertBtn('#e8a530', 'rgba(232,165,48,.12)', 'rgba(232,165,48,.4)', true)} title={t('alert.waitlist')}>⏳ {alerts.waitlist} <span className="alrt-lbl">{t('alert.waitlist')}</span></button>}
+        {alerts.groups > 0 && <button onClick={() => navigate('/groupes')} style={alertBtn('#b482ff', 'rgba(144,96,224,.1)', 'rgba(144,96,224,.35)')} title={t('alert.groups')}>👥 {alerts.groups} <span className="alrt-lbl">{t('alert.groups')}</span></button>}
+        {/* R3STO concept : jamais de "non assignée" (auto-assign systématique). Alerte supprimée. */}
+        {alerts.arriving > 0 && <button onClick={() => navigate('/grille')} style={alertBtn('var(--bl)', 'rgba(91,156,246,.1)', 'rgba(91,156,246,.35)')} title={t('alert.arriving')}>🕐 {alerts.arriving} <span className="alrt-lbl">{t('alert.arriving')}</span></button>}
+        {alerts.noshow > 0 && <button onClick={() => navigate('/reservations?filter=noshow')} style={alertBtn('var(--t3)', 'rgba(100,116,139,.08)', 'rgba(100,116,139,.3)')} title={t('alert.noshow')}>👻 {alerts.noshow} <span className="alrt-lbl">{t('alert.noshow')}</span></button>}
+        <style>{'@media(max-width:1100px){.alrt-lbl{display:none}}'}</style>
       </div>
       <style>{'@keyframes headerAlertPulse{0%,100%{opacity:1}50%{opacity:.45}}'}</style>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+      <SearchModal open={showSearch} onClose={() => setShowSearch(false)} />
+
+      {/* Cluster icones : equidistance stricte (gap:6 partage par tous) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        <button
+          onClick={() => {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {})
+            else document.exitFullscreen?.().catch(() => {})
+          }}
+          style={iconBtn}
+          title={t('header.fullscreen')}
+          aria-label={t('header.fullscreen')}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M4 9V4h5" />
+            <path d="M20 9V4h-5" />
+            <path d="M4 15v5h5" />
+            <path d="M20 15v5h-5" />
+          </svg>
+        </button>
         <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} style={iconBtn}
           title={theme === 'dark' ? t('header.lightMode') : t('header.darkMode')}
           aria-label={theme === 'dark' ? t('header.lightMode') : t('header.darkMode')}>
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
-      </div>
 
-      <SearchModal open={showSearch} onClose={() => setShowSearch(false)} />
-
-      {isDemo && (() => {
-        const SLUG = 'chez-bunnys'
-        const demoSites = [
-          { key: 'widget',   icon: '📅', labelKey: 'demo.sites.widget',   hintKey: 'demo.sites.widgetHint',   url: 'https://booking.r3sto.ch/' + SLUG + '?demo=1' },
-          { key: 'menu',     icon: '📖', labelKey: 'demo.sites.menu',     hintKey: 'demo.sites.menuHint',     url: 'https://menu.r3sto.ch/' + SLUG + '?demo=1' },
-          { key: 'delivery', icon: '🛵', labelKey: 'demo.sites.delivery', hintKey: 'demo.sites.deliveryHint', url: 'https://delivery.r3sto.ch/' + SLUG + '?demo=1' },
-          { key: 'bill',     icon: '💳', labelKey: 'demo.sites.bill',     hintKey: 'demo.sites.billHint',     url: 'https://bill.r3sto.ch/' + SLUG + '?demo=1' },
-        ] as const
-        return (
-          <div style={{ position: 'relative' }} data-demo-sites-panel>
-            <button onClick={() => setShowDemoSites(v => !v)}
-              style={{ ...iconBtn, width: 'auto', gap: 6, padding: '0 10px', fontSize: 12, fontWeight: 600 }}
-              title={t('demo.clientSitesTitle')} aria-label={t('demo.clientSites')}>
-              🌐 <span style={{ letterSpacing: '.04em' }}>{t('demo.clientSites')}</span>
-            </button>
-            {showDemoSites && (
-              <div style={{ position: 'absolute', top: 42, right: 0, width: 320, background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px var(--shadow)', zIndex: 200, overflow: 'hidden' }}>
-                <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)', fontSize: 10, fontWeight: 700, color: 'var(--t4)', textTransform: 'uppercase', letterSpacing: '.08em' }}>
-                  🎭 {t('demo.clientSitesHeader')}
-                </div>
-                <div style={{ padding: 6 }}>
-                  {demoSites.map(s => (
-                    <a key={s.key} href={s.url} target="_blank" rel="noreferrer noopener" onClick={() => setShowDemoSites(false)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8, textDecoration: 'none', color: 'var(--text)', fontSize: 12 }}>
-                      <span style={{ fontSize: 16 }}>{s.icon}</span>
-                      <span style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700 }}>{t(s.labelKey)}</div>
-                        <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2 }}>{t(s.hintKey)}</div>
-                      </span>
-                      <span style={{ fontSize: 11, color: 'var(--t3)' }}>↗</span>
-                    </a>
-                  ))}
-                </div>
-                <div style={{ height: 1, background: 'var(--border)' }} />
-                <button onClick={resetDemo} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '10px 12px', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'var(--ff)', fontSize: 12, color: 'var(--am)', textAlign: 'left', fontWeight: 700 }} title={t('demo.resetTitle')}>
-                  🔄 {t('demo.reset')}
-                </button>
-              </div>
-            )}
-          </div>
-        )
-      })()}
-
-      <div style={{ position: 'relative' }} data-notif-panel>
-        <button onClick={() => setShowNotif(!showNotif)} style={iconBtn} title={t('header.notifications')}
-          aria-label={t('header.notifications') + (unreadCount > 0 ? (' (' + unreadCount + ')') : '')}>
-          🔔
-        </button>
-        {unreadCount > 0 && (
-          <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, borderRadius: '50%', background: 'var(--rd)', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--surf)', padding: '0 3px' }}>
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
+        <div style={{ position: 'relative' }} data-notif-panel>
+          <button onClick={() => setShowNotif(!showNotif)} style={iconBtn} title={t('header.notifications')}
+            aria-label={t('header.notifications') + (unreadCount > 0 ? (' (' + unreadCount + ')') : '')}>
+            🔔
+          </button>
+          {unreadCount > 0 && (
+            <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, borderRadius: '50%', background: 'var(--rd)', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--surf)', padding: '0 3px' }}>
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         {showNotif && (
           <div style={{ position: 'absolute', top: 42, right: 0, width: 320, background: 'var(--surf2)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px var(--shadow)', zIndex: 200, overflow: 'hidden' }}>
             <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -399,9 +420,9 @@ export function Header() {
             </div>
           </div>
         )}
-      </div>
+        </div>
 
-      <div style={{ position: 'relative' }} data-profile-panel>
+        <div style={{ position: 'relative' }} data-profile-panel>
         <button onClick={() => setShowProfile(!showProfile)}
           style={{ ...iconBtn, width: 'auto', gap: 6, padding: '0 10px', display: 'flex', alignItems: 'center' }}
           title={t('header.profile')}>
@@ -430,7 +451,7 @@ export function Header() {
                   {t('profile.switchRole')}
                   {isDemo && <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--am)', background: 'var(--ap)', padding: '1px 5px', borderRadius: 3, textTransform: 'uppercase' }}>{t('header.demo')}</span>}
                 </div>
-                {(isAdmin ? CORP_ROLES : RESTAURANT_ROLES).map((role: UserRole) => {
+                {(isAdmin ? TOPBAR_CORP_ROLES : TOPBAR_RESTAURANT_ROLES).map((role: UserRole) => {
                   const meta = ROLES[role]
                   const active = userRole === role
                   return (
@@ -475,4 +496,16 @@ export function Header() {
                 style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', padding: '6px 8px', borderRadius: 6, border: 'none', background: 'transparent', color: 'var(--t2)', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)' }}>
                 👥 {t('nav.teamAccess')}
               </button>
-              <div style={{ height: 1, background: 'var(--border)', margin: 
+              <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
+              <button onClick={onLogout}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', padding: '6px 8px', borderRadius: 6, border: 'none', background: 'transparent', color: 'var(--rd)', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)' }}>
+                🚪 {t('profile.logout')}
+              </button>
+            </div>
+          </div>
+        )}
+        </div>
+      </div>
+    </header>
+  )
+}

@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
 
 const root = process.cwd()
 const dist = resolve(root, 'dist')
-if (\!existsSync(dist)) {
+if (!existsSync(dist)) {
   console.error('[post-build] dist/ absent — build a échoué ?')
   process.exit(1)
 }
