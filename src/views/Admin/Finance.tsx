@@ -147,8 +147,8 @@ export function Finance() {
               <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', fontSize: 12 }}>
                 <span style={{ color: 'var(--t3)' }}>MRR R3STO SaaS : <strong style={{ color: 'var(--gn)' }}>CHF {Math.round(fin.mrr).toLocaleString()}</strong></span>
                 <span style={{ color: 'var(--t3)' }}>ARR : <strong style={{ color: 'var(--bl)' }}>CHF {Math.round(fin.arr).toLocaleString()}</strong></span>
-                {fin.total_restaurants \!= null && <span style={{ color: 'var(--t3)' }}>Restaurants : <strong style={{ color: 'var(--text)' }}>{fin.total_restaurants}</strong></span>}
-                {fin.signups_30d \!= null && <span style={{ color: 'var(--t3)' }}>Signups 30j : <strong style={{ color: 'var(--am)' }}>+{fin.signups_30d}</strong></span>}
+                {fin.total_restaurants != null && <span style={{ color: 'var(--t3)' }}>Restaurants : <strong style={{ color: 'var(--text)' }}>{fin.total_restaurants}</strong></span>}
+                {fin.signups_30d != null && <span style={{ color: 'var(--t3)' }}>Signups 30j : <strong style={{ color: 'var(--am)' }}>+{fin.signups_30d}</strong></span>}
               </div>
             </div>
           )}

@@ -73,10 +73,10 @@ export function PricingStrategy() {
   const demoClients = PLANS.reduce((s, p) => s + p.clients, 0)
 
   // Préférer API si dispo
-  const totalMRR = fin?.mrr \!= null ? Math.round(fin.mrr) : demoMRR
+  const totalMRR = fin?.mrr != null ? Math.round(fin.mrr) : demoMRR
   const totalClients = fin?.total_restaurants ?? demoClients
   const arpu = totalClients > 0 ? Math.round(totalMRR / totalClients) : 0
-  const arr = fin?.arr \!= null ? Math.round(fin.arr) : totalMRR * 12
+  const arr = fin?.arr != null ? Math.round(fin.arr) : totalMRR * 12
   const potentialUpsellMRR = UPSELL_OPPORTUNITIES.reduce((s, o) => s + o.deltaMRR, 0)
   const latest = REVENUE_MONTHS[REVENUE_MONTHS.length - 1]
   const prev = REVENUE_MONTHS[REVENUE_MONTHS.length - 2]

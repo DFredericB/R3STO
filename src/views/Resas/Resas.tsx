@@ -537,7 +537,7 @@ export function Resas() {
                   title={t('resa.noResa') || "Aucune réservation ce jour"}
                   description="Commencez par créer votre première réservation manuellement ou attendez que vos clients réservent via le widget."
                   cta={{ label: '+ Nouvelle réservation', onClick: openModal }}
-                  secondary={{ label: 'Voir la semaine', onClick: () => navigate('/agenda') }}
+                  secondary={{ label: 'Voir la semaine', onClick: () => navigateTo('/agenda') }}
                 />
               )
             }

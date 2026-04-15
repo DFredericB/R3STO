@@ -336,8 +336,8 @@ export function Clients() {
               <EmptyState
                 icon="🔎"
                 title="Aucun client trouvé"
-                description={search || filterStatut \!== null ? 'Aucun client ne correspond à vos filtres. Essayez de les réinitialiser.' : undefined}
-                cta={search || filterStatut \!== null ? { label: 'Réinitialiser les filtres', onClick: () => { setSearch(''); setFilterStatut(null) }, variant: 'secondary' } : undefined}
+                description={search || filterStatut !== null ? 'Aucun client ne correspond à vos filtres. Essayez de les réinitialiser.' : undefined}
+                cta={search || filterStatut !== null ? { label: 'Réinitialiser les filtres', onClick: () => { setSearch(''); setFilterStatut(null) }, variant: 'secondary' } : undefined}
               />
             )
           ) : filtered.map(c => {
