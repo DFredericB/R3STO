@@ -1,11 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import pkg from './package.json' with { type: 'json' }
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true,   // expose sur le réseau local (tablette, mobile)
+    host: true,
     port: 5173,
+  },
+  define: {
+    __APP_VERSION__: JSON.stringify((pkg as { version?: string }).version || '0.0.0'),
   },
 })

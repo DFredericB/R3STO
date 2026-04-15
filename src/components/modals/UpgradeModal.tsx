@@ -30,9 +30,9 @@ export function UpgradeModal() {
   async function onUpgrade() {
     setBusy(true)
     try {
-      await redirectToCheckout(minPlan, resto?.id)
+      await redirectToCheckout(minPlan, (resto as any)?.id)
     } catch (e) {
-      toast({ type: 'error', title: t('upgrade.errorTitle'), message: (e as Error).message })
+      toast((e as Error).message, 'error')
       setBusy(false)
     }
   }
