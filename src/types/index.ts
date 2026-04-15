@@ -11,10 +11,20 @@ export type ResaMode = 'ia' | 'manuel' | 'web'
 // SuperAdmin = Didier (accès total, toute la plateforme)
 // Les rôles sont ceux d'une boîte SaaS, PAS d'un restaurant
 export type UserRole =
+  // Restaurant (app.r3sto.ch)
+  | 'proprietaire'
+  | 'gerant'
+  | 'manager'
+  | 'serveur'
+  | 'host'
+  | 'chef'
+  | 'bar'
+  | 'caissier'
+  | 'stagiaire'
+  // Corporate (admin.r3sto.ch)
   | 'superadmin'
   | 'cto'
   | 'coo'
-  | 'manager'
   | 'dev'
   | 'sales'
   | 'marketing'
@@ -22,7 +32,6 @@ export type UserRole =
   | 'comptable'
   | 'support'
   | 'onboarding'
-  | 'stagiaire'
   | 'custom'
 
 // ── Modules de permissions ────────────────────────
@@ -84,6 +93,15 @@ export interface RolePermissions {
 
 // ── Permissions par défaut pour chaque rôle ───────
 export const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, Pick<RolePermissions, 'label' | 'color' | 'icon' | 'description'>> = {
+  // ── Restaurant (app.r3sto.ch) ──────────────
+  proprietaire:{ label: 'Propriétaire', color: '#e74c3c', icon: '👑', description: 'Propriétaire du restaurant — accès total' },
+  gerant:      { label: 'Gérant', color: '#f39c12', icon: '🎖️', description: 'Gérant — opérations, équipe, finance' },
+  serveur:     { label: 'Serveur', color: '#3498db', icon: '🍽️', description: 'Service en salle, prise de commande' },
+  host:        { label: 'Hôte / Hôtesse', color: '#9b59b6', icon: '🎩', description: 'Accueil, placement, réservations' },
+  chef:        { label: 'Chef / Cuisine', color: '#e67e22', icon: '👨‍🍳', description: 'Cuisine, KDS, menu' },
+  bar:         { label: 'Bar', color: '#1abc9c', icon: '🍸', description: 'Bar, KDS boissons' },
+  caissier:    { label: 'Caissier', color: '#2ecc71', icon: '💳', description: 'Caisse, encaissement, Z' },
+  // ── Corporate (admin.r3sto.ch) ─────────────
   superadmin:  { label: 'Super Admin', color: '#e74c3c', icon: '🛡️', description: 'Accès total — fondateur R3STO' },
   cto:         { label: 'CTO', color: '#9b59b6', icon: '💻', description: 'Direction technique, infra, dev' },
   coo:         { label: 'COO', color: '#f39c12', icon: '👑', description: 'Direction opérations' },
@@ -115,6 +133,15 @@ export function getDefaultModuleAccess(role: UserRole): Record<PermissionModule,
   }
 
   switch (role) {
+    // Resto roles
+    case 'proprietaire': return all('admin')
+    case 'gerant': return { ...all('admin'), plateforme: 'none' }
+    case 'serveur': return { ...all('none'), dashboard: 'read', resas: 'write', plan: 'write', grille: 'write', agenda: 'read', waitlist: 'write', clients: 'read' }
+    case 'host': return { ...all('none'), dashboard: 'read', resas: 'write', plan: 'write', grille: 'write', agenda: 'write', waitlist: 'write', clients: 'write', blacklist: 'read' }
+    case 'chef': return { ...all('none'), dashboard: 'read', kds: 'admin', menu: 'write', commandes: 'read' }
+    case 'bar': return { ...all('none'), dashboard: 'read', kds: 'write', commandes: 'read' }
+    case 'caissier': return { ...all('none'), dashboard: 'read', caisse: 'admin', commandes: 'write', prepaiement: 'write', cadeaux: 'write' }
+    // Corp roles
     case 'superadmin': return all('admin')
     case 'cto': return { ...all('admin'), finance: 'read', rh: 'none' as any }
     case 'coo': return { ...all('admin'), plateforme: 'read' }
@@ -496,82 +523,4 @@ export type TicketType = 'tech' | 'usage' | 'feature' | 'billing'
 
 export interface TicketMessage {
   id: string
-  role: 'client' | 'admin'
-  content: string
-  ts: number
-  by?: string           // nom de l'auteur (admin side)
-}
-
-export interface Ticket {
-  id: string            // TKT-XXXXX
-  siteId?: string       // multi-site context
-  createdAt: number
-  updatedAt: number
-  status: TicketStatus
-  priority: TicketPriority
-  type: TicketType
-  module: string
-  subject: string
-  description: string
-  messages: TicketMessage[]
-  userAgent?: string
-  plan?: string
-  assignee?: string     // admin who handles it
-  rating?: number       // 1-5 after resolution
-  resolvedAt?: number
-}
-
-// ── Liste d'attente ───────────────────────────────
-export interface WaitlistItem {
-  id: string
-  n: string
-  c: number
-  svc: string
-  t: string
-  tel?: string
-  note?: string
-  createdAt: number
-}
-
-// ── Demande groupe ────────────────────────────────
-export interface GroupRequest {
-  id: string
-  n: string           // nom du contact
-  c: number           // couverts demandés
-  svc: string
-  date: string        // ISO
-  t: string           // heure souhaitée
-  tel?: string
-  email?: string
-  note?: string
-  mode: 'auto' | 'manuel'
-  status: 'pending' | 'accepted' | 'refused'
-  createdAt: number
-}
-
-// ── État global de l'app ───────────────────────────
-export interface AppState {
-  resas: Resa[]
-  tables: Table[]
-  combos: Combo[]
-  services: Service[]
-  salles: Salle[]
-  resto: Resto
-  options: OptionsData
-  users: User[]
-  fermetures: Fermeture[]
-  clients: Client[]
-  giftCards: GiftCard[]
-  reviews: Review[]
-  loyaltyConfig: LoyaltyConfig
-  loyaltyCards: LoyaltyCard[]
-  // Multi-site (Gastro)
-  sites: Site[]
-  activeSiteId: string | null  // null = site principal (mono-site)
-  // Navigation
-  activeDate: string  // ISO YYYY-MM-DD
-  // UI state
-  isDemo: boolean
-  userRole: UserRole
-  lang: 'fr' | 'en' | 'de' | 'it'
-}
+  role: 'clien

@@ -13,7 +13,7 @@ import { useToast } from '../ui/Toast'
 import { Logo } from '../ui/Logo'
 import { SearchModal } from '../ui/SearchModal'
 import { computeAlerts } from '../../utils/alerts'
-import { ROLES } from '../../utils/roles'
+import { ROLES, RESTAURANT_ROLES, CORP_ROLES } from '../../utils/roles'
 import { isPlanEligible } from '../../utils/plans'
 import { usePermission } from '../../utils/permissions'
 import type { Resa, Service, Fermeture, Site, UserRole } from '../../types'
@@ -23,7 +23,6 @@ const NEW_RESA_RECENT_MS = 2 * 60 * 60 * 1000
 const MAX_NOTIFS = 12
 const API_BASE = (import.meta.env.VITE_API_BASE as string) || 'https://api.r3sto.ch'
 const LANGS = ['FR', 'DE', 'IT', 'EN'] as const
-const ROLES_IN_SWITCHER: UserRole[] = ['superadmin', 'cto', 'coo', 'manager', 'sales', 'dev', 'support', 'stagiaire']
 const TABLET_BP = 1100
 
 function formatTime(): string {
@@ -232,6 +231,18 @@ export function Header() {
       padding: '0 16px', flexShrink: 0, zIndex: 100,
       flexWrap: isTablet ? 'wrap' : 'nowrap',
     }}>
+      <button
+        onClick={() => useAppStore.getState().toggleSidebar()}
+        title={t('sidebar.toggle')}
+        aria-label={t('sidebar.toggle')}
+        style={{
+          width: 36, height: 36, flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'transparent', border: '1px solid var(--border)',
+          borderRadius: 8, color: 'var(--text)', cursor: 'pointer',
+          fontSize: 16, fontFamily: 'var(--ff)',
+        }}
+      >☰</button>
       <Logo size="md" />
 
       {isAdmin && <span style={{ background: 'var(--rd)', color: '#fff', fontSize: 9, fontWeight: 800, padding: '3px 10px', borderRadius: 4, letterSpacing: 1.2, textTransform: 'uppercase', flexShrink: 0 }}>{t('role.superadmin')}</span>}
@@ -419,7 +430,7 @@ export function Header() {
                   {t('profile.switchRole')}
                   {isDemo && <span style={{ fontSize: 8, fontWeight: 700, color: 'var(--am)', background: 'var(--ap)', padding: '1px 5px', borderRadius: 3, textTransform: 'uppercase' }}>{t('header.demo')}</span>}
                 </div>
-                {ROLES_IN_SWITCHER.map((role: UserRole) => {
+                {(isAdmin ? CORP_ROLES : RESTAURANT_ROLES).map((role: UserRole) => {
                   const meta = ROLES[role]
                   const active = userRole === role
                   return (
@@ -464,15 +475,4 @@ export function Header() {
                 style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', padding: '6px 8px', borderRadius: 6, border: 'none', background: 'transparent', color: 'var(--t2)', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)' }}>
                 👥 {t('nav.teamAccess')}
               </button>
-              <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
-              <button onClick={onLogout}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', padding: '6px 8px', borderRadius: 6, border: 'none', background: 'transparent', color: 'var(--rd)', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--ff)' }}>
-                🚪 {t('profile.logout')}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </header>
-  )
-}
+              <div style={{ height: 1, background: 'var(--border)', margin: 

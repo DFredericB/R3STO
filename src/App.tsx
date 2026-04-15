@@ -20,7 +20,6 @@ function ToastBridge() {
   }, [toast])
   return null
 }
-import { DemoShowcaseBar } from './components/ui/DemoShowcaseBar'
 import { TutorialChecklist, TutorialTooltip } from './components/ui/Tutorial'
 import { UpgradeModal } from './components/modals/UpgradeModal'
 import { Dashboard } from './views/Dashboard/Dashboard'
@@ -190,7 +189,6 @@ export default function App() {
       <ToastProvider>
         <ToastBridge />
         <div className="app-layout">
-          {isDemo && <DemoShowcaseBar />}
           <Header />
           <div className="app-body">
             <Sidebar />
@@ -277,3 +275,4 @@ export default function App() {
     </BrowserRouter>
   )
 }
+                                                                                                              

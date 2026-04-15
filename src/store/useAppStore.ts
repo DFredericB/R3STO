@@ -249,7 +249,7 @@ export const useAppStore = create<AppStore>()(
       activeDate: today(),
       isDemo: false,
       _demoVersion: 0,
-      userRole: 'superadmin',
+      userRole: (typeof window !== 'undefined' && window.location.hostname.startsWith('admin.')) ? 'superadmin' : 'proprietaire',
       lang: 'fr',
       theme: 'dark',
       sidebarCollapsed: false,
@@ -669,6 +669,4 @@ export function hasAccess(module: PermissionModule, minLevel: PermissionLevel = 
   const state = useAppStore.getState()
   const defaults = getDefaultModuleAccess(state.userRole)
   const level = defaults[module] || 'none'
-  const levels: PermissionLevel[] = ['none', 'read', 'write', 'admin']
-  return levels.indexOf(level) >= levels.indexOf(minLevel)
-}
+  const levels: PermissionLevel[

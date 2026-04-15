@@ -603,6 +603,14 @@ const translations: Record<string, Record<Lang, string>> = {
   'role.onboarding': { FR: 'Onboarding', DE: 'Onboarding', IT: 'Onboarding', EN: 'Onboarding' },
   'role.stagiaire': { FR: 'Stagiaire', DE: 'Praktikant', IT: 'Stagista', EN: 'Intern' },
   'role.custom': { FR: 'Personnalisé', DE: 'Benutzerdefiniert', IT: 'Personalizzato', EN: 'Custom' },
+  'role.proprietaire': { FR: 'Propriétaire', DE: 'Inhaber', IT: 'Proprietario', EN: 'Owner' },
+  'role.gerant': { FR: 'Gérant', DE: 'Geschäftsführer', IT: 'Gestore', EN: 'Manager' },
+  'role.serveur': { FR: 'Serveur', DE: 'Kellner', IT: 'Cameriere', EN: 'Server' },
+  'role.host': { FR: 'Hôte / Hôtesse', DE: 'Gastgeber:in', IT: 'Host', EN: 'Host' },
+  'role.chef': { FR: 'Chef / Cuisine', DE: 'Koch / Küche', IT: 'Chef / Cucina', EN: 'Chef / Kitchen' },
+  'role.bar': { FR: 'Bar', DE: 'Bar', IT: 'Bar', EN: 'Bar' },
+  'role.caissier': { FR: 'Caissier', DE: 'Kassierer', IT: 'Cassiere', EN: 'Cashier' },
+  'sidebar.toggle': { FR: 'Menu', DE: 'Menü', IT: 'Menu', EN: 'Menu' },
 
   // ── Général ────────────────────────────────────
   'general.myRestaurant': { FR: 'Mon restaurant', DE: 'Mein Restaurant', IT: 'Il mio ristorante', EN: 'My restaurant' },
@@ -1063,19 +1071,4 @@ const translations: Record<string, Record<Lang, string>> = {
 
 // ── Helper arrays pour dates ─────────────────────
 const DAY_KEYS = ['day.dim','day.lun','day.mar','day.mer','day.jeu','day.ven','day.sam'] as const
-const MONTH_KEYS = ['month.jan','month.feb','month.mar','month.apr','month.may','month.jun','month.jul','month.aug','month.sep','month.oct','month.nov','month.dec'] as const
-
-export function getDays(lang: Lang): string[] {
-  return DAY_KEYS.map(k => translations[k]?.[lang] ?? translations[k]?.FR ?? k)
-}
-
-export function getMonths(lang: Lang): string[] {
-  return MONTH_KEYS.map(k => translations[k]?.[lang] ?? translations[k]?.FR ?? k)
-}
-
-// ── Fonction t() ─────────────────────────────────
-export function t(key: string, lang: Lang): string {
-  return translations[key]?.[lang] ?? translations[key]?.FR ?? key
-}
-
-export default translations
+const MONTH_KEYS = ['month.jan'
