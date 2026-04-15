@@ -117,12 +117,16 @@ function StatusPill({ status, onClick }: { status: string; onClick: () => void }
   const sm = STATUS[status as keyof typeof STATUS]
   const label = sm ? t(sm.label) : t('status.reserved')
   return (
-    <button type="button" onClick={onClick} title="Changer statut" style={{
+    <button type="button" onClick={onClick} title={`${label} — cliquer pour changer`} style={{
       background: m.bg, color: m.color, border: `1px solid ${m.border}`,
       borderRadius: 14, padding: '3px 7px', fontSize: 10, fontWeight: 700,
       cursor: 'pointer', fontFamily: 'var(--fm)', whiteSpace: 'nowrap',
       display: 'inline-flex', alignItems: 'center', gap: 3, lineHeight: 1.3,
-    }}>{sm?.icon} {label}</button>
+      maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis',
+    }}>
+      <span style={{ flexShrink: 0 }}>{sm?.icon}</span>
+      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+    </button>
   )
 }
 
@@ -549,12 +553,13 @@ export function Resas() {
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
             <colgroup>
-              <col style={{ width: 66 }} />
+              {/* Heure+svc / Client / Cvt / Table / Statut / Actions — largeurs ajustées pour éviter chevauchement */}
+              <col style={{ width: 68 }} />
               <col />
-              <col style={{ width: 48 }} />
-              <col style={{ width: 70 }} />
-              <col style={{ width: 82 }} />
-              <col style={{ width: 130 }} />
+              <col style={{ width: 58 }} />
+              <col style={{ width: 76 }} />
+              <col style={{ width: 104 }} />
+              <col style={{ width: 118 }} />
             </colgroup>
             <thead style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--surf)' }}><tr style={{ borderBottom: '1px solid var(--border)' }}>
               {([
@@ -595,9 +600,9 @@ export function Resas() {
                   onMouseEnter={() => setHoveredId(r.id)} onMouseLeave={() => setHoveredId(null)}
                   onClick={() => openEdit(r)}>
                   {/* Heure + service dessous */}
-                  <td style={{ padding: '6px 8px' }}>
-                    <div style={{ fontSize: 13, fontFamily: 'var(--fm)', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2 }}>{r.t}</div>
-                    <div style={{ fontSize: 10, color: svcMeta?.color || 'var(--t4)', fontWeight: 600, marginTop: 1 }}>
+                  <td style={{ padding: '6px 8px', overflow: 'hidden' }}>
+                    <div style={{ fontSize: 13, fontFamily: 'var(--fm)', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>{r.t}</div>
+                    <div style={{ fontSize: 10, color: svcMeta?.color || 'var(--t4)', fontWeight: 600, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {svcMeta?.icon} {r.svc}
                     </div>
                   </td>
@@ -625,7 +630,7 @@ export function Resas() {
                     </div>
                   </td>
                   {/* Couverts */}
-                  <td style={{ padding: '6px 8px' }}>
+                  <td style={{ padding: '6px 8px', overflow: 'hidden' }}>
                     <div style={{ fontSize: 13, fontFamily: 'var(--fm)', fontWeight: 700, color: 'var(--t2)', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
                       {r.c}p{tb ? <span style={{ fontWeight: 500, opacity: .5, fontSize: 10 }}>/{tb.capMax}</span> : ''}
                     </div>
@@ -657,12 +662,12 @@ export function Resas() {
                     })() : <span style={{ color: 'var(--t4)', fontSize: 11 }}>—</span>}
                   </td>
                   {/* Statut */}
-                  <td style={{ padding: '6px 2px 6px 6px' }} onClick={e => e.stopPropagation()}>
+                  <td style={{ padding: '6px 2px 6px 6px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
                     <StatusPill status={r.s} onClick={() => { const next = STATUS_CYCLE[r.s]; if (next) setResaStatus(r.id, next as Resa['s']); else toast(`${r.s} est un état final`, 'info') }} />
                   </td>
                   {/* Actions */}
-                  <td style={{ padding: '6px 4px 6px 2px' }} onClick={e => e.stopPropagation()}>
-                    <div style={{ display: 'flex', gap: 2 }}>
+                  <td style={{ padding: '6px 4px 6px 2px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', gap: 2, justifyContent: 'flex-end', flexWrap: 'nowrap' }}>
                       {r.tel && (
                         <a href={`tel:${toE164(r.tel, pays) || r.tel}`} title={`Appeler ${displayPhone(r.tel, pays)}`}
                           style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(60,200,112,.3)', background: 'rgba(60,200,112,.1)', color: 'var(--gn)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>📞</a>
