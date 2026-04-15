@@ -251,10 +251,18 @@ export function Dashboard() {
   const occTables = activeTables.length - freeTables - heldTables
 
   // Badges journée complète (pas filtré par service — service déjà dans header)
-  const vips = dayResas.filter(r => r.statut === 2)
-  const allergies = dayResas.filter(r => r.allergie)
-  const babies = dayResas.reduce((s, r) => s + r.bebe, 0)
-  const pmrs = dayResas.reduce((s, r) => s + r.pmr, 0)
+  // Résas filtrées période + créneau (pour AttentionCards)
+  const pDatesAttn = new Set(periodDays.map(d => d.iso))
+  const filteredResas = resas.filter(r => pDatesAttn.has(r.date) && r.s !== 'cancelled' && (
+    mealSlot === 'service' || mealSlot === 'jour' ? true :
+    mealSlot === 'midi' ? r.svc === 'midi' || r.svc === 'brunch' || r.svc === 'dejeuner' :
+    mealSlot === 'soir' ? r.svc === 'soir' || r.svc === 'diner' :
+    true
+  ))
+  const vips = filteredResas.filter(r => r.statut === 2)
+  const allergies = filteredResas.filter(r => r.allergie)
+  const babies = filteredResas.reduce((s, r) => s + r.bebe, 0)
+  const pmrs = filteredResas.reduce((s, r) => s + r.pmr, 0)
 
   // ── Tendance agrégée (semaines si >30j) ────────
   // Pour les charts tendance/noshow, toujours montrer au moins 7 jours de contexte
@@ -363,14 +371,14 @@ export function Dashboard() {
             color: '#fff', fontSize: 12, fontWeight: 800, cursor: 'pointer',
             fontFamily: 'var(--ff)',
           }}
-        >+ Nouvelle réservation</button>
+        ><span style={{fontSize:14,marginRight:4}}>⚡</span>Rapide</button>
         <div style={{ flex: 1 }} />
         {/* Accès rapide aux vues principales */}
         {([
           { path: '/agenda', icon: '📅', label: 'Agenda' },
           { path: '/reservations', icon: '📖', label: 'Journal' },
-          { path: '/grille', icon: '🪑', label: 'Grille' },
           { path: '/plan', icon: '📐', label: 'Plan de salle' },
+          { path: '/grille', icon: '🪑', label: 'Grille' },
         ] as const).map(v => (
           <button key={v.path} onClick={() => navigate(v.path)} style={{
             display: 'flex', alignItems: 'center', gap: 5,
@@ -387,62 +395,6 @@ export function Dashboard() {
 
       {/* ── Corps scrollable ── */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
-
-        {/* ── Service + Statut (ligne unique) ── */}
-        <div style={{
-          padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
-          borderBottom: '1px solid var(--border)', background: 'var(--surf)',
-        }}>
-          {currentService ? (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '4px 10px', borderRadius: 8,
-              background: `${currentService.color}12`, border: `1.5px solid ${currentService.color}30`,
-            }}>
-              <span style={{ fontSize: 14 }}>{currentService.icon}</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: currentService.color }}>{currentService.name}</span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>
-                {currentService.open.replace(':', 'h')}–{currentService.close.replace(':', 'h')}
-              </span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--t3)', fontFamily: 'var(--fm)' }}>
-                LO {currentService.lastOrder.replace(':', 'h')}
-              </span>
-            </div>
-          ) : (
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>Aucun service actif</span>
-          )}
-          {/* Tables compact : occupées/total */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 5,
-            padding: '4px 10px', borderRadius: 7,
-            background: 'var(--surf2)', border: '1px solid var(--border)',
-          }}>
-            <span style={{ fontSize: 11 }}>🪑</span>
-            <span style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: 'var(--text)' }}>
-              {occTables}/{activeTables.length}
-            </span>
-            <span style={{ fontSize: 10, color: 'var(--t4)' }}>tables</span>
-            <span style={{ color: 'var(--border)' }}>·</span>
-            <span style={{ fontSize: 11 }}>👥</span>
-            <span style={{ fontSize: 12, fontWeight: 900, fontFamily: 'var(--fm)', color: 'var(--text)' }}>
-              {activeTables.reduce((s, tb) => s + tb.capMax, 0)}
-            </span>
-            <span style={{ fontSize: 10, color: 'var(--t4)' }}>places</span>
-            {heldTables > 0 && (<>
-              <span style={{ color: 'var(--border)' }}>·</span>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#e8a530', fontFamily: 'var(--fm)' }}>🔒 {heldTables}</span>
-            </>)}
-            {blockedTables > 0 && (<>
-              <span style={{ color: 'var(--border)' }}>·</span>
-              <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--rd)', fontFamily: 'var(--fm)' }}>🚫 {blockedTables}</span>
-            </>)}
-          </div>
-          {/* Pills inline : VIP / Allergies / Bébés / PMR (affichés si > 0) */}
-          {vips.length > 0 && <BadgePill icon="⭐" label={`${vips.length} VIP`} color="#D4A017" bg="rgba(212,160,23,.08)" border="rgba(212,160,23,.25)" onClick={() => navigate('/reservations')} />}
-          {allergies.length > 0 && <BadgePill icon="⚠️" label={`${allergies.length} Allergies`} color="var(--am)" bg="var(--ap)" border="var(--ab)" onClick={() => navigate('/reservations')} />}
-          {babies > 0 && <BadgePill icon="👶" label={`${babies} Bébés`} color="#06b6d4" bg="rgba(6,182,212,.08)" border="rgba(6,182,212,.25)" onClick={() => navigate('/reservations')} />}
-          {pmrs > 0 && <BadgePill icon="♿" label={`${pmrs} PMR`} color="#a855f7" bg="rgba(168,85,247,.08)" border="rgba(168,85,247,.25)" onClick={() => navigate('/reservations')} />}
-        </div>
 
         {/* ── ANALYSE — sélecteur de période bien visible ── */}
         <div style={{
@@ -538,7 +490,7 @@ export function Dashboard() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
             <StatCard label={`Résas (${pTag})`} value={pResas} valueSecondary={pTotal} pct={pTotal > 0 ? Math.round(pResas / pTotal * 100) : 0} sub={`${avgResaPerDay}/jour en moy.`} color="var(--bl)" dotColor={slotColor} />
             <StatCard label={`Couverts (${pTag})`} value={pCvt} pct={activeTables.length > 0 && numDaysInPeriod > 0 ? Math.round(pCvt / (activeTables.reduce((s, tb) => s + tb.capMax, 0) * numDaysInPeriod) * 100) : 0} sub={`${avgCvtPerResa} cvt/résa`} color="var(--gn)" dotColor={slotColor} />
-            <StatCard label={`Remplissage (${pTag})`} value={period === 'day' ? occTables : pResas} valueSecondary={period === 'day' ? activeTables.length : activeTables.length * numDaysInPeriod} pct={period === 'day' ? (activeTables.length > 0 ? Math.round(occTables / activeTables.length * 100) : 0) : (activeTables.length > 0 && numDaysInPeriod > 0 ? Math.min(100, Math.round(pResas / (activeTables.length * numDaysInPeriod) * 100)) : 0)} sub={period === 'day' ? `${activeTables.length} tables actives` : `${numDaysInPeriod > 0 ? (pResas / numDaysInPeriod).toFixed(0) : 0} résas/jour`} color={period === 'day' ? (occTables >= activeTables.length ? '#ef4444' : occTables >= activeTables.length * 0.7 ? '#f59e0b' : 'var(--gn)') : 'var(--bl)'} dotColor={slotColor} />
+            <StatCard label={`Remplissage (${pTag})`} value={period === 'day' ? occTables : pResas} valueSecondary={period === 'day' ? activeTables.length : activeTables.length * numDaysInPeriod} pct={period === 'day' ? (activeTables.length > 0 ? Math.min(100, Math.round(occTables / activeTables.length * 100)) : 0) : (activeTables.length > 0 && numDaysInPeriod > 0 ? Math.min(100, Math.round(pResas / (activeTables.length * numDaysInPeriod) * 100)) : 0)} sub={period === 'day' ? `${activeTables.length} tables actives` : `${numDaysInPeriod > 0 ? (pResas / numDaysInPeriod).toFixed(0) : 0} résas/jour`} color={period === 'day' ? (occTables >= activeTables.length ? '#ef4444' : occTables >= activeTables.length * 0.7 ? '#f59e0b' : 'var(--gn)') : 'var(--bl)'} dotColor={slotColor} />
             <StatCard label={`No-shows (${pTag})`} value={pNS} valueSecondary={pTotal} pct={noshowRate} sub={`Taux : ${noshowRate}%`} color={noshowRate > 10 ? '#ef4444' : noshowRate > 5 ? '#f59e0b' : 'var(--gn)'} dotColor={slotColor} />
             <StatCard label={`Annulations (${pTag})`} value={pCancelled} valueSecondary={pTotal} pct={pTotal > 0 ? Math.round(pCancelled / pTotal * 100) : 0} sub={`sur ${pTotal} résas`} color="var(--t3)" dotColor={slotColor} />
           </div>
