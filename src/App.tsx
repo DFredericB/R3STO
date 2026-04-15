@@ -22,6 +22,7 @@ function ToastBridge() {
 }
 import { DemoShowcaseBar } from './components/ui/DemoShowcaseBar'
 import { TutorialChecklist, TutorialTooltip } from './components/ui/Tutorial'
+import { UpgradeModal } from './components/modals/UpgradeModal'
 import { Dashboard } from './views/Dashboard/Dashboard'
 import { Grille } from './views/Grille/Grille'
 import { Resas } from './views/Resas/Resas'
@@ -270,6 +271,7 @@ export default function App() {
           <BottomNav />
           <TutorialTooltip />
           <TutorialChecklist />
+          <UpgradeModal />
         </div>
       </ToastProvider>
     </BrowserRouter>

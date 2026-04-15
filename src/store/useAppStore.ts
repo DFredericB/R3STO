@@ -135,6 +135,10 @@ interface AppStore {
   sidebarCollapsed: boolean
   showQuickResa: boolean
   blinkResaIds: string[]
+  /** IDs de notifs marquées lues (persistés) */
+  readNotifIds: string[]
+  /** Popup upgrade plan (null si fermée) */
+  upgradePrompt: null | { minPlan: 'bistro' | 'resto' | 'gastro'; featureLabelKey: string; icon?: string }
 
   // Actions — Réservations
   addResa: (resa: Resa) => void
@@ -197,6 +201,15 @@ interface AppStore {
   toggleSidebar: () => void
   toggleQuickResa: () => void
 
+  // Actions — Notifications read-state
+  markNotifRead: (id: string) => void
+  markAllNotifRead: (ids: string[]) => void
+  clearReadNotifs: () => void
+
+  // Actions — Upgrade prompt
+  openUpgradePrompt: (payload: { minPlan: 'bistro' | 'resto' | 'gastro'; featureLabelKey: string; icon?: string }) => void
+  closeUpgradePrompt: () => void
+
   // Actions — Demo
   loadDemoData: (data: Partial<AppStore>) => void
   resetData: () => void
@@ -242,6 +255,8 @@ export const useAppStore = create<AppStore>()(
       sidebarCollapsed: false,
       showQuickResa: true,
       blinkResaIds: [],
+      readNotifIds: [],
+      upgradePrompt: null,
 
       // Réservations
       addResa: (resa) => set((s) => {
@@ -480,6 +495,19 @@ export const useAppStore = create<AppStore>()(
       toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       toggleQuickResa: () => set((s) => ({ showQuickResa: !s.showQuickResa })),
 
+      // Notifications read-state
+      markNotifRead: (id) => set((s) => (
+        s.readNotifIds.includes(id) ? s : { readNotifIds: [...s.readNotifIds, id] }
+      )),
+      markAllNotifRead: (ids) => set((s) => {
+        const next = new Set([...s.readNotifIds, ...ids])
+        return { readNotifIds: Array.from(next) }
+      }),
+      clearReadNotifs: () => set({ readNotifIds: [] }),
+
+      openUpgradePrompt: (payload) => set({ upgradePrompt: payload }),
+      closeUpgradePrompt: () => set({ upgradePrompt: null }),
+
       // Demo
       loadDemoData: (data) => set((s) => ({ ...s, ...data, isDemo: true })),
       resetData: () => set({
@@ -495,11 +523,26 @@ export const useAppStore = create<AppStore>()(
       name: 'r3sto-app-data',
       // ── Corruption detection : si le JSON est invalide, reset propre ──
       onRehydrateStorage: () => {
-        return (_state, error) => {
+        return (state, error) => {
           if (error) {
             console.error('[R3STO] Données localStorage corrompues — reset automatique', error)
             try { localStorage.removeItem('r3sto-app-data') } catch (_) {}
             window.location.reload()
+            return
+          }
+          // ── Demo mirror : force superadmin + plan Gastro sur demo.r3sto.ch ──
+          // Règle : la démo doit refléter 100% de l'app (toutes features débloquées).
+          // Seules les données sont factices.
+          try {
+            const host = typeof window !== 'undefined' ? window.location.hostname : ''
+            const isDemoHost = host.startsWith('demo.') || host === 'demo.r3sto.ch'
+            if (state && (isDemoHost || state.isDemo)) {
+              state.isDemo = true
+              state.userRole = 'superadmin'
+              if (state.resto) state.resto.plan = 'gastro'
+            }
+          } catch (e) {
+            console.warn('[R3STO] demo mirror bootstrap failed', e)
           }
         }
       },
@@ -528,6 +571,8 @@ export const useAppStore = create<AppStore>()(
         showQuickResa: state.showQuickResa,
         isDemo: state.isDemo,
         _demoVersion: state._demoVersion,
+        readNotifIds: state.readNotifIds,
+        userRole: state.userRole,
       })
     }
   )
