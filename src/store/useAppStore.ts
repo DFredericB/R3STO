@@ -13,6 +13,7 @@ import type {
   OptionsData, User, Fermeture, UserRole, RoomItem, Client, GiftCard, Review,
   LoyaltyConfig, LoyaltyCard, LoyaltyEvent, Site
 } from '../types'
+import type { Plan } from '../utils/plans'
 
 // ── Toast bridge : permet au store (hors React) d'afficher des toasts ──
 // Wiré depuis App via <ToastBridge/> après ToastProvider.
@@ -142,7 +143,7 @@ interface AppStore {
   /** IDs de notifs marquées lues (persistés) */
   readNotifIds: string[]
   /** Popup upgrade plan (null si fermée) */
-  upgradePrompt: null | { minPlan: 'bistro' | 'resto' | 'gastro'; featureLabelKey: string; icon?: string }
+  upgradePrompt: null | { minPlan: Plan; featureLabelKey: string; icon?: string }
 
   // Actions — Réservations
   addResa: (resa: Resa) => void
@@ -211,7 +212,7 @@ interface AppStore {
   clearReadNotifs: () => void
 
   // Actions — Upgrade prompt
-  openUpgradePrompt: (payload: { minPlan: 'bistro' | 'resto' | 'gastro'; featureLabelKey: string; icon?: string }) => void
+  openUpgradePrompt: (payload: { minPlan: Plan; featureLabelKey: string; icon?: string }) => void
   closeUpgradePrompt: () => void
 
   // Actions — Demo

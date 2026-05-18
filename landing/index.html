@@ -151,6 +151,14 @@ section {padding:96px 24px;position:relative}
 }
 .nav-login:hover {color:var(--navy);border-color:var(--border)}
 .nav-login.connected{color:var(--navy);border-color:var(--gold);background:#fff8e8}
+.nav-legacy {
+  font-family:var(--fm);font-size:10.5px;font-weight:600;
+  color:var(--t-3);text-decoration:none;letter-spacing:.10em;
+  text-transform:uppercase;padding:7px 11px;
+  border:1px solid var(--border);border-radius:0;
+  transition:.15s;
+}
+.nav-legacy:hover {color:var(--navy);border-color:var(--navy)}
 .nav-pro {
   font-family:var(--fm);font-size:11px;font-weight:600;
   color:var(--gold);text-transform:uppercase;letter-spacing:.14em;
@@ -1173,6 +1181,7 @@ img.logo-mark { object-fit:cover; display:block; }
           <button onclick="setCountry('nz')">🇳🇿 New Zealand <span class="cm-lang">EN · MI</span></button>
         </div>
       </div>
+      <a href="https://app.r3sto.ch" class="nav-legacy" id="navFuturaurant" title="Anciens clients Futuraurant — accès direct à l'ancien espace">⇲ Futuraurant</a>
       <a href="/login.html" class="nav-login" id="navLogin">Connexion</a>
       <a href="/pro.html" class="nav-pro" id="navPro">Espace Pro <span class="pro-long">→</span></a>
       <button class="mob-menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
