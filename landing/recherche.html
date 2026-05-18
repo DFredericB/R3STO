@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recherche — R3STO</title>
+<meta name="description" content="Recherche de restaurants sur R3STO — annuaire international, réservation directe sans commission.">
+<meta name="theme-color" content="#1c2e58">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;
+  --bg-2:#e3ebf5;
+  --surf:#ffffff;
+  --navy:#1c2e58;
+  --navy-2:#13224a;
+  --gold:#a07e2a;
+  --gold-soft:#c89752;
+  --t-1:#0c1730;
+  --t-2:#4a5878;
+  --t-3:#7b88a8;
+  --border:#d6dfee;
+  --max:1180px;
+  --ff:'DM Sans',system-ui,-apple-system,sans-serif;
+  --ffm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);-webkit-font-smoothing:antialiased;line-height:1.55}
+a{color:inherit}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+.nav-links{display:flex;gap:28px}
+.nav-links a{color:var(--t-2);text-decoration:none;font-size:14px;font-weight:500;transition:.18s}
+.nav-links a:hover{color:var(--navy)}
+@media(max-width:880px){.nav-links{display:none}}
+.nav-cta{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#fff;padding:9px 16px;border-radius:0;font-size:13px;font-weight:600;letter-spacing:.04em;text-decoration:none;text-transform:uppercase;transition:.18s}
+.nav-cta:hover{background:var(--gold-soft);transform:translateY(-1px)}
+
+/* SEARCH BAR */
+.searchbar{background:var(--bg-2);padding:24px 28px;border-bottom:1px solid var(--border)}
+.searchbar-in{max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px}
+@media(max-width:980px){.searchbar-in{grid-template-columns:1fr 1fr;gap:8px}.sb-cta{grid-column:1/-1;padding:14px}}
+@media(max-width:580px){.searchbar-in{grid-template-columns:1fr}}
+.sb-field{position:relative;display:flex;align-items:center;background:#fff;padding:0 16px;border-radius:0;border:1px solid var(--border)}
+.sb-field svg{width:18px;height:18px;color:var(--gold);flex-shrink:0;stroke-width:2}
+.sb-field input{flex:1;border:0;background:transparent;padding:14px 12px;font-family:var(--ff);font-size:14px;color:var(--t-1);outline:none}
+.sb-field input::placeholder{color:var(--t-3)}
+.sb-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:#fff;padding:0 28px;border:0;border-radius:0;font-family:var(--ff);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;transition:.18s}
+.sb-cta:hover{background:var(--gold-soft)}
+
+/* RESULTS HEAD */
+.wrap{max-width:var(--max);margin:0 auto;padding:32px 28px 80px}
+.results-head{margin-bottom:22px}
+.results-count{font-size:14px;color:var(--t-2);margin-bottom:14px}
+.results-count b{color:var(--navy);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;background:var(--surf);border:1px solid var(--border);border-radius:0;font-size:12px;font-weight:600;color:var(--navy);font-family:var(--ffm);letter-spacing:.04em}
+.chip .x{cursor:pointer;color:var(--t-3);font-weight:400;padding-left:4px}
+.chip .x:hover{color:var(--navy)}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:24px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+
+.card{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:0;overflow:hidden;display:flex;flex-direction:column;
+  transition:.22s;text-decoration:none;color:inherit;
+}
+.card:hover{transform:translateY(-3px);border-color:var(--navy);box-shadow:0 14px 36px -18px rgba(28,46,88,.35)}
+.card-img{height:200px;background-size:cover;background-position:center;position:relative}
+.card-badge{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:6px;background:#0a0a0a;color:#fff;border:1px solid;padding:6px 11px;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:0}
+.card-badge .diam{font-size:13px;line-height:1}
+.card-badge.tier-or     {border-color:#d4af37;color:#d4af37}
+.card-badge.tier-silver {border-color:#c0c8d4;color:#c0c8d4}
+.card-badge.tier-bronze {border-color:#cd7f32;color:#cd7f32}
+.card-badge.tier-none   {background:transparent;color:var(--t-2);border-color:var(--border)}
+.card-body{padding:18px 20px 16px;flex:1;display:flex;flex-direction:column}
+.card-cuisine{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.card-name{font-size:18px;font-weight:700;letter-spacing:-.01em;color:var(--navy);margin:0 0 4px}
+.card-loc{font-size:13px;color:var(--t-2);margin-bottom:14px}
+.card-scores{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.card-score{display:inline-flex;align-items:center;gap:5px;background:#fff8e8;border:1px solid #e6d090;border-radius:0;padding:4px 8px;font-size:11px;font-weight:600;color:var(--gold);font-family:var(--ffm)}
+.card-score b{color:var(--t-1);font-weight:700}
+.card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);margin-top:auto;font-size:13px}
+.card-price{font-family:var(--ffm);font-weight:600;color:var(--t-1)}
+.card-cta{color:var(--gold);font-weight:700;letter-spacing:.02em}
+
+/* EMPTY */
+.empty{
+  background:var(--surf);border:1px solid var(--border);border-radius:0;
+  padding:60px 28px;text-align:center;margin-top:30px;
+}
+.empty h2{font-size:22px;font-weight:800;color:var(--navy);margin:0 0 8px}
+.empty p{color:var(--t-2);margin:0 0 22px;font-size:14px}
+.empty-cta{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;padding:12px 22px;border-radius:0;font-size:14px;font-weight:600;text-decoration:none}
+.empty-cta:hover{background:var(--gold)}
+
+/* FOOTER */
+footer{background:var(--bg-2);color:var(--t-3);padding:48px 28px 28px;margin-top:60px;border-top:1px solid var(--border)}
+.foot-in{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;border-top:1px solid var(--border);padding-top:22px;font-size:12.5px}
+.foot-in .logo-mark{width:36px;height:36px}
+.foot-brand{display:flex;align-items:center;gap:12px;color:var(--t-2)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Recherche</span>
+        <span class="logo-slogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <div class="nav-links">
+      <a href="/">Restaurants</a>
+      <a href="/#carat">Sélection Carat</a>
+      <a href="/#cities">Villes</a>
+      <a href="/pro.html">R3STO Pro</a>
+    </div>
+    <a href="/pro.html" class="nav-cta">Espace Pro →</a>
+  </div>
+</nav>
+
+<div class="searchbar">
+  <form class="searchbar-in" onsubmit="return runSearch(event)">
+    <div class="sb-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v13h18V7"/><path d="M3 7l9-4 9 4"/><path d="M12 11v9"/></svg>
+      <input type="text" id="nomInput" name="nom" placeholder="Nom du restaurant">
+    </div>
+    <div class="sb-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      <input type="text" id="platInput" name="plat" placeholder="Plat ou cuisine">
+    </div>
+    <div class="sb-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <input type="text" id="locInput" name="lieu" placeholder="Ville ou région">
+    </div>
+    <button type="submit" class="sb-cta">Chercher →</button>
+  </form>
+</div>
+
+<div class="wrap">
+  <div class="results-head">
+    <div class="results-count" id="resultsCount">Chargement…</div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="empty" id="emptyState" style="display:none">
+    <h2>Aucun résultat</h2>
+    <p>Essayez d'autres mots-clés, une autre ville, ou parcourez l'annuaire complet.</p>
+    <a href="/" class="empty-cta">← Retour à l'annuaire</a>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="36" height="36">
+      <span>Marketplace internationale des restaurateurs indépendants</span>
+    </div>
+    <div>© 2026 Innoptim SA · Lausanne · CHE-430.441.925</div>
+  </div>
+</footer>
+
+<script>
+// Base de restos searchables
+const RESTOS = [
+  {
+    slug:'chez-bunnys', name:"Chez Bunny's", cuisine:'Bistro contemporain',
+    city:'Lausanne', region:'VD', country:'CH',
+    price:'CHF 35–70', badge:'★ Démo R3STO',
+    img:'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=900&q=80',
+    scores:{michelin:'—',gm:'15/20',r3:'8.8'},
+    tags:['bistro','marché','familial','chasse','gibier','suisse']
+  },
+  {
+    slug:'le-populaire', name:"Le Populaire", cuisine:'Brasserie de quartier · gibier de saison',
+    city:'Lausanne', region:'VD', country:'CH',
+    price:'CHF 25–55', badge:'Recommandé',
+    img:'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=900&q=80',
+    scores:{michelin:'—',gm:'14/20',r3:'8.4'},
+    tags:['brasserie','populaire','plat du jour','chasse','gibier','suisse','automne']
+  },
+  {
+    slug:'le-central-mont', name:"Le Central", cuisine:'Brasserie vaudoise · chasse en saison',
+    city:'Lausanne', region:'VD', country:'CH',
+    price:'CHF 30–65', badge:'Institution locale',
+    img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80',
+    scores:{michelin:'—',gm:'13/20',r3:'8.5'},
+    tags:['brasserie','suisse','traditionnel','vaudois','chasse','gibier','automne','familial']
+  },
+  {
+    slug:'la-pinte-crissier', name:"La Pinte", cuisine:'Terroir & vins suisses',
+    city:'Crissier', region:'VD', country:'CH',
+    price:'CHF 90–160', badge:'★★ Michelin',
+    img:'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80',
+    scores:{michelin:'★★',gm:'18/20',r3:'9.2'},
+    tags:['gastronomique','terroir','cave']
+  },
+  {
+    slug:'hotel-de-ville-crissier', name:"Restaurant de l'Hôtel de Ville", cuisine:"Cuisine d'auteur",
+    city:'Crissier', region:'VD', country:'CH',
+    price:'CHF 350–550', badge:'★★★ Michelin',
+    img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80',
+    scores:{michelin:'★★★',gm:'19/20',r3:'9.7'},
+    tags:['gastronomique','3 étoiles','Giovannini']
+  },
+  {
+    slug:'denis-martin', name:"Denis Martin", cuisine:'Gastronomie moléculaire',
+    city:'Vevey', region:'VD', country:'CH',
+    price:'CHF 280–420', badge:'★★ Michelin',
+    img:'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=900&q=80',
+    scores:{michelin:'★★',gm:'18/20',r3:'9.4'},
+    tags:['gastronomique','expérience','avant-garde']
+  },
+  {
+    slug:'anne-sophie-pic-beau-rivage', name:"Anne-Sophie Pic au Beau-Rivage", cuisine:'Cuisine signature',
+    city:'Lausanne', region:'VD', country:'CH',
+    price:'CHF 250–400', badge:'★★ Michelin',
+    img:'https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=900&q=80',
+    scores:{michelin:'★★',gm:'18/20',r3:'9.3'},
+    tags:['palace','lac','signature']
+  },
+  {
+    slug:'le-petit-boeuf', name:"Le Petit Bœuf", cuisine:'Grill suisse',
+    city:'Lausanne', region:'VD', country:'CH',
+    price:'CHF 45–80', badge:'Coup de cœur',
+    img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80',
+    scores:{michelin:'—',gm:'14/20',r3:'8.6'},
+    tags:['grill','marché','tendance','chasse','gibier','suisse']
+  },
+  {
+    slug:'alt-505', name:"Alt. 505", cuisine:'Bar à vins · tapas',
+    city:'Sion', region:'VS', country:'CH',
+    price:'CHF 30–55', badge:'Tendance',
+    img:'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=900&q=80',
+    scores:{michelin:'—',gm:'—',r3:'8.2'},
+    tags:['bar à vin','tapas','late night']
+  },
+  {
+    slug:'osteria-del-mare', name:"Osteria del Mare", cuisine:'Italien · poisson',
+    city:'Genève', region:'GE', country:'CH',
+    price:'CHF 60–110', badge:'Nouveau',
+    img:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80',
+    scores:{michelin:'—',gm:'15/20',r3:'8.7'},
+    tags:['italien','poisson','lac']
+  },
+  {
+    slug:'pizza-napoli', name:"Pizza Napoli", cuisine:'Pizzeria napolitaine',
+    city:'Berne', region:'BE', country:'CH',
+    price:'CHF 18–32', badge:'Populaire',
+    img:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=900&q=80',
+    scores:{michelin:'—',gm:'—',r3:'8.5'},
+    tags:['pizza','italien','famille','take-away']
+  },
+  {
+    slug:'da-luigi-lausanne', name:"Da Luigi", cuisine:'Pizzeria italienne · pasta fraîche',
+    city:'Lausanne', region:'VD', country:'CH',
+    price:'CHF 22–48', badge:'Populaire',
+    img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900&q=80',
+    scores:{michelin:'—',gm:'14/20',r3:'8.7'},
+    tags:['pizza','italien','pasta','familial']
+  },
+  {
+    slug:'la-trattoria-geneve', name:"La Trattoria", cuisine:'Trattoria · cuisine italienne traditionnelle',
+    city:'Genève', region:'GE', country:'CH',
+    price:'CHF 35–70', badge:'Recommandé',
+    img:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80',
+    scores:{michelin:'—',gm:'15/20',r3:'8.9'},
+    tags:['italien','pasta','vins italiens','romantique']
+  },
+  {
+    slug:'forno-vaud', name:"Forno", cuisine:'Pizzeria au feu de bois',
+    city:'Vevey', region:'VD', country:'CH',
+    price:'CHF 20–38', badge:'Coup de cœur',
+    img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=900&q=80',
+    scores:{michelin:'—',gm:'15/20',r3:'8.9'},
+    tags:['pizza','italien','feu de bois','take-away']
+  },
+  {
+    slug:'le-pourquoi-pas-lausanne', name:"Le Pourquoi Pas", cuisine:'Bistro français · brasserie',
+    city:'Lausanne', region:'VD', country:'CH',
+    price:'CHF 35–65', badge:'Tendance',
+    img:'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80',
+    scores:{michelin:'—',gm:'14/20',r3:'8.6'},
+    tags:['bistro','brasserie','français','terrasse']
+  },
+  {
+    slug:'kabuki-zurich', name:"Kabuki", cuisine:'Japonais · ramen · gyoza',
+    city:'Zürich', region:'ZH', country:'CH',
+    price:'CHF 25–48', badge:'Populaire',
+    img:'https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=900&q=80',
+    scores:{michelin:'—',gm:'—',r3:'8.6'},
+    tags:['japonais','ramen','asiatique']
+  },
+  {
+    slug:'thai-orchid-geneve', name:"Thai Orchid", cuisine:'Cuisine thaïe authentique',
+    city:'Genève', region:'GE', country:'CH',
+    price:'CHF 28–55', badge:'Recommandé',
+    img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=900&q=80',
+    scores:{michelin:'—',gm:'13/20',r3:'8.3'},
+    tags:['thaï','asiatique','curry','épicé']
+  },
+  {
+    slug:'fondue-chalet-gruyere', name:"Le Chalet", cuisine:'Cuisine suisse · fondue · raclette',
+    city:'Gruyères', region:'FR', country:'CH',
+    price:'CHF 32–55', badge:'Tradition',
+    img:'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=900&q=80',
+    scores:{michelin:'—',gm:'14/20',r3:'8.7'},
+    tags:['fondue','raclette','suisse','traditionnel','famille','chasse','gibier']
+  },
+  {
+    slug:'cafe-romand-lausanne', name:"Café Romand", cuisine:'Brasserie historique · spécialités vaudoises',
+    city:'Lausanne', region:'VD', country:'CH',
+    price:'CHF 28–55', badge:'Institution',
+    img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80',
+    scores:{michelin:'—',gm:'13/20',r3:'8.4'},
+    tags:['brasserie','suisse','traditionnel','vaudois','chasse','gibier','automne']
+  },
+  {
+    slug:'sushi-zen-geneve', name:"Sushi Zen", cuisine:'Sushi bar · cuisine japonaise',
+    city:'Genève', region:'GE', country:'CH',
+    price:'CHF 45–95', badge:'Tendance',
+    img:'https://images.unsplash.com/photo-1553621042-f6e147245754?w=900&q=80',
+    scores:{michelin:'—',gm:'15/20',r3:'8.8'},
+    tags:['japonais','sushi','asiatique','premium']
+  },
+  {
+    slug:'sakura', name:"Sakura", cuisine:'Japonais · omakase',
+    city:'Zürich', region:'ZH', country:'CH',
+    price:'CHF 120–250', badge:'★ Michelin',
+    img:'https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=900&q=80',
+    scores:{michelin:'★',gm:'17/20',r3:'9.0'},
+    tags:['japonais','sushi','premium']
+  },
+  {
+    slug:'le-pont-de-brent', name:"Le Pont de Brent", cuisine:'Cuisine classique',
+    city:'Brent', region:'VD', country:'CH',
+    price:'CHF 180–320', badge:'★ Michelin',
+    img:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=900&q=80',
+    scores:{michelin:'★',gm:'17/20',r3:'9.0'},
+    tags:['classique','Décotterd','vignoble']
+  }
+];
+
+/* RÈGLE LABEL CARAT — score composite Michelin × G&M × R3STO
+   - Or:    score ≥ 9.3  OU ≥2★ Michelin       OU ≥18/20 G&M
+   - Silver:score ≥ 8.8  OU 1★ Michelin        OU ≥16/20 G&M
+   - Bronze:score ≥ 8.4  OU coup de cœur R3STO
+   - null:  hors label
+*/
+function caratTier(scores){
+  if(!scores) return null;
+  const m  = (scores.michelin || '').match(/★/g)?.length || 0;
+  const gm = parseFloat((scores.gm || '').split('/')[0]) || 0;
+  const r3 = parseFloat(scores.r3) || 0;
+  // Score composite normalisé /10 (40% Michelin / 30% G&M / 30% R3STO)
+  const mNorm  = m === 3 ? 10 : m === 2 ? 9.0 : m === 1 ? 8.0 : 0;
+  const gmNorm = gm ? (gm / 2) : 0;
+  const composite = (mNorm * 0.4) + (gmNorm * 0.3) + (r3 * 0.3);
+  if(composite >= 9.3 || m >= 2 || gm >= 18) return 'or';
+  if(composite >= 8.8 || m >= 1 || gm >= 16) return 'silver';
+  if(composite >= 8.4) return 'bronze';
+  return null;
+}
+
+function getParams(){
+  const p = new URLSearchParams(window.location.search);
+  // Rétrocompat : "q" éclate vers nom+plat. Sinon on lit nom/plat séparés.
+  const qLegacy = (p.get('q') || '').trim().toLowerCase();
+  return {
+    nom:  ((p.get('nom')  || qLegacy)).trim().toLowerCase(),
+    plat: ((p.get('plat') || qLegacy)).trim().toLowerCase(),
+    lieu: (p.get('lieu') || '').trim().toLowerCase(),
+    pays: (p.get('pays') || '').trim().toUpperCase()
+  };
+}
+
+function filter(restos, nom, plat, lieu, pays){
+  return restos.filter(r => {
+    if(!lieu && pays && pays !== 'WW' && r.country !== pays) return false;
+    if(lieu){
+      const hay = (r.city + ' ' + r.region + ' ' + r.country).toLowerCase();
+      if(!hay.includes(lieu)) return false;
+    }
+    // NOM : strict — uniquement le nom du resto (évite "petit bœuf" vs "bœuf")
+    if(nom){
+      if(!r.name.toLowerCase().includes(nom)) return false;
+    }
+    // PLAT/CUISINE : cuisine + tags uniquement, pas le nom
+    if(plat){
+      const hay = (r.cuisine + ' ' + r.tags.join(' ')).toLowerCase();
+      if(!hay.includes(plat)) return false;
+    }
+    return true;
+  });
+}
+
+function render(){
+  const params = getParams();
+  document.getElementById('nomInput').value  = params.nom;
+  document.getElementById('platInput').value = params.plat;
+  document.getElementById('locInput').value  = params.lieu;
+
+  const results = filter(RESTOS, params.nom, params.plat, params.lieu, params.pays);
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyState');
+  const count = document.getElementById('resultsCount');
+  const chips = document.getElementById('chips');
+
+  // Count line
+  if(results.length === 0){
+    count.innerHTML = '<b>0</b> restaurant trouvé';
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    count.innerHTML = '<b>' + results.length + '</b> restaurant' + (results.length>1?'s':'') + ' trouvé' + (results.length>1?'s':'') + ' selon vos critères';
+    empty.style.display = 'none';
+    grid.innerHTML = results.map(r => {
+      const t = caratTier(r.scores);
+      const tLabel = t ? `Carat ${t==='or'?'Or':t==='silver'?'Silver':'Bronze'}` : r.badge;
+      const tClass = t ? `tier-${t}` : 'tier-none';
+      const diam   = t ? `<span class="diam">◆</span>` : '';
+      return `
+      <a class="card" href="/fiche.html?slug=${r.slug}">
+        <div class="card-img" style="background-image:url('${r.img}')">
+          <div class="card-badge ${tClass}">${diam}${tLabel}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-cuisine">${r.cuisine}</div>
+          <div class="card-name">${r.name}</div>
+          <div class="card-loc">${r.city} · ${r.region}</div>
+          <div class="card-scores">
+            ${r.scores.michelin !== '—' ? `<span class="card-score">${r.scores.michelin} <b>Michelin</b></span>` : ''}
+            ${r.scores.gm !== '—' ? `<span class="card-score">${r.scores.gm} <b>G&amp;M</b></span>` : ''}
+            <span class="card-score">${r.scores.r3} <b>R3STO</b></span>
+          </div>
+          <div class="card-foot">
+            <span class="card-price">${r.price}</span>
+            <span class="card-cta">Voir & réserver →</span>
+          </div>
+        </div>
+      </a>
+    `;
+    }).join('');
+  }
+
+  // Chips
+  const cs = [];
+  if(!params.lieu && params.pays && params.pays !== 'WW') cs.push({label:'🌍 ' + params.pays, key:'pays'});
+  if(params.nom)  cs.push({label:'🏠 ' + params.nom,  key:'nom'});
+  if(params.plat) cs.push({label:'🍴 ' + params.plat, key:'plat'});
+  if(params.lieu) cs.push({label:'📍 ' + params.lieu, key:'lieu'});
+  chips.innerHTML = cs.map(c =>
+    `<span class="chip">${c.label}<span class="x" onclick="removeChip('${c.key}')">×</span></span>`
+  ).join('');
+}
+
+function removeChip(key){
+  const p = new URLSearchParams(window.location.search);
+  p.delete(key);
+  if(key === 'nom' || key === 'plat') p.delete('q');
+  window.location.search = p.toString();
+}
+
+function runSearch(e){
+  e.preventDefault();
+  const nom  = document.getElementById('nomInput').value.trim();
+  const plat = document.getElementById('platInput').value.trim();
+  const lieu = document.getElementById('locInput').value.trim();
+  const p = new URLSearchParams();
+  if(nom)  p.set('nom', nom);
+  if(plat) p.set('plat', plat);
+  if(lieu) p.set('lieu', lieu);
+  window.location.search = p.toString();
+  return false;
+}
+
+document.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>

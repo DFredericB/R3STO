@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — Système typographique</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:#eceef2; padding:32px; color:#1f2937; line-height:1.55; }
+  .wrap { max-width:1100px; margin:0 auto; }
+
+  h1.top { font-family:'Playfair Display', serif; font-size:32px; margin-bottom:6px; color:#0f1620; }
+  .sub { color:#6b7280; font-size:13px; margin-bottom:24px; }
+
+  .section { background:#fff; border-radius:14px; padding:32px 36px; margin-bottom:18px; box-shadow:0 4px 18px rgba(0,0,0,.05); }
+  .section h2 { font-family:'Playfair Display', serif; font-size:22px; color:#0f1620; margin-bottom:6px; }
+  .section .meta { font-size:12px; color:#6b7280; margin-bottom:20px; }
+
+  .demo { padding:18px 22px; border-radius:8px; background:#fafafc; margin-bottom:12px; }
+  .demo .lbl { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; color:#1d4f91; margin-bottom:8px; }
+
+  /* ===== Type families ===== */
+  .alethia { font-family:'Alethia Next', sans-serif; font-weight:400; color:#1d4f91; }
+  .serif { font-family:'Playfair Display', serif; font-weight:700; }
+  .sans { font-family:'Inter', sans-serif; }
+
+  /* ===== Hero example r3sto.com (gourmand) ===== */
+  .demo-rcom { padding:48px 36px; background:#fff; border-radius:14px; border:1px solid #e5e7eb; margin-bottom:8px; }
+  .demo-rcom .logo { display:inline-block; width:48px; height:48px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:4px; margin-bottom:18px; vertical-align:middle; }
+  .demo-rcom h3 { font-family:'Playfair Display', serif; font-size:38px; line-height:1.05; color:#0f1620; margin-bottom:12px; font-weight:700; }
+  .demo-rcom h3 .it { font-style:italic; font-weight:400; color:#1d4f91; }
+  .demo-rcom p { font-size:15px; color:#4b5563; max-width:520px; margin-bottom:18px; }
+  .demo-rcom .cta { display:inline-block; padding:11px 22px; background:#1d4f91; color:#fff; border-radius:7px; font-weight:600; font-size:13px; }
+
+  /* ===== Hero pro alethia ===== */
+  .demo-pro { padding:48px 36px; background:#fff; border-radius:14px; border:1px solid #e5e7eb; }
+  .demo-pro .lockup { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+  .demo-pro .lockup .logo { width:52px; height:52px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:4px; }
+  .demo-pro .lockup .word { font-family:'Alethia Next', sans-serif; font-size:42px; color:#1d4f91; line-height:1; }
+  .demo-pro h3 { font-family:'Alethia Next', sans-serif; font-size:48px; line-height:1.05; color:#0f1620; margin-bottom:12px; }
+  .demo-pro .alt h3 { font-family:'Inter', sans-serif; font-weight:700; letter-spacing:-1px; }
+  .demo-pro p { font-size:15px; color:#4b5563; max-width:520px; margin-bottom:18px; }
+  .demo-pro .cta { display:inline-block; padding:11px 22px; background:#1d4f91; color:#fff; border-radius:7px; font-weight:600; font-size:13px; }
+
+  /* ===== App / dashboard ===== */
+  .demo-app { background:#fff; border-radius:14px; border:1px solid #e5e7eb; overflow:hidden; }
+  .demo-app .topbar { display:flex; justify-content:space-between; align-items:center; padding:16px 22px; border-bottom:1px solid #e5e7eb; }
+  .demo-app .topbar .title { font-family:'Playfair Display', serif; font-size:20px; font-weight:700; color:#0f1620; }
+  .demo-app .topbar .lockup { display:flex; align-items:center; gap:10px; }
+  .demo-app .topbar .lockup .logo { width:34px; height:34px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:3px; }
+  .demo-app .topbar .lockup .word { font-family:'Alethia Next', sans-serif; font-size:24px; color:#1d4f91; line-height:1; }
+  .demo-app .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:18px 22px; }
+  .demo-app .kpi { padding:12px 14px; background:#f6f6f8; border-radius:8px; }
+  .demo-app .kpi .lbl { font-size:10px; letter-spacing:1px; text-transform:uppercase; color:#6b7280; margin-bottom:5px; font-family:'Inter', sans-serif; font-weight:600; }
+  .demo-app .kpi .val { font-family:'Playfair Display', serif; font-size:26px; font-weight:700; color:#1d4f91; }
+
+  .scale { display:grid; grid-template-columns:120px 1fr; gap:18px; align-items:baseline; margin-bottom:14px; padding-bottom:14px; border-bottom:1px dashed #e5e7eb; }
+  .scale:last-child { border-bottom:0; }
+  .scale .role { font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#6b7280; font-weight:600; }
+  .scale .sample { color:#0f1620; }
+
+  .stack-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="top">R3STO — Système typographique</h1>
+  <p class="sub">3 polices · 3 rôles · Logo + brand moments en Alethia · Édito en Playfair · UI/corps en Inter</p>
+
+  <!-- ===== Échelle typo ===== -->
+  <div class="section">
+    <h2>Échelle de référence</h2>
+    <div class="meta">Voici à quoi ressemble chaque police, à chaque taille, dans son rôle.</div>
+
+    <div class="scale">
+      <div class="role">Alethia · 48px</div>
+      <div class="sample alethia" style="font-size:48px;">R3STO Pro</div>
+    </div>
+    <div class="scale">
+      <div class="role">Alethia · 32px</div>
+      <div class="sample alethia" style="font-size:32px;">Gérer. Remplir. Fidéliser.</div>
+    </div>
+    <div class="scale">
+      <div class="role">Playfair · 42px</div>
+      <div class="sample serif" style="font-size:42px;">Trouvez votre table.</div>
+    </div>
+    <div class="scale">
+      <div class="role">Playfair · 24px</div>
+      <div class="sample serif" style="font-size:24px;">Le Comptoir du Lac</div>
+    </div>
+    <div class="scale">
+      <div class="role">Inter Bold · 18px</div>
+      <div class="sample sans" style="font-size:18px; font-weight:700;">Aujourd'hui · vendredi 15 mai 2026</div>
+    </div>
+    <div class="scale">
+      <div class="role">Inter · 15px</div>
+      <div class="sample sans" style="font-size:15px;">L'annuaire des restaurateurs indépendants suisses. 0% commission, réservation directe.</div>
+    </div>
+    <div class="scale">
+      <div class="role">Inter · 11px UPPERCASE</div>
+      <div class="sample sans" style="font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:#1d4f91;">Annuaire gourmand suisse</div>
+    </div>
+  </div>
+
+  <!-- ===== Hero r3sto.com (Playfair) vs r3sto.com (Alethia) ===== -->
+  <div class="section">
+    <h2>r3sto.com — 2 options pour le hero</h2>
+    <div class="meta">Titre principal de la home publique. À choisir : édito gourmand (Playfair italique) OU brand statement (Alethia).</div>
+
+    <div class="demo">
+      <div class="lbl">Option A · Playfair (édito gourmand)</div>
+      <div class="demo-rcom">
+        <span class="logo"></span>
+        <h3>Trouvez votre table. <span class="it">Sans intermédiaire.</span></h3>
+        <p>L'annuaire des restaurateurs indépendants suisses. 0% commission, réservation directe au resto. 19'461 tables, 26 cantons.</p>
+        <a class="cta">Chercher un restaurant →</a>
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="lbl">Option B · Alethia (brand statement)</div>
+      <div class="demo-rcom">
+        <span class="logo"></span>
+        <h3 style="font-family:'Alethia Next', sans-serif; font-style:normal; color:#1d4f91;">Trouvez votre table.</h3>
+        <p>L'annuaire des restaurateurs indépendants suisses. 0% commission, réservation directe au resto.</p>
+        <a class="cta">Chercher un restaurant →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== r3sto.com/pro ===== -->
+  <div class="section">
+    <h2>r3sto.com/pro — page B2B restaurateur</h2>
+    <div class="meta">Le hero "Gérer. Remplir. Fidéliser." en Alethia donne une signature forte. À côté du logo, "Pro" en Alethia compose le lockup officiel.</div>
+
+    <div class="demo">
+      <div class="lbl">Hero alethia + lockup R3STO Pro</div>
+      <div class="demo-pro">
+        <div class="lockup">
+          <span class="logo"></span>
+          <span class="word">Pro</span>
+        </div>
+        <h3>Gérer. Remplir. Fidéliser.</h3>
+        <p>10 modules, 0% commission, hébergement inclus. Conçu en Suisse pour les restaurants indépendants.</p>
+        <a class="cta">Essai gratuit 14 jours →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== app dashboard ===== -->
+  <div class="section">
+    <h2>app.r3sto.ch — dashboard restaurateur</h2>
+    <div class="meta">Sur l'app quotidienne, l'UI est en Inter (lisibilité max). Le logo + Pro Alethia reste dans le header pour identité. Les KPI numériques sont en Playfair pour le caractère.</div>
+
+    <div class="demo">
+      <div class="demo-app">
+        <div class="topbar">
+          <span class="title">Aujourd'hui · vendredi 15 mai</span>
+          <div class="lockup">
+            <span class="logo"></span>
+            <span class="word">Pro</span>
+          </div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="lbl">Couverts</div><div class="val">87</div></div>
+          <div class="kpi"><div class="lbl">Réservations</div><div class="val">34</div></div>
+          <div class="kpi"><div class="lbl">No-shows</div><div class="val">2</div></div>
+          <div class="kpi"><div class="lbl">CA prévu</div><div class="val">3'480</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Sous-marques ===== -->
+  <div class="section">
+    <h2>Lockups sous-marques (Alethia partout)</h2>
+    <div class="meta">Le wordmark de la sous-marque utilise toujours Alethia, dans sa couleur d'accent propre.</div>
+
+    <div class="stack-row">
+      <div class="demo" style="text-align:center;">
+        <div class="lbl">R3STO Pro</div>
+        <div style="padding:24px 0;"><span style="display:inline-block; width:54px; height:54px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:4px; vertical-align:middle;"></span> <span class="alethia" style="font-size:38px; color:#1d4f91;">Pro</span></div>
+      </div>
+      <div class="demo" style="text-align:center;">
+        <div class="lbl">R3STO Pass</div>
+        <div style="padding:24px 0;"><span style="display:inline-block; width:54px; height:54px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:4px; vertical-align:middle;"></span> <span class="alethia" style="font-size:38px; color:#1B5E42;">Pass</span></div>
+      </div>
+      <div class="demo" style="text-align:center; background:#0a0a0a;">
+        <div class="lbl" style="color:#d4af37;">R3STO Carat</div>
+        <div style="padding:24px 0;"><span style="display:inline-block; width:54px; height:54px; background:#0a0a0a; border:2px solid #d4af37; border-radius:4px; vertical-align:middle; font-family:'Alethia Next', sans-serif; color:#d4af37; line-height:54px; font-size:14px;">R3STO</span> <span class="alethia" style="font-size:38px; color:#d4af37;">Carat</span></div>
+      </div>
+      <div class="demo" style="text-align:center;">
+        <div class="lbl">R3STO Light (interne)</div>
+        <div style="padding:24px 0;"><span style="display:inline-block; width:54px; height:54px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:4px; vertical-align:middle; opacity:0.5;"></span> <span class="alethia" style="font-size:38px; color:#6b7280;">Light</span></div>
+        <div style="font-size:10px; color:#6b7280; margin-top:6px;">Nom technique seulement, jamais en com client</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Récap couleurs ===== -->
+  <div class="section">
+    <h2>Récap palette</h2>
+    <div style="display:flex; gap:14px; flex-wrap:wrap;">
+      <div style="text-align:center;"><div style="width:60px; height:60px; background:#1d4f91; border-radius:6px;"></div><div style="font-size:11px; margin-top:5px; color:#0f1620;">Bleu R3STO</div><div style="font-size:9px; font-family:monospace; color:#6b7280;">#1d4f91</div></div>
+      <div style="text-align:center;"><div style="width:60px; height:60px; background:#c89752; border-radius:6px;"></div><div style="font-size:11px; margin-top:5px; color:#0f1620;">Or chaud</div><div style="font-size:9px; font-family:monospace; color:#6b7280;">#c89752</div></div>
+      <div style="text-align:center;"><div style="width:60px; height:60px; background:#1B5E42; border-radius:6px;"></div><div style="font-size:11px; margin-top:5px; color:#0f1620;">Vert PASS</div><div style="font-size:9px; font-family:monospace; color:#6b7280;">#1B5E42</div></div>
+      <div style="text-align:center;"><div style="width:60px; height:60px; background:#b8632b; border-radius:6px;"></div><div style="font-size:11px; margin-top:5px; color:#0f1620;">Cuivre</div><div style="font-size:9px; font-family:monospace; color:#6b7280;">#b8632b</div></div>
+      <div style="text-align:center;"><div style="width:60px; height:60px; background:#5a8c50; border-radius:6px;"></div><div style="font-size:11px; margin-top:5px; color:#0f1620;">Sauge</div><div style="font-size:9px; font-family:monospace; color:#6b7280;">#5a8c50</div></div>
+      <div style="text-align:center;"><div style="width:60px; height:60px; background:#0a0a0a; border-radius:6px;"></div><div style="font-size:11px; margin-top:5px; color:#0f1620;">Noir CARAT</div><div style="font-size:9px; font-family:monospace; color:#6b7280;">#0a0a0a</div></div>
+      <div style="text-align:center;"><div style="width:60px; height:60px; background:#d4af37; border-radius:6px;"></div><div style="font-size:11px; margin-top:5px; color:#0f1620;">Or CARAT</div><div style="font-size:9px; font-family:monospace; color:#6b7280;">#d4af37</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

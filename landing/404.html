@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page introuvable — R3STO</title>
+<meta name="theme-color" content="#1c2e58">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--bg-2:#e3ebf5;--surf:#ffffff;
+  --navy:#1c2e58;--gold:#a07e2a;--gold-soft:#c89752;
+  --t-1:#0c1730;--t-2:#4a5878;--t-3:#7b88a8;
+  --border:#d6dfee;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit}
+
+.nav{background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px}
+.box{max-width:560px;width:100%;text-align:center}
+.code{
+  font-family:var(--fm);font-size:14px;font-weight:700;
+  color:var(--gold);letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:18px;display:inline-block;
+}
+.huge{
+  font-size:clamp(96px,18vw,180px);font-weight:800;
+  letter-spacing:-6px;line-height:.9;color:var(--navy);
+  margin-bottom:14px;
+}
+.huge span{color:var(--gold)}
+h1{font-size:24px;font-weight:800;color:var(--navy);margin:0 0 10px;letter-spacing:-.02em}
+p{font-size:15px;color:var(--t-2);line-height:1.6;margin:0 0 28px}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border:1px solid;font-size:13.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;transition:.18s;border-radius:0}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-primary:hover{background:var(--gold);border-color:var(--gold);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--navy);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--navy)}
+
+.suggest{margin-top:36px;padding-top:28px;border-top:1px solid var(--border)}
+.suggest-lbl{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--t-3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;display:block}
+.suggest-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.suggest-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#fff;border:1px solid var(--border);
+  padding:8px 14px;font-size:13px;font-weight:600;color:var(--navy);
+  text-decoration:none;transition:.15s;
+}
+.suggest-pill:hover{border-color:var(--navy);transform:translateY(-1px)}
+
+footer{padding:24px 28px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em;border-top:1px solid var(--border);background:var(--bg-2)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Erreur</span>
+        <span class="logo-slogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <a href="/" style="font-size:13px;color:var(--t-2);text-decoration:none;font-weight:500">← Annuaire</a>
+  </div>
+</nav>
+
+<main>
+  <div class="box">
+    <span class="code">Erreur 404</span>
+    <div class="huge">4<span>◆</span>4</div>
+    <h1>Cette table n'existe pas.</h1>
+    <p>La page que vous cherchez a peut-être été déplacée, ou n'a jamais existé. Pas grave : retournons à l'annuaire et trouvons une bonne adresse.</p>
+    <div class="actions">
+      <a href="/" class="btn btn-primary">← Retour à l'annuaire</a>
+      <a href="/recherche.html" class="btn btn-ghost">Parcourir tous les restos →</a>
+    </div>
+
+    <div class="suggest">
+      <span class="suggest-lbl">Suggestions populaires</span>
+      <div class="suggest-pills">
+        <a class="suggest-pill" href="/fiche.html?slug=chez-bunnys">Chez Bunny's</a>
+        <a class="suggest-pill" href="/fiche.html?slug=hotel-de-ville-crissier">Hôtel de Ville ★★★</a>
+        <a class="suggest-pill" href="/#carat">Label Carat ◆</a>
+        <a class="suggest-pill" href="/pro.html">R3STO Pro</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2026 Innoptim SA · R3STO — guide gourmand international</footer>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — Logos bleu nuit vs cuivre</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:#eceef2; padding:32px; color:#1f2937; }
+  .wrap { max-width:1200px; margin:0 auto; }
+  h1 { font-family:'Playfair Display', serif; font-size:30px; color:#0f1620; margin-bottom:6px; }
+  .sub { color:#6b7280; font-size:13px; margin-bottom:24px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px; }
+  .card { background:#fff; border-radius:14px; padding:32px; box-shadow:0 6px 24px rgba(0,0,0,.08); text-align:center; }
+  .card.dark-bg { background:#0f1620; color:#e8eef5; }
+  .card.cream-bg { background:#fdf6ec; color:#2a1a0d; }
+  .card h3 { font-family:'Playfair Display', serif; font-size:18px; margin-bottom:6px; }
+  .card .meta { font-size:11px; opacity:0.65; margin-bottom:24px; }
+  .logo-large { width:240px; height:240px; border-radius:8px; margin:0 auto 24px; background-size:contain; background-repeat:no-repeat; background-position:center; }
+  .logo-blue { background-image:url('./logo-r3sto-blue.svg'); }
+  .logo-cuivre { background-image:url('./logo-r3sto-cuivre.svg'); }
+  .hex { font-family:'SF Mono', monospace; font-size:13px; opacity:0.8; }
+  .small { font-size:11px; opacity:0.6; margin-top:8px; }
+
+  .ctx-section { background:#fff; border-radius:14px; padding:24px; margin-bottom:18px; }
+  .ctx-section h2 { font-family:'Playfair Display', serif; font-size:20px; color:#0f1620; margin-bottom:8px; }
+  .ctx-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+  .ctx { padding:18px; border-radius:10px; display:flex; align-items:center; gap:14px; }
+  .ctx .logo-mid { width:64px; height:64px; background-size:cover; border-radius:4px; flex-shrink:0; }
+  .ctx .txt { font-size:13px; line-height:1.5; }
+  .ctx .ttl { font-weight:700; margin-bottom:3px; }
+  .ctx .desc { opacity:0.7; font-size:11px; }
+  .ctx.on-navy { background:#0f1620; color:#e8eef5; }
+  .ctx.on-white { background:#fafafc; border:1px solid #e5e7eb; color:#0f1620; }
+  .ctx.on-cream { background:#fdf6ec; color:#2a1a0d; }
+  .ctx.on-blue { background:#1d4f91; color:#fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>R3STO — Comparaison logos bleu nuit ↔ cuivre</h1>
+  <p class="sub">Mêmes paths, même texte, même position, même police Alethia. Seule la couleur du carré change.</p>
+
+  <div class="row">
+    <div class="card">
+      <h3>Officiel — Bleu nuit</h3>
+      <div class="meta hex">carré #1d4f91 · texte #ffffff</div>
+      <div class="logo-large logo-blue"></div>
+      <div class="small">Pour : auth, app, admin, bill, demo, booking, menu, delivery, /pro</div>
+    </div>
+
+    <div class="card">
+      <h3>Variante — Cuivre</h3>
+      <div class="meta hex">carré #b8632b · texte #ffffff</div>
+      <div class="logo-large logo-cuivre"></div>
+      <div class="small">Pour : r3sto.com annuaire B2C (cohérence avec palette crème/cuivre)</div>
+    </div>
+  </div>
+
+  <!-- Comparaison fonds -->
+  <div class="ctx-section">
+    <h2>Sur différents fonds</h2>
+    <div class="ctx-grid">
+      <div class="ctx on-navy">
+        <div class="logo-mid" style="background-image:url('./logo-r3sto-blue.svg')"></div>
+        <div class="txt"><div class="ttl">Bleu sur navy</div><div class="desc">Auth, app, admin · subtil mais lisible · ADN brand</div></div>
+      </div>
+      <div class="ctx on-white">
+        <div class="logo-mid" style="background-image:url('./logo-r3sto-blue.svg')"></div>
+        <div class="txt"><div class="ttl">Bleu sur fond clair pro</div><div class="desc">App light mode · maximum contraste</div></div>
+      </div>
+      <div class="ctx on-cream">
+        <div class="logo-mid" style="background-image:url('./logo-r3sto-cuivre.svg')"></div>
+        <div class="txt"><div class="ttl">Cuivre sur crème</div><div class="desc">r3sto.com B2C · ton homogène gourmand</div></div>
+      </div>
+      <div class="ctx on-blue">
+        <div class="logo-mid" style="background-image:url('./logo-r3sto-cuivre.svg')"></div>
+        <div class="txt"><div class="ttl">Cuivre sur fond bleu</div><div class="desc">Démo contraste alternative · usage exceptionnel</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctx-section">
+    <h2>Vérification technique</h2>
+    <p style="font-size:13px; color:#4b5563; line-height:1.6;">
+      Les deux SVG sont <b>byte-identiques sauf 1 caractère</b> : la valeur du <code style="background:#eef3fc; color:#1d4f91; padding:2px 6px; border-radius:3px; font-family:monospace; font-size:12px">fill</code> du rect background.<br><br>
+      • <b>Texte « R3STO »</b> : identique<br>
+      • <b>Position du texte</b> : identique (paths vectorisés)<br>
+      • <b>Police Alethia Next Regular</b> : intégrée dans les paths, identique<br>
+      • <b>Forme carrée 1000×1000</b> : identique<br>
+      • <b>Couleur du texte (blanc)</b> : identique<br><br>
+      ✅ <b>Compatible avec votre règle stricte sur le logo</b> (seule la couleur peut varier).
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

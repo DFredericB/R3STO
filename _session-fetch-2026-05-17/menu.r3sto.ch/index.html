@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#f5f5f3">
+<title>Menu — R3STO</title>
+<link rel="icon" type="image/jpeg" href="logo-r3sto.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f3;
+  --surf: #ffffff;
+  --surf2: #f0eeea;
+  --surf3: #e5e2dd;
+  --border: rgba(30,50,80,.10);
+  --text: #1a1a1a;
+  --t2: #555;
+  --t3: #888;
+  --t4: #bbb;
+  --ac: #4480d8;
+  --ac2: #2d5cb8;
+  --acp: rgba(68,128,216,.08);
+  --gn: #1e8f4e;
+  --am: #c08000;
+  --rd: #c53030;
+  --gold: #a8892a;
+  --hh: 64px;
+  --r: 14px;
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; overscroll-behavior:none; }
+
+/* ── Header ── */
+.hdr {
+  position:sticky; top:0; z-index:200;
+  height:var(--hh);
+  background:rgba(245,245,243,.92);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+  padding:0 18px;
+}
+.hdr-logo { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; color:var(--text); letter-spacing:.02em; flex:1; display:flex; align-items:center; gap:8px; }
+.hdr-logo img { width:40px; height:40px; object-fit:cover; border-radius:0; }
+.hdr-table { font-family:'DM Mono',monospace; font-size:11px; color:var(--ac); background:var(--acp); border:1px solid rgba(68,128,216,.3); border-radius:20px; padding:3px 10px; font-weight:600; }
+.bell-btn {
+  width:40px; height:40px; border-radius:50%; border:1.5px solid var(--border);
+  background:var(--surf2); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:18px; transition:.15s; position:relative;
+}
+.bell-btn:active { transform:scale(.92); background:var(--surf3); }
+.bell-badge { position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--rd); border:1.5px solid var(--surf); display:none; }
+.bell-badge.on { display:block; animation:pulse 1.5s infinite; }
+
+/* ── Welcome banner ── */
+.welcome {
+  padding:20px 18px 16px;
+  background:linear-gradient(135deg, rgba(68,128,216,.1) 0%, rgba(68,128,216,.03) 100%);
+  border-bottom:1px solid var(--border);
+}
+.welcome-msg { font-size:14px; color:var(--t2); line-height:1.55; }
+.welcome-name { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:600; color:var(--text); margin-bottom:4px; }
+
+/* ── Category tabs ── */
+.cat-tabs {
+  position:sticky; top:var(--hh); z-index:100;
+  background:rgba(245,245,243,.95); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex; gap:0; flex-wrap:wrap; overflow-x:hidden; padding:0 14px;
+  scrollbar-width:none;
+}
+.cat-tabs::-webkit-scrollbar { display:none; }
+.cat-tab {
+  flex-shrink:0; padding:12px 16px; font-size:13px; font-weight:500;
+  color:var(--t3); border:none; background:transparent; cursor:pointer;
+  border-bottom:2px solid transparent; transition:.15s; white-space:nowrap;
+  font-family:'DM Sans',sans-serif;
+}
+.cat-tab.on { color:var(--text); border-bottom-color:var(--ac); }
+.cat-tab-ico { margin-right:5px; }
+
+/* ── Menu content ── */
+.menu-body { padding:0 0 120px; }
+.cat-section { padding:20px 18px 0; }
+.cat-title {
+  font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:600;
+  color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:10px;
+}
+.cat-title-ico { font-size:22px; }
+
+/* ── Item card ── */
+.item {
+  background:var(--surf); border:1px solid var(--border); border-radius:var(--r);
+  padding:14px 16px; margin-bottom:10px; display:flex; gap:12px; align-items:flex-start;
+  cursor:pointer; transition:all .15s; position:relative; overflow:hidden;
+}
+.item::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(68,128,216,.06),transparent);
+  opacity:0; transition:.15s;
+}
+.item:active::before { opacity:1; }
+.item.unavailable { opacity:.45; }
+.item-body { flex:1; min-width:0; }
+.item-name { font-size:15px; font-weight:600; color:var(--text); margin-bottom:3px; }
+.item-desc { font-size:12px; color:var(--t3); line-height:1.5; margin-bottom:6px; }
+.item-tags { display:flex; gap:5px; flex-wrap:wrap; }
+.item-allergen {
+  font-size:9px; padding:2px 7px; border-radius:20px;
+  background:rgba(240,160,32,.1); color:var(--am);
+  border:1px solid rgba(240,160,32,.25); font-weight:600;
+}
+.item-unavail { font-size:10px; color:var(--rd); font-weight:700; }
+.item-price {
+  font-family:'DM Mono',monospace; font-size:16px; font-weight:700;
+  color:var(--text); white-space:nowrap; flex-shrink:0; padding-top:2px;
+}
+.item-price small { font-size:11px; color:var(--t3); }
+
+/* ── Add to order button ── */
+.item-add {
+  width:32px; height:32px; border-radius:50%; border:none;
+  background:var(--ac); color:#fff; font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:.15s; margin-top:2px;
+  box-shadow:0 4px 12px rgba(68,128,216,.35);
+}
+.item-add:active { transform:scale(.88); }
+.item-add.added { background:var(--gn); box-shadow:0 4px 12px rgba(60,200,112,.3); }
+.item-qty {
+  display:flex; align-items:center; gap:0; flex-shrink:0; margin-top:2px;
+}
+.qty-btn {
+  width:32px; height:32px; border-radius:50%; border:1.5px solid var(--border);
+  background:var(--surf2); color:var(--text); font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:.15s;
+}
+.qty-btn:active { background:var(--surf3); }
+.qty-num {
+  font-family:'DM Mono',monospace; font-weight:800; font-size:15px;
+  color:var(--text); min-width:28px; text-align:center;
+}
+
+/* ── Cart bar ── */
+.cart-bar {
+  position:fixed; bottom:0; left:0; right:0; z-index:300;
+  padding:12px 18px 24px;
+  background:linear-gradient(to top, var(--bg) 60%, transparent);
+  transform:translateY(100%); transition:transform .3s cubic-bezier(.22,1,.36,1);
+}
+.cart-bar.show { transform:translateY(0); }
+.cart-btn {
+  width:100%; padding:16px 20px;
+  background:linear-gradient(135deg,#4480d8,#2d5cb8);
+  border:none; border-radius:var(--r); cursor:pointer;
+  display:flex; align-items:center; gap:12px;
+  box-shadow:0 8px 32px rgba(68,128,216,.4);
+  font-family:'DM Sans',sans-serif; transition:.15s;
+}
+.cart-btn:active { transform:scale(.98); }
+.cart-btn-badge {
+  width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.2);
+  color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  font-family:'DM Mono',monospace;
+}
+.cart-btn-label { flex:1; text-align:left; font-size:15px; font-weight:700; color:#fff; }
+.cart-btn-total { font-family:'DM Mono',monospace; font-size:15px; font-weight:800; color:#fff; }
+
+/* ── Order modal ── */
+.ov {
+  position:fixed; inset:0; z-index:400;
+  background:rgba(0,0,0,.45); backdrop-filter:blur(6px);
+  display:flex; align-items:flex-end;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.ov.on { opacity:1; pointer-events:all; }
+.sheet {
+  width:100%; background:var(--surf); border-radius:22px 22px 0 0;
+  max-height:90vh; overflow-y:auto; padding:0 0 40px;
+  transform:translateY(100%); transition:transform .35s cubic-bezier(.22,1,.36,1);
+}
+.ov.on .sheet { transform:translateY(0); }
+.sheet-handle {
+  width:40px; height:4px; border-radius:2px; background:var(--border);
+  margin:12px auto 0; display:block;
+}
+.sheet-hdr {
+  padding:16px 20px 12px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:10px;
+}
+.sheet-title { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; flex:1; }
+.sheet-close { width:32px; height:32px; border-radius:50%; border:1px solid var(--border); background:transparent; cursor:pointer; font-size:16px; color:var(--t3); display:flex; align-items:center; justify-content:center; }
+.order-item { padding:12px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); }
+.order-item-name { flex:1; font-size:13px; font-weight:600; }
+.order-item-price { font-family:'DM Mono',monospace; font-size:12px; color:var(--t3); }
+.order-total { padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+.order-total-lbl { font-size:14px; color:var(--t2); }
+.order-total-val { font-family:'DM Mono',monospace; font-size:20px; font-weight:800; color:var(--text); }
+.note-area { margin:0 20px 12px; }
+.note-input {
+  width:100%; background:var(--surf2); border:1px solid var(--border); border-radius:10px;
+  padding:10px 14px; color:var(--text); font-size:13px; font-family:'DM Sans',sans-serif;
+  resize:none; outline:none; height:72px;
+}
+.note-input::placeholder { color:var(--t3); }
+.confirm-btn {
+  margin:0 20px; width:calc(100% - 40px); padding:16px;
+  background:linear-gradient(135deg,var(--ac),var(--ac2)); border:none; border-radius:var(--r);
+  color:#fff; font-size:16px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;
+  box-shadow:0 6px 24px rgba(68,128,216,.4); transition:.15s;
+}
+.confirm-btn:active { transform:scale(.98); }
+.confirm-btn.done { background:linear-gradient(135deg,var(--gn),#2aa85a); }
+
+/* ── Bell modal ── */
+.bell-sheet { padding:0 20px 40px; }
+.bell-title { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:600; padding:20px 0 14px; }
+.bell-option {
+  display:flex; align-items:center; gap:14px; padding:16px 18px;
+  background:var(--surf2); border:1.5px solid var(--border); border-radius:var(--r);
+  margin-bottom:10px; cursor:pointer; transition:.15s;
+}
+.bell-option:active { border-color:var(--ac); background:var(--acp); }
+.bell-option-ico { font-size:24px; }
+.bell-option-label { font-size:14px; font-weight:600; }
+.bell-option-sub { font-size:11px; color:var(--t3); margin-top:2px; }
+
+/* ── Success overlay ── */
+.success-ov {
+  position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.5);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .3s;
+}
+.success-ov.on { opacity:1; pointer-events:all; }
+.success-card {
+  background:var(--surf); border-radius:24px; padding:36px 28px; text-align:center;
+  max-width:320px; width:90%; border:1px solid var(--border);
+  transform:scale(.9); transition:transform .35s cubic-bezier(.22,1,.36,1);
+}
+.success-ov.on .success-card { transform:scale(1); }
+.success-ico { font-size:56px; margin-bottom:12px; }
+.success-title { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:600; margin-bottom:8px; }
+.success-sub { font-size:13px; color:var(--t3); line-height:1.6; }
+
+/* ── Separator ── */
+.sep { height:1px; background:var(--border); margin:4px 0; }
+.empty { padding:40px 18px; text-align:center; color:var(--t3); font-size:13px; }
+
+/* ── Animations ── */
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1} }
+@keyframes ring { 0%,100%{transform:rotate(0)}20%{transform:rotate(-15deg)}40%{transform:rotate(15deg)}60%{transform:rotate(-10deg)}80%{transform:rotate(10deg)} }
+.ring-anim { animation:ring .5s ease; }
+
+/* ── Language switcher ── */
+.lang-sw { display:flex; gap:4px; align-items:center; }
+.lang-sw button {
+  padding:4px 9px; border-radius:10px; border:1.5px solid var(--border);
+  background:var(--surf2); color:var(--t2); font-size:10px; font-weight:700;
+  cursor:pointer; transition:.15s; font-family:'DM Sans',sans-serif;
+  text-transform:uppercase; letter-spacing:.05em;
+}
+.lang-sw button:hover { opacity:.85; }
+.lang-sw button.on { border-color:var(--ac); background:var(--acp); color:var(--ac); }
+</style>
+<style id="pay-styles">
+/* ── Payment sheet ── */
+.pay-section { padding:18px 20px 0; }
+.pay-section-title { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; margin-bottom:14px; color:var(--text); }
+.pay-sub { font-size:12px; color:var(--t3); margin-bottom:14px; line-height:1.5; }
+
+/* Order summary */
+.pay-summary { background:var(--surf2); border-radius:var(--r); padding:14px 16px; margin-bottom:16px; }
+.pay-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:13px; }
+.pay-row-name { color:var(--t2); }
+.pay-row-price { font-family:'DM Mono',monospace; font-weight:700; color:var(--text); }
+.pay-divider { height:1px; background:var(--border); margin:10px 0; }
+.pay-total-row { display:flex; justify-content:space-between; align-items:center; padding-top:2px; }
+.pay-total-label { font-size:14px; font-weight:700; color:var(--text); }
+.pay-total-amount { font-family:'DM Mono',monospace; font-size:22px; font-weight:800; color:var(--text); }
+
+/* Tip buttons */
+.tip-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+.tip-btn {
+  padding:12px 6px; border-radius:12px; border:1.5px solid var(--border);
+  background:var(--surf2); cursor:pointer; text-align:center; transition:.15s;
+  font-family:'DM Sans',sans-serif;
+}
+.tip-btn.on { border-color:var(--ac); background:var(--acp); }
+.tip-btn:active { transform:scale(.95); }
+.tip-btn-pct { font-size:16px; font-weight:800; color:var(--text); display:block; }
+.tip-btn-amt { font-size:10px; color:var(--t3); font-family:'DM Mono',monospace; margin-top:2px; display:block; }
+.tip-custom-row { display:flex; align-items:center; gap:10px; }
+.tip-custom-input {
+  flex:1; background:var(--surf2); border:1.5px solid var(--border); border-radius:10px;
+  padding:10px 14px; color:var(--text); font-size:15px; font-weight:700;
+  font-family:'DM Mono',monospace; outline:none; text-align:right;
+}
+.tip-custom-input:focus { border-color:var(--ac); }
+
+/* Split */
+.split-toggle { display:flex; gap:8px; margin-bottom:16px; }
+.split-btn {
+  flex:1; padding:12px; border-radius:12px; border:1.5px solid var(--border);
+  background:var(--surf2); cursor:pointer; font-family:'DM Sans',sans-serif;
+  text-align:center; transition:.15s;
+}
+.split-btn.on { border-color:var(--ac); background:var(--acp); }
+.split-btn-ico { font-size:22px; display:block; margin-bottom:4px; }
+.split-btn-label { font-size:12px; font-weight:600; color:var(--text); }
+.split-btn-sub { font-size:10px; color:var(--t3); margin-top:2px; }
+
+/* Equal split */
+.split-n-row { display:flex; align-items:center; gap:12px; padding:14px 0; }
+.split-n-label { flex:1; font-size:14px; font-weight:600; }
+.split-per { font-family:'DM Mono',monospace; font-size:18px; font-weight:800; color:var(--ac); }
+.stepper-row { display:flex; align-items:center; gap:0; border:1.5px solid var(--border); border-radius:10px; overflow:hidden; }
+.step-btn { width:38px; height:38px; border:none; background:var(--surf3); color:var(--text); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.step-num { font-family:'DM Mono',monospace; font-weight:800; font-size:16px; padding:0 16px; }
+
+/* Item split */
+.split-items { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.split-item-row {
+  display:flex; align-items:center; gap:10px; padding:10px 14px;
+  background:var(--surf2); border:1.5px solid var(--border); border-radius:10px;
+  cursor:pointer; transition:.15s;
+}
+.split-item-row.selected { border-color:var(--ac); background:var(--acp); }
+.split-item-check { width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12px; }
+.split-item-row.selected .split-item-check { background:var(--ac); border-color:var(--ac); color:#fff; }
+.split-item-name { flex:1; font-size:13px; font-weight:600; }
+.split-item-price { font-family:'DM Mono',monospace; font-size:13px; color:var(--t3); }
+
+/* TWINT */
+.twint-box { background:var(--surf2); border-radius:var(--r); padding:20px; text-align:center; margin-bottom:16px; }
+.twint-logo { font-size:13px; font-weight:900; letter-spacing:.05em; color:#006DC6; background:#f0f4ff; border-radius:10px; padding:8px 16px; display:inline-block; margin-bottom:14px; }
+.twint-qr-wrap { background:#fff; border-radius:14px; padding:16px; display:inline-block; margin-bottom:12px; }
+.twint-qr-wrap img { display:block; border-radius:8px; }
+.twint-amount { font-family:'DM Mono',monospace; font-size:28px; font-weight:900; color:var(--text); margin-bottom:4px; }
+.twint-sub { font-size:12px; color:var(--t3); }
+.twint-alias { font-size:11px; color:var(--t4); margin-top:6px; font-family:'DM Mono',monospace; }
+
+/* Satisfaction */
+.stars-row { display:flex; justify-content:center; gap:8px; margin:16px 0; }
+.star-btn { font-size:36px; cursor:pointer; opacity:.3; transition:.15s; background:none; border:none; padding:4px; }
+.star-btn.on { opacity:1; transform:scale(1.15); }
+.google-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:14px; border-radius:var(--r); border:none; cursor:pointer;
+  background:#fff; font-size:14px; font-weight:700; color:#1a1a2e;
+  font-family:'DM Sans',sans-serif; margin-top:8px; transition:.15s;
+}
+.google-btn:active { transform:scale(.98); }
+.google-logo { font-size:18px; }
+
+/* Pay method buttons */
+.pay-methods { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+.pay-method-btn {
+  display:flex; align-items:center; gap:14px; padding:16px 18px;
+  border-radius:var(--r); border:1.5px solid var(--border);
+  background:var(--surf2); cursor:pointer; transition:.15s; font-family:'DM Sans',sans-serif;
+}
+.pay-method-btn:active { border-color:var(--ac); background:var(--acp); }
+.pay-method-ico { font-size:26px; }
+.pay-method-label { font-size:14px; font-weight:700; color:var(--text); }
+.pay-method-sub { font-size:11px; color:var(--t3); margin-top:2px; }
+.pay-method-amount { font-family:'DM Mono',monospace; font-size:14px; font-weight:800; color:var(--ac); margin-left:auto; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="hdr">
+  <div class="hdr-logo" id="resto-name"><img src="logo-r3sto.jpg" alt="R3STO">Mon Restaurant</div>
+  <div class="lang-sw" id="lang-sw">
+    <button class="on" data-l="fr" onclick="setMenuLang('fr')">FR</button>
+    <button data-l="de" onclick="setMenuLang('de')">DE</button>
+    <button data-l="it" onclick="setMenuLang('it')">IT</button>
+    <button data-l="en" onclick="setMenuLang('en')">EN</button>
+  </div>
+  <div class="hdr-table" id="table-badge">Table —</div>
+  <button class="bell-btn" id="bell-btn" onclick="openBell()" title="Appeler un serveur">
+    🔔
+    <div class="bell-badge" id="bell-badge"></div>
+  </button>
+</header>
+
+<!-- Welcome -->
+<div class="welcome" id="welcome-section">
+  <div class="welcome-name" id="welcome-name">Bonsoir !</div>
+  <div class="welcome-msg" id="welcome-msg">Bienvenue ! Commandez directement depuis votre table.</div>
+</div>
+
+<!-- Category tabs -->
+<nav class="cat-tabs" id="cat-tabs"></nav>
+
+<!-- Menu body -->
+<main class="menu-body" id="menu-body"></main>
+
+<!-- Cart bar -->
+<div class="cart-bar" id="cart-bar">
+  <button class="cart-btn" onclick="openCart()">
+    <div class="cart-btn-badge" id="cart-count">0</div>
+    <div class="cart-btn-label">Voir ma commande</div>
+    <div class="cart-btn-total" id="cart-total">CHF 0</div>
+  </button>
+</div>
+
+<!-- Order sheet -->
+<div class="ov" id="ov-order" onclick="if(event.target===this)closeCart()">
+  <div class="sheet">
+    <span class="sheet-handle"></span>
+    <div class="sheet-hdr">
+      <div class="sheet-title">Ma commande</div>
+      <button class="sheet-close" onclick="closeCart()">✕</button>
+    </div>
+    <div id="order-items"></div>
+    <div class="order-total">
+      <span class="order-total-lbl">Total</span>
+      <span class="order-total-val" id="order-total-val">CHF 0</span>
+    </div>
+    <div class="note-area">
+      <textarea class="note-input" id="order-note" placeholder="Notes pour la cuisine (allergies, cuisson, demandes spéciales…)"></textarea>
+    </div>
+    <button class="confirm-btn" id="confirm-btn" onclick="sendOrder()">Envoyer la commande →</button>
+    <button id="btn-pay-order" onclick="openPay()" style="width:100%;padding:12px;margin-top:8px;border:1.5px solid var(--gn);border-radius:var(--r);background:transparent;color:var(--gn);font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">💳 Régler ma note</button>
+  </div>
+</div>
+
+<!-- Bell sheet -->
+<div class="ov" id="ov-bell" onclick="if(event.target===this)closeBell()">
+  <div class="sheet">
+    <span class="sheet-handle"></span>
+    <div class="sheet-hdr">
+      <div class="sheet-title">Appeler un serveur</div>
+      <button class="sheet-close" onclick="closeBell()">✕</button>
+    </div>
+    <div class="bell-sheet">
+      <div class="bell-title">Que souhaitez-vous ?</div>
+      <div class="bell-option" onclick="callServer('Service')">
+        <div class="bell-option-ico">🙋</div>
+        <div><div class="bell-option-label">Service</div><div class="bell-option-sub">Un serveur passe à votre table</div></div>
+      </div>
+      <div class="bell-option" onclick="callServer('Addition')">
+        <div class="bell-option-ico">💳</div>
+        <div><div class="bell-option-label">Addition</div><div class="bell-option-sub">Demander l'addition</div></div>
+      </div>
+      <div class="bell-option" onclick="callServer('Eau')">
+        <div class="bell-option-ico">💧</div>
+        <div><div class="bell-option-label">Eau / boisson</div><div class="bell-option-sub">Se resservir en eau ou boissons</div></div>
+      </div>
+      <div class="bell-option" onclick="callServer('Problème')">
+        <div class="bell-option-ico">⚠️</div>
+        <div><div class="bell-option-label">Signaler un problème</div><div class="bell-option-sub">Quelque chose ne va pas</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success overlay -->
+<div class="success-ov" id="ov-success">
+  <div class="success-card">
+    <div class="success-ico" id="success-ico">✅</div>
+    <div class="success-title" id="success-title">Commande envoyée !</div>
+    <div class="success-sub" id="success-sub">Votre commande a bien été transmise en cuisine. Un serveur passera très bientôt.</div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   i18n — Menu labels + item translations
+═══════════════════════════════════════════ */
+var MN_LANG = 'fr';
+var MN_T = {
+  fr: {
+    greeting_morning: 'Bonjour !',
+    greeting_afternoon: 'Bon après-midi !',
+    greeting_evening: 'Bonsoir !',
+    welcome_msg: 'Bienvenue ! Commandez directement depuis votre table.',
+    view_order: 'Voir ma commande',
+    my_order: 'Ma commande',
+    total: 'Total',
+    notes_placeholder: 'Notes pour la cuisine (allergies, cuisson, demandes spéciales…)',
+    send_order: 'Envoyer la commande →',
+    pay_my_bill: '💳 Régler ma note',
+    call_server: 'Appeler un serveur',
+    what_need: 'Que souhaitez-vous ?',
+    bell_service: 'Service',
+    bell_service_sub: 'Un serveur passe à votre table',
+    bell_bill: 'Addition',
+    bell_bill_sub: "Demander l'addition",
+    bell_water: 'Eau / boisson',
+    bell_water_sub: 'Se resservir en eau ou boissons',
+    bell_problem: 'Signaler un problème',
+    bell_problem_sub: 'Quelque chose ne va pas',
+    order_sent_title: 'Commande envoyée !',
+    order_sent_sub: 'Votre commande a été transmise en cuisine.\nUn serveur passera très bientôt.',
+    call_sent_title: 'Appel envoyé !',
+    call_sent_sub: 'Un serveur va passer à votre table dans quelques instants.',
+    unavailable: 'Indisponible',
+    subtotal: 'Sous-total',
+    tip_label: 'Pourboire',
+    tip_none: 'Sans',
+    tip_custom: 'Libre',
+    split_title: 'Diviser',
+    pay_btn: 'Payer',
+    equal_split: 'Parts égales',
+    equal_split_sub: 'Diviser en N parts',
+    item_split: 'Par article',
+    item_split_sub: 'Je choisis mes plats',
+    n_persons: 'Nombre de personnes',
+    you_pay: 'Vous payez',
+    persons: 'pers.',
+    your_share: 'Votre part',
+    select_items: 'Sélectionnez vos articles :',
+    amount_to_pay: 'Montant à régler',
+    twint_label: 'TWINT',
+    twint_title: 'Payer avec TWINT',
+    twint_sub: 'Scannez le QR depuis votre app',
+    ask_server: 'Addition au serveur',
+    ask_server_sub: "Un serveur passe avec l'addition",
+    card_label: 'Carte bancaire',
+    card_sub: 'Bientôt disponible',
+    back: '← Retour',
+    other_method: '← Autre mode de paiement',
+    payment_done: "✅ J'ai payé",
+    payment_received: 'Paiement reçu !',
+    payment_thanks: 'Merci pour votre visite. À très bientôt !',
+    pay_settle: '💳 Régler ma note',
+    settle_title: 'Régler ma note',
+    twint_step1: '1. Ouvrez votre app TWINT',
+    twint_step2: '2. Appuyez sur l\'icône QR / Scanner',
+    twint_step3: '3. Scannez ce code — le montant est pré-rempli',
+    twint_step4: '4. Confirmez le paiement',
+    twint_scan: 'Scannez avec votre app TWINT',
+    twint_account: 'Compte',
+    rate_title: 'Comment était votre repas ?',
+    rate_sub: 'Votre avis nous aide à nous améliorer',
+    rate_submit: 'Envoyer mon avis',
+    rate_skip: 'Passer',
+    rate_comment: 'Un commentaire ? (optionnel)',
+    rate_thanks: 'Merci !',
+    rate_google: 'Partagez votre expérience sur Google pour nous aider à grandir.',
+    rate_google_btn: 'Laisser un avis Google',
+    rate_no: 'Non merci',
+    rate_1: 'Désolé...', rate_2: 'Pas terrible...', rate_3: 'Correct, merci !', rate_4: 'Très bien !', rate_5: 'Excellent ! 🎉',
+    table_prefix: 'Table',
+  },
+  de: {
+    greeting_morning: 'Guten Morgen!',
+    greeting_afternoon: 'Guten Tag!',
+    greeting_evening: 'Guten Abend!',
+    welcome_msg: 'Willkommen! Bestellen Sie direkt von Ihrem Tisch.',
+    view_order: 'Bestellung ansehen',
+    my_order: 'Meine Bestellung',
+    total: 'Total',
+    notes_placeholder: 'Hinweise für die Küche (Allergien, Gargrad, Sonderwünsche…)',
+    send_order: 'Bestellung senden →',
+    pay_my_bill: '💳 Rechnung bezahlen',
+    call_server: 'Kellner rufen',
+    what_need: 'Was wünschen Sie?',
+    bell_service: 'Service',
+    bell_service_sub: 'Ein Kellner kommt an Ihren Tisch',
+    bell_bill: 'Rechnung',
+    bell_bill_sub: 'Die Rechnung anfordern',
+    bell_water: 'Wasser / Getränk',
+    bell_water_sub: 'Wasser oder Getränke nachfüllen',
+    bell_problem: 'Problem melden',
+    bell_problem_sub: 'Etwas stimmt nicht',
+    order_sent_title: 'Bestellung gesendet!',
+    order_sent_sub: 'Ihre Bestellung wurde an die Küche übermittelt.\nEin Kellner kommt gleich.',
+    call_sent_title: 'Ruf gesendet!',
+    call_sent_sub: 'Ein Kellner kommt in Kürze an Ihren Tisch.',
+    unavailable: 'Nicht verfügbar',
+    subtotal: 'Zwischensumme',
+    tip_label: 'Trinkgeld',
+    tip_none: 'Ohne',
+    tip_custom: 'Frei',
+    split_title: 'Teilen',
+    pay_btn: 'Bezahlen',
+    equal_split: 'Gleiche Teile',
+    equal_split_sub: 'In N Teile aufteilen',
+    item_split: 'Nach Artikel',
+    item_split_sub: 'Ich wähle meine Gerichte',
+    n_persons: 'Anzahl Personen',
+    you_pay: 'Sie bezahlen',
+    persons: 'Pers.',
+    your_share: 'Ihr Anteil',
+    select_items: 'Wählen Sie Ihre Artikel:',
+    amount_to_pay: 'Zu zahlender Betrag',
+    twint_label: 'TWINT',
+    twint_title: 'Mit TWINT bezahlen',
+    twint_sub: 'Scannen Sie den QR-Code mit Ihrer App',
+    ask_server: 'Rechnung beim Kellner',
+    ask_server_sub: 'Ein Kellner bringt die Rechnung',
+    card_label: 'Kreditkarte',
+    card_sub: 'Bald verfügbar',
+    back: '← Zurück',
+    other_method: '← Andere Zahlungsart',
+    payment_done: '✅ Ich habe bezahlt',
+    payment_received: 'Zahlung erhalten!',
+    payment_thanks: 'Danke für Ihren Besuch. Bis bald!',
+    pay_settle: '💳 Rechnung bezahlen',
+    settle_title: 'Rechnung bezahlen',
+    twint_step1: '1. Öffnen Sie Ihre TWINT-App',
+    twint_step2: '2. Tippen Sie auf das QR-/Scanner-Symbol',
+    twint_step3: '3. Scannen Sie diesen Code — der Betrag ist vorausgefüllt',
+    twint_step4: '4. Bestätigen Sie die Zahlung',
+    twint_scan: 'Mit Ihrer TWINT-App scannen',
+    twint_account: 'Konto',
+    rate_title: 'Wie war Ihr Essen?',
+    rate_sub: 'Ihre Meinung hilft uns, besser zu werden',
+    rate_submit: 'Bewertung senden',
+    rate_skip: 'Überspringen',
+    rate_comment: 'Ein Kommentar? (optional)',
+    rate_thanks: 'Danke!',
+    rate_google: 'Teilen Sie Ihre Erfahrung auf Google, um uns zu unterstützen.',
+    rate_google_btn: 'Google-Bewertung schreiben',
+    rate_no: 'Nein danke',
+    rate_1: 'Schade...', rate_2: 'Nicht so gut...', rate_3: 'In Ordnung, danke!', rate_4: 'Sehr gut!', rate_5: 'Ausgezeichnet! 🎉',
+    table_prefix: 'Tisch',
+  },
+  it: {
+    greeting_morning: 'Buongiorno!',
+    greeting_afternoon: 'Buon pomeriggio!',
+    greeting_evening: 'Buonasera!',
+    welcome_msg: 'Benvenuti! Ordinate direttamente dal vostro tavolo.',
+    view_order: 'Vedere il mio ordine',
+    my_order: 'Il mio ordine',
+    total: 'Totale',
+    notes_placeholder: 'Note per la cucina (allergie, cottura, richieste speciali…)',
+    send_order: 'Inviare l\'ordine →',
+    pay_my_bill: '💳 Pagare il conto',
+    call_server: 'Chiamare il cameriere',
+    what_need: 'Cosa desiderate?',
+    bell_service: 'Servizio',
+    bell_service_sub: 'Un cameriere viene al vostro tavolo',
+    bell_bill: 'Conto',
+    bell_bill_sub: 'Richiedere il conto',
+    bell_water: 'Acqua / bevande',
+    bell_water_sub: 'Rifornirsi di acqua o bevande',
+    bell_problem: 'Segnalare un problema',
+    bell_problem_sub: 'Qualcosa non va',
+    order_sent_title: 'Ordine inviato!',
+    order_sent_sub: 'Il vostro ordine è stato trasmesso in cucina.\nUn cameriere passerà molto presto.',
+    call_sent_title: 'Chiamata inviata!',
+    call_sent_sub: 'Un cameriere arriverà al vostro tavolo tra poco.',
+    unavailable: 'Non disponibile',
+    subtotal: 'Subtotale',
+    tip_label: 'Mancia',
+    tip_none: 'Senza',
+    tip_custom: 'Libero',
+    split_title: 'Dividere',
+    pay_btn: 'Pagare',
+    equal_split: 'Parti uguali',
+    equal_split_sub: 'Dividere in N parti',
+    item_split: 'Per articolo',
+    item_split_sub: 'Scelgo i miei piatti',
+    n_persons: 'Numero di persone',
+    you_pay: 'Voi pagate',
+    persons: 'pers.',
+    your_share: 'La vostra parte',
+    select_items: 'Selezionate i vostri articoli:',
+    amount_to_pay: 'Importo da pagare',
+    twint_label: 'TWINT',
+    twint_title: 'Pagare con TWINT',
+    twint_sub: 'Scansionate il QR dalla vostra app',
+    ask_server: 'Conto al cameriere',
+    ask_server_sub: 'Un cameriere porta il conto',
+    card_label: 'Carta di credito',
+    card_sub: 'Presto disponibile',
+    back: '← Indietro',
+    other_method: '← Altro metodo di pagamento',
+    payment_done: '✅ Ho pagato',
+    payment_received: 'Pagamento ricevuto!',
+    payment_thanks: 'Grazie per la vostra visita. A presto!',
+    pay_settle: '💳 Pagare il conto',
+    settle_title: 'Pagare il conto',
+    twint_step1: '1. Aprite la vostra app TWINT',
+    twint_step2: '2. Toccate l\'icona QR / Scanner',
+    twint_step3: '3. Scansionate questo codice — l\'importo è precompilato',
+    twint_step4: '4. Confermate il pagamento',
+    twint_scan: 'Scansionate con la vostra app TWINT',
+    twint_account: 'Conto',
+    rate_title: 'Come è stato il vostro pasto?',
+    rate_sub: 'La vostra opinione ci aiuta a migliorare',
+    rate_submit: 'Inviare la valutazione',
+    rate_skip: 'Saltare',
+    rate_comment: 'Un commento? (opzionale)',
+    rate_thanks: 'Grazie!',
+    rate_google: 'Condividete la vostra esperienza su Google per aiutarci a crescere.',
+    rate_google_btn: 'Lasciare una recensione Google',
+    rate_no: 'No grazie',
+    rate_1: 'Spiacenti...', rate_2: 'Non ottimo...', rate_3: 'Corretto, grazie!', rate_4: 'Molto bene!', rate_5: 'Eccellente! 🎉',
+    table_prefix: 'Tavolo',
+  },
+  en: {
+    greeting_morning: 'Good morning!',
+    greeting_afternoon: 'Good afternoon!',
+    greeting_evening: 'Good evening!',
+    welcome_msg: 'Welcome! Order directly from your table.',
+    view_order: 'View my order',
+    my_order: 'My order',
+    total: 'Total',
+    notes_placeholder: 'Notes for the kitchen (allergies, cooking, special requests…)',
+    send_order: 'Send order →',
+    pay_my_bill: '💳 Settle my bill',
+    call_server: 'Call a server',
+    what_need: 'What do you need?',
+    bell_service: 'Service',
+    bell_service_sub: 'A server comes to your table',
+    bell_bill: 'Bill',
+    bell_bill_sub: 'Request the bill',
+    bell_water: 'Water / drinks',
+    bell_water_sub: 'Refill water or drinks',
+    bell_problem: 'Report a problem',
+    bell_problem_sub: 'Something is wrong',
+    order_sent_title: 'Order sent!',
+    order_sent_sub: 'Your order has been sent to the kitchen.\nA server will come by shortly.',
+    call_sent_title: 'Call sent!',
+    call_sent_sub: 'A server will come to your table shortly.',
+    unavailable: 'Unavailable',
+    subtotal: 'Subtotal',
+    tip_label: 'Tip',
+    tip_none: 'None',
+    tip_custom: 'Custom',
+    split_title: 'Split',
+    pay_btn: 'Pay',
+    equal_split: 'Equal split',
+    equal_split_sub: 'Split into N parts',
+    item_split: 'By item',
+    item_split_sub: 'I choose my dishes',
+    n_persons: 'Number of people',
+    you_pay: 'You pay',
+    persons: 'pers.',
+    your_share: 'Your share',
+    select_items: 'Select your items:',
+    amount_to_pay: 'Amount to pay',
+    twint_label: 'TWINT',
+    twint_title: 'Pay with TWINT',
+    twint_sub: 'Scan the QR from your app',
+    ask_server: 'Bill from server',
+    ask_server_sub: 'A server brings the bill',
+    card_label: 'Credit card',
+    card_sub: 'Coming soon',
+    back: '← Back',
+    other_method: '← Other payment method',
+    payment_done: "✅ I've paid",
+    payment_received: 'Payment received!',
+    payment_thanks: 'Thank you for your visit. See you soon!',
+    pay_settle: '💳 Settle my bill',
+    settle_title: 'Settle my bill',
+    twint_step1: '1. Open your TWINT app',
+    twint_step2: '2. Tap the QR / Scanner icon',
+    twint_step3: '3. Scan this code — the amount is pre-filled',
+    twint_step4: '4. Confirm the payment',
+    twint_scan: 'Scan with your TWINT app',
+    twint_account: 'Account',
+    rate_title: 'How was your meal?',
+    rate_sub: 'Your opinion helps us improve',
+    rate_submit: 'Send my review',
+    rate_skip: 'Skip',
+    rate_comment: 'A comment? (optional)',
+    rate_thanks: 'Thank you!',
+    rate_google: 'Share your experience on Google to help us grow.',
+    rate_google_btn: 'Leave a Google review',
+    rate_no: 'No thanks',
+    rate_1: 'Sorry...', rate_2: 'Not great...', rate_3: 'OK, thanks!', rate_4: 'Very good!', rate_5: 'Excellent! 🎉',
+    table_prefix: 'Table',
+  }
+};
+
+function mt(k){ return (MN_T[MN_LANG]||MN_T.fr)[k] || MN_T.fr[k] || k; }
+function ml(v){ return typeof v === 'object' ? (v[MN_LANG] || v.fr || '') : v; }
+
+function setMenuLang(l){
+  MN_LANG = l;
+  try{ localStorage.setItem('r3sto_lang', l); }catch(e){}
+  document.querySelectorAll('.lang-sw button').forEach(function(b){
+    b.classList.toggle('on', b.dataset.l === l);
+  });
+  document.documentElement.lang = l;
+  applyMenuLang();
+  renderMenu();
+}
+
+function applyMenuLang(){
+  // Greeting
+  var h = new Date().getHours();
+  var gk = h < 12 ? 'greeting_morning' : h < 17 ? 'greeting_afternoon' : 'greeting_evening';
+  document.getElementById('welcome-name').textContent = mt(gk);
+  document.getElementById('welcome-msg').textContent = mt('welcome_msg');
+
+  // Static labels
+  document.querySelector('.cart-btn-label').textContent = mt('view_order');
+  document.querySelector('.sheet-title').textContent = mt('my_order');
+  document.querySelector('.order-total-lbl').textContent = mt('total');
+  document.getElementById('order-note').placeholder = mt('notes_placeholder');
+  document.getElementById('confirm-btn').textContent = mt('send_order');
+  document.getElementById('table-badge').textContent = mt('table_prefix') + ' ' + TABLE_NM;
+
+  // Bell sheet
+  var bellTitle = document.querySelector('.bell-title');
+  if(bellTitle) bellTitle.textContent = mt('what_need');
+  var bellHdr = document.querySelectorAll('.sheet-title');
+  if(bellHdr[1]) bellHdr[1].textContent = mt('call_server');
+
+  // Pay button in order sheet
+  var payBtn = document.getElementById('btn-pay-order');
+  if(payBtn) payBtn.textContent = mt('pay_my_bill');
+
+  // Bell options
+  var bellOpts = document.querySelectorAll('.bell-option');
+  var bellKeys = [
+    ['bell_service','bell_service_sub'],
+    ['bell_bill','bell_bill_sub'],
+    ['bell_water','bell_water_sub'],
+    ['bell_problem','bell_problem_sub']
+  ];
+  bellOpts.forEach(function(opt, i){
+    if(bellKeys[i]){
+      var lbl = opt.querySelector('.bell-option-label');
+      var sub = opt.querySelector('.bell-option-sub');
+      if(lbl) lbl.textContent = mt(bellKeys[i][0]);
+      if(sub) sub.textContent = mt(bellKeys[i][1]);
+    }
+  });
+
+  // Payment sheet title
+  var pst = document.getElementById('pay-sheet-title');
+  if(pst) pst.textContent = mt('settle_title');
+
+  // Bell button title
+  var bellBtn = document.getElementById('bell-btn');
+  if(bellBtn) bellBtn.title = mt('call_server');
+
+  // Satisfaction sheet
+  var satisTitle = document.querySelector('#ov-satis .sheet-title');
+  if(satisTitle) satisTitle.textContent = mt('rate_title');
+  var satisSub = document.getElementById('satis-sub');
+  if(satisSub) satisSub.textContent = mt('rate_sub');
+  var satisNote = document.getElementById('satis-note');
+  if(satisNote) satisNote.placeholder = mt('rate_comment');
+  var satisSubmit = document.getElementById('satis-submit');
+  if(satisSubmit) satisSubmit.textContent = mt('rate_submit');
+  var satisSkip = document.getElementById('satis-skip');
+  if(satisSkip) satisSkip.textContent = mt('rate_skip');
+
+  // TWINT sheet
+  var twintTitle = document.querySelector('#ov-twint .sheet-title');
+  if(twintTitle) twintTitle.textContent = mt('twint_title');
+  var twintScan = document.getElementById('twint-scan');
+  if(twintScan) twintScan.textContent = mt('twint_scan');
+  var twintSteps = document.getElementById('twint-steps');
+  if(twintSteps) twintSteps.innerHTML = mt('twint_step1')+'<br>'+mt('twint_step2')+'<br>'+mt('twint_step3')+'<br>'+mt('twint_step4');
+  var twintDone = document.getElementById('twint-done');
+  if(twintDone) twintDone.textContent = mt('payment_done');
+  var twintOther = document.getElementById('twint-other');
+  if(twintOther) twintOther.textContent = mt('other_method');
+}
+// Init lang
+(function(){
+  var saved = null;
+  try{ saved = localStorage.getItem('r3sto_lang'); }catch(e){}
+  if(saved && MN_T[saved]){ MN_LANG = saved; }
+  // Update buttons
+  document.querySelectorAll('.lang-sw button').forEach(function(b){
+    b.classList.toggle('on', b.dataset.l === MN_LANG);
+  });
+})();
+
+/* ═══════════════════════════════════════════
+   MENU DATA — injecté dynamiquement via API
+   En démo : données statiques
+═══════════════════════════════════════════ */
+var MENU = {
+  resto: 'Mon Restaurant',
+  table: 'T1',
+  welcomeMsg: 'Bienvenue ! Commandez directement depuis votre table.',
+  accentColor: '#4480d8',
+  showPrices: true,
+  showAllergens: true,
+  allowOrders: true,
+  categories: [
+    {id:'c1', name:{fr:'Entrées',de:'Vorspeisen',it:'Antipasti',en:'Starters'}, icon:'🥗'},
+    {id:'c2', name:{fr:'Plats',de:'Hauptgerichte',it:'Piatti',en:'Main Courses'}, icon:'🍽️'},
+    {id:'c3', name:{fr:'Desserts',de:'Desserts',it:'Dolci',en:'Desserts'}, icon:'🍰'},
+    {id:'c4', name:{fr:'Boissons',de:'Getränke',it:'Bevande',en:'Drinks'}, icon:'🥤'},
+    {id:'c5', name:{fr:'Vins',de:'Weine',it:'Vini',en:'Wines'}, icon:'🍷'}
+  ],
+  items: [
+    {id:'m1', cat:'c1', name:{fr:'Salade César',de:'Caesar Salat',it:'Insalata Caesar',en:'Caesar Salad'}, desc:{fr:'Romaine, parmesan, croûtons maison',de:'Romana, Parmesan, hausgemachte Croutons',it:'Romana, parmigiano, crostini fatti in casa',en:'Romaine, parmesan, homemade croutons'}, price:16, available:true, allergens:['gluten','lait']},
+    {id:'m2', cat:'c1', name:{fr:'Carpaccio de bœuf',de:'Rindscarpaccio',it:'Carpaccio di manzo',en:'Beef Carpaccio'}, desc:{fr:'Roquette, copeaux parmesan, câpres',de:'Rucola, Parmesanspäne, Kapern',it:'Rucola, scaglie di parmigiano, capperi',en:'Rocket, parmesan shavings, capers'}, price:22, available:true, allergens:['lait']},
+    {id:'m3', cat:'c2', name:{fr:'Filet de perche',de:'Egli-Filet',it:'Filetto di pesce persico',en:'Perch Fillet'}, desc:{fr:'Pommes grenaille, sauce aux câpres',de:'Grenaille-Kartoffeln, Kapernsauce',it:'Patate grenaille, salsa ai capperi',en:'Grenaille potatoes, caper sauce'}, price:38, available:true, allergens:['poisson']},
+    {id:'m4', cat:'c2', name:{fr:'Entrecôte 250g',de:'Entrecôte 250g',it:'Entrecôte 250g',en:'Rib-eye Steak 250g'}, desc:{fr:'Frites maison, salade verte',de:'Hausgemachte Pommes, grüner Salat',it:'Patatine fatte in casa, insalata verde',en:'Homemade fries, green salad'}, price:46, available:true, allergens:[]},
+    {id:'m5', cat:'c2', name:{fr:'Risotto aux champignons',de:'Pilzrisotto',it:'Risotto ai funghi',en:'Mushroom Risotto'}, desc:{fr:'Champignons des bois, parmesan',de:'Waldpilze, Parmesan',it:'Funghi di bosco, parmigiano',en:'Wild mushrooms, parmesan'}, price:32, available:true, allergens:['lait','gluten']},
+    {id:'m6', cat:'c3', name:{fr:'Crème brûlée',de:'Crème brûlée',it:'Crème brûlée',en:'Crème brûlée'}, desc:{fr:'Vanille Bourbon, caramel croustillant',de:'Bourbon-Vanille, knuspriges Karamell',it:'Vaniglia Bourbon, caramello croccante',en:'Bourbon vanilla, crispy caramel'}, price:12, available:true, allergens:['lait','oeufs']},
+    {id:'m7', cat:'c3', name:{fr:'Fondant au chocolat',de:'Schokoladen-Fondant',it:'Fondente al cioccolato',en:'Chocolate Fondant'}, desc:{fr:'Coulant, glace vanille',de:'Flüssiger Kern, Vanilleeis',it:'Cuore morbido, gelato alla vaniglia',en:'Melting center, vanilla ice cream'}, price:14, available:true, allergens:['lait','oeufs','gluten']},
+    {id:'m8', cat:'c4', name:{fr:'Eau minérale 50cl',de:'Mineralwasser 50cl',it:'Acqua minerale 50cl',en:'Mineral Water 50cl'}, desc:{fr:'Plate ou gazeuse',de:'Still oder mit Kohlensäure',it:'Naturale o frizzante',en:'Still or sparkling'}, price:5, available:true, allergens:[]},
+    {id:'m9', cat:'c4', name:{fr:'Jus de fruits',de:'Fruchtsaft',it:'Succo di frutta',en:'Fruit Juice'}, desc:{fr:'Orange, pomme ou raisin',de:'Orange, Apfel oder Traube',it:'Arancia, mela o uva',en:'Orange, apple or grape'}, price:6, available:true, allergens:[]},
+    {id:'m10', cat:'c4', name:{fr:'Café',de:'Kaffee',it:'Caffè',en:'Coffee'}, desc:{fr:'Espresso, noisette ou allongé',de:'Espresso, Haselnuss oder verlängert',it:'Espresso, nocciola o lungo',en:'Espresso, hazelnut or long'}, price:4, available:true, allergens:[]},
+    {id:'m11', cat:'c5', name:{fr:'Pinot Noir Valais',de:'Pinot Noir Wallis',it:'Pinot Noir Vallese',en:'Pinot Noir Valais'}, desc:{fr:"Domaine du Mont d'Or · 75cl",de:"Domaine du Mont d'Or · 75cl",it:"Domaine du Mont d'Or · 75cl",en:"Domaine du Mont d'Or · 75cl"}, price:52, available:true, allergens:['sulfites']},
+    {id:'m12', cat:'c5', name:{fr:'Chasselas Lavaux AOP',de:'Chasselas Lavaux AOP',it:'Chasselas Lavaux AOP',en:'Chasselas Lavaux AOP'}, desc:{fr:'Clos des Abbayes · 75cl',de:'Clos des Abbayes · 75cl',it:'Clos des Abbayes · 75cl',en:'Clos des Abbayes · 75cl'}, price:58, available:true, allergens:['sulfites']}
+  ]
+};
+
+var CART = {};  // {itemId: qty}
+var RESTO_ID = '';
+var TABLE_NM = 'T1';
+var API_BASE = 'https://api.r3sto.ch';
+
+/* ── Init ── */
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  TABLE_NM = p.get('table') || p.get('t') || 'T1';
+  RESTO_ID = p.get('id') || p.get('resto') || '';
+  var isDemoParam = p.get('demo') === '1';
+
+  // Mettre à jour l'UI
+  document.getElementById('table-badge').textContent = mt('table_prefix') + ' ' + TABLE_NM;
+  document.getElementById('resto-name').textContent = MENU.resto;
+
+  // Heure → salutation
+  var h = new Date().getHours();
+  var gk = h < 12 ? 'greeting_morning' : h < 17 ? 'greeting_afternoon' : 'greeting_evening';
+  document.getElementById('welcome-name').textContent = mt(gk);
+  document.getElementById('welcome-msg').textContent = mt('welcome_msg');
+
+  // Production : pas de resto ni de démo → écran "scannez le QR code"
+  if (!RESTO_ID && !isDemoParam) {
+    document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;text-align:center;font-family:system-ui;background:#f7f5f0;color:#1a2033">' +
+      '<div style="max-width:420px">' +
+        '<div style="font-size:64px;margin-bottom:16px;opacity:.5">\ud83c\udf7d\ufe0f</div>' +
+        '<h1 style="font-size:24px;font-weight:800;margin:0 0 10px">Menu R3STO</h1>' +
+        '<p style="font-size:15px;color:#718096;line-height:1.6;margin:0 0 24px">Scannez le QR code pr\u00e9sent sur votre table pour d\u00e9couvrir la carte et commander.</p>' +
+        '<a href="https://r3sto.ch/restaurants/" style="display:inline-block;padding:12px 22px;background:#e89420;color:#fff;font-weight:700;text-decoration:none;border-radius:10px">Voir les restaurants \u2192</a>' +
+      '</div>' +
+    '</div>';
+    return;
+  }
+
+  // Charger les données depuis l'API si disponible, sinon menu statique (démo)
+  if(RESTO_ID) loadMenuFromAPI();
+  else renderMenu();
+})();
+
+/* ── Charger menu depuis API ── */
+function loadMenuFromAPI() {
+  fetch(API_BASE + '/menu?id=' + encodeURIComponent(RESTO_ID))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data && data.items) {
+        MENU = Object.assign(MENU, data);
+        document.getElementById('resto-name').textContent = MENU.resto || MENU.name || MENU.resto;
+        document.getElementById('welcome-msg').textContent = MENU.welcomeMsg || MENU.welcomeMsg;
+      }
+      renderMenu();
+    })
+    .catch(function(){ renderMenu(); });
+}
+
+/* ── Render ── */
+function renderMenu() {
+  var cats = MENU.categories;
+  var items = MENU.items;
+
+  // Tabs
+  var tabsHtml = cats.map(function(cat, i){
+    var count = items.filter(function(x){return x.cat===cat.id && x.available;}).length;
+    if(!count) return '';
+    return '<button class="cat-tab'+(i===0?' on':'')+'" data-cat="'+cat.id+'" onclick="scrollToSection(\'sec-'+cat.id+'\')">'
+      + '<span class="cat-tab-ico">'+cat.icon+'</span>' + ml(cat.name)
+      + '</button>';
+  }).join('');
+  document.getElementById('cat-tabs').innerHTML = tabsHtml;
+
+  // Items
+  var bodyHtml = '';
+  cats.forEach(function(cat){
+    var catItems = items.filter(function(x){return x.cat===cat.id;});
+    if(!catItems.length) return;
+    bodyHtml += '<section class="cat-section" id="sec-'+cat.id+'">';
+    bodyHtml += '<div class="cat-title"><span class="cat-title-ico">'+cat.icon+'</span>'+ml(cat.name)+'</div>';
+    catItems.forEach(function(item){
+      var qty = CART[item.id] || 0;
+      var addBtn = qty > 0
+        ? '<div class="item-qty">'
+          + '<button class="qty-btn" onclick="event.stopPropagation();changeQty(\''+item.id+'\',-1)">−</button>'
+          + '<div class="qty-num">'+qty+'</div>'
+          + '<button class="qty-btn" onclick="event.stopPropagation();changeQty(\''+item.id+'\',1)" style="background:var(--ac)">+</button>'
+          + '</div>'
+        : item.available
+          ? '<button class="item-add" onclick="event.stopPropagation();addItem(\''+item.id+'\')">+</button>'
+          : '';
+      bodyHtml += '<div class="item'+(item.available?'':' unavailable')+'" onclick="'+(item.available?'addItem(\''+item.id+'\')':'')+'">';
+      bodyHtml += '<div class="item-body">';
+      bodyHtml += '<div class="item-name">'+ml(item.name)+'</div>';
+      if(item.desc && MENU.showDesc !== false) bodyHtml += '<div class="item-desc">'+ml(item.desc)+'</div>';
+      bodyHtml += '<div class="item-tags">';
+      if(!item.available) bodyHtml += '<span class="item-unavail">⚫ '+mt('unavailable')+'</span>';
+      if(item.allergens && item.allergens.length && MENU.showAllergens !== false) {
+        item.allergens.forEach(function(a){ bodyHtml += '<span class="item-allergen">'+a+'</span>'; });
+      }
+      bodyHtml += '</div></div>';
+      if(MENU.showPrices !== false) bodyHtml += '<div class="item-price"><small>CHF </small>'+item.price.toFixed(2)+'</div>';
+      bodyHtml += addBtn;
+      bodyHtml += '</div>';
+    });
+    bodyHtml += '</section>';
+  });
+  document.getElementById('menu-body').innerHTML = bodyHtml;
+  updateCartBar();
+
+  // Intersection observer pour les onglets
+  setupTabObserver();
+}
+
+/* ── Cart ── */
+function addItem(id) {
+  CART[id] = (CART[id] || 0) + 1;
+  updateCartBar(); renderMenu();
+  // Micro feedback
+  var btn = event && event.target;
+  if(btn && btn.classList) { btn.classList.add('added'); setTimeout(function(){btn.classList.remove('added');},300); }
+}
+function changeQty(id, delta) {
+  CART[id] = Math.max(0, (CART[id] || 0) + delta);
+  if(CART[id] === 0) delete CART[id];
+  updateCartBar(); renderMenu();
+}
+function cartTotal() {
+  return Object.keys(CART).reduce(function(s, id){
+    var item = MENU.items.find(function(x){return x.id===id;});
+    return s + (item ? item.price * CART[id] : 0);
+  }, 0);
+}
+function cartCount() {
+  return Object.values(CART).reduce(function(s,v){return s+v;},0);
+}
+function updateCartBar() {
+  var count = cartCount();
+  var total = cartTotal();
+  var bar = document.getElementById('cart-bar');
+  var countEl = document.getElementById('cart-count');
+  var totalEl = document.getElementById('cart-total');
+  if(bar) bar.classList.toggle('show', count > 0);
+  if(countEl) countEl.textContent = count;
+  if(totalEl) totalEl.textContent = 'CHF ' + total.toFixed(2);
+}
+
+/* ── Order sheet ── */
+function openCart() {
+  var items = Object.keys(CART).map(function(id){
+    var item = MENU.items.find(function(x){return x.id===id;});
+    return item ? {item:item, qty:CART[id]} : null;
+  }).filter(Boolean);
+
+  var html = '';
+  items.forEach(function(e){
+    html += '<div class="order-item">';
+    html += '<div class="item-qty">';
+    html += '<button class="qty-btn" style="width:26px;height:26px;font-size:14px" onclick="changeQty(\''+e.item.id+'\',-1);updateOrderSheet()">−</button>';
+    html += '<div class="qty-num" style="font-size:13px">'+e.qty+'</div>';
+    html += '<button class="qty-btn" style="width:26px;height:26px;font-size:14px;background:var(--ac)" onclick="changeQty(\''+e.item.id+'\',1);updateOrderSheet()">+</button>';
+    html += '</div>';
+    html += '<div class="order-item-name">'+ml(e.item.name)+'</div>';
+    html += '<div class="order-item-price">CHF '+(e.item.price*e.qty).toFixed(2)+'</div>';
+    html += '</div>';
+  });
+
+  document.getElementById('order-items').innerHTML = html;
+  document.getElementById('order-total-val').textContent = 'CHF ' + cartTotal().toFixed(2);
+  document.getElementById('confirm-btn').textContent = 'Envoyer la commande →';
+  document.getElementById('confirm-btn').className = 'confirm-btn';
+  document.getElementById('ov-order').classList.add('on');
+}
+function closeCart() { document.getElementById('ov-order').classList.remove('on'); }
+function updateOrderSheet() { if(document.getElementById('ov-order').classList.contains('on')) openCart(); }
+
+/* ── Send order ── */
+function sendOrder() {
+  var items = Object.keys(CART).map(function(id){
+    var item = MENU.items.find(function(x){return x.id===id;});
+    return item ? {id:id, name:ml(item.name), qty:CART[id], price:item.price} : null;
+  }).filter(Boolean);
+  if(!items.length) return;
+  var note = document.getElementById('order-note').value;
+
+  // Appel API
+  var payload = {table:TABLE_NM, items:items, note:note, total:cartTotal(), restoId:RESTO_ID};
+  fetch(API_BASE + '/orders', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).catch(function(){});  // silent fail si pas d'API
+
+  // Reset
+  CART = {};
+  closeCart();
+  showSuccess('✅', mt('order_sent_title'), mt('order_sent_sub'));
+  updateCartBar();
+  renderMenu();
+}
+
+/* ── Bell / Appel serveur ── */
+function openBell() {
+  document.getElementById('ov-bell').classList.add('on');
+  // Animation
+  var btn = document.getElementById('bell-btn');
+  btn.classList.add('ring-anim');
+  setTimeout(function(){btn.classList.remove('ring-anim');},600);
+}
+function closeBell() { document.getElementById('ov-bell').classList.remove('on'); }
+function callServer(reason) {
+  closeBell();
+  // Appel API
+  fetch(API_BASE + '/bell', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({table:TABLE_NM, reason:reason, restoId:RESTO_ID})
+  }).catch(function(){});
+
+  showSuccess('🔔', mt('call_sent_title'), mt('call_sent_sub'));
+  // Badge sur la cloche
+  var badge = document.getElementById('bell-badge');
+  if(badge) { badge.classList.add('on'); setTimeout(function(){badge.classList.remove('on');},10000); }
+}
+
+/* ── Success overlay ── */
+function showSuccess(ico, title, sub) {
+  document.getElementById('success-ico').textContent = ico;
+  document.getElementById('success-title').textContent = title;
+  document.getElementById('success-sub').textContent = sub;
+  var ov = document.getElementById('ov-success');
+  ov.classList.add('on');
+  setTimeout(function(){ ov.classList.remove('on'); }, 3500);
+}
+
+/* ── Tab scroll observer ── */
+function scrollToSection(id) {
+  var el = document.getElementById(id);
+  if(!el) return;
+  var offset = document.querySelector('.cat-tabs').offsetHeight + 64;
+  window.scrollTo({top: el.offsetTop - offset - 8, behavior:'smooth'});
+}
+function setupTabObserver() {
+  if(!window.IntersectionObserver) return;
+  var tabs = document.querySelectorAll('.cat-tab');
+  var sections = document.querySelectorAll('.cat-section');
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting && e.intersectionRatio > 0.4) {
+        var id = e.target.id.replace('sec-','');
+        tabs.forEach(function(t){ t.classList.toggle('on', t.dataset.cat===id); });
+      }
+    });
+  },{rootMargin:'-60px 0px -50% 0px', threshold:0});
+  sections.forEach(function(s){ obs.observe(s); });
+}
+
+
+/* ═══════════════════════════════════════════
+   PAYMENT — POURBOIRE + SPLIT + TWINT
+═══════════════════════════════════════════ */
+var PAY_STATE = {
+  subtotal:0, tip:0, tipPct:10, splitMode:null,
+  splitN:2, splitItems:{}, total:0,
+  twintAlias:'', googleUrl:'', rating:0
+};
+var PAY_STEP = 'summary';
+
+function openPay() {
+  var total = 0;
+  if(window.LAST_ORDER_ITEMS && window.LAST_ORDER_ITEMS.length) {
+    total = window.LAST_ORDER_ITEMS.reduce(function(s,i){return s+i.price*i.qty;},0);
+  } else { total = cartTotal(); }
+  PAY_STATE.subtotal = total;
+  PAY_STATE.tip = Math.round(total * 0.10 * 100)/100;
+  PAY_STATE.tipPct = 10;
+  PAY_STATE.total = total + PAY_STATE.tip;
+  PAY_STATE.splitMode = null;
+  PAY_STATE.splitItems = {};
+  PAY_STEP = 'summary';
+  renderPaySheet();
+  document.getElementById('ov-pay').classList.add('on');
+}
+function closePay(){ document.getElementById('ov-pay').classList.remove('on'); }
+function openPaySheet(){ openPay(); }
+
+function renderPaySheet(){
+  var html = PAY_STEP==='summary' ? buildSummary()
+           : PAY_STEP==='split'   ? buildSplit()
+           : PAY_STEP==='method'  ? buildMethod() : '';
+  document.getElementById('pay-content').innerHTML = html;
+}
+
+function buildSummary(){
+  var s = PAY_STATE;
+  var items = window.LAST_ORDER_ITEMS || Object.keys(CART).map(function(id){
+    var item=MENU.items.find(function(x){return x.id===id;});
+    return item?{id:id,name:item.name,qty:CART[id],price:item.price}:null;
+  }).filter(Boolean);
+
+  var rows = items.map(function(i){
+    return '<div class="pay-row"><span class="pay-row-name">×'+i.qty+' '+i.name+'</span>'
+      +'<span class="pay-row-price">CHF '+(i.price*i.qty).toFixed(2)+'</span></div>';
+  }).join('');
+
+  var tipPcts = [0,5,10,15];
+  var tipBtns = tipPcts.map(function(p){
+    var amt = p===0?0:Math.round(s.subtotal*p/100*20)/20;
+    var on = s.tipPct===p;
+    return '<div class="tip-btn'+(on?' on':'')+'" onclick="setTip('+p+')">'
+      +'<span class="tip-btn-pct">'+(p===0?'Sans':p+'%')+'</span>'
+      +'<span class="tip-btn-amt">'+(p===0?'—':'CHF '+amt.toFixed(2))+'</span></div>';
+  }).join('');
+  tipBtns += '<div class="tip-btn'+(s.tipPct==='custom'?' on':'')+'" onclick="setTipCustom()">'
+    +'<span class="tip-btn-pct">✎</span><span class="tip-btn-amt">Libre</span></div>';
+
+  var customRow = s.tipPct==='custom'
+    ? '<div class="tip-custom-row"><span style="font-size:13px;color:var(--t2)">CHF</span>'
+      +'<input class="tip-custom-input" id="tip-custom-val" type="number" min="0" step="0.5" value="'
+      +s.tip.toFixed(2)+'" oninput="updateTipCustom(this.value)"></div>' : '';
+
+  return '<div class="pay-section">'
+    +'<div class="pay-summary">'+rows
+    +'<div class="pay-divider"></div>'
+    +'<div class="pay-row"><span class="pay-row-name">'+mt('subtotal')+'</span>'
+    +'<span class="pay-row-price">CHF '+s.subtotal.toFixed(2)+'</span></div>'
+    +'<div class="pay-row"><span class="pay-row-name" style="color:var(--gn)">'+mt('tip_label')+'</span>'
+    +'<span class="pay-row-price" style="color:var(--gn)">+ CHF '+s.tip.toFixed(2)+'</span></div>'
+    +'<div class="pay-divider"></div>'
+    +'<div class="pay-total-row"><span class="pay-total-label">'+mt('total')+'</span>'
+    +'<span class="pay-total-amount">CHF '+s.total.toFixed(2)+'</span></div></div>'
+    +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:10px">'+mt('tip_label')+'</div>'
+    +'<div class="tip-grid">'+tipBtns+'</div>'+customRow
+    +'<div style="display:flex;gap:8px;margin-top:16px;padding-bottom:30px">'
+    +'<button class="confirm-btn" style="margin:0;flex:1;background:var(--surf3);color:var(--text)" '
+    +'onclick="PAY_STEP=\'split\';renderPaySheet()">'+mt('split_title')+' →</button>'
+    +'<button class="confirm-btn" style="margin:0;flex:2" '
+    +'onclick="PAY_STEP=\'method\';renderPaySheet()">'+mt('pay_btn')+' CHF '+s.total.toFixed(2)+' →</button>'
+    +'</div></div>';
+}
+
+function setTip(pct){
+  PAY_STATE.tipPct=pct;
+  PAY_STATE.tip=pct===0?0:Math.round(PAY_STATE.subtotal*pct/100*20)/20;
+  PAY_STATE.total=PAY_STATE.subtotal+PAY_STATE.tip;
+  renderPaySheet();
+}
+function setTipCustom(){ PAY_STATE.tipPct='custom'; renderPaySheet(); }
+function updateTipCustom(val){
+  PAY_STATE.tip=parseFloat(val)||0;
+  PAY_STATE.total=PAY_STATE.subtotal+PAY_STATE.tip;
+  var el=document.querySelector('.pay-total-amount');
+  if(el) el.textContent='CHF '+PAY_STATE.total.toFixed(2);
+}
+
+function buildSplit(){
+  var s=PAY_STATE;
+  var mode=s.splitMode||'equal';
+  var items=window.LAST_ORDER_ITEMS||Object.keys(CART).map(function(id){
+    var item=MENU.items.find(function(x){return x.id===id;});
+    return item?{id:id,name:item.name,qty:CART[id],price:item.price}:null;
+  }).filter(Boolean);
+
+  var html='<div class="pay-section">'
+    +'<div class="split-toggle">'
+    +'<div class="split-btn'+(mode==='equal'?' on':'')+'" onclick="setSplitMode(\'equal\')">'
+    +'<span class="split-btn-ico">⚖</span>'
+    +'<div class="split-btn-label">'+mt('equal_split')+'</div>'
+    +'<div class="split-btn-sub">'+mt('equal_split_sub')+'</div></div>'
+    +'<div class="split-btn'+(mode==='items'?' on':'')+'" onclick="setSplitMode(\'items\')">'
+    +'<span class="split-btn-ico">🍽</span>'
+    +'<div class="split-btn-label">'+mt('item_split')+'</div>'
+    +'<div class="split-btn-sub">'+mt('item_split_sub')+'</div></div>'
+    +'</div>';
+
+  var payAmt = s.total;
+
+  if(mode==='equal'){
+    var perPerson=s.total/s.splitN;
+    payAmt=perPerson;
+    html+='<div class="split-n-row">'
+      +'<span class="split-n-label">'+mt('n_persons')+'</span>'
+      +'<div class="stepper-row">'
+      +'<button class="step-btn" onclick="setSplitN(-1)">−</button>'
+      +'<span class="step-num">'+s.splitN+'</span>'
+      +'<button class="step-btn" onclick="setSplitN(1)">+</button>'
+      +'</div></div>'
+      +'<div style="background:var(--acp);border:1.5px solid var(--ac);border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">'
+      +'<div style="font-size:12px;color:var(--t3);margin-bottom:4px">'+mt('you_pay')+'</div>'
+      +'<div style="font-family:\'DM Mono\',monospace;font-size:28px;font-weight:900;color:var(--ac)">CHF '+perPerson.toFixed(2)+'</div>'
+      +'<div style="font-size:10px;color:var(--t3)">sur CHF '+s.total.toFixed(2)+' ('+s.splitN+' pers.)</div>'
+      +'</div>';
+  } else {
+    var selTotal=items.filter(function(i){return s.splitItems[i.id];})
+      .reduce(function(sum,i){return sum+i.price*i.qty;},0);
+    var tipShare=s.subtotal>0?(selTotal/s.subtotal)*s.tip:0;
+    var myTotal=selTotal+tipShare;
+    payAmt=myTotal;
+
+    html+='<div style="font-size:11px;color:var(--t3);margin-bottom:10px">Sélectionnez vos articles :</div>'
+      +'<div class="split-items">';
+    items.forEach(function(item){
+      var sel=!!s.splitItems[item.id];
+      html+='<div class="split-item-row'+(sel?' selected':'')+'" onclick="toggleSplitItem(\''+item.id+'\')">'
+        +'<div class="split-item-check">'+(sel?'✓':'')+'</div>'
+        +'<div class="split-item-name">×'+item.qty+' '+item.name+'</div>'
+        +'<div class="split-item-price">CHF '+(item.price*item.qty).toFixed(2)+'</div>'
+        +'</div>';
+    });
+    html+='</div>';
+    if(myTotal>0){
+      html+='<div style="background:var(--acp);border:1.5px solid var(--ac);border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">'
+        +'<div style="font-size:12px;color:var(--t3);margin-bottom:4px">'+mt('your_share')+'</div>'
+        +'<div style="font-family:\'DM Mono\',monospace;font-size:28px;font-weight:900;color:var(--ac)">CHF '+myTotal.toFixed(2)+'</div>'
+        +'</div>';
+    }
+  }
+
+  html+='<div style="display:flex;gap:8px;padding-bottom:30px">'
+    +'<button class="confirm-btn" style="margin:0;flex:1;background:var(--surf3);color:var(--text)" '
+    +'onclick="PAY_STEP=\'summary\';renderPaySheet()">'+mt('back')+'</button>'
+    +'<button class="confirm-btn" style="margin:0;flex:2" '
+    +'onclick="setSplitAmount('+payAmt.toFixed(2)+')">Payer CHF '+payAmt.toFixed(2)+' →</button>'
+    +'</div></div>';
+  return html;
+}
+
+function setSplitMode(m){ PAY_STATE.splitMode=m; renderPaySheet(); }
+function setSplitN(d){ PAY_STATE.splitN=Math.max(2,Math.min(20,PAY_STATE.splitN+d)); renderPaySheet(); }
+function toggleSplitItem(id){
+  if(PAY_STATE.splitItems[id]) delete PAY_STATE.splitItems[id];
+  else PAY_STATE.splitItems[id]=true;
+  renderPaySheet();
+}
+function setSplitAmount(amt){ PAY_STATE.total=parseFloat(amt); PAY_STEP='method'; renderPaySheet(); }
+
+function buildMethod(){
+  var s=PAY_STATE;
+  var amt='CHF '+s.total.toFixed(2);
+  return '<div class="pay-section">'
+    +'<div style="text-align:center;margin-bottom:20px">'
+    +'<div style="font-size:13px;color:var(--t3)">'+mt('amount_to_pay')+'</div>'
+    +'<div style="font-family:\'DM Mono\',monospace;font-size:32px;font-weight:900;color:var(--text)">'+amt+'</div>'
+    +'</div>'
+    +'<div class="pay-methods">'
+    +'<div class="pay-method-btn" onclick="openTwintSheet()">'
+    +'<div class="pay-method-ico">💙</div>'
+    +'<div><div class="pay-method-label">'+mt('twint_label')+'</div>'
+    +'<div class="pay-method-sub">'+mt('twint_sub')+'</div></div>'
+    +'<div class="pay-method-amount">'+amt+'</div></div>'
+    +'<div class="pay-method-btn" onclick="callServer(\'Addition\');closePay()">'
+    +'<div class="pay-method-ico">🧾</div>'
+    +'<div><div class="pay-method-label">'+mt('ask_server')+'</div>'
+    +'<div class="pay-method-sub">Un serveur passe avec l\'addition</div></div></div>'
+    +'<div class="pay-method-btn" style="opacity:.5;pointer-events:none">'
+    +'<div class="pay-method-ico">💳</div>'
+    +'<div><div class="pay-method-label">'+mt('card_label')+'</div>'
+    +'<div class="pay-method-sub">'+mt('card_sub')+'</div></div></div>'
+    +'</div>'
+    +'<button class="confirm-btn" style="margin:0;width:100%;background:var(--surf3);color:var(--text)" '
+    +'onclick="PAY_STEP=\'summary\';renderPaySheet()">'+mt('back')+'</button>'
+    +'<div style="height:30px"></div></div>';
+}
+
+function openTwintSheet(){
+  var amt=PAY_STATE.total.toFixed(2);
+  var alias=MENU.twintAlias||'';
+  var twintUrl=alias
+    ?'https://www.twint.ch/pay/?alias='+encodeURIComponent(alias)+'&amount='+amt
+    :'https://www.twint.ch/pay/?amount='+amt;
+  var qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='
+    +encodeURIComponent(twintUrl)+'&color=006DC6&bgcolor=ffffff&margin=2';
+  document.getElementById('twint-qr-img').src=qrUrl;
+  document.getElementById('twint-amount').textContent='CHF '+amt;
+  document.getElementById('twint-alias').textContent=alias?'Compte : '+alias:'';
+  closePay();
+  document.getElementById('ov-twint').classList.add('on');
+}
+function closeTwint(){ document.getElementById('ov-twint').classList.remove('on'); }
+
+function paymentDone(){
+  closeTwint(); closePay();
+  fetch(API_BASE+'/payment',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({table:TABLE_NM,amount:PAY_STATE.total,method:'twint',restoId:RESTO_ID})
+  }).catch(function(){});
+  showSuccess('💳','Paiement reçu !','Merci pour votre visite. &Agrave; très bientôt !');
+  setTimeout(function(){ openSatis(); },2200);
+}
+
+function openSatis(){
+  PAY_STATE.rating=0;
+  document.querySelectorAll('.star-btn').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('satis-msg').textContent='';
+  document.getElementById('satis-resto').textContent=MENU.resto||'Mon Restaurant';
+  document.getElementById('ov-satis').classList.add('on');
+}
+function closeSatis(){ document.getElementById('ov-satis').classList.remove('on'); }
+function rateStar(n){
+  PAY_STATE.rating=n;
+  var msgs=['','Désolé...','Pas terrible...','Correct, merci !','Très bien !','Excellent ! 🎉'];
+  document.querySelectorAll('.star-btn').forEach(function(b){
+    b.classList.toggle('on',+b.dataset.v<=n);
+  });
+  document.getElementById('satis-msg').innerHTML=msgs[n]||'';
+}
+function submitRating(){
+  var note=document.getElementById('satis-note').value;
+  fetch(API_BASE+'/rating',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({table:TABLE_NM,rating:PAY_STATE.rating,note:note,restoId:RESTO_ID})
+  }).catch(function(){});
+  closeSatis();
+  if(PAY_STATE.rating>=4&&MENU.googleUrl){
+    setTimeout(function(){
+      var m=document.createElement('div');
+      m.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center';
+      m.innerHTML='<div style="background:var(--surf);border-radius:22px;padding:28px;max-width:300px;width:90%;text-align:center;border:1px solid var(--border)">'
+        +'<div style="font-size:36px;margin-bottom:10px">🌟</div>'
+        +'<div style="font-family:Cormorant Garamond,serif;font-size:22px;font-weight:600;margin-bottom:8px">Merci !</div>'
+        +'<div style="font-size:13px;color:var(--t3);margin-bottom:20px;line-height:1.6">Partagez votre expérience sur Google pour nous aider à grandir.</div>'
+        +'<button class="google-btn" onclick="window.open(\''+MENU.googleUrl+'\',\'_blank\');this.closest(\'div\').parentNode.remove()">'
+        +'<span class="google-logo">G</span> Laisser un avis Google</button>'
+        +'<button onclick="this.closest(\'div\').parentNode.remove()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:\'DM Sans\',sans-serif">Non merci</button>'
+        +'</div>';
+      m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+      document.body.appendChild(m);
+    },500);
+  }
+}
+
+function showPayButton(){
+  if(document.getElementById('pay-fab'))return;
+  var fab=document.createElement('div');
+  fab.id='pay-fab';
+  fab.style.cssText='position:fixed;bottom:100px;right:18px;z-index:250;'
+    +'background:linear-gradient(135deg,#3cc870,#2a9a5a);'
+    +'border-radius:50px;padding:12px 18px;box-shadow:0 6px 24px rgba(60,200,112,.4);'
+    +'cursor:pointer;display:flex;align-items:center;gap:8px;'
+    +'animation:slideUp .3s cubic-bezier(.22,1,.36,1)';
+  fab.innerHTML='<span style="font-size:18px">💳</span>'
+    +'<span style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:700;color:#fff">'+mt('pay_settle')+'</span>';
+  fab.onclick=openPay;
+  document.body.appendChild(fab);
+}
+
+MENU.twintAlias=MENU.twintAlias||'';
+MENU.googleUrl=MENU.googleUrl||'';
+
+var _origSendOrder=window.sendOrder;
+window.sendOrder=function(){
+  window.LAST_ORDER_ITEMS=Object.keys(CART).map(function(id){
+    var item=MENU.items.find(function(x){return x.id===id;});
+    return item?{id:id,name:item.name,qty:CART[id],price:item.price}:null;
+  }).filter(Boolean);
+  if(_origSendOrder)_origSendOrder();
+  setTimeout(showPayButton,1500);
+};
+
+</script>
+
+<!-- ═══ PAYMENT SHEET ═══ -->
+<div class="ov" id="ov-pay" onclick="if(event.target===this)closePay()">
+  <div class="sheet" id="pay-sheet">
+    <span class="sheet-handle"></span>
+    <div class="sheet-hdr">
+      <div class="sheet-title" id="pay-sheet-title">Régler ma note</div>
+      <button class="sheet-close" onclick="closePay()">✕</button>
+    </div>
+    <div id="pay-content"></div>
+  </div>
+</div>
+
+<!-- ═══ SATISFACTION SHEET ═══ -->
+<div class="ov" id="ov-satis" onclick="if(event.target===this)closeSatis()">
+  <div class="sheet">
+    <span class="sheet-handle"></span>
+    <div class="sheet-hdr">
+      <div class="sheet-title">Comment était votre repas ?</div>
+      <button class="sheet-close" onclick="closeSatis()">✕</button>
+    </div>
+    <div style="padding:20px 20px 40px;text-align:center">
+      <div style="font-size:40px;margin-bottom:8px">🍽️</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:4px" id="satis-resto">Mon Restaurant</div>
+      <div id="satis-sub" style="font-size:12px;color:var(--t3);margin-bottom:20px">Votre avis nous aide à nous améliorer</div>
+      <div class="stars-row" id="stars-row">
+        <button class="star-btn" data-v="1" onclick="rateStar(1)">⭐</button>
+        <button class="star-btn" data-v="2" onclick="rateStar(2)">⭐</button>
+        <button class="star-btn" data-v="3" onclick="rateStar(3)">⭐</button>
+        <button class="star-btn" data-v="4" onclick="rateStar(4)">⭐</button>
+        <button class="star-btn" data-v="5" onclick="rateStar(5)">⭐</button>
+      </div>
+      <div id="satis-msg" style="font-size:13px;color:var(--t3);min-height:20px;margin-bottom:16px"></div>
+      <textarea class="note-input" id="satis-note" placeholder="Un commentaire ? (optionnel)" style="height:60px;margin-bottom:12px"></textarea>
+      <button id="satis-submit" class="confirm-btn" onclick="submitRating()" style="margin:0;width:100%">Envoyer mon avis</button>
+      <button id="satis-skip" onclick="closeSatis()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">Passer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TWINT SHEET ═══ -->
+<div class="ov" id="ov-twint" onclick="if(event.target===this)closeTwint()">
+  <div class="sheet">
+    <span class="sheet-handle"></span>
+    <div class="sheet-hdr">
+      <div class="sheet-title">Payer avec TWINT</div>
+      <button class="sheet-close" onclick="closeTwint()">✕</button>
+    </div>
+    <div style="padding:20px 20px 40px">
+      <div class="twint-box">
+        <div class="twint-logo">TWINT</div>
+        <div class="twint-qr-wrap">
+          <img id="twint-qr-img" src="" width="180" height="180" alt="QR TWINT">
+        </div>
+        <div class="twint-amount" id="twint-amount">CHF 0.00</div>
+        <div class="twint-sub" id="twint-scan">Scannez avec votre app TWINT</div>
+        <div class="twint-alias" id="twint-alias"></div>
+      </div>
+      <div id="twint-steps" style="background:rgba(0,109,198,.08);border:1px solid rgba(0,109,198,.2);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:16px">
+        1. Ouvrez votre app TWINT<br>
+        2. Appuyez sur l'icône QR / Scanner<br>
+        3. Scannez ce code — le montant est pré-rempli<br>
+        4. Confirmez le paiement
+      </div>
+      <button id="twint-done" class="confirm-btn" onclick="paymentDone()" style="margin:0;width:100%">✅ J'ai payé</button>
+      <button id="twint-other" onclick="closeTwint();openPaySheet()" style="margin-top:10px;background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">← Autre mode de paiement</button>
+    </div>
+  </div>
+</div>
+
+<footer style="padding:20px 16px;margin-top:24px;border-top:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:11px;color:var(--t3);text-align:center;line-height:1.7">
+  <div style="margin-bottom:6px">© 2026 R3STO · Innoptim SA (Suisse) · CHE-430.441.925</div>
+  <div>
+    <a href="https://pro.r3sto.ch/legal/cgu.html" style="color:var(--t2);text-decoration:none;margin:0 6px">CGU</a>·
+    <a href="https://pro.r3sto.ch/legal/mentions.html" style="color:var(--t2);text-decoration:none;margin:0 6px">Mentions légales</a>·
+    <a href="https://pro.r3sto.ch/legal/confidentialite.html" style="color:var(--t2);text-decoration:none;margin:0 6px">Confidentialité</a>·
+    <a href="mailto:contact@r3sto.ch" style="color:var(--t2);text-decoration:none;margin:0 6px">contact@r3sto.ch</a>
+  </div>
+</footer>
+</body>
+</html>

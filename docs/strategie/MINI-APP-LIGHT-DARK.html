@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO Mini app — Light vs Dark</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:#eceef2; padding:32px; color:#1a2230; line-height:1.5; }
+  .wrap { max-width:1600px; margin:0 auto; }
+  h1.top { font-family:'Fraunces', serif; font-size:32px; font-weight:700; color:#0f1620; margin-bottom:8px; letter-spacing:-0.5px; }
+  .sub { color:#6b7280; font-size:13px; margin-bottom:28px; max-width:800px; }
+
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .label { text-align:center; padding:14px 22px; font-family:'Fraunces', serif; font-size:18px; font-weight:700; margin-bottom:8px; }
+  .label.l { color:#0f1620; background:#fff; border-radius:10px 10px 0 0; border-bottom:3px solid #1d4f91; }
+  .label.d { color:#c89752; background:#0f1620; border-radius:10px 10px 0 0; border-bottom:3px solid #c89752; }
+
+  /* ============ APP FRAME ============ */
+  .app { border-radius:0 0 14px 14px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.12); }
+
+  .app .topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; border-bottom:1px solid; }
+  .app .topbar .lockup { display:flex; align-items:center; gap:10px; }
+  .app .topbar .l-sq { width:38px; height:38px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:4px; }
+  .app .topbar .word { font-family:'Alethia Next', sans-serif; font-size:22px; line-height:1; }
+  .app .topbar .resto-name { font-family:'Fraunces', serif; font-weight:700; font-size:18px; flex:1; text-align:center; }
+  .app .topbar .icons { display:flex; gap:10px; font-size:18px; }
+
+  .app .toolbar { display:flex; align-items:center; gap:10px; padding:14px 24px; border-bottom:1px solid; }
+  .app .toolbar .nav-date { display:flex; align-items:center; gap:8px; }
+  .app .toolbar .nav-btn { width:28px; height:28px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; }
+  .app .toolbar .today { padding:6px 14px; border-radius:6px; font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:600; }
+  .app .toolbar .seg { display:flex; border-radius:6px; overflow:hidden; }
+  .app .toolbar .seg-btn { padding:6px 14px; font-size:11px; font-weight:600; letter-spacing:0.5px; cursor:pointer; }
+  .app .toolbar .salle-filters { display:flex; gap:6px; margin-left:auto; }
+  .app .toolbar .salle { padding:6px 12px; border-radius:5px; font-size:10px; font-weight:600; }
+  .app .toolbar .actions { display:flex; gap:6px; margin-left:14px; }
+  .app .toolbar .search { padding:6px 12px; border-radius:6px; font-size:11px; min-width:160px; }
+  .app .toolbar .cta-new { padding:7px 14px; border-radius:6px; font-weight:700; font-size:11px; }
+
+  .app .body { padding:18px 24px; min-height:480px; display:grid; grid-template-columns:1fr 240px; gap:18px; }
+
+  .app .left .service-hd { font-family:'Fraunces', serif; font-weight:700; font-size:15px; margin-bottom:4px; }
+  .app .left .service-hd .time-info { font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:400; opacity:0.7; }
+  .app .left .service-stats { font-family:'JetBrains Mono', monospace; font-size:12px; margin-bottom:12px; }
+  .app .left .service-stats .nb { font-weight:700; }
+
+  .app .left .resa { display:grid; grid-template-columns:54px 56px 60px 1fr auto; gap:14px; align-items:center; padding:11px 14px; border-radius:8px; margin-bottom:5px; font-size:13px; transition:.15s; }
+  .app .left .resa .table { padding:6px 0; border-radius:5px; text-align:center; font-weight:700; font-size:12px; }
+  .app .left .resa .combos { font-size:9px; opacity:0.6; font-family:'JetBrains Mono', monospace; }
+  .app .left .resa .cap { font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:600; }
+  .app .left .resa .time { font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700; }
+  .app .left .resa .name { font-weight:600; }
+  .app .left .resa .icons { display:flex; gap:6px; font-size:13px; opacity:0.7; }
+
+  .app .right .cal-h { font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; text-align:center; margin-bottom:10px; padding:6px; border-radius:5px; }
+  .app .right .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:3px; font-family:'JetBrains Mono', monospace; font-size:10px; }
+  .app .right .cal-grid .dow { text-align:center; opacity:0.5; padding:4px 0; font-weight:600; letter-spacing:0.5px; }
+  .app .right .cal-grid .day { text-align:center; padding:7px 0; border-radius:4px; cursor:pointer; transition:.15s; }
+  .app .right .cal-grid .day.muted { opacity:0.3; }
+  .app .right .cal-grid .day.today { font-weight:700; color:#fff; }
+
+  .app .footer-tabs { display:flex; border-top:1px solid; padding:0; }
+  .app .footer-tabs .tab { flex:1; padding:14px; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.5px; cursor:pointer; }
+
+  /* ============ LIGHT THEME ============ */
+  .light .app { background:#fafafc; color:#0f1620; }
+  .light .topbar { background:#fff; border-color:#e5e7eb; }
+  .light .topbar .word { color:#1d4f91; }
+  .light .topbar .icons { color:#6b7280; }
+  .light .toolbar { background:#fafafc; border-color:#e5e7eb; }
+  .light .nav-btn { background:#f5f6f8; color:#0f1620; }
+  .light .today { background:#f5f6f8; color:#0f1620; }
+  .light .seg { background:#f5f6f8; }
+  .light .seg-btn { color:#6b7280; }
+  .light .seg-btn.active { background:#1d4f91; color:#fff; }
+  .light .salle { background:#f5f6f8; color:#0f1620; border:1px solid transparent; }
+  .light .salle.active { background:#1d4f9120; color:#1d4f91; border:1px solid #1d4f91; }
+  .light .search { background:#fff; border:1px solid #e5e7eb; color:#0f1620; }
+  .light .cta-new { background:#10b981; color:#fff; }
+  .light .left .service-hd { color:#0f1620; }
+  .light .left .service-stats { color:#1d4f91; }
+  .light .left .service-stats .nb { color:#10b981; }
+  .light .resa { background:#fff; border:1px solid #e5e7eb; }
+  .light .resa:hover { background:#f5f6f8; }
+  .light .resa .table { background:#1d4f9120; color:#1d4f91; }
+  .light .resa .cap { color:#0f1620; }
+  .light .resa .time { color:#10b981; }
+  .light .right .cal-h { background:#1d4f9120; color:#1d4f91; }
+  .light .right .cal-grid .day { color:#0f1620; }
+  .light .right .cal-grid .day:hover { background:#f5f6f8; }
+  .light .right .cal-grid .day.today { background:#10b981; }
+  .light .footer-tabs { background:#fff; border-color:#e5e7eb; }
+  .light .footer-tabs .tab { color:#6b7280; }
+  .light .footer-tabs .tab.active { color:#1d4f91; border-top:2px solid #1d4f91; margin-top:-1px; }
+
+  /* ============ DARK THEME (style auth/light actuel) ============ */
+  .dark .app { background:#0f1620; color:#e8eef5; }
+  .dark .topbar { background:#141d2c; border-color:#4a6b8c30; }
+  .dark .topbar .word { color:#c89752; }
+  .dark .topbar .icons { color:#aab5cc; }
+  .dark .toolbar { background:#0f1620; border-color:#4a6b8c30; }
+  .dark .nav-btn { background:#1a2435; color:#aab5cc; }
+  .dark .today { background:#1a2435; color:#e8eef5; }
+  .dark .seg { background:#1a2435; }
+  .dark .seg-btn { color:#aab5cc; }
+  .dark .seg-btn.active { background:#c89752; color:#0f1620; }
+  .dark .salle { background:#1a2435; color:#aab5cc; border:1px solid transparent; }
+  .dark .salle.active { background:#25304a; color:#e8eef5; border:1px solid #4a6b8c; }
+  .dark .search { background:#1a2435; border:1px solid #4a6b8c50; color:#e8eef5; }
+  .dark .cta-new { background:#10b981; color:#0f1620; }
+  .dark .left .service-hd { color:#e8eef5; }
+  .dark .left .service-stats { color:#aab5cc; }
+  .dark .left .service-stats .nb { color:#10b981; }
+  .dark .resa { background:#1a2435; border:1px solid #4a6b8c30; }
+  .dark .resa:hover { background:#25304a; }
+  .dark .resa .table { background:#1d4f91; color:#fff; }
+  .dark .resa .cap { color:#e8eef5; }
+  .dark .resa .time { color:#10b981; }
+  .dark .right .cal-h { background:#1a2435; color:#c89752; }
+  .dark .right .cal-grid .day { color:#aab5cc; }
+  .dark .right .cal-grid .day:hover { background:#25304a; }
+  .dark .right .cal-grid .day.today { background:#10b981; color:#0f1620; }
+  .dark .footer-tabs { background:#141d2c; border-color:#4a6b8c30; }
+  .dark .footer-tabs .tab { color:#aab5cc; }
+  .dark .footer-tabs .tab.active { color:#c89752; border-top:2px solid #c89752; margin-top:-1px; }
+
+  .analysis { background:#fff; border-radius:14px; padding:24px 28px; margin-top:24px; }
+  .analysis h3 { font-family:'Fraunces', serif; font-size:20px; color:#0f1620; margin-bottom:14px; }
+  .analysis-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .ag h4 { font-family:'Fraunces', serif; font-size:15px; font-weight:700; margin-bottom:8px; }
+  .ag.l h4 { color:#1d4f91; }
+  .ag.d h4 { color:#c89752; background:#0f1620; padding:4px 10px; border-radius:5px; display:inline-block; }
+  .ag p { font-size:12px; color:#555; line-height:1.55; margin-bottom:6px; }
+  .verdict { font-size:13px; color:#1a2230; padding-top:18px; margin-top:18px; border-top:1px solid #eee; line-height:1.6; }
+  .verdict b { color:#1d4f91; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="top">R3STO Mini app — Light vs Dark</h1>
+  <p class="sub">mini.r3sto.com (l'app, renommée depuis light.r3sto.ch) — comparaison des deux modes. La structure est identique (même app), seule l'ambiance change. Le toggle pourrait être manuel dans Réglages, ou automatique par horaire (clair le jour, sombre le soir).</p>
+
+  <div class="grid">
+    <!-- LIGHT MODE -->
+    <div>
+      <div class="label l">☀ Light mode</div>
+      <div class="app light">
+        <div class="topbar">
+          <div class="lockup">
+            <span class="l-sq"></span>
+            <span class="word">Mini</span>
+          </div>
+          <div class="resto-name">Chez Bunny's</div>
+          <div class="icons">🔆 ⛶ ⏻</div>
+        </div>
+        <div class="toolbar">
+          <div class="nav-date">
+            <div class="nav-btn">‹</div>
+            <div class="today">Aujourd'hui</div>
+            <div class="nav-btn">›</div>
+          </div>
+          <div class="seg">
+            <div class="seg-btn">MIDI</div>
+            <div class="seg-btn active">SOIR</div>
+            <div class="seg-btn">TOUS</div>
+          </div>
+          <div class="salle-filters">
+            <div class="salle active">SALLE PRINCIPALE</div>
+            <div class="salle">TERRASSE</div>
+            <div class="salle">SALON PRIVÉ</div>
+          </div>
+          <div class="actions">
+            <input class="search" placeholder="🔍 Recherche">
+            <button class="cta-new">+ RESA</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="left">
+            <div class="service-hd">Soir <span class="time-info">(19:00 - 22:30)</span></div>
+            <div class="service-stats"><span class="nb">13/19</span> · (55/85 Couvert)</div>
+            <div class="resa"><div class="table">T1</div><div class="cap">2/2</div><div class="time">19h00</div><div class="name">Leroy Alice</div><div class="icons">🤖</div></div>
+            <div class="resa"><div class="table">T2</div><div class="cap">2/2</div><div class="time">19h00</div><div class="name">Girard Paul</div><div class="icons">🤖</div></div>
+            <div class="resa"><div class="table">T3</div><div class="cap">3/3</div><div class="time">19h30</div><div class="name">Morel Sandrine</div><div class="icons">🤖</div></div>
+            <div class="resa"><div class="table">T4 <span class="combos">combos</span></div><div class="cap">3/3</div><div class="time">19h30</div><div class="name">Nguyen Thi</div><div class="icons">🤖</div></div>
+            <div class="resa"><div class="table">T10 <span class="combos">combos</span></div><div class="cap">2/4</div><div class="time">20h15</div><div class="name">Fischer Julie</div><div class="icons">♿ 💬 🤖</div></div>
+            <div class="resa"><div class="table">T11 <span class="combos">combos</span></div><div class="cap">0/4</div><div class="time"> </div><div class="name" style="opacity:0.5">libre · 2-4p</div><div class="icons"></div></div>
+          </div>
+          <div class="right">
+            <div class="cal-h">MAI 2026</div>
+            <div class="cal-grid">
+              <span class="dow">LU</span><span class="dow">MA</span><span class="dow">ME</span><span class="dow">JE</span><span class="dow">VE</span><span class="dow">SA</span><span class="dow">DI</span>
+              <span class="day muted">27</span><span class="day muted">28</span><span class="day muted">29</span><span class="day muted">30</span><span class="day">1</span><span class="day">2</span><span class="day">3</span>
+              <span class="day">4</span><span class="day">5</span><span class="day">6</span><span class="day">7</span><span class="day">8</span><span class="day">9</span><span class="day">10</span>
+              <span class="day">11</span><span class="day">12</span><span class="day">13</span><span class="day">14</span><span class="day today">15</span><span class="day">16</span><span class="day">17</span>
+              <span class="day">18</span><span class="day">19</span><span class="day">20</span><span class="day">21</span><span class="day">22</span><span class="day">23</span><span class="day">24</span>
+              <span class="day">25</span><span class="day">26</span><span class="day">27</span><span class="day">28</span><span class="day">29</span><span class="day">30</span><span class="day">31</span>
+            </div>
+          </div>
+        </div>
+        <div class="footer-tabs">
+          <div class="tab">📊 DASHBOARD</div>
+          <div class="tab active">📋 RÉSAS</div>
+          <div class="tab">⚙️ CONFIG</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK MODE -->
+    <div>
+      <div class="label d">🌙 Dark mode (style actuel light.r3sto.ch)</div>
+      <div class="app dark">
+        <div class="topbar">
+          <div class="lockup">
+            <span class="l-sq"></span>
+            <span class="word">Mini</span>
+          </div>
+          <div class="resto-name">Chez Bunny's</div>
+          <div class="icons">🌙 ⛶ ⏻</div>
+        </div>
+        <div class="toolbar">
+          <div class="nav-date">
+            <div class="nav-btn">‹</div>
+            <div class="today">Aujourd'hui</div>
+            <div class="nav-btn">›</div>
+          </div>
+          <div class="seg">
+            <div class="seg-btn">MIDI</div>
+            <div class="seg-btn active">SOIR</div>
+            <div class="seg-btn">TOUS</div>
+          </div>
+          <div class="salle-filters">
+            <div class="salle active">SALLE PRINCIPALE</div>
+            <div class="salle">TERRASSE</div>
+            <div class="salle">SALON PRIVÉ</div>
+          </div>
+          <div class="actions">
+            <input class="search" placeholder="🔍 Recherche">
+            <button class="cta-new">+ RESA</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="left">
+            <div class="service-hd">Soir <span class="time-info">(19:00 - 22:30)</span></div>
+            <div class="service-stats"><span class="nb">13/19</span> · (55/85 Couvert)</div>
+            <div class="resa"><div class="table">T1</div><div class="cap">2/2</div><div class="time">19h00</div><div class="name">Leroy Alice</div><div class="icons">🤖</div></div>
+            <div class="resa"><div class="table">T2</div><div class="cap">2/2</div><div class="time">19h00</div><div class="name">Girard Paul</div><div class="icons">🤖</div></div>
+            <div class="resa"><div class="table">T3</div><div class="cap">3/3</div><div class="time">19h30</div><div class="name">Morel Sandrine</div><div class="icons">🤖</div></div>
+            <div class="resa"><div class="table">T4 <span class="combos">combos</span></div><div class="cap">3/3</div><div class="time">19h30</div><div class="name">Nguyen Thi</div><div class="icons">🤖</div></div>
+            <div class="resa"><div class="table">T10 <span class="combos">combos</span></div><div class="cap">2/4</div><div class="time">20h15</div><div class="name">Fischer Julie</div><div class="icons">♿ 💬 🤖</div></div>
+            <div class="resa"><div class="table">T11 <span class="combos">combos</span></div><div class="cap">0/4</div><div class="time"> </div><div class="name" style="opacity:0.5">libre · 2-4p</div><div class="icons"></div></div>
+          </div>
+          <div class="right">
+            <div class="cal-h">MAI 2026</div>
+            <div class="cal-grid">
+              <span class="dow">LU</span><span class="dow">MA</span><span class="dow">ME</span><span class="dow">JE</span><span class="dow">VE</span><span class="dow">SA</span><span class="dow">DI</span>
+              <span class="day muted">27</span><span class="day muted">28</span><span class="day muted">29</span><span class="day muted">30</span><span class="day">1</span><span class="day">2</span><span class="day">3</span>
+              <span class="day">4</span><span class="day">5</span><span class="day">6</span><span class="day">7</span><span class="day">8</span><span class="day">9</span><span class="day">10</span>
+              <span class="day">11</span><span class="day">12</span><span class="day">13</span><span class="day">14</span><span class="day today">15</span><span class="day">16</span><span class="day">17</span>
+              <span class="day">18</span><span class="day">19</span><span class="day">20</span><span class="day">21</span><span class="day">22</span><span class="day">23</span><span class="day">24</span>
+              <span class="day">25</span><span class="day">26</span><span class="day">27</span><span class="day">28</span><span class="day">29</span><span class="day">30</span><span class="day">31</span>
+            </div>
+          </div>
+        </div>
+        <div class="footer-tabs">
+          <div class="tab">📊 DASHBOARD</div>
+          <div class="tab active">📋 RÉSAS</div>
+          <div class="tab">⚙️ CONFIG</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="analysis">
+    <h3>Analyse — quel mode par défaut ?</h3>
+    <div class="analysis-grid">
+      <div class="ag l">
+        <h4>☀ Light mode</h4>
+        <p><b>Pour</b> : plus accueillant pour la prise en main, lisible en plein jour, ambiance "comptoir éclairé".</p>
+        <p><b>Contre</b> : moins reposant l'œil pour les services du soir (faible luminosité ambiante), moins "premium tech".</p>
+      </div>
+      <div class="ag d">
+        <h4>🌙 Dark mode</h4>
+        <p><b>Pour</b> : déjà déployé et beau, idéal en service du soir (écran tablette en faible luminosité ambiante), vibe "outil pro premium", cohérent avec auth.r3sto.ch.</p>
+        <p><b>Contre</b> : moins immédiatement accueillant pour un nouveau restaurateur qui découvre l'outil.</p>
+      </div>
+    </div>
+    <p class="verdict">
+      <b>Ma recommandation</b> : <b>Dark par défaut</b> (cohérent avec auth/light actuel, déjà déployé, ce qui vous a plu), <b>avec un toggle ☀/🌙 dans Réglages</b> pour ceux qui préfèrent le clair. Auto-switch optionnel par horaire (clair le jour, sombre après 18h). Les deux modes utilisent les mêmes tokens R3STO, juste avec <code style="background:#0f1620;color:#c89752;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px">[data-theme="light"]</code> qui override les CSS variables.
+    </p>
+  </div>
+</div>
+</body>
+</html>

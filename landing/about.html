@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>À propos — R3STO</title>
+<meta name="description" content="R3STO est le guide gourmand international édité par Innoptim SA. Notre mission : donner aux restaurateurs indépendants un outil sans commission, et aux gourmands un annuaire honnête.">
+<meta name="theme-color" content="#1c2e58">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--bg-2:#e3ebf5;--surf:#ffffff;
+  --navy:#1c2e58;--gold:#a07e2a;--gold-soft:#c89752;
+  --t-1:#0c1730;--t-2:#4a5878;--t-3:#7b88a8;
+  --border:#d6dfee;--max:920px;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);-webkit-font-smoothing:antialiased;line-height:1.65}
+a{color:inherit}
+
+.nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+.nav-out{font-size:13px;color:var(--t-2);text-decoration:none;font-weight:500}
+.nav-out:hover{color:var(--navy)}
+
+.head{background:var(--bg-2);padding:56px 24px 40px;border-bottom:1px solid var(--border)}
+.head-in{max-width:var(--max);margin:0 auto}
+.eyebrow{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px;display:block}
+.head h1{font-size:40px;font-weight:800;color:var(--navy);margin:0 0 14px;letter-spacing:-1.4px;line-height:1.05}
+.head h1 .gold{color:var(--gold)}
+.head .lead{font-size:17px;color:var(--t-2);line-height:1.6;margin:0;max-width:680px}
+
+.wrap{max-width:var(--max);margin:0 auto;padding:48px 24px 60px}
+section{margin-bottom:36px}
+section h2{font-size:24px;font-weight:800;color:var(--navy);margin:0 0 14px;letter-spacing:-.01em;line-height:1.2}
+section h2 .gold{color:var(--gold)}
+section p{margin:0 0 14px;font-size:15px;color:var(--t-1);line-height:1.75}
+section ul{margin:0 0 14px;padding-left:20px;font-size:15px;line-height:1.7}
+section ul li{margin-bottom:6px}
+section ul li b{color:var(--navy)}
+
+.values{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:680px){.values{grid-template-columns:repeat(3,1fr)}}
+.value{background:var(--surf);border:1px solid var(--border);padding:24px 22px}
+.value .num{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.16em;margin-bottom:10px;display:block}
+.value h3{font-size:16px;font-weight:700;color:var(--navy);margin:0 0 6px;letter-spacing:-.005em}
+.value p{font-size:13.5px;color:var(--t-2);margin:0;line-height:1.55}
+
+.corporate{background:linear-gradient(135deg,var(--navy) 0%,#0a0a0a 100%);color:#fff;padding:32px 28px;margin:32px 0}
+.corporate .label{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--gold-soft);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+.corporate h3{color:#fff;margin:0 0 6px;font-size:22px;letter-spacing:-.01em}
+.corporate .tag{font-size:13.5px;color:rgba(255,255,255,.7);margin-bottom:24px}
+.corp-grid{display:grid;grid-template-columns:1fr;gap:12px 24px;font-size:14px}
+@media(min-width:560px){.corp-grid{grid-template-columns:auto 1fr}}
+.corp-grid dt{font-family:var(--fm);font-size:10.5px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase}
+.corp-grid dd{margin:0;color:#fff}
+.corp-grid dd a{color:var(--gold-soft);text-decoration:none;border-bottom:1px dotted var(--gold-soft)}
+.corp-grid dd a:hover{color:#fff;border-color:#fff}
+
+.timeline{display:flex;flex-direction:column;gap:18px}
+.t-item{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start}
+.t-date{font-family:var(--fm);font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;padding-top:2px;white-space:nowrap}
+.t-body h3{font-size:15px;font-weight:700;color:var(--navy);margin:0 0 4px;letter-spacing:-.005em}
+.t-body p{font-size:13.5px;color:var(--t-2);margin:0;line-height:1.55}
+
+footer{background:var(--bg-2);border-top:1px solid var(--border);padding:32px 28px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em}
+footer a{color:var(--gold);text-decoration:none;font-weight:600}
+footer a:hover{color:var(--navy)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">À propos</span>
+        <span class="logo-slogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <a href="/" class="nav-out">← Retour annuaire</a>
+  </div>
+</nav>
+
+<header class="head">
+  <div class="head-in">
+    <span class="eyebrow">À propos · R3STO</span>
+    <h1>Le guide gourmand <span class="gold">indépendant</span>.<br>Sans commission. Vraiment.</h1>
+    <p class="lead">R3STO est né d'un constat simple : les meilleures tables ne devraient pas avoir à reverser 12 à 18 % de chaque couvert pour exister en ligne. Nous offrons aux restaurateurs un outil professionnel à abonnement fixe — et aux gourmands un annuaire honnête, sans publicité déguisée.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <h2>Notre mission</h2>
+    <p>Donner aux <strong>restaurateurs indépendants</strong> les armes des grandes chaînes : fiche professionnelle, réservation directe, paiements en ligne, statistiques, multilingue. Sans jamais leur prendre un pourcentage sur leur travail.</p>
+    <p>Et donner aux <strong>gourmands</strong> un guide qui ne ment pas : le label <b style="color:var(--gold)">Carat ◆</b> repose sur un calcul transparent — 40 % Michelin + 30 % Gault&Millau + 30 % note R3STO vérifiée. Pas de classement payant, pas de mise en avant à l'achat.</p>
+  </section>
+
+  <section>
+    <h2>Nos 3 valeurs</h2>
+    <div class="values">
+      <div class="value">
+        <span class="num">01</span>
+        <h3>Honnêteté</h3>
+        <p>Pas de classement payant. Le label Carat se calcule avec une formule publique. Les avis sont vérifiés et non modérables.</p>
+      </div>
+      <div class="value">
+        <span class="num">02</span>
+        <h3>Indépendance</h3>
+        <p>Pas d'investisseur extérieur, pas d'actionnaire de plateforme concurrente. Innoptim SA possède 100 % de R3STO.</p>
+      </div>
+      <div class="value">
+        <span class="num">03</span>
+        <h3>Suissitude</h3>
+        <p>Tout est en Suisse : équipe, serveurs (Infomaniak, énergie renouvelable), conformité nLPD et RGPD.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>L'équipe</h2>
+    <p>R3STO est porté par une <strong>petite équipe vaudoise</strong> mêlant restauration et tech. Nous mangeons (très souvent) dans les restaurants que vous voyez sur la plateforme. C'est notre meilleure assurance qualité.</p>
+    <p>Pour toute question, écrivez à <a href="mailto:contact@r3sto.com" style="color:var(--gold);font-weight:600">contact@r3sto.com</a> — vous tomberez sur une vraie personne, pas un chatbot.</p>
+  </section>
+
+  <section>
+    <h2>Notre histoire</h2>
+    <div class="timeline">
+      <div class="t-item">
+        <div class="t-date">Janv 2025</div>
+        <div class="t-body">
+          <h3>L'idée — un café trop cher chez TheFork</h3>
+          <p>Un restaurateur ami nous montre sa facture LaFourchette : 1 100 CHF de commission sur 110 réservations le mois passé. L'équivalent d'un salaire net.</p>
+        </div>
+      </div>
+      <div class="t-item">
+        <div class="t-date">Mars 2025</div>
+        <div class="t-body">
+          <h3>Premier prototype</h3>
+          <p>Tableau Excel partagé entre 4 restaurants amis, formulaire Tally pour les réservations. Ça marche.</p>
+        </div>
+      </div>
+      <div class="t-item">
+        <div class="t-date">Sept 2025</div>
+        <div class="t-body">
+          <h3>Création d'Innoptim SA</h3>
+          <p>Société anonyme suisse, capital 100 000 CHF entièrement libéré. Siège au Mont-sur-Lausanne.</p>
+        </div>
+      </div>
+      <div class="t-item">
+        <div class="t-date">Avr 2026</div>
+        <div class="t-body">
+          <h3>Lancement r3sto.com</h3>
+          <p>Plateforme publique. 12 restaurants pilotes en Suisse romande. Label Carat introduit.</p>
+        </div>
+      </div>
+      <div class="t-item">
+        <div class="t-date">Aujourd'hui</div>
+        <div class="t-body">
+          <h3>Expansion internationale</h3>
+          <p>Marché suisse : objectif 2 000 restaurants fin 2026. Ouverture France &amp; Italie en septembre.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="corporate">
+    <div class="label">Société éditrice</div>
+    <h3>Innoptim SA</h3>
+    <div class="tag">Société anonyme de droit suisse · 100 % indépendante</div>
+    <dl class="corp-grid">
+      <dt>Siège</dt><dd>Avenue d'Echallens 21, Lausanne (VD), Suisse</dd>
+      <dt>IDE</dt><dd>CHE-430.441.925</dd>
+      <dt>Capital social</dt><dd>CHF 100'000 entièrement libéré</dd>
+      <dt>Hébergement</dt><dd><a href="https://infomaniak.com" target="_blank" rel="noopener">Infomaniak (Suisse)</a> · 100 % énergie renouvelable</dd>
+      <dt>Site corporate</dt><dd><a href="https://innoptim.ch" target="_blank" rel="noopener">innoptim.ch</a></dd>
+      <dt>Contact général</dt><dd><a href="mailto:contact@r3sto.com">contact@r3sto.com</a></dd>
+    </dl>
+  </div>
+
+  <section>
+    <h2>Vous êtes journaliste, partenaire, investisseur&nbsp;?</h2>
+    <p>Pour toute demande presse, partenariat ou information sur Innoptim SA, écrivez à <a href="mailto:press@r3sto.com" style="color:var(--gold);font-weight:600">press@r3sto.com</a>. Réponse sous 48 h.</p>
+  </section>
+
+</div>
+
+<footer>
+  © 2026 Innoptim SA · R3STO — guide gourmand international ·
+  <a href="/legal.html">Légal</a> · <a href="/">Annuaire</a> · <a href="/pro.html">R3STO Pro</a>
+</footer>
+
+</body>
+</html>

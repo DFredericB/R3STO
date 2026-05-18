@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — Palettes & Identité (mockup discussion)</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background:#e8e8e8; padding:24px; }
+  .container { max-width:1200px; margin:0 auto; }
+  h1.top-title { font-family: 'Playfair Display', serif; font-weight:700; font-size:32px; margin-bottom:8px; color:#222; }
+  .top-subtitle { color:#666; font-size:13px; margin-bottom:24px; }
+  .note { background:#fff3cd; border-left:3px solid #b8632b; padding:14px 18px; border-radius:6px; font-size:13px; color:#5a3a19; margin-bottom:28px; line-height:1.5; }
+
+  .palette-block { margin-bottom:28px; border-radius:16px; overflow:hidden; box-shadow:0 6px 32px rgba(0,0,0,0.10); background:white; }
+
+  .palette-header { padding:56px 64px; }
+  .palette-tag { font-size:11px; letter-spacing:2.5px; text-transform:uppercase; margin-bottom:24px; font-weight:600; }
+  .palette-logo-placeholder { display:inline-block; width:48px; height:48px; border-radius:6px; margin-bottom:18px; font-weight:700; font-size:18px; display:flex; align-items:center; justify-content:center; }
+  .palette-h1 { font-family: 'Playfair Display', serif; font-size:48px; line-height:1.1; margin-bottom:18px; font-weight:700; }
+  .palette-h1 .accent { font-style:italic; font-weight:400; }
+  .palette-tagline { font-size:16px; max-width:540px; margin-bottom:28px; line-height:1.55; }
+  .palette-cta { display:inline-block; padding:14px 28px; border-radius:8px; font-weight:600; font-size:14px; text-decoration:none; transition:transform .15s; }
+  .palette-cta:hover { transform:translateY(-1px); }
+
+  .palette-body { padding:24px 64px 28px; background:#fafafa; border-top:1px solid #eee; }
+  .palette-name { font-size:16px; font-weight:700; margin-bottom:6px; color:#222; }
+  .palette-sites { color:#666; font-size:13px; margin-bottom:20px; line-height:1.5; }
+  .swatches { display:flex; flex-wrap:wrap; gap:10px; }
+  .swatch { display:flex; flex-direction:column; align-items:center; min-width:72px; }
+  .swatch-color { width:72px; height:72px; border-radius:8px; border:1px solid rgba(0,0,0,.08); }
+  .swatch-name { font-size:11px; font-weight:600; margin-top:6px; color:#333; }
+  .swatch-hex { font-size:10px; font-family:'SF Mono', Menlo, monospace; color:#888; margin-top:1px; }
+
+  /* B2C palette — crème + cuivre */
+  .b2c .palette-header { background:#fdf6ec; color:#2a1a0d; }
+  .b2c .palette-tag { color:#b8632b; }
+  .b2c .palette-logo-placeholder { background:#b8632b; color:#fdf6ec; }
+  .b2c .palette-h1 .accent { color:#b8632b; }
+  .b2c .palette-cta { background:#2a1a0d; color:#fdf6ec; }
+
+  /* B2B palette — navy + or */
+  .b2b .palette-header { background:linear-gradient(135deg,#0f1620 0%,#1a2435 100%); color:#e8eef5; }
+  .b2b .palette-tag { color:#c89752; }
+  .b2b .palette-logo-placeholder { background:#c89752; color:#0f1620; }
+  .b2b .palette-h1 .accent { color:#c89752; }
+  .b2b .palette-cta { background:#c89752; color:#0f1620; }
+
+  /* PASS — vert forêt + or */
+  .pass .palette-header { background:#1B5E42; color:#fdf6ec; }
+  .pass .palette-tag { color:#c89752; }
+  .pass .palette-logo-placeholder { background:#c89752; color:#1B5E42; }
+  .pass .palette-h1 .accent { color:#c89752; }
+  .pass .palette-cta { background:#c89752; color:#1B5E42; }
+
+  /* CARAT — noir + métaux */
+  .carat .palette-header { background:#0a0a0a; color:#e8d4b8; }
+  .carat .palette-tag { color:#d4af37; letter-spacing:3px; }
+  .carat .palette-logo-placeholder { background:#d4af37; color:#0a0a0a; }
+  .carat .palette-h1 .accent { color:#d4af37; }
+  .carat .palette-cta { background:#d4af37; color:#0a0a0a; }
+
+  .common { background:white; border-radius:16px; padding:32px 48px; box-shadow:0 4px 20px rgba(0,0,0,0.06); }
+  .common h2 { font-family:'Playfair Display', serif; font-size:24px; margin-bottom:14px; color:#222; }
+  .common p { color:#555; line-height:1.6; font-size:14px; margin-bottom:12px; }
+  .common .or-row { display:flex; gap:14px; align-items:center; margin-top:14px; }
+  .common .or-row .swatch-color { width:60px; height:60px; }
+  .common .or-row .lbl { font-size:13px; color:#666; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1 class="top-title">R3STO — Palettes & identité visuelle</h1>
+  <p class="top-subtitle">Mockup discussion · 15 mai 2026 · Aucune décision encore prise</p>
+
+  <div class="note">
+    <strong>Comment lire ce document :</strong> chaque bloc montre une palette appliquée à un mini-aperçu de site
+    (logo carré, h1, tagline, CTA). En-dessous : tous les hex codes utilisables. Le fil rouge entre les 4 = <strong>l'or chaud <code>#c89752</code></strong>
+    (sauf B2C qui utilise le cuivre plus chaud). Discutez, dites ce qui résonne ou pas.
+  </div>
+
+  <!-- B2C -->
+  <div class="palette-block b2c">
+    <div class="palette-header">
+      <div class="palette-tag">★ R3STO · Annuaire gourmand suisse</div>
+      <div class="palette-logo-placeholder">R</div>
+      <div class="palette-h1">Trouvez votre table. <span class="accent">Sans intermédiaire.</span></div>
+      <div class="palette-tagline">19'461 tables suisses. 612 distinguées CARAT. 26 cantons. 0% commission. Réservation directe au resto.</div>
+      <a class="palette-cta">Chercher un restaurant →</a>
+    </div>
+    <div class="palette-body">
+      <div class="palette-name">CONSUMER · Crème + cuivre + or</div>
+      <div class="palette-sites">→ r3sto.com (annuaire grand public) · à étendre éventuellement à booking/menu/delivery selon votre choix A vs B</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#fdf6ec"></div><div class="swatch-name">Crème</div><div class="swatch-hex">#fdf6ec</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#f4e6cf"></div><div class="swatch-name">Crème 2</div><div class="swatch-hex">#f4e6cf</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#e8d2a8"></div><div class="swatch-name">Crème 3</div><div class="swatch-hex">#e8d2a8</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#b8632b"></div><div class="swatch-name">Cuivre ★</div><div class="swatch-hex">#b8632b</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#d97548"></div><div class="swatch-name">Cuivre 2</div><div class="swatch-hex">#d97548</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#c89752"></div><div class="swatch-name">Or chaud</div><div class="swatch-hex">#c89752</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2a1a0d"></div><div class="swatch-name">Brun</div><div class="swatch-hex">#2a1a0d</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#4a3422"></div><div class="swatch-name">Brun 2</div><div class="swatch-hex">#4a3422</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B2B -->
+  <div class="palette-block b2b">
+    <div class="palette-header">
+      <div class="palette-tag">★ R3STO PRO · Plateforme restaurateur</div>
+      <div class="palette-logo-placeholder">R</div>
+      <div class="palette-h1">Gérer. Remplir. <span class="accent">Fidéliser.</span></div>
+      <div class="palette-tagline">10 modules, 0% commission, hébergement inclus. Dès 39 CHF/mois (29 CHF en engagement 3 ans). Essai gratuit 14 jours.</div>
+      <a class="palette-cta">Essai gratuit 14 jours →</a>
+    </div>
+    <div class="palette-body">
+      <div class="palette-name">PRO · Navy + or chaud</div>
+      <div class="palette-sites">→ r3sto.com/pro · app.r3sto.ch · admin · bill · demo · auth · (booking/menu/delivery selon votre choix A vs B)</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#0f1620"></div><div class="swatch-name">Navy ★</div><div class="swatch-hex">#0f1620</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#141d2c"></div><div class="swatch-name">Navy 2</div><div class="swatch-hex">#141d2c</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1a2435"></div><div class="swatch-name">Surf</div><div class="swatch-hex">#1a2435</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#25304a"></div><div class="swatch-name">Surf 2</div><div class="swatch-hex">#25304a</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#c89752"></div><div class="swatch-name">Or chaud ★</div><div class="swatch-hex">#c89752</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#d4af37"></div><div class="swatch-name">Or vif</div><div class="swatch-hex">#d4af37</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#e8eef5"></div><div class="swatch-name">Texte</div><div class="swatch-hex">#e8eef5</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#aab5cc"></div><div class="swatch-name">Muted</div><div class="swatch-hex">#aab5cc</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASS -->
+  <div class="palette-block pass">
+    <div class="palette-header">
+      <div class="palette-tag">★ R3STO PASS · Programme fidélité</div>
+      <div class="palette-logo-placeholder">R</div>
+      <div class="palette-h1">Votre passeport <span class="accent">gourmand suisse.</span></div>
+      <div class="palette-tagline">Cumulez des points dans 100+ restaurants partenaires. Échangez contre des dîners. Un seul passeport, toute la Suisse.</div>
+      <a class="palette-cta">Activer mon Pass →</a>
+    </div>
+    <div class="palette-body">
+      <div class="palette-name">SOUS-MARQUE · Vert forêt + or</div>
+      <div class="palette-sites">→ pass.r3sto.ch (programme autonome)</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#1B5E42"></div><div class="swatch-name">Forêt ★</div><div class="swatch-hex">#1B5E42</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2c7a5b"></div><div class="swatch-name">Forêt 2</div><div class="swatch-hex">#2c7a5b</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#5a8c50"></div><div class="swatch-name">Sauge</div><div class="swatch-hex">#5a8c50</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#c89752"></div><div class="swatch-name">Or chaud</div><div class="swatch-hex">#c89752</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fdf6ec"></div><div class="swatch-name">Crème</div><div class="swatch-hex">#fdf6ec</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARAT -->
+  <div class="palette-block carat">
+    <div class="palette-header">
+      <div class="palette-tag">★ R3STO CARAT · Label gastronomique</div>
+      <div class="palette-logo-placeholder">R</div>
+      <div class="palette-h1">Excellence <span class="accent">reconnue.</span></div>
+      <div class="palette-tagline">Évaluation indépendante des restaurants suisses sur 4 piliers AQSA. Trois niveaux de distinction : Bronze · Silver · Gold.</div>
+      <a class="palette-cta">Découvrir le label →</a>
+    </div>
+    <div class="palette-body">
+      <div class="palette-name">SOUS-MARQUE · Noir + métaux précieux</div>
+      <div class="palette-sites">→ carat.r3sto.ch (label autonome)</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-color" style="background:#0a0a0a"></div><div class="swatch-name">Noir ★</div><div class="swatch-hex">#0a0a0a</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#d4af37"></div><div class="swatch-name">Gold</div><div class="swatch-hex">#d4af37</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#c0c0c0"></div><div class="swatch-name">Silver</div><div class="swatch-hex">#c0c0c0</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#cd7f32"></div><div class="swatch-name">Bronze</div><div class="swatch-hex">#cd7f32</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#e8d4b8"></div><div class="swatch-name">Texte</div><div class="swatch-hex">#e8d4b8</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="common">
+    <h2>Le fil rouge de la famille R3STO</h2>
+    <p>Les 4 palettes partagent <strong>l'or chaud <code>#c89752</code></strong> comme accent commun (ou son cousin cuivre <code>#b8632b</code> en B2C). C'est ce qui crée l'effet « famille » : peu importe le site, l'œil retrouve toujours cette couleur signature.</p>
+    <div class="or-row">
+      <div class="swatch-color" style="background:#c89752"></div>
+      <div class="lbl">#c89752 — Or chaud — accent commun B2B + sous-marques</div>
+    </div>
+    <div class="or-row">
+      <div class="swatch-color" style="background:#b8632b"></div>
+      <div class="lbl">#b8632b — Cuivre — accent B2C (plus chaud, plus édito)</div>
+    </div>
+    <p style="margin-top:18px;"><strong>Logo :</strong> même mark R3STO partout (le carré R ci-dessus est un placeholder). Sa couleur de fond s'adapte à la palette du site. Pas de « R3STO Pro / R3STO Pass » écrit dans le visuel sauf en communication cross-site (newsletter, partenariat, presse).</p>
+  </div>
+
+</div>
+</body>
+</html>

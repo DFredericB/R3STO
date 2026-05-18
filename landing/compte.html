@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mon compte — R3STO</title>
+<meta name="theme-color" content="#1c2e58">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--bg-2:#e3ebf5;--surf:#ffffff;
+  --navy:#1c2e58;--navy-2:#13224a;
+  --gold:#a07e2a;--gold-soft:#c89752;
+  --t-1:#0c1730;--t-2:#4a5878;--t-3:#7b88a8;
+  --border:#d6dfee;--max:1180px;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+
+.nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+.nav-out{font-size:13px;color:var(--t-2);text-decoration:none;font-weight:500;cursor:pointer;background:none;border:0;font-family:var(--ff)}
+.nav-out:hover{color:var(--navy)}
+
+/* HEADER user */
+.userhead{
+  max-width:var(--max);margin:0 auto;padding:36px 24px 0;
+  display:grid;grid-template-columns:1fr;gap:24px;
+}
+@media(min-width:760px){.userhead{grid-template-columns:auto 1fr auto;align-items:center}}
+.avatar{
+  width:72px;height:72px;background:var(--navy);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:700;letter-spacing:-.5px;
+}
+.uname{font-size:22px;font-weight:800;color:var(--navy);margin:0 0 4px;letter-spacing:-.01em}
+.umail{font-size:13.5px;color:var(--t-3);font-family:var(--fm)}
+.utier{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#fff8e8;border:1px solid #e6d090;
+  padding:8px 14px;font-family:var(--fm);font-size:11px;font-weight:700;
+  color:var(--gold);letter-spacing:.12em;text-transform:uppercase;
+}
+.utier .diam{color:var(--gold-soft);font-size:13px}
+
+/* TABS */
+.tabs{
+  max-width:var(--max);margin:28px auto 0;padding:0 24px;
+  display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;
+}
+.tabs button{
+  background:none;border:0;border-bottom:2px solid transparent;
+  padding:14px 16px;font-family:var(--ff);font-size:13.5px;font-weight:600;
+  color:var(--t-3);cursor:pointer;transition:.15s;
+  letter-spacing:.01em;white-space:nowrap;
+}
+.tabs button.on{color:var(--navy);border-bottom-color:var(--gold)}
+.tabs button:not(.on):hover{color:var(--t-1)}
+.tabs button .cnt{font-family:var(--fm);font-size:11px;color:var(--t-3);margin-left:4px;font-weight:700}
+
+/* CONTENT */
+.wrap{max-width:var(--max);margin:0 auto;padding:28px 24px 60px}
+.panel{display:none}
+.panel.on{display:block}
+
+/* PROFIL */
+.card{background:var(--surf);border:1px solid var(--border);padding:24px 22px;margin-bottom:14px}
+.card h2{font-size:16px;font-weight:700;color:var(--navy);margin:0 0 18px;letter-spacing:-.01em}
+.kv-form{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:560px){.kv-form{grid-template-columns:1fr 1fr}}
+.field label{display:block;font-size:11.5px;font-weight:600;color:var(--t-3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+.field input,.field select{
+  width:100%;padding:11px 13px;border:1px solid var(--border);
+  background:#fff;font-family:var(--ff);font-size:14px;color:var(--t-1);
+  border-radius:0;outline:none;
+}
+.field input:focus,.field select:focus{border-color:var(--navy)}
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{padding:12px 22px;border-radius:0;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;border:1px solid;font-family:var(--ff);transition:.18s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-primary:hover{background:var(--gold);border-color:var(--gold)}
+.btn-ghost{background:transparent;color:var(--navy);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--navy)}
+.btn-danger{background:transparent;color:#b03434;border-color:#e7b8b8}
+.btn-danger:hover{background:#fdf0f0;border-color:#b03434}
+
+/* FAVORIS */
+.fav-grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:680px){.fav-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.fav-grid{grid-template-columns:repeat(3,1fr)}}
+.fav-card{background:var(--surf);border:1px solid var(--border);text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:.2s}
+.fav-card:hover{transform:translateY(-2px);border-color:var(--navy)}
+.fav-img{aspect-ratio:16/10;background-size:cover;background-position:center;position:relative}
+.fav-img .tier{position:absolute;top:10px;left:10px;display:inline-flex;align-items:center;gap:6px;background:#0a0a0a;border:1px solid;padding:5px 9px;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-family:var(--ff)}
+.fav-img .tier .d{font-size:12px;line-height:1}
+.fav-img .tier.tier-or    {border-color:#d4af37;color:#d4af37}
+.fav-img .tier.tier-silver{border-color:#c0c8d4;color:#c0c8d4}
+.fav-img .tier.tier-bronze{border-color:#cd7f32;color:#cd7f32}
+.fav-img .heart{position:absolute;top:10px;right:10px;background:#fff;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#b03434;font-size:18px;cursor:pointer;border:1px solid var(--border)}
+.fav-body{padding:14px 16px}
+.fav-cuisine{font-size:10.5px;font-weight:700;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px}
+.fav-name{font-size:16px;font-weight:700;color:var(--navy);margin:0 0 3px;letter-spacing:-.01em}
+.fav-loc{font-size:12.5px;color:var(--t-3)}
+
+/* RÉSAS */
+.resa{background:var(--surf);border:1px solid var(--border);padding:18px 22px;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+@media(max-width:540px){.resa{grid-template-columns:1fr}}
+.resa-status{display:inline-flex;align-items:center;gap:6px;font-family:var(--fm);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;background:#fff;border:1px solid}
+.resa-status.upcoming{color:#1b3a2e;border-color:#cce2d4}
+.resa-status.passed  {color:var(--t-3);border-color:var(--border)}
+.resa-status.cancel  {color:#b03434;border-color:#e7b8b8}
+.resa-resto{font-size:16px;font-weight:700;color:var(--navy);margin:6px 0 3px;letter-spacing:-.01em}
+.resa-when{font-family:var(--fm);font-size:12.5px;color:var(--t-2)}
+.resa-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-mini{padding:8px 14px;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;border:1px solid var(--border);background:#fff;color:var(--navy);cursor:pointer;text-decoration:none;font-family:var(--ff)}
+.btn-mini:hover{border-color:var(--navy)}
+.btn-mini.danger{color:#b03434;border-color:#e7b8b8}
+.btn-mini.danger:hover{background:#fdf0f0}
+
+/* DIAMANTS */
+.dia-hero{background:linear-gradient(135deg,var(--navy) 0%,#0a0a0a 100%);color:#fff;padding:32px 28px;margin-bottom:18px;text-align:center}
+.dia-big{font-size:64px;font-weight:800;line-height:1;color:var(--gold-soft);margin-bottom:6px;letter-spacing:-2px}
+.dia-big .d{font-size:48px;vertical-align:8px}
+.dia-tier{font-family:var(--fm);font-size:12px;font-weight:700;color:#fff;letter-spacing:.16em;text-transform:uppercase;opacity:.85}
+.dia-progress{margin-top:18px;background:rgba(255,255,255,.1);height:4px;max-width:400px;margin:18px auto 0;position:relative}
+.dia-progress .bar{height:100%;background:var(--gold-soft);width:60%;transition:.6s}
+.dia-progress .lbl{margin-top:10px;font-size:12px;color:rgba(255,255,255,.7);letter-spacing:.04em}
+.dia-levels{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){.dia-levels{grid-template-columns:repeat(3,1fr)}}
+.dia-lvl{background:var(--surf);border:1px solid var(--border);padding:22px 22px 18px}
+.dia-lvl.on{border-color:var(--gold);background:#fff8e8}
+.dia-lvl .lbl{font-family:var(--fm);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t-3);margin-bottom:8px}
+.dia-lvl.on .lbl{color:var(--gold)}
+.dia-lvl h3{font-size:18px;font-weight:800;color:var(--navy);margin:0 0 4px;letter-spacing:-.01em}
+.dia-lvl .req{font-family:var(--fm);font-size:12px;color:var(--t-3);margin-bottom:14px}
+.dia-lvl ul{margin:0;padding-left:18px;font-size:13px;color:var(--t-1);line-height:1.65}
+
+/* EMPTY */
+.empty{background:var(--surf);border:1px solid var(--border);padding:48px 24px;text-align:center}
+.empty h3{font-size:18px;font-weight:800;color:var(--navy);margin:0 0 6px}
+.empty p{color:var(--t-2);margin:0 0 18px;font-size:14px}
+
+/* FOOTER */
+footer{background:var(--bg-2);border-top:1px solid var(--border);padding:24px 28px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em;margin-top:60px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Mon compte</span>
+        <span class="logo-slogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <button class="nav-out" onclick="logout()">Déconnexion →</button>
+  </div>
+</nav>
+
+<div class="userhead">
+  <div class="avatar" id="avatar">JD</div>
+  <div>
+    <h1 class="uname" id="uname">Jean Dupont</h1>
+    <div class="umail" id="umail">jean.dupont@exemple.com</div>
+  </div>
+  <div class="utier" id="utier"><span class="diam">◆</span><span id="tierLabel">Gourmet · 7 ◆</span></div>
+</div>
+
+<div class="tabs">
+  <button class="on" onclick="setTab('profil',this)">Profil</button>
+  <button onclick="setTab('favoris',this)">Favoris <span class="cnt" id="cntFav">3</span></button>
+  <button onclick="setTab('resas',this)">Réservations <span class="cnt" id="cntResa">2</span></button>
+  <button onclick="setTab('diamants',this)">Mes diamants ◆</button>
+</div>
+
+<div class="wrap">
+
+  <!-- PROFIL -->
+  <div class="panel on" id="panel-profil">
+    <div class="card">
+      <h2>Informations personnelles</h2>
+      <div class="kv-form">
+        <div class="field"><label>Prénom</label><input type="text" id="fName" value="Jean"></div>
+        <div class="field"><label>Nom</label><input type="text" id="lName" value="Dupont"></div>
+        <div class="field"><label>Email</label><input type="email" id="fEmail" value="jean.dupont@exemple.com"></div>
+        <div class="field"><label>Téléphone</label><input type="tel" value="+41 79 123 45 67"></div>
+        <div class="field"><label>Ville préférée</label><input type="text" value="Lausanne"></div>
+        <div class="field">
+          <label>Langue</label>
+          <select><option>Français</option><option>English</option><option>Deutsch</option><option>Italiano</option></select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveProfile()">Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Préférences</h2>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" checked> Recevoir les "Tables du mois" (1 email / mois)</label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" checked> Notifications nouvelles fiches Carat Or dans ma région</label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox"> Invitations événements privés (Carat Member)</label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox"> Offres partenaires (vins, ateliers cuisine)</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Compte</h2>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="alert('Export RGPD demandé — vous recevrez vos données par email.')">Exporter mes données (RGPD)</button>
+        <button class="btn btn-danger" onclick="if(confirm('Supprimer définitivement votre compte ?')) alert('Demande de suppression enregistrée.')">Supprimer mon compte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAVORIS -->
+  <div class="panel" id="panel-favoris">
+    <div class="fav-grid" id="favGrid"></div>
+    <div class="empty" id="favEmpty" hidden>
+      <h3>Aucun favori pour l'instant</h3>
+      <p>Cliquez sur le ♡ d'une fiche pour l'ajouter ici.</p>
+      <a href="/" class="btn btn-primary">Parcourir l'annuaire →</a>
+    </div>
+  </div>
+
+  <!-- RÉSAS -->
+  <div class="panel" id="panel-resas">
+    <h2 style="font-size:14px;font-weight:700;color:var(--t-3);text-transform:uppercase;letter-spacing:.12em;margin:0 0 14px">À venir</h2>
+    <div class="resa">
+      <div>
+        <span class="resa-status upcoming">● Confirmée</span>
+        <div class="resa-resto">Chez Bunny's</div>
+        <div class="resa-when">Vendredi 22 mai 2026 · 19:30 · 2 personnes</div>
+      </div>
+      <div class="resa-actions">
+        <a href="/fiche.html?slug=chez-bunnys" class="btn-mini">Voir fiche</a>
+        <button class="btn-mini">Modifier</button>
+        <button class="btn-mini danger">Annuler</button>
+      </div>
+    </div>
+    <div class="resa">
+      <div>
+        <span class="resa-status upcoming">● Confirmée</span>
+        <div class="resa-resto">Le Pont de Brent</div>
+        <div class="resa-when">Samedi 6 juin 2026 · 20:00 · 4 personnes</div>
+      </div>
+      <div class="resa-actions">
+        <a href="/fiche.html?slug=le-pont-de-brent" class="btn-mini">Voir fiche</a>
+        <button class="btn-mini">Modifier</button>
+        <button class="btn-mini danger">Annuler</button>
+      </div>
+    </div>
+
+    <h2 style="font-size:14px;font-weight:700;color:var(--t-3);text-transform:uppercase;letter-spacing:.12em;margin:28px 0 14px">Historique</h2>
+    <div class="resa">
+      <div>
+        <span class="resa-status passed">● Honorée +1 ◆</span>
+        <div class="resa-resto">Anne-Sophie Pic au Beau-Rivage</div>
+        <div class="resa-when">Samedi 12 avril 2026 · 19:00 · 2 personnes</div>
+      </div>
+      <div class="resa-actions">
+        <button class="btn-mini">Laisser un avis (+1 ◆)</button>
+        <button class="btn-mini">Réserver à nouveau</button>
+      </div>
+    </div>
+    <div class="resa">
+      <div>
+        <span class="resa-status passed">● Honorée +1 ◆</span>
+        <div class="resa-resto">La Pinte</div>
+        <div class="resa-when">Jeudi 14 mars 2026 · 12:30 · 1 personne</div>
+      </div>
+      <div class="resa-actions">
+        <button class="btn-mini">Laisser un avis (+1 ◆)</button>
+        <button class="btn-mini">Réserver à nouveau</button>
+      </div>
+    </div>
+    <div class="resa">
+      <div>
+        <span class="resa-status cancel">● Annulée</span>
+        <div class="resa-resto">Sakura</div>
+        <div class="resa-when">Vendredi 1 février 2026 · 20:00 · 2 personnes</div>
+      </div>
+      <div class="resa-actions">
+        <button class="btn-mini">Réserver à nouveau</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAMANTS -->
+  <div class="panel" id="panel-diamants">
+    <div class="dia-hero">
+      <div class="dia-big"><span class="d">◆</span>7</div>
+      <div class="dia-tier">Niveau Gourmet</div>
+      <div class="dia-progress"><div class="bar"></div></div>
+      <div class="dia-progress lbl" style="background:none">Plus que <b style="color:#fff">8 ◆</b> pour passer Carat Member ★</div>
+    </div>
+
+    <div class="dia-levels">
+      <div class="dia-lvl">
+        <div class="lbl">Niveau 1</div>
+        <h3>Découvreur</h3>
+        <div class="req">0 – 4 ◆</div>
+        <ul>
+          <li>Réservation directe 0 commission</li>
+          <li>Newsletter "Tables du mois"</li>
+        </ul>
+      </div>
+      <div class="dia-lvl on">
+        <div class="lbl">Niveau 2 · Actuel</div>
+        <h3>Gourmet</h3>
+        <div class="req">5 – 14 ◆</div>
+        <ul>
+          <li>Accès avant-première aux nouvelles fiches Carat Or</li>
+          <li>1 surprise gourmande / trimestre</li>
+          <li>Badge Gourmet sur votre profil avis</li>
+        </ul>
+      </div>
+      <div class="dia-lvl">
+        <div class="lbl">Niveau 3</div>
+        <h3>Carat Member</h3>
+        <div class="req">15+ ◆</div>
+        <ul>
+          <li>Invitations événements privés (dîners chefs, dégustations)</li>
+          <li>Liste d'attente prioritaire sur les ★★★</li>
+          <li>Carte cadeau anniversaire 30 CHF</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>Comment gagner des diamants ◆</h2>
+      <ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.8;color:var(--t-1)">
+        <li><b style="color:var(--navy)">+1 ◆</b> par réservation honorée</li>
+        <li><b style="color:var(--navy)">+1 ◆</b> bonus si vous laissez un avis vérifié post-visite</li>
+        <li><b style="color:var(--navy)">+2 ◆</b> si vous parrainez un nouveau gourmand (code parrainage)</li>
+        <li><b style="color:var(--t-3)">0 ◆</b> en cas de no-show (annulation &lt; 4h ou absence)</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<footer>© 2026 Innoptim SA · R3STO — guide gourmand international</footer>
+
+<script>
+// Init depuis localStorage de la démo
+(function(){
+  const email = localStorage.getItem('r3sto_email');
+  if(email){
+    document.getElementById('fEmail').value = email;
+    document.getElementById('umail').textContent = email;
+    const at = email.split('@')[0];
+    const parts = at.split(/[._-]/);
+    if(parts.length >= 2){
+      const f = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+      const l = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
+      document.getElementById('fName').value = f;
+      document.getElementById('lName').value = l;
+      document.getElementById('uname').textContent = f + ' ' + l;
+      document.getElementById('avatar').textContent = (f[0]+l[0]).toUpperCase();
+    }
+  }
+
+  // Favoris depuis localStorage ou démo
+  const FAV_DEMO = [
+    { slug:'hotel-de-ville-crissier', name:"Hôtel de Ville", cuisine:"Cuisine d'auteur", loc:'Crissier · VD', tier:'or',
+      img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80' },
+    { slug:'chez-bunnys', name:"Chez Bunny's", cuisine:'Bistro contemporain', loc:'Lausanne · VD', tier:'bronze',
+      img:'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=900&q=80' },
+    { slug:'le-pont-de-brent', name:'Le Pont de Brent', cuisine:'Cuisine classique', loc:'Brent · VD', tier:'silver',
+      img:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=900&q=80' }
+  ];
+  const grid = document.getElementById('favGrid');
+  if(FAV_DEMO.length === 0){
+    document.getElementById('favEmpty').hidden = false;
+  } else {
+    grid.innerHTML = FAV_DEMO.map(r => `
+      <a class="fav-card" href="/fiche.html?slug=${r.slug}">
+        <div class="fav-img" style="background-image:url('${r.img}')">
+          <div class="tier tier-${r.tier}"><span class="d">◆</span>Carat ${r.tier==='or'?'Or':r.tier==='silver'?'Silver':'Bronze'}</div>
+          <div class="heart" onclick="event.preventDefault();event.stopPropagation();this.parentNode.parentNode.parentNode.remove();updateCounts();">♥</div>
+        </div>
+        <div class="fav-body">
+          <div class="fav-cuisine">${r.cuisine}</div>
+          <div class="fav-name">${r.name}</div>
+          <div class="fav-loc">${r.loc}</div>
+        </div>
+      </a>
+    `).join('');
+  }
+  updateCounts();
+})();
+
+function updateCounts(){
+  const favCount = document.querySelectorAll('#favGrid .fav-card').length;
+  document.getElementById('cntFav').textContent = favCount;
+  if(favCount === 0) document.getElementById('favEmpty').hidden = false;
+}
+
+function setTab(name, btn){
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('panel-' + name).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function saveProfile(){
+  const fName = document.getElementById('fName').value.trim();
+  const lName = document.getElementById('lName').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  document.getElementById('uname').textContent = (fName + ' ' + lName).trim() || 'Client R3STO';
+  document.getElementById('umail').textContent = email;
+  if(fName && lName) document.getElementById('avatar').textContent = (fName[0]+lName[0]).toUpperCase();
+  localStorage.setItem('r3sto_email', email);
+  alert('✓ Profil mis à jour.');
+}
+
+function logout(){
+  if(!confirm('Se déconnecter ?')) return;
+  localStorage.removeItem('r3sto_email');
+  localStorage.removeItem('r3sto_mode');
+  window.location.href = '/';
+}
+</script>
+</body>
+</html>

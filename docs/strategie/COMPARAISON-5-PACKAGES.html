@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — Comparaison 5 packages</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+  :root {
+    --bg: #0f1620;
+    --bg2: #141d2c;
+    --surf: #1a2435;
+    --surf2: #25304a;
+    --text: #e8eef5;
+    --t2: #aab5cc;
+    --t3: #5a657a;
+    --border: #4a6b8c52;
+    --accent: #c89752;
+    --accent-2: #a07e2a;
+    --or-bright: #d4af37;
+    --bl: #3b82f6;
+    --gn: #10b981;
+    --rd: #ef4444;
+    --cuivre: #b8763d;
+    --serif: "Fraunces", Georgia, serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:var(--bg); color:var(--text); padding:30px; line-height:1.5; }
+  .wrap { max-width:1500px; margin:0 auto; }
+  h1 { font-family:var(--serif); font-size:36px; color:var(--text); margin-bottom:8px; font-weight:700; letter-spacing:-0.5px; }
+  h1 .accent { color:var(--accent); font-style:italic; font-weight:400; }
+  .sub { color:var(--t2); font-size:14px; margin-bottom:32px; max-width:800px; }
+
+  /* Tier headers */
+  .tier-headers { display:grid; grid-template-columns:240px repeat(5, 1fr); gap:8px; margin-bottom:14px; position:sticky; top:0; background:var(--bg); padding:8px 0; z-index:10; }
+  .tier-hd { padding:18px 14px; border-radius:10px; background:var(--surf); border:1px solid var(--border); text-align:center; }
+  .tier-hd.featured { background:var(--surf2); border-color:var(--accent); box-shadow:0 4px 16px rgba(200,151,82,.1); }
+  .tier-hd .name { font-family:'Alethia Next', sans-serif; font-size:24px; color:var(--accent); margin-bottom:2px; line-height:1; }
+  .tier-hd .price { font-family:var(--serif); font-size:28px; font-weight:700; color:var(--text); line-height:1; margin-top:8px; }
+  .tier-hd .price-unit { font-size:11px; color:var(--t2); display:block; margin-top:2px; }
+  .tier-hd .alt-price { font-size:10px; color:var(--t3); margin-top:4px; font-family:'JetBrains Mono', monospace; }
+  .tier-hd .commit { font-size:10px; color:var(--accent); margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); }
+
+  .empty-hd { background:transparent; }
+  .empty-hd .audience-title { font-family:var(--serif); font-size:14px; color:var(--t2); font-style:italic; }
+
+  /* Audience row */
+  .audience { display:grid; grid-template-columns:240px repeat(5, 1fr); gap:8px; margin-bottom:24px; }
+  .audience .aud-label { padding:14px 16px; font-family:var(--serif); font-size:14px; color:var(--t2); font-style:italic; }
+  .audience .aud { padding:14px 12px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; font-size:11px; color:var(--text); text-align:center; line-height:1.4; }
+
+  /* Section heading */
+  .section-h { display:grid; grid-template-columns:240px repeat(5, 1fr); gap:8px; margin:18px 0 8px; }
+  .section-h .sh { padding:12px 16px; font-family:var(--serif); font-size:16px; font-weight:700; color:var(--accent); }
+
+  /* Feature rows */
+  .feature-row { display:grid; grid-template-columns:240px repeat(5, 1fr); gap:8px; margin-bottom:4px; }
+  .feature-row:hover .cell { background:var(--surf2); }
+  .feature-name { padding:12px 16px; font-size:13px; color:var(--text); display:flex; align-items:center; }
+  .feature-name.killer { color:var(--or-bright); font-weight:600; }
+  .cell { padding:12px 12px; background:var(--surf); border:1px solid var(--border); border-radius:6px; text-align:center; font-size:13px; transition:.1s; }
+  .cell.yes { color:var(--gn); font-weight:700; font-size:16px; }
+  .cell.no { color:var(--t3); }
+  .cell.partial { color:var(--accent); font-weight:600; font-size:11px; }
+  .cell.value { color:var(--text); font-weight:600; font-size:11px; }
+  .cell.killer { background:#a07e2a25; border-color:var(--accent); color:var(--or-bright); font-weight:700; font-size:14px; }
+
+  /* CTA row */
+  .cta-row { display:grid; grid-template-columns:240px repeat(5, 1fr); gap:8px; margin-top:24px; padding-top:24px; border-top:1px solid var(--border); }
+  .cta-row .cta-cell { padding:0; text-align:center; }
+  .cta-btn { display:block; width:100%; padding:12px 8px; border-radius:8px; font-weight:700; font-size:12px; border:0; cursor:pointer; transition:.15s; }
+  .cta-secondary { background:transparent; border:1px solid var(--accent); color:var(--accent); }
+  .cta-primary { background:var(--accent); color:var(--bg); }
+  .cta-btn:hover { transform:translateY(-1px); }
+
+  /* Summary box */
+  .summary { background:var(--bg2); border-radius:14px; padding:24px 28px; margin-top:32px; border:1px solid var(--border); }
+  .summary h2 { font-family:var(--serif); font-size:20px; color:var(--accent); margin-bottom:12px; }
+  .summary p { color:var(--t2); font-size:13px; line-height:1.6; margin-bottom:8px; }
+  .summary b { color:var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>R3STO — Du café-bar à la <span class="accent">gastronomie étoilée</span>.</h1>
+  <p class="sub">Une plateforme, 5 niveaux. Chaque restaurant suisse trouve son tier — du carnet digital à 19 CHF au système complet multi-sites avec IA. Différences nettes par cible et features.</p>
+
+  <!-- Tier headers -->
+  <div class="tier-headers">
+    <div class="empty-hd"></div>
+    <div class="tier-hd">
+      <div class="name">Mini</div>
+      <div class="price">19<span class="price-unit">CHF/mois</span></div>
+      <div class="commit">3 ans only</div>
+    </div>
+    <div class="tier-hd">
+      <div class="name">Mini+</div>
+      <div class="price">29<span class="price-unit">CHF/mois</span></div>
+      <div class="commit">3 ans only</div>
+    </div>
+    <div class="tier-hd">
+      <div class="name">Essentiel</div>
+      <div class="price">29<span class="price-unit">CHF/mois (3yr)</span></div>
+      <div class="alt-price">39 mensuel · 35 (1yr)</div>
+      <div class="commit">Flexible</div>
+    </div>
+    <div class="tier-hd featured">
+      <div class="name">Premium</div>
+      <div class="price">45<span class="price-unit">CHF/mois (3yr)</span></div>
+      <div class="alt-price">59 mensuel · 53 (1yr)</div>
+      <div class="commit">★ Le plus pris · Flexible</div>
+    </div>
+    <div class="tier-hd">
+      <div class="name">Signature</div>
+      <div class="price">59<span class="price-unit">CHF/mois (3yr)</span></div>
+      <div class="alt-price">79 mensuel · 71 (1yr)</div>
+      <div class="commit">Flexible</div>
+    </div>
+  </div>
+
+  <!-- Audience row -->
+  <div class="audience">
+    <div class="aud-label">Cible idéale</div>
+    <div class="aud">☕ Café · Bar à vin · Petit bistro de quartier</div>
+    <div class="aud">🥖 Bistro qui veut <b style="color:var(--or-bright)">arrêter les no-shows</b></div>
+    <div class="aud">🍽️ Restaurant qui veut <b style="color:var(--accent)">sa présence digitale R3STO</b></div>
+    <div class="aud">🍷 Restaurant établi avec <b style="color:var(--accent)">terrasse, équipe, service midi+soir</b></div>
+    <div class="aud">⭐ Gastronomie · Chaîne · Hôtel-restaurant</div>
+  </div>
+
+  <!-- ============ BASE ============ -->
+  <div class="section-h"><div class="sh">— Réservation</div></div>
+
+  <div class="feature-row">
+    <div class="feature-name">Réservations illimitées</div>
+    <div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Capacity check anti-double booking</div>
+    <div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Email auto-confirmation</div>
+    <div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Calendrier mois + multi-salles</div>
+    <div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Export CSV des résas</div>
+    <div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div><div class="cell yes">✓</div>
+  </div>
+
+  <!-- ============ ANTI NO-SHOW ============ -->
+  <div class="section-h"><div class="sh">— Anti no-show</div></div>
+
+  <div class="feature-row">
+    <div class="feature-name killer">⚡ Prépaiement Stripe / caution</div>
+    <div class="cell no">—</div>
+    <div class="cell killer">✓ Killer</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Score fiabilité client</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">SMS rappels (50/mois inclus)</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+    <div class="cell value">100/mois</div>
+    <div class="cell value">200/mois</div>
+    <div class="cell value">Illimité</div>
+  </div>
+
+  <!-- ============ HÉBERGEMENT & VISIBILITÉ ============ -->
+  <div class="section-h"><div class="sh">— Hébergement & visibilité</div></div>
+
+  <div class="feature-row">
+    <div class="feature-name killer">🏠 Page resto sur r3sto.com/{slug}</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell killer">✓ Inclus</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Widget intégrable sur votre site</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Apparition annuaire r3sto.com</div>
+    <div class="cell partial">Listing basique</div>
+    <div class="cell partial">Listing basique</div>
+    <div class="cell yes">✓ Fiche complète</div>
+    <div class="cell yes">✓ + Featured option</div>
+    <div class="cell yes">✓ + CARAT élig.</div>
+  </div>
+
+  <!-- ============ ÉQUIPE & ORGANISATION ============ -->
+  <div class="section-h"><div class="sh">— Équipe & organisation</div></div>
+
+  <div class="feature-row">
+    <div class="feature-name">Utilisateurs</div>
+    <div class="cell value">1</div>
+    <div class="cell value">2-3</div>
+    <div class="cell value">5</div>
+    <div class="cell value">Illimité</div>
+    <div class="cell value">Illimité</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Tables & Combos</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Menu QR digital multilingue</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">CRM clients</div>
+    <div class="cell no">—</div>
+    <div class="cell partial">Basique (historique)</div>
+    <div class="cell yes">✓ Complet</div>
+    <div class="cell yes">✓ + préférences</div>
+    <div class="cell yes">✓ + segments</div>
+  </div>
+
+  <!-- ============ OUTILS PRO ============ -->
+  <div class="section-h"><div class="sh">— Outils pro avancés</div></div>
+
+  <div class="feature-row">
+    <div class="feature-name killer">📐 Plan 2D éditeur de salle</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell killer">✓ Killer</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Waitlist (gestion file d'attente)</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Groupes / Banquets / Privatisation</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Blacklist + alertes</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Rapports automatisés</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell partial">Basique</div>
+    <div class="cell yes">✓ Avancé</div>
+    <div class="cell yes">✓ + custom</div>
+  </div>
+
+  <!-- ============ ÉCHELLE & SIGNATURE ============ -->
+  <div class="section-h"><div class="sh">— Échelle & signature</div></div>
+
+  <div class="feature-row">
+    <div class="feature-name killer">🏢 Multi-sites (chaînes)</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell killer">✓ Killer</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name killer">🧠 IA prédictions d'affluence</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell killer">✓ Killer</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">API REST (sur demande)</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Candidature CARAT (label gastro)</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell partial">Optionnelle</div>
+    <div class="cell yes">✓ Incluse</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Support</div>
+    <div class="cell partial">FAQ + Mail SLA 48h</div>
+    <div class="cell partial">FAQ + Mail SLA 48h</div>
+    <div class="cell yes">Mail SLA 24h</div>
+    <div class="cell yes">Mail + Chat</div>
+    <div class="cell yes">Prioritaire 24h + Tel</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Onboarding</div>
+    <div class="cell partial">Self-serve vidéos</div>
+    <div class="cell partial">Self-serve vidéos</div>
+    <div class="cell yes">Guide + tutoriels</div>
+    <div class="cell yes">Webinar groupe</div>
+    <div class="cell yes">Accompagné 1-to-1</div>
+  </div>
+
+  <!-- ============ COMMITMENT & RÉSILIATION ============ -->
+  <div class="section-h"><div class="sh">— Engagement & flexibilité</div></div>
+
+  <div class="feature-row">
+    <div class="feature-name">Option mensuel disponible</div>
+    <div class="cell no">—</div>
+    <div class="cell no">—</div>
+    <div class="cell yes">✓ 39 CHF</div>
+    <div class="cell yes">✓ 59 CHF</div>
+    <div class="cell yes">✓ 79 CHF</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Engagement min</div>
+    <div class="cell value">3 ans only</div>
+    <div class="cell value">3 ans only</div>
+    <div class="cell value">Aucun (mensuel)</div>
+    <div class="cell value">Aucun (mensuel)</div>
+    <div class="cell value">Aucun (mensuel)</div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-name">Résiliation</div>
+    <div class="cell partial">3 mois avant fin</div>
+    <div class="cell partial">3 mois avant fin</div>
+    <div class="cell yes">1 mois préavis</div>
+    <div class="cell yes">1 mois préavis</div>
+    <div class="cell yes">1 mois préavis</div>
+  </div>
+
+  <!-- CTA Row -->
+  <div class="cta-row">
+    <div></div>
+    <div class="cta-cell"><button class="cta-btn cta-secondary">Souscrire Mini →</button></div>
+    <div class="cta-cell"><button class="cta-btn cta-secondary">Souscrire Mini+ →</button></div>
+    <div class="cta-cell"><button class="cta-btn cta-secondary">Essai 14 jours →</button></div>
+    <div class="cta-cell"><button class="cta-btn cta-primary">Essai 14 jours →</button></div>
+    <div class="cta-cell"><button class="cta-btn cta-secondary">Demander démo →</button></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <h2>Lecture stratégique des 5 tiers</h2>
+    <p><b>Mini (19 CHF/3yr)</b> — Le café-bar de quartier ou la table d'hôtes : <i>"je veux remplacer mon carnet papier, point."</i></p>
+    <p><b>Mini+ (29 CHF/3yr)</b> — Le bistro avec problème de no-shows : <i>"je veux arrêter de perdre 200 CHF chaque samedi à cause des défections."</i></p>
+    <p><b>Essentiel (29-39 CHF)</b> — Le resto avec ambition digitale : <i>"je veux ma page R3STO, mes tables modélisées, mon QR menu — et grandir."</i></p>
+    <p><b>Premium (45-59 CHF)</b> ⭐ — Le resto établi avec service complet : <i>"j'ai un plan de salle complexe, une équipe, midi+soir, banquets — j'ai besoin de tout piloter visuellement."</i></p>
+    <p><b>Signature (59-79 CHF)</b> — Gastronomie ou multi-sites : <i>"je gère plusieurs établissements, je veux l'IA pour prédire l'affluence, et je vise le label CARAT."</i></p>
+  </div>
+
+</div>
+</body>
+</html>

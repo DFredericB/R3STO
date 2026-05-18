@@ -3,31 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0f1620">
-<title>R3STO Pro — Digitalisez votre restaurant · 0% commission · Plateforme internationale</title>
-<meta name="description" content="R3STO Pro : la plateforme suisse de gestion restaurant déployée dans 55+ pays. Réservations, plan de salle IA, CRM, prépaiement Stripe, anti no-show. 0% commission, hébergé en Suisse. Dès 19 CHF/mois.">
-<meta name="keywords" content="logiciel restaurant, gestion restaurant, réservation en ligne, plan de salle, CRM restaurant, anti no-show, Stripe restaurant, sans commission, Suisse, France, Allemagne, Italie, international">
-<meta name="author" content="R3STO · Innoptim SA">
-<meta name="robots" content="index,follow,max-image-preview:large">
-<meta property="og:title" content="R3STO Pro — Digitalisez votre restaurant · 0% commission · International">
-<meta property="og:description" content="La plateforme de gestion restaurant la plus complète. Déployée dans 55+ pays. Hébergement Suisse. 14 jours d'essai gratuit. Dès 19 CHF/mois.">
+<title>R3STO Pro — Réservations sans commission · Plateforme suisse de gestion restaurant</title>
+<meta name="description" content="R3STO : réservations, plan de salle IA, CRM, prépaiement Stripe, anti no-show. 0% commission, hébergé en Suisse. À partir de 19 CHF/mois.">
+<meta property="og:title" content="R3STO Pro — Réservations sans commission">
+<meta property="og:description" content="Plateforme suisse SaaS pour restaurateurs : réservations, plan de salle, CRM, prépaiement Stripe. 0% commission.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://r3sto.com/pro">
 <meta property="og:image" content="https://r3sto.com/og-r3sto-pro.jpg">
 <meta property="og:locale" content="fr_CH">
-<meta property="og:locale:alternate" content="en_US">
-<meta property="og:locale:alternate" content="de_DE">
-<meta property="og:locale:alternate" content="it_IT">
-<meta property="og:site_name" content="R3STO">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="R3STO Pro — Digitalisez votre restaurant">
-<meta name="twitter:description" content="Plateforme de gestion restaurant déployée dans 55+ pays. 0% commission. Dès 19 CHF/mois.">
 <link rel="canonical" href="https://r3sto.com/pro">
-<link rel="alternate" hreflang="fr" href="https://r3sto.com/pro">
-<link rel="alternate" hreflang="en" href="https://r3sto.com/pro?lang=en">
-<link rel="alternate" hreflang="de" href="https://r3sto.com/pro?lang=de">
-<link rel="alternate" hreflang="it" href="https://r3sto.com/pro?lang=it">
-<link rel="alternate" hreflang="x-default" href="https://r3sto.com/pro">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -125,56 +110,13 @@ section {padding:var(--section-pad);position:relative}
 }
 .logo-text span {color:var(--gold);font-weight:600}
 .logo-wordmark {
-  font-family:var(--ff);
-  font-weight:700;font-size:14px;
+  font-family:'Fraunces',Georgia,serif;
+  font-style:italic;font-weight:500;font-size:18px;
   color:var(--navy);background:#fff;
-  padding:5px 12px;border-radius:6px;
-  letter-spacing:.02em;line-height:1;
-  display:inline-block;text-transform:uppercase;
+  padding:4px 12px;border-radius:6px;
+  letter-spacing:-.3px;line-height:1;
+  display:inline-block;
 }
-
-/* COUNTRY SWITCHER */
-.country {position:relative}
-.country-btn {
-  display:inline-flex;align-items:center;gap:8px;
-  padding:8px 14px;background:var(--surf);border:1px solid var(--border);
-  border-radius:8px;cursor:pointer;
-  font-family:var(--ff);font-size:13px;font-weight:600;color:var(--text);
-  transition:.15s;
-}
-.country-btn:hover {border-color:var(--gold);color:var(--gold)}
-.country-flag {font-size:16px;line-height:1}
-.country-menu {
-  display:none;position:absolute;top:calc(100% + 8px);right:0;
-  background:var(--surf);border:1px solid var(--border);
-  border-radius:12px;padding:8px;min-width:340px;max-height:520px;overflow-y:auto;
-  box-shadow:0 16px 40px rgba(0,0,0,.40);z-index:11;
-}
-.country-menu.open {display:block}
-.cm-search-wrap {position:sticky;top:0;background:var(--surf);padding:6px 4px;margin-bottom:4px;border-bottom:1px solid var(--border);z-index:1}
-.cm-search {
-  width:100%;padding:9px 12px;border:1px solid var(--border);
-  border-radius:7px;background:var(--bg-2);
-  font-family:var(--ff);font-size:13px;color:var(--text);outline:none;transition:.15s;
-}
-.cm-search:focus {border-color:var(--gold);background:var(--bg)}
-.cm-search::placeholder {color:var(--t-3)}
-.country-section {
-  font-family:var(--fm);font-size:10px;font-weight:600;
-  color:var(--gold-bright);text-transform:uppercase;letter-spacing:.14em;
-  padding:10px 12px 6px;border-top:1px solid var(--border);margin-top:4px;
-}
-.country-section:first-child {border-top:0;margin-top:0;padding-top:6px}
-.country-menu button {
-  width:100%;text-align:left;
-  padding:9px 12px;border:0;background:transparent;
-  font-family:var(--ff);font-size:13px;font-weight:500;
-  color:var(--text);cursor:pointer;border-radius:7px;
-  transition:.12s;display:flex;align-items:center;gap:10px;justify-content:space-between;
-}
-.country-menu button:hover {background:var(--bg-2);color:var(--gold-bright)}
-.cm-lang {font-family:var(--fm);font-size:10px;font-weight:500;color:var(--t-3);letter-spacing:.06em}
-@media(max-width:1100px){.country-name{display:none}}
 .nav-links {display:flex;gap:30px;align-items:center}
 .nav-links a {
   color:var(--t-2);font-size:13px;font-weight:500;
@@ -571,52 +513,6 @@ section {padding:var(--section-pad);position:relative}
 .card-pill.soon {background:rgba(74,107,140,.15);color:var(--t-2);border-color:var(--border-2)}
 @media(max-width:1000px){.modules-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:540px){.modules-grid{grid-template-columns:1fr}}
-
-/* =========================================================
-   INTERNATIONAL SECTION
-   ========================================================= */
-.intl-sec {background:var(--bg)}
-.intl-grid {
-  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
-  margin-bottom:56px;
-}
-.intl-card {
-  background:var(--surf);border:1px solid var(--border);
-  border-radius:14px;padding:24px;text-align:center;transition:.25s;
-}
-.intl-card:hover {border-color:var(--gold);transform:translateY(-3px)}
-.intl-flag {font-size:42px;line-height:1;margin-bottom:12px}
-.intl-name {
-  font-family:var(--ff);font-size:14px;font-weight:700;
-  color:var(--text);letter-spacing:.02em;margin-bottom:14px;
-  text-transform:uppercase;
-}
-.intl-stat {
-  font-family:var(--ff);font-size:36px;font-weight:800;
-  color:var(--gold);letter-spacing:-1.5px;line-height:1;margin-bottom:6px;
-}
-.intl-label {
-  font-family:var(--ff);font-size:12px;color:var(--t-2);
-  line-height:1.4;margin-bottom:14px;
-}
-.intl-meta {
-  font-family:var(--fm);font-size:10px;color:var(--t-3);
-  padding-top:14px;border-top:1px solid var(--border);
-  letter-spacing:.04em;
-}
-.intl-pillars {
-  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
-}
-@media(max-width:1000px){
-  .intl-grid{grid-template-columns:repeat(2,1fr)}
-  .intl-pillars{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:640px){
-  .intl-grid{grid-template-columns:1fr 1fr;gap:12px}
-  .intl-pillars{grid-template-columns:1fr}
-  .intl-flag{font-size:32px}
-  .intl-stat{font-size:28px}
-}
 
 /* =========================================================
    PRICING
@@ -1065,9 +961,6 @@ section {padding:var(--section-pad);position:relative}
 }
 @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:32px}}
 @media(max-width:640px){.footer-grid{grid-template-columns:1fr;gap:32px}.footer-bot{flex-direction:column;text-align:center}}
-
-/* OVERRIDE for real PNG logo (replaces CSS-text version) */
-img.logo-mark { object-fit:cover; display:block; }
 </style>
 </head>
 <body>
@@ -1078,75 +971,21 @@ img.logo-mark { object-fit:cover; display:block; }
 <nav class="nav" id="nav">
   <div class="nav-in">
     <a href="/" class="logo" aria-label="R3STO accueil">
-      <img class="logo-mark" src="logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mark">R3STO</span>
       <span class="logo-wordmark">Pro</span>
     </a>
     <div class="nav-links" id="navLinks">
       <a href="#fonctionnalites">Fonctionnalités</a>
-      <a href="#international">International</a>
       <a href="#tarifs">Tarifs</a>
       <a href="#faq">FAQ</a>
       <a href="https://app.r3sto.com" class="nav-login">Mon restaurant</a>
     </div>
     <div class="nav-right">
       <div class="lang">
-        <button class="on" id="lang-en" onclick="setLang('en',this)">EN</button>
-        <button id="lang-fr" onclick="setLang('fr',this)">FR</button>
-        <button id="lang-de" onclick="setLang('de',this)">DE</button>
-        <button id="lang-it" onclick="setLang('it',this)">IT</button>
-      </div>
-      <div class="country" id="countrySwitch">
-        <button class="country-btn" onclick="toggleCountry()">
-          <span class="country-flag" id="countryFlag">🌍</span>
-          <span class="country-name" id="countryName">Worldwide</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="country-menu" id="countryMenu">
-          <div class="cm-search-wrap"><input type="text" class="cm-search" placeholder="Search country..." oninput="filterCountries(this.value)"></div>
-          <div class="country-section">🌐 Global</div>
-          <button onclick="setCountry('ww',['en'])">🌍 Worldwide <span class="cm-lang">EN</span></button>
-          <div class="country-section">🇪🇺 Europe</div>
-          <button onclick="setCountry('ch',['de','fr','it'])">🇨🇭 Switzerland <span class="cm-lang">DE · FR · IT · RM</span></button>
-          <button onclick="setCountry('fr',['fr'])">🇫🇷 France <span class="cm-lang">FR</span></button>
-          <button onclick="setCountry('de',['de'])">🇩🇪 Germany <span class="cm-lang">DE</span></button>
-          <button onclick="setCountry('it',['it'])">🇮🇹 Italy <span class="cm-lang">IT</span></button>
-          <button onclick="setCountry('at',['de'])">🇦🇹 Austria <span class="cm-lang">DE</span></button>
-          <button onclick="setCountry('be',['fr','de'])">🇧🇪 Belgium <span class="cm-lang">NL · FR · DE</span></button>
-          <button onclick="setCountry('lu',['fr','de'])">🇱🇺 Luxembourg <span class="cm-lang">LB · FR · DE</span></button>
-          <button onclick="setCountry('mc',['fr'])">🇲🇨 Monaco <span class="cm-lang">FR</span></button>
-          <button onclick="setCountry('li',['de'])">🇱🇮 Liechtenstein <span class="cm-lang">DE</span></button>
-          <button onclick="setCountry('nl',['en'])">🇳🇱 Netherlands <span class="cm-lang">NL · EN</span></button>
-          <button onclick="setCountry('es',['en'])">🇪🇸 Spain <span class="cm-lang">ES · EN</span></button>
-          <button onclick="setCountry('pt',['en'])">🇵🇹 Portugal <span class="cm-lang">PT · EN</span></button>
-          <button onclick="setCountry('uk',['en'])">🇬🇧 United Kingdom <span class="cm-lang">EN</span></button>
-          <button onclick="setCountry('ie',['en'])">🇮🇪 Ireland <span class="cm-lang">EN</span></button>
-          <button onclick="setCountry('dk',['en'])">🇩🇰 Denmark <span class="cm-lang">DA · EN</span></button>
-          <button onclick="setCountry('se',['en'])">🇸🇪 Sweden <span class="cm-lang">SV · EN</span></button>
-          <button onclick="setCountry('no',['en'])">🇳🇴 Norway <span class="cm-lang">NO · EN</span></button>
-          <button onclick="setCountry('fi',['en'])">🇫🇮 Finland <span class="cm-lang">FI · EN</span></button>
-          <button onclick="setCountry('pl',['en'])">🇵🇱 Poland <span class="cm-lang">PL · EN</span></button>
-          <button onclick="setCountry('cz',['en'])">🇨🇿 Czech Republic <span class="cm-lang">CS · EN</span></button>
-          <button onclick="setCountry('hu',['en'])">🇭🇺 Hungary <span class="cm-lang">HU · EN</span></button>
-          <button onclick="setCountry('ro',['en'])">🇷🇴 Romania <span class="cm-lang">RO · EN</span></button>
-          <button onclick="setCountry('gr',['en'])">🇬🇷 Greece <span class="cm-lang">EL · EN</span></button>
-          <button onclick="setCountry('tr',['en'])">🇹🇷 Turkey <span class="cm-lang">TR · EN</span></button>
-          <div class="country-section">🌎 North America</div>
-          <button onclick="setCountry('us',['en'])">🇺🇸 United States <span class="cm-lang">EN · ES</span></button>
-          <button onclick="setCountry('ca',['en','fr'])">🇨🇦 Canada <span class="cm-lang">EN · FR</span></button>
-          <button onclick="setCountry('mx',['en'])">🇲🇽 Mexico <span class="cm-lang">ES · EN</span></button>
-          <div class="country-section">🌎 South America</div>
-          <button onclick="setCountry('br',['en'])">🇧🇷 Brazil <span class="cm-lang">PT · EN</span></button>
-          <button onclick="setCountry('ar',['en'])">🇦🇷 Argentina <span class="cm-lang">ES · EN</span></button>
-          <div class="country-section">🌏 Asia &amp; ME</div>
-          <button onclick="setCountry('jp',['en'])">🇯🇵 Japan <span class="cm-lang">JA · EN</span></button>
-          <button onclick="setCountry('sg',['en'])">🇸🇬 Singapore <span class="cm-lang">EN</span></button>
-          <button onclick="setCountry('ae',['en'])">🇦🇪 UAE <span class="cm-lang">AR · EN</span></button>
-          <div class="country-section">🌍 Africa</div>
-          <button onclick="setCountry('ma',['fr'])">🇲🇦 Morocco <span class="cm-lang">AR · FR</span></button>
-          <button onclick="setCountry('tn',['fr'])">🇹🇳 Tunisia <span class="cm-lang">AR · FR</span></button>
-          <div class="country-section">🌏 Oceania</div>
-          <button onclick="setCountry('au',['en'])">🇦🇺 Australia <span class="cm-lang">EN</span></button>
-        </div>
+        <button class="on" onclick="setLang('en',this)">EN</button>
+        <button onclick="setLang('fr',this)">FR</button>
+        <button onclick="setLang('de',this)">DE</button>
+        <button onclick="setLang('it',this)">IT</button>
       </div>
       <a href="https://auth.r3sto.com/signup" class="nav-cta">Commencer</a>
       <button class="mob-menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
@@ -1473,82 +1312,6 @@ img.logo-mark { object-fit:cover; display:block; }
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
         <h3>Client notifié auto</h3>
         <p>SMS et email envoyés au client avec sa nouvelle table. Pas de surprise à l'arrivée, pas d'appels.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- =========================================================
-     INTERNATIONAL (digitaliser les restaurants du monde)
-     ========================================================= -->
-<section class="intl-sec" id="international">
-  <div class="inner">
-    <div class="s-head">
-      <div class="s-badge">🌍 Déployée dans 55+ pays</div>
-      <h2 class="s-title">Pensée en Suisse. <span class="gold">Pour les restaurateurs du monde.</span></h2>
-      <p class="s-sub" style="margin:0 auto">Notre mission : digitaliser les restaurants indépendants, partout. Notre plateforme parle 4 langues, gère plusieurs devises, et respecte les spécificités réglementaires de chaque pays.</p>
-    </div>
-    <div class="intl-grid">
-      <article class="intl-card">
-        <div class="intl-flag">🇨🇭</div>
-        <div class="intl-name">Suisse</div>
-        <div class="intl-stat">19K+</div>
-        <div class="intl-label">restaurants partenaires</div>
-        <div class="intl-meta">CHF · DE/FR/IT/RM · TVA 8.1%</div>
-      </article>
-      <article class="intl-card">
-        <div class="intl-flag">🇫🇷</div>
-        <div class="intl-name">France</div>
-        <div class="intl-stat">180K+</div>
-        <div class="intl-label">restaurants potentiels</div>
-        <div class="intl-meta">EUR · FR · TVA 10%</div>
-      </article>
-      <article class="intl-card">
-        <div class="intl-flag">🇩🇪</div>
-        <div class="intl-name">Allemagne</div>
-        <div class="intl-stat">220K+</div>
-        <div class="intl-label">restaurants potentiels</div>
-        <div class="intl-meta">EUR · DE · MwSt 19%</div>
-      </article>
-      <article class="intl-card">
-        <div class="intl-flag">🇮🇹</div>
-        <div class="intl-name">Italie</div>
-        <div class="intl-stat">170K+</div>
-        <div class="intl-label">restaurants potentiels</div>
-        <div class="intl-meta">EUR · IT · IVA 10%</div>
-      </article>
-    </div>
-
-    <div class="intl-pillars">
-      <article class="card">
-        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-        <h3>4 langues d'interface</h3>
-        <p>Restaurateur et personnel utilisent l'app en FR, DE, IT ou EN. Réglage par utilisateur, support des langues nationales suisses (allemand, français, italien, romanche).</p>
-      </article>
-      <article class="card">
-        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <h3>Multi-devises</h3>
-        <p>CHF, EUR, GBP, USD et 25+ devises. Tarifs identiques en nominal partout (19 CHF = 19 €), aucune conversion appliquée — la valeur de la franc reste favorable au restaurateur local.</p>
-      </article>
-      <article class="card">
-        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-        <h3>Conformité RGPD &amp; LPD</h3>
-        <p>Vos données et celles de vos clients sont hébergées en Suisse chez Infomaniak. Conformes au RGPD européen ET à la LPD suisse. Export et suppression à tout moment.</p>
-      </article>
-      <article class="card">
-        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-        <h3>Paiements Stripe locaux</h3>
-        <p>Acceptation Twint, cartes, Apple Pay, Google Pay, Klarna selon le pays. Frais transparents, virements directs vers votre IBAN local — pas de comptes intermédiaires.</p>
-      </article>
-      <article class="card">
-        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <h3>Conformité TVA automatique</h3>
-        <p>Taux de TVA appliqués automatiquement selon votre pays (8.1% CH, 10% FR pour la restauration, 19% DE, 10% IT). Factures conformes aux exigences fiscales locales.</p>
-      </article>
-      <article class="card">
-        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-        <h3>Support 4 langues</h3>
-        <p>Équipe support en français, allemand, italien et anglais. Réponse en moins de 2h ouvrées. Documentation et tutoriels traduits dans les 4 langues.</p>
       </article>
     </div>
   </div>
@@ -1972,7 +1735,7 @@ img.logo-mark { object-fit:cover; display:block; }
   <div class="footer-grid">
     <div class="footer-brand">
       <a href="/" class="logo">
-        <img class="logo-mark" src="logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+        <span class="logo-mark">R3STO</span>
         <span class="logo-text">R3STO <span>Pro</span></span>
       </a>
       <p>Plateforme SaaS suisse de gestion pour restaurants. Réservations, plan de salle, CRM, prépaiement Stripe. 0 % commission, hébergée en Suisse.</p>
@@ -2015,88 +1778,12 @@ window.addEventListener('scroll', function(){
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
 });
 
-/* LANG SWITCHER — pills indépendantes du country */
+/* Language switcher basique */
 function setLang(code, btn){
   document.querySelectorAll('.lang button').forEach(b => b.classList.remove('on'));
-  if(btn) btn.classList.add('on');
+  btn.classList.add('on');
   document.documentElement.lang = code;
 }
-
-/* COUNTRY SWITCHER — change scope + active les langues nationales du pays */
-const CTRY_DATA = {
-  ww:{flag:'🌍',name:'Worldwide'},
-  ch:{flag:'🇨🇭',name:'Switzerland'},
-  fr:{flag:'🇫🇷',name:'France'},
-  de:{flag:'🇩🇪',name:'Germany'},
-  it:{flag:'🇮🇹',name:'Italy'},
-  at:{flag:'🇦🇹',name:'Austria'},
-  be:{flag:'🇧🇪',name:'Belgium'},
-  lu:{flag:'🇱🇺',name:'Luxembourg'},
-  mc:{flag:'🇲🇨',name:'Monaco'},
-  li:{flag:'🇱🇮',name:'Liechtenstein'},
-  nl:{flag:'🇳🇱',name:'Netherlands'},
-  es:{flag:'🇪🇸',name:'Spain'},
-  pt:{flag:'🇵🇹',name:'Portugal'},
-  uk:{flag:'🇬🇧',name:'United Kingdom'},
-  ie:{flag:'🇮🇪',name:'Ireland'},
-  dk:{flag:'🇩🇰',name:'Denmark'},
-  se:{flag:'🇸🇪',name:'Sweden'},
-  no:{flag:'🇳🇴',name:'Norway'},
-  fi:{flag:'🇫🇮',name:'Finland'},
-  pl:{flag:'🇵🇱',name:'Poland'},
-  cz:{flag:'🇨🇿',name:'Czech Republic'},
-  hu:{flag:'🇭🇺',name:'Hungary'},
-  ro:{flag:'🇷🇴',name:'Romania'},
-  gr:{flag:'🇬🇷',name:'Greece'},
-  tr:{flag:'🇹🇷',name:'Turkey'},
-  us:{flag:'🇺🇸',name:'United States'},
-  ca:{flag:'🇨🇦',name:'Canada'},
-  mx:{flag:'🇲🇽',name:'Mexico'},
-  br:{flag:'🇧🇷',name:'Brazil'},
-  ar:{flag:'🇦🇷',name:'Argentina'},
-  jp:{flag:'🇯🇵',name:'Japan'},
-  sg:{flag:'🇸🇬',name:'Singapore'},
-  ae:{flag:'🇦🇪',name:'UAE'},
-  ma:{flag:'🇲🇦',name:'Morocco'},
-  tn:{flag:'🇹🇳',name:'Tunisia'},
-  au:{flag:'🇦🇺',name:'Australia'}
-};
-function toggleCountry(){document.getElementById('countryMenu').classList.toggle('open')}
-function setCountry(code, availableLangs){
-  const c = CTRY_DATA[code];
-  if(c){
-    document.getElementById('countryFlag').textContent = c.flag;
-    document.getElementById('countryName').textContent = c.name;
-  }
-  document.getElementById('countryMenu').classList.remove('open');
-  // Highlight les pills de langues NATIONALES (cliquables = en couleur, autres = grisées)
-  ['en','fr','de','it'].forEach(L => {
-    const btn = document.getElementById('lang-'+L);
-    if(!btn) return;
-    const isNational = availableLangs.includes(L);
-    const isWorldwide = code === 'ww';
-    // En mode worldwide = toutes les langues actives ; sinon = seulement les nationales + EN universel
-    if(isWorldwide || isNational || L === 'en'){
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-      btn.disabled = false;
-    } else {
-      btn.style.opacity = '.35';
-      btn.style.cursor = 'not-allowed';
-      btn.disabled = true;
-    }
-  });
-}
-function filterCountries(q){
-  const query = q.toLowerCase().trim();
-  document.querySelectorAll('.country-menu button').forEach(btn => {
-    if(btn.classList.contains('country-section')) return;
-    btn.style.display = (!query || btn.textContent.toLowerCase().includes(query)) ? '' : 'none';
-  });
-}
-document.addEventListener('click', function(e){
-  if(!e.target.closest('.country')) document.getElementById('countryMenu').classList.remove('open');
-});
 
 /* Duration tabs — recalcule les prix avec remise */
 var BASE = [39, 59, 79];

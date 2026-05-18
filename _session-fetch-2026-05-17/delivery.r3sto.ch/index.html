@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="fr" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R3STO Delivery — Commande en ligne</title>
+<meta name="description" content="Commandez en ligne via R3STO Delivery. Livraison à domicile ou retrait sur place. Paiement en ligne ou à la livraison.">
+<link rel="icon" type="image/jpeg" href="https://r3sto.ch/logo-r3sto.jpg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fafbfd;--surf:#ffffff;--surf2:#f0f2f5;--surf3:#e8ecf2;
+  --text:#1a2332;--t2:#3d4f66;--t3:#6b7d94;--muted:#b0b5c3;
+  --ac:#2d6cb8;--ac2:#1f5a9e;--ac-light:#eef3fb;--bl:#2d6cb8;
+  --gn:#1e8f4e;--gn-light:#e8f7ef;--gn-bg:#f0faf5;
+  --rd:#c53030;--rd-light:#fde8e7;
+  --am:#b87d0a;--am-light:#fef6e7;
+  --border:rgba(30,50,80,.12);--border2:#d1d5e0;
+  --ff:'DM Sans',system-ui,-apple-system,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+  --max:1080px;--rad:14px;
+  --shadow:0 2px 12px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.1);
+}
+html{scroll-behavior:smooth;overflow-x:hidden;width:100%;max-width:100vw}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;width:100%;max-width:100vw;box-sizing:border-box}
+a{color:var(--ac);text-decoration:none}
+img{max-width:100%;display:block}
+button{font-family:var(--ff);cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:var(--ff);outline:none}
+
+/* ── HEADER ── */
+.header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;box-sizing:border-box;width:100%;max-width:100vw}
+.header-inner{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px;box-sizing:border-box}
+.header-left{display:flex;align-items:center;gap:12px}
+.resto-logo{width:48px;height:48px;border-radius:0;overflow:hidden;flex-shrink:0}
+.resto-logo img{width:100%;height:100%;object-fit:cover}
+.resto-logo .initials{width:100%;height:100%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800}
+.resto-info h1{font-size:16px;font-weight:700;line-height:1.2}
+.resto-info p{font-size:11px;color:var(--t3);font-weight:500}
+.header-right{display:flex;align-items:center;gap:12px}
+.mode-toggle{display:flex;background:var(--surf2);border-radius:10px;padding:3px;border:1px solid var(--border);gap:2px}
+.mode-btn{padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;background:none;color:var(--t3);transition:.2s}
+.mode-btn.active{background:var(--surf);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* ── LANGUAGE SWITCHER ── */
+.lang-toggle{display:flex;gap:6px;align-items:center;margin-left:8px}
+.lang-btn{padding:6px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);color:var(--t2);font-size:11px;font-weight:700;cursor:pointer;transition:.15s;font-family:'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.05em}
+.lang-btn:active{transform:scale(.95)}
+.lang-btn.active{border-color:var(--bl);background:rgba(68,128,216,.12);color:var(--bl)}
+.cart-btn{position:relative;width:42px;height:42px;border-radius:10px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;transition:.15s}
+.cart-btn:hover{background:var(--ac2)}
+.cart-btn svg{width:20px;height:20px}
+.cart-badge{position:absolute;top:-4px;right:-4px;background:var(--rd);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--surf)}
+.cart-badge:empty,.cart-badge[data-count="0"]{display:none}
+
+/* ── STATUS BAR ── */
+.status-bar{background:var(--gn-bg);border-bottom:1px solid rgba(26,135,84,.15);padding:8px 20px;text-align:center;font-size:12px;color:var(--gn);font-weight:600}
+.status-bar.closed{background:var(--rd-light);color:var(--rd)}
+.status-bar .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── PROMO BANNER ── */
+.promo-banner{background:linear-gradient(135deg,var(--ac) 0%,#1a4580 100%);color:#fff;padding:12px 20px;text-align:center;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+.promo-banner .tag{background:rgba(255,255,255,.2);padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+
+/* ── LAYOUT ── */
+.layout{max-width:var(--max);margin:0 auto;padding:20px;display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start;box-sizing:border-box}
+@media(max-width:860px){.layout{grid-template-columns:1fr;padding:12px;box-sizing:border-box}.cart-panel{display:none}.cart-panel.mobile-open{display:block;position:fixed;inset:0;z-index:200;background:var(--surf);overflow-y:auto;padding:20px;animation:slideUp .25s ease}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* ── CATEGORIES NAV ── */
+.cat-nav{position:sticky;top:64px;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.cat-nav::-webkit-scrollbar{display:none}
+.cat-nav-inner{max-width:var(--max);margin:0 auto;display:flex;gap:4px;padding:8px 0;flex-wrap:wrap}
+.cat-pill{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;color:var(--t3);background:none;border:1px solid transparent;white-space:nowrap;transition:.15s}
+.cat-pill:hover{color:var(--text);background:var(--surf2)}
+.cat-pill.active{background:var(--ac);color:#fff;border-color:var(--ac)}
+
+/* ── MENU DU JOUR ── */
+.menu-du-jour{background:linear-gradient(135deg,#fef9f0 0%,#fdf3ea 100%);border:1.5px solid rgba(230,147,10,.2);border-radius:var(--rad);padding:18px;margin-bottom:24px}
+.mdj-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.mdj-head .badge{background:var(--am);color:#fff;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.mdj-head h3{font-size:15px;font-weight:700}
+.mdj-items{display:flex;gap:10px;flex-wrap:wrap}
+.mdj-item{flex:1;min-width:200px;background:rgba(255,255,255,.7);border:1px solid rgba(230,147,10,.15);border-radius:10px;padding:12px;cursor:pointer;transition:.15s}
+.mdj-item:hover{border-color:var(--am);box-shadow:0 2px 8px rgba(230,147,10,.1)}
+.mdj-item h4{font-size:13px;font-weight:700;margin-bottom:2px}
+.mdj-item p{font-size:11px;color:var(--t3);line-height:1.3}
+.mdj-item .mdj-foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.mdj-item .mdj-price{font-size:14px;font-weight:800;color:var(--am)}
+.mdj-item .mdj-old{font-size:11px;color:var(--t3);text-decoration:line-through}
+
+/* ── MENU ITEMS ── */
+.menu-section{margin-bottom:32px}
+.menu-section h2{font-size:20px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.menu-section h2 .cat-icon{width:32px;height:32px;border-radius:8px;background:var(--surf2);display:flex;align-items:center;justify-content:center}
+.menu-section h2 .cat-icon svg{width:18px;height:18px;color:var(--ac)}
+.menu-section .section-desc{font-size:13px;color:var(--t3);margin-bottom:16px}
+.menu-grid{display:flex;flex-direction:column;gap:10px}
+.menu-item{display:flex;gap:14px;background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:14px;cursor:pointer;transition:.15s;align-items:center}
+.menu-item:hover{border-color:var(--ac);box-shadow:0 2px 8px rgba(43,91,160,.08)}
+.menu-item.unavailable{opacity:.5;pointer-events:none}
+.menu-item-img{width:80px;height:80px;border-radius:10px;background:var(--surf2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.menu-item-img img{width:100%;height:100%;object-fit:cover}
+.menu-item-img svg{width:36px;height:36px;color:var(--t3);opacity:.6}
+.menu-item-img .picto{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surf2)}
+.menu-item-body{flex:1;min-width:0}
+.menu-item-body h3{font-size:14px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.menu-item-body p{font-size:12px;color:var(--t3);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.menu-item-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
+.item-price{font-size:15px;font-weight:800;color:var(--ac)}
+.item-meta{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.item-tag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--surf2);color:var(--t3)}
+.item-tag.veg{background:#e8f7ef;color:#1a8754}
+.item-tag.spicy{background:#fde8e7;color:#d93025}
+.item-tag.new{background:var(--am-light);color:var(--am)}
+.item-tag.promo{background:#eef3fb;color:var(--ac)}
+.item-prep{font-size:10px;color:var(--t3);display:flex;align-items:center;gap:3px}
+.item-prep svg{width:12px;height:12px}
+.allergen-dots{display:flex;gap:3px}
+.allergen-dot{width:16px;height:16px;border-radius:50%;background:var(--surf3);font-size:8px;display:flex;align-items:center;justify-content:center;cursor:help;border:1px solid var(--border)}
+.add-btn{width:32px;height:32px;border-radius:8px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.1s;cursor:pointer;border:none}
+.add-btn:hover{background:var(--ac2);transform:scale(1.08)}
+.add-btn svg{width:16px;height:16px}
+
+/* ── CART PANEL ── */
+.cart-panel{position:sticky;top:110px;background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden}
+.cart-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cart-header h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.cart-header h3 svg{width:16px;height:16px}
+.cart-header .clear{font-size:11px;color:var(--rd);font-weight:600;background:none;padding:4px 8px;border-radius:6px}
+.cart-header .clear:hover{background:var(--rd-light)}
+.cart-empty{padding:40px 20px;text-align:center;color:var(--t3);font-size:13px}
+.cart-empty svg{width:48px;height:48px;color:var(--muted);margin:0 auto 10px;display:block}
+.cart-items{max-height:340px;overflow-y:auto;padding:8px 0}
+.cart-item{display:flex;align-items:center;gap:10px;padding:10px 18px}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-info .name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-item-info .opts{font-size:10px;color:var(--t3)}
+.cart-qty{display:flex;align-items:center;gap:6px}
+.cart-qty button{width:24px;height:24px;border-radius:6px;background:var(--surf2);color:var(--text);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);cursor:pointer}
+.cart-qty button:hover{background:var(--surf3)}
+.cart-qty span{font-size:13px;font-weight:700;min-width:16px;text-align:center}
+.cart-item-price{font-size:13px;font-weight:700;color:var(--ac);min-width:55px;text-align:right}
+.cart-footer{border-top:1px solid var(--border);padding:16px 18px}
+.cart-line{display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:6px}
+.cart-line.total{font-size:15px;font-weight:800;color:var(--text);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.checkout-btn{width:100%;margin-top:14px;padding:14px;border-radius:10px;background:var(--ac);color:#fff;font-size:14px;font-weight:700;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.checkout-btn:hover{background:var(--ac2)}
+.checkout-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── CHECKOUT MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surf);border-radius:18px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-head h2{font-size:18px;font-weight:800}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--surf2);color:var(--t2);font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--surf3)}
+.modal-body{padding:20px 24px}
+.step-dots{display:flex;gap:6px;justify-content:center;padding:12px 0 0}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--surf3);transition:.2s}
+.step-dot.active{background:var(--ac);width:24px;border-radius:4px}
+.step-dot.done{background:var(--gn)}
+
+/* ── FORM ── */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t2);margin-bottom:5px}
+.form-group label .req{color:var(--rd)}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);transition:.15s}
+.form-input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(43,91,160,.08)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-note{font-size:11px;color:var(--t3);margin-top:4px}
+
+/* ── DELIVERY INFO ── */
+.delivery-info{background:var(--surf2);border-radius:12px;padding:16px;margin:16px 0;display:flex;flex-wrap:wrap;gap:16px}
+.dinfo-item{flex:1;min-width:100px}
+.dinfo-item .label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);margin-bottom:2px}
+.dinfo-item .value{font-size:15px;font-weight:700}
+.dinfo-item .value.free{color:var(--gn)}
+
+/* ── PAYMENT ── */
+.pay-option{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.pay-option:hover{border-color:var(--ac)}
+.pay-option.selected{border-color:var(--ac);background:var(--ac-light)}
+.pay-option .pay-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.pay-option.selected .pay-radio{border-color:var(--ac)}
+.pay-option.selected .pay-radio::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--ac)}
+.pay-option .pay-info{flex:1}
+.pay-option .pay-label{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.pay-option .pay-desc{font-size:11px;color:var(--t3)}
+.pay-option .pay-icons{display:flex;gap:4px;margin-top:4px}
+.pay-icon{height:20px;padding:2px 6px;background:var(--surf2);border-radius:4px;font-size:10px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:3px}
+.stripe-badge{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t3);margin-top:12px;justify-content:center}
+.stripe-badge svg{width:14px;height:14px}
+
+/* ── TRACKING ── */
+.tracking-page{max-width:520px;margin:40px auto;padding:20px}
+.tracking-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden}
+.tracking-header{padding:24px;text-align:center;border-bottom:1px solid var(--border)}
+.tracking-header .check{width:56px;height:56px;border-radius:50%;background:var(--gn-light);color:var(--gn);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.tracking-header h2{font-size:20px;font-weight:800;margin-bottom:4px}
+.tracking-header .order-id{font-family:var(--mono);font-size:12px;color:var(--t3)}
+.tracking-steps{padding:24px}
+.track-step{display:flex;gap:14px;position:relative;padding-bottom:24px}
+.track-step:last-child{padding-bottom:0}
+.track-step::before{content:'';position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--surf3)}
+.track-step:last-child::before{display:none}
+.track-step.done::before{background:var(--gn)}
+.track-icon{width:28px;height:28px;border-radius:50%;background:var(--surf3);color:var(--t3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;z-index:1}
+.track-step.done .track-icon{background:var(--gn);color:#fff}
+.track-step.current .track-icon{background:var(--ac);color:#fff;animation:pulse 2s infinite}
+.track-body h4{font-size:13px;font-weight:700;margin-bottom:1px}
+.track-body p{font-size:11px;color:var(--t3)}
+.track-body .time{font-family:var(--mono);font-size:11px;color:var(--t2);margin-top:2px}
+.tracking-footer{padding:20px 24px;border-top:1px solid var(--border);text-align:center}
+.tracking-footer .eta{font-size:22px;font-weight:800;color:var(--ac)}
+.tracking-footer .eta-label{font-size:11px;color:var(--t3);margin-bottom:4px}
+.tracking-map{height:180px;background:var(--surf2);border-radius:12px;margin:0 24px 20px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:12px;border:1px dashed var(--border);flex-direction:column;gap:6px}
+.tracking-map svg{width:32px;height:32px;color:var(--muted)}
+
+/* ── ALLERGENS TOOLTIP ── */
+.allergen-tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:11px;padding:6px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:.15s;z-index:10}
+.allergen-dot:hover .allergen-tooltip{opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  .layout{padding:12px}
+  .menu-item-img{width:64px;height:64px}
+  .header-inner{padding:0}
+  .mode-btn{padding:6px 12px;font-size:11px}
+  .promo-banner{font-size:12px;padding:10px 16px}
+}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}.menu-item{padding:10px;box-sizing:border-box}.menu-item-img{width:56px;height:56px}.mdj-items{flex-direction:column}.header{width:100vw;margin-left:calc(-50vw + 50%)}.header-inner{padding:0 12px}}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .25s ease}
+</style>
+</head>
+<body>
+
+<!-- ═══ STATUS BAR ═══ -->
+<div class="status-bar" id="statusBar" data-i18n="status.delivery">
+  <span class="dot"></span>
+  <span data-i18n="status.delivery">Ouvert — Livraison jusqu'a 21h30 · Retrait jusqu'a 22h00</span>
+</div>
+
+<!-- ═══ PROMO BANNER ═══ -->
+<div class="promo-banner" id="promoBanner" style="display:none"></div>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="resto-logo" id="restoLogo"></div>
+      <div class="resto-info">
+        <h1 id="restoName">Le Comptoir du Lac</h1>
+        <p id="restoMeta">Montpreveyres · 4.7 (128 avis)</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="fr" onclick="switchLang('fr')">FR</button>
+        <button class="lang-btn" data-lang="de" onclick="switchLang('de')">DE</button>
+        <button class="lang-btn" data-lang="it" onclick="switchLang('it')">IT</button>
+        <button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+      </div>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="modeDelivery" onclick="setMode('delivery')" data-i18n="mode.delivery">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="19" cy="17" r="2"/><circle cx="9" cy="17" r="2"/><path d="M13 17H7V5h6l4 6h3l1 4h-4"/></svg>
+          <span data-i18n="mode.delivery">Livraison</span>
+        </button>
+        <button class="mode-btn" id="modePickup" onclick="setMode('pickup')" data-i18n="mode.pickup">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/></svg>
+          <span data-i18n="mode.pickup">Retrait</span>
+        </button>
+      </div>
+      <button class="cart-btn" onclick="toggleMobileCart()" aria-label="Panier" data-i18n="cart.label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ CATEGORY NAV ═══ -->
+<nav class="cat-nav">
+  <div class="cat-nav-inner" id="catNav"></div>
+</nav>
+
+<!-- ═══ MAIN LAYOUT ═══ -->
+<div class="layout" id="mainLayout">
+  <!-- MENU COLUMN -->
+  <main id="menuCol"></main>
+
+  <!-- CART PANEL -->
+  <aside class="cart-panel" id="cartPanel">
+    <div class="cart-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span data-i18n="cart.title">Votre commande</span>
+      </h3>
+      <button class="clear" onclick="clearCart()" data-i18n="cart.clear">Vider</button>
+    </div>
+    <div id="cartContent">
+      <div class="cart-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+        <span data-i18n="cart.empty">Ajoutez des plats pour commencer</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ═══ CHECKOUT MODAL ═══ -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle" data-i18n="checkout.info">Informations</h2>
+      <button class="modal-close" onclick="closeCheckout()">✕</button>
+    </div>
+    <div class="step-dots" id="stepDots"></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ═══ TRACKING PAGE (hidden) ═══ -->
+<div id="trackingPage" style="display:none">
+  <div class="tracking-page">
+    <div class="tracking-card">
+      <div class="tracking-header">
+        <div class="check">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2 data-i18n="tracking.confirmed">Commande confirmée !</h2>
+        <div class="order-id" id="trackOrderId">R3-CMD-000000</div>
+      </div>
+      <div class="tracking-map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span data-i18n="tracking.map">Carte de suivi en temps reel</span>
+      </div>
+      <div class="tracking-steps" id="trackSteps"></div>
+      <div class="tracking-footer">
+        <div class="eta-label" id="etaLabel">Estimation de livraison</div>
+        <div class="eta" id="etaValue">25-35 min</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:20px">
+      <a href="https://r3sto.ch/restaurants" style="font-size:11px;color:var(--t3);text-decoration:none;transition:.15s" onmouseover="this.style.color='var(--ac)'" onmouseout="this.style.color='var(--t3)'">Powered by R3STO</a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   R3STO DELIVERY — Complete Ordering System v2
+   Photos + Pictogrammes, Stripe, Allergenes, Menu du jour
+   ═══════════════════════════════════════════════════════ */
+
+// ── SVG PICTOGRAM LIBRARY ──
+// Le restaurateur choisit : sa photo OU un pictogramme de cette bibliothèque
+const PICTOS = {
+  fish: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 12c6-6 11-4 14.5 0-3.5 4-8.5 6-14.5 0z"/><circle cx="18" cy="12" r=".75" fill="currentColor"/><path d="M2 12s2-3 3-3-1 3-1 3 2 3 3 3-2-3-2-3z"/></svg>`,
+  salad: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21h10"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7.5 12c1-3 2.5-6 4.5-6s3.5 3 4.5 6"/><path d="M4.5 12C6 9 8 7 10 7"/><path d="M14 7c2 0 4 2 5.5 5"/></svg>`,
+  soup: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 0 0 9-8H3a9 9 0 0 0 9 8Z"/><path d="M3 13h18"/><path d="M8 7c0-1 .5-2 2-2s1 1 2.5 1 1.5-1 3-1 2 1 2 2"/></svg>`,
+  steak: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="13" rx="9" ry="7"/><path d="M12 6c-2 0-5 1-5 3"/><circle cx="8.5" cy="13" r="1.5" fill="currentColor" opacity=".2"/><path d="M15 11c1 1 1 3 0 4"/></svg>`,
+  burger: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"/><path d="M4 11h16c0 0 1 0 1 1H3c0-1 1-1 1-1z"/><path d="M5 11V9a7 7 0 0 1 14 0v2"/><path d="M4 17v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/><path d="M8 13h2m4 0h2"/></svg>`,
+  dessert: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17h8l1 4H7l1-4z"/><path d="M12 3c-3 0-6 3-6 8h12c0-5-3-8-6-8z"/><path d="M6 11c0 2 2.5 4 6 4s6-2 6-4"/><line x1="12" y1="3" x2="12" y2="1"/></svg>`,
+  wine: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 15v7"/><path d="M7.5 2h9l-.5 5c-.3 3-2.5 5.5-4 6.5v1h-1v-1c-1.5-1-3.7-3.5-4-6.5L7.5 2z"/><path d="M7 7h10"/></svg>`,
+  beer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M5 7h12v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7z"/><path d="M8 4h6"/></svg>`,
+  water: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+  lemon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3a8 8 0 0 0-6 10c1.5 3 5 5 8 5a8 8 0 0 0 6-10c-1.5-3-5-5-8-5z"/><path d="M8 9c1-1 3-1 5 0s3 3 2 5"/></svg>`,
+  cheese: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18l10-12 10 6v6H2z"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1.5"/><path d="M2 18h20"/></svg>`,
+  icecream: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22l-4-11h8l-4 11z"/><circle cx="12" cy="8" r="3"/><circle cx="8.5" cy="9" r="2.5"/><circle cx="15.5" cy="9" r="2.5"/></svg>`
+};
+
+// ── ALLERGEN ICONS ──
+const ALLERGENS = {
+  gluten: { icon: 'G', label: 'Gluten', color: '#c57b28' },
+  lait: { icon: 'L', label: 'Lactose', color: '#4a90d9' },
+  oeufs: { icon: 'O', label: 'Oeufs', color: '#e6930a' },
+  poisson: { icon: 'P', label: 'Poisson', color: '#2b7a9b' },
+  crustaces: { icon: 'Cr', label: 'Crustaces', color: '#d93025' },
+  fruits_coques: { icon: 'FC', label: 'Fruits a coques', color: '#8b6914' },
+  soja: { icon: 'S', label: 'Soja', color: '#5a8a3c' },
+  celeri: { icon: 'Ce', label: 'Celeri', color: '#4a8c3f' },
+  sulfites: { icon: 'Su', label: 'Sulfites', color: '#9060e0' }
+};
+
+// ── INTERNATIONALIZATION ──
+const DELIV_I18N = {
+  fr: {
+    'mode.delivery': 'Livraison',
+    'mode.pickup': 'Retrait',
+    'status.delivery': 'Ouvert — Livraison jusqu\'a 21h30 · Retrait jusqu\'a 22h00',
+    'status.pickup': 'Ouvert — Retrait sur place · Pret en 15-25 min',
+    'cart.label': 'Panier',
+    'cart.title': 'Votre commande',
+    'cart.clear': 'Vider',
+    'cart.empty': 'Ajoutez des plats pour commencer',
+    'cart.subtotal': 'Sous-total',
+    'cart.delivery': 'Livraison',
+    'cart.free': 'Gratuit',
+    'cart.freeFrom': 'Gratuit dès CHF',
+    'cart.prep': 'Préparation estimée',
+    'cart.total': 'Total',
+    'cart.minOrder': 'Commande minimum : CHF',
+    'cart.missing': '(il manque CHF',
+    'cart.order': 'Commander',
+    'checkout.info': 'Informations',
+    'checkout.delivery': 'Livraison',
+    'checkout.pickup': 'Retrait',
+    'checkout.payment': 'Paiement',
+    'checkout.confirmation': 'Confirmation',
+    'checkout.firstname': 'Prénom',
+    'checkout.lastname': 'Nom',
+    'checkout.phone': 'Téléphone',
+    'checkout.phoneNote': 'Pour vous contacter en cas de besoin',
+    'checkout.email': 'Email',
+    'checkout.emailNote': 'Optionnel — pour recevoir la confirmation',
+    'checkout.notes': 'Instructions spéciales',
+    'checkout.notesPlaceholder': 'Allergies, préférences...',
+    'checkout.continue': 'Continuer',
+    'checkout.back': 'Retour',
+    'checkout.address': 'Adresse de livraison',
+    'checkout.zip': 'NPA',
+    'checkout.city': 'Localité',
+    'checkout.floor': 'Étage / Bâtiment',
+    'checkout.estimatedTime': 'Délai estimé',
+    'checkout.deliveryFee': 'Frais de livraison',
+    'checkout.zone': 'Zone',
+    'checkout.detection': 'Détection...',
+    'checkout.pickupTitle': 'Retrait sur place',
+    'checkout.pickupTime': 'Heure de retrait souhaitée',
+    'checkout.asap': 'Dès que possible',
+    'checkout.prepTime': 'Temps de préparation',
+    'checkout.onlinePayment': 'Paiement en ligne',
+    'checkout.onlineDesc': 'Paiement sécurisé via Stripe',
+    'checkout.atDelivery': 'Paiement à la livraison',
+    'checkout.atPickup': 'Paiement au retrait',
+    'checkout.deliveryPayDesc': 'Cash ou Twint · Montant exact apprécié',
+    'checkout.pickupPayDesc': 'À la réception de votre commande',
+    'checkout.summary': 'Récapitulatif',
+    'checkout.confirm': 'Confirmer',
+    'checkout.acceptCgu': 'J'accepte les <a href="https://r3sto.ch/legal/cgu.html" target="_blank" style="color:var(--ac)">conditions générales</a> et la <a href="https://r3sto.ch/legal/confidentialite.html" target="_blank" style="color:var(--ac)">politique de confidentialité</a>',
+    'checkout.alertCgu': 'Veuillez accepter les conditions générales.',
+    'checkout.processing': 'Traitement...',
+    'checkout.error': 'Erreur de paiement. Veuillez réessayer.',
+    'checkout.nameError': 'Veuillez renseigner votre nom et prénom.',
+    'checkout.phoneError': 'Veuillez renseigner un numéro de téléphone valide.',
+    'checkout.addressError': 'Veuillez renseigner votre adresse complète.',
+    'tracking.confirmed': 'Commande confirmée !',
+    'tracking.map': 'Carte de suivi en temps réel',
+    'tracking.eta': 'Estimation de livraison',
+    'tracking.etaPickup': 'Estimation de préparation',
+    'tracking.received': 'Commande reçue',
+    'tracking.receivedDesc': 'Votre commande a été transmise au restaurant',
+    'tracking.cooking': 'En préparation',
+    'tracking.cookingDesc': 'Le chef prépare vos plats avec soin',
+    'tracking.cookingDescPickup': 'Le chef prépare vos plats',
+    'tracking.ready': 'Prête pour le livreur',
+    'tracking.readyDesc': 'Votre commande est emballée',
+    'tracking.readyPickup': 'Prêt à retirer',
+    'tracking.readyDescPickup': 'Présentez-vous au comptoir',
+    'tracking.delivering': 'En livraison',
+    'tracking.deliveringDesc': 'Le livreur est en route vers vous',
+    'tracking.delivered': 'Livrée',
+    'tracking.deliveredDesc': 'Bon appétit !',
+    'menu.today': 'Menu du jour',
+    'item.veg': 'Végé',
+    'item.spicy': 'Épicé',
+    'item.new': 'Nouveau',
+    'item.add': 'Ajouter',
+    'promo.freeDelivery': 'Livraison gratuite dès CHF 60',
+    'meta.reviews': 'avis'
+  },
+  de: {
+    'mode.delivery': 'Lieferung',
+    'mode.pickup': 'Abholung',
+    'status.delivery': 'Offen — Lieferung bis 21:30 · Abholung bis 22:00',
+    'status.pickup': 'Offen — Vor Ort abholen · Bereit in 15-25 min',
+    'cart.label': 'Warenkorb',
+    'cart.title': 'Ihre Bestellung',
+    'cart.clear': 'Leeren',
+    'cart.empty': 'Fügen Sie Gerichte hinzu',
+    'cart.subtotal': 'Zwischensumme',
+    'cart.delivery': 'Lieferung',
+    'cart.free': 'Kostenlos',
+    'cart.freeFrom': 'Kostenlos ab CHF',
+    'cart.prep': 'Geschätzte Vorbereitung',
+    'cart.total': 'Gesamt',
+    'cart.minOrder': 'Mindestbestellwert : CHF',
+    'cart.missing': '(es fehlen CHF',
+    'cart.order': 'Bestellen',
+    'checkout.info': 'Informationen',
+    'checkout.delivery': 'Lieferung',
+    'checkout.pickup': 'Abholung',
+    'checkout.payment': 'Zahlung',
+    'checkout.confirmation': 'Bestätigung',
+    'checkout.firstname': 'Vorname',
+    'checkout.lastname': 'Nachname',
+    'checkout.phone': 'Telefon',
+    'checkout.phoneNote': 'Um Sie im Notfall zu kontaktieren',
+    'checkout.email': 'E-Mail',
+    'checkout.emailNote': 'Optional — um die Bestätigung zu erhalten',
+    'checkout.notes': 'Besondere Anweisungen',
+    'checkout.notesPlaceholder': 'Allergien, Vorlieben...',
+    'checkout.continue': 'Fortsetzen',
+    'checkout.back': 'Zurück',
+    'checkout.address': 'Lieferadresse',
+    'checkout.zip': 'PLZ',
+    'checkout.city': 'Ort',
+    'checkout.floor': 'Étage / Bâtiment',
+    'checkout.estimatedTime': 'Geschätzte Zeit',
+    'checkout.deliveryFee': 'Lieferkosten',
+    'checkout.zone': 'Zone',
+    'checkout.detection': 'Erkennung...',
+    'checkout.pickupTitle': 'Vor Ort abholen',
+    'checkout.pickupTime': 'Gewünschte Abholzeit',
+    'checkout.asap': 'Sobald wie möglich',
+    'checkout.prepTime': 'Vorbereitungszeit',
+    'checkout.onlinePayment': 'Online-Zahlung',
+    'checkout.onlineDesc': 'Sichere Zahlung über Stripe',
+    'checkout.atDelivery': 'Zahlung bei Lieferung',
+    'checkout.atPickup': 'Zahlung bei Abholung',
+    'checkout.deliveryPayDesc': 'Bargeld oder Twint · Passender Betrag geschätzt',
+    'checkout.pickupPayDesc': 'Bei Erhalt Ihrer Bestellung',
+    'checkout.summary': 'Zusammenfassung',
+    'checkout.confirm': 'Bestätigen',
+    'checkout.acceptCgu': 'Ich akzeptiere die <a href="https://r3sto.ch/legal/cgu.html" target="_blank" style="color:var(--ac)">AGB</a> und die <a href="https://r3sto.ch/legal/confidentialite.html" target="_blank" style="color:var(--ac)">Datenschutzrichtlinie</a>',
+    'checkout.alertCgu': 'Bitte akzeptieren Sie die AGB.',
+    'checkout.processing': 'Verarbeitung...',
+    'checkout.error': 'Zahlungsfehler. Bitte versuchen Sie es erneut.',
+    'checkout.nameError': 'Bitte geben Sie Ihren Namen und Vornamen ein.',
+    'checkout.phoneError': 'Bitte geben Sie eine gültige Telefonnummer ein.',
+    'checkout.addressError': 'Bitte geben Sie Ihre vollständige Adresse ein.',
+    'tracking.confirmed': 'Bestellung bestätigt!',
+    'tracking.map': 'Echtzeit-Verfolgungskarte',
+    'tracking.eta': 'Geschätzte Lieferzeit',
+    'tracking.etaPickup': 'Geschätzte Vorbereitungszeit',
+    'tracking.received': 'Bestellung erhalten',
+    'tracking.receivedDesc': 'Ihre Bestellung wurde an das Restaurant übermittelt',
+    'tracking.cooking': 'In Vorbereitung',
+    'tracking.cookingDesc': 'Der Koch bereitet Ihre Gerichte sorgfältig vor',
+    'tracking.cookingDescPickup': 'Der Koch bereitet Ihre Gerichte vor',
+    'tracking.ready': 'Bereit für den Fahrer',
+    'tracking.readyDesc': 'Ihre Bestellung ist verpackt',
+    'tracking.readyPickup': 'Abholbereit',
+    'tracking.readyDescPickup': 'Wenden Sie sich an den Schalter',
+    'tracking.delivering': 'Wird geliefert',
+    'tracking.deliveringDesc': 'Der Fahrer ist unterwegs zu Ihnen',
+    'tracking.delivered': 'Geliefert',
+    'tracking.deliveredDesc': 'Guten Appetit!',
+    'menu.today': 'Menu des Tages',
+    'item.veg': 'Vege',
+    'item.spicy': 'Scharf',
+    'item.new': 'Neu',
+    'item.add': 'Hinzufügen',
+    'promo.freeDelivery': 'Gratis Lieferung ab CHF 60',
+    'meta.reviews': 'Bewertungen'
+  },
+  it: {
+    'mode.delivery': 'Consegna',
+    'mode.pickup': 'Ritiro',
+    'status.delivery': 'Aperto — Consegna fino alle 21:30 · Ritiro fino alle 22:00',
+    'status.pickup': 'Aperto — Ritiro in loco · Pronto in 15-25 min',
+    'cart.label': 'Carrello',
+    'cart.title': 'Il vostro ordine',
+    'cart.clear': 'Svuota',
+    'cart.empty': 'Aggiungi piatti per iniziare',
+    'cart.subtotal': 'Subtotale',
+    'cart.delivery': 'Consegna',
+    'cart.free': 'Gratis',
+    'cart.freeFrom': 'Gratis da CHF',
+    'cart.prep': 'Tempo di preparazione stimato',
+    'cart.total': 'Totale',
+    'cart.minOrder': 'Ordine minimo : CHF',
+    'cart.missing': '(mancano CHF',
+    'cart.order': 'Ordina',
+    'checkout.info': 'Informazioni',
+    'checkout.delivery': 'Consegna',
+    'checkout.pickup': 'Ritiro',
+    'checkout.payment': 'Pagamento',
+    'checkout.confirmation': 'Conferma',
+    'checkout.firstname': 'Nome',
+    'checkout.lastname': 'Cognome',
+    'checkout.phone': 'Telefono',
+    'checkout.phoneNote': 'Per contattarvi se necessario',
+    'checkout.email': 'Email',
+    'checkout.emailNote': 'Facoltativo — per ricevere la conferma',
+    'checkout.notes': 'Istruzioni speciali',
+    'checkout.notesPlaceholder': 'Allergie, preferenze...',
+    'checkout.continue': 'Continua',
+    'checkout.back': 'Indietro',
+    'checkout.address': 'Indirizzo di consegna',
+    'checkout.zip': 'CAP',
+    'checkout.city': 'Città',
+    'checkout.floor': 'Piano / Edificio',
+    'checkout.estimatedTime': 'Tempo stimato',
+    'checkout.deliveryFee': 'Spese di consegna',
+    'checkout.zone': 'Zona',
+    'checkout.detection': 'Rilevamento...',
+    'checkout.pickupTitle': 'Ritiro in loco',
+    'checkout.pickupTime': 'Orario di ritiro desiderato',
+    'checkout.asap': 'Il prima possibile',
+    'checkout.prepTime': 'Tempo di preparazione',
+    'checkout.onlinePayment': 'Pagamento online',
+    'checkout.onlineDesc': 'Pagamento sicuro tramite Stripe',
+    'checkout.atDelivery': 'Pagamento alla consegna',
+    'checkout.atPickup': 'Pagamento al ritiro',
+    'checkout.deliveryPayDesc': 'Contanti o Twint · Importo esatto apprezzato',
+    'checkout.pickupPayDesc': 'Al ricevimento del vostro ordine',
+    'checkout.summary': 'Riepilogo',
+    'checkout.confirm': 'Conferma',
+    'checkout.acceptCgu': 'Accetto le <a href="https://r3sto.ch/legal/cgu.html" target="_blank" style="color:var(--ac)">condizioni generali</a> e la <a href="https://r3sto.ch/legal/confidentialite.html" target="_blank" style="color:var(--ac)">politica sulla privacy</a>',
+    'checkout.alertCgu': 'Si prega di accettare le condizioni generali.',
+    'checkout.processing': 'Elaborazione...',
+    'checkout.error': 'Errore di pagamento. Si prega di riprovare.',
+    'checkout.nameError': 'Si prega di inserire nome e cognome.',
+    'checkout.phoneError': 'Si prega di inserire un numero di telefono valido.',
+    'checkout.addressError': 'Si prega di inserire l\'indirizzo completo.',
+    'tracking.confirmed': 'Ordine confermato!',
+    'tracking.map': 'Mappa di tracciamento in tempo reale',
+    'tracking.eta': 'Tempo di consegna stimato',
+    'tracking.etaPickup': 'Tempo di preparazione stimato',
+    'tracking.received': 'Ordine ricevuto',
+    'tracking.receivedDesc': 'Il vostro ordine è stato trasmesso al ristorante',
+    'tracking.cooking': 'In preparazione',
+    'tracking.cookingDesc': 'Lo chef sta preparando i vostri piatti con cura',
+    'tracking.cookingDescPickup': 'Lo chef sta preparando i vostri piatti',
+    'tracking.ready': 'Pronto per il corriere',
+    'tracking.readyDesc': 'Il vostro ordine è imballato',
+    'tracking.readyPickup': 'Pronto per il ritiro',
+    'tracking.readyDescPickup': 'Presentarsi al bancone',
+    'tracking.delivering': 'In consegna',
+    'tracking.deliveringDesc': 'Il corriere è in viaggio verso di voi',
+    'tracking.delivered': 'Consegnato',
+    'tracking.deliveredDesc': 'Buon appetito!',
+    'menu.today': 'Menu del giorno',
+    'item.veg': 'Vege',
+    'item.spicy': 'Piccante',
+    'item.new': 'Nuovo',
+    'item.add': 'Aggiungi',
+    'promo.freeDelivery': 'Consegna gratuita da CHF 60',
+    'meta.reviews': 'recensioni'
+  },
+  en: {
+    'mode.delivery': 'Delivery',
+    'mode.pickup': 'Pickup',
+    'status.delivery': 'Open — Delivery until 21:30 · Pickup until 22:00',
+    'status.pickup': 'Open — Pickup available · Ready in 15-25 min',
+    'cart.label': 'Cart',
+    'cart.title': 'Your order',
+    'cart.clear': 'Clear',
+    'cart.empty': 'Add dishes to get started',
+    'cart.subtotal': 'Subtotal',
+    'cart.delivery': 'Delivery',
+    'cart.free': 'Free',
+    'cart.freeFrom': 'Free from CHF',
+    'cart.prep': 'Estimated preparation',
+    'cart.total': 'Total',
+    'cart.minOrder': 'Minimum order : CHF',
+    'cart.missing': '(missing CHF',
+    'cart.order': 'Order',
+    'checkout.info': 'Information',
+    'checkout.delivery': 'Delivery',
+    'checkout.pickup': 'Pickup',
+    'checkout.payment': 'Payment',
+    'checkout.confirmation': 'Confirmation',
+    'checkout.firstname': 'First name',
+    'checkout.lastname': 'Last name',
+    'checkout.phone': 'Phone',
+    'checkout.phoneNote': 'To contact you if needed',
+    'checkout.email': 'Email',
+    'checkout.emailNote': 'Optional — to receive confirmation',
+    'checkout.notes': 'Special instructions',
+    'checkout.notesPlaceholder': 'Allergies, preferences...',
+    'checkout.continue': 'Continue',
+    'checkout.back': 'Back',
+    'checkout.address': 'Delivery address',
+    'checkout.zip': 'ZIP',
+    'checkout.city': 'City',
+    'checkout.floor': 'Floor / Building',
+    'checkout.estimatedTime': 'Estimated time',
+    'checkout.deliveryFee': 'Delivery fee',
+    'checkout.zone': 'Zone',
+    'checkout.detection': 'Detection...',
+    'checkout.pickupTitle': 'Pickup available',
+    'checkout.pickupTime': 'Desired pickup time',
+    'checkout.asap': 'As soon as possible',
+    'checkout.prepTime': 'Preparation time',
+    'checkout.onlinePayment': 'Online payment',
+    'checkout.onlineDesc': 'Secure payment via Stripe',
+    'checkout.atDelivery': 'Pay on delivery',
+    'checkout.atPickup': 'Pay on pickup',
+    'checkout.deliveryPayDesc': 'Cash or Twint · Exact amount appreciated',
+    'checkout.pickupPayDesc': 'Upon receipt of your order',
+    'checkout.summary': 'Summary',
+    'checkout.confirm': 'Confirm',
+    'checkout.acceptCgu': 'I accept the <a href="https://r3sto.ch/legal/cgu.html" target="_blank" style="color:var(--ac)">terms & conditions</a> and the <a href="https://r3sto.ch/legal/confidentialite.html" target="_blank" style="color:var(--ac)">privacy policy</a>',
+    'checkout.alertCgu': 'Please accept the terms and conditions.',
+    'checkout.processing': 'Processing...',
+    'checkout.error': 'Payment error. Please try again.',
+    'checkout.nameError': 'Please enter your name.',
+    'checkout.phoneError': 'Please enter a valid phone number.',
+    'checkout.addressError': 'Please enter your complete address.',
+    'tracking.confirmed': 'Order confirmed!',
+    'tracking.map': 'Real-time tracking map',
+    'tracking.eta': 'Estimated delivery time',
+    'tracking.etaPickup': 'Estimated preparation time',
+    'tracking.received': 'Order received',
+    'tracking.receivedDesc': 'Your order has been sent to the restaurant',
+    'tracking.cooking': 'Preparing',
+    'tracking.cookingDesc': 'The chef is carefully preparing your dishes',
+    'tracking.cookingDescPickup': 'The chef is preparing your dishes',
+    'tracking.ready': 'Ready for delivery',
+    'tracking.readyDesc': 'Your order is packaged',
+    'tracking.readyPickup': 'Ready for pickup',
+    'tracking.readyDescPickup': 'Present yourself at the counter',
+    'tracking.delivering': 'On the way',
+    'tracking.deliveringDesc': 'The delivery driver is on the way to you',
+    'tracking.delivered': 'Delivered',
+    'tracking.deliveredDesc': 'Bon appétit!',
+    'menu.today': 'Menu of the day',
+    'item.veg': 'Vege',
+    'item.spicy': 'Spicy',
+    'item.new': 'New',
+    'item.add': 'Add',
+    'promo.freeDelivery': 'Free delivery from CHF 60',
+    'meta.reviews': 'reviews'
+  }
+};
+
+// ── LANGUAGE & i18n FUNCTIONS ──
+let currentLang = localStorage.getItem('r3sto_lang') || 'fr';
+
+function t(key) {
+  return DELIV_I18N[currentLang]?.[key] || DELIV_I18N.fr[key] || key;
+}
+function fmtCHF(n){return n.toFixed(2).replace('.',',');}
+
+function switchLang(lang) {
+  if(!DELIV_I18N[lang]) return;
+  currentLang = lang;
+  localStorage.setItem('r3sto_lang', lang);
+  document.getElementById('htmlRoot').lang = lang;
+
+  // Update language button states
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+
+  // Apply translations
+  applyTranslations();
+  renderMenu();
+  renderCart();
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const text = t(key);
+    el.textContent = text;
+  });
+}
+
+function initLanguage() {
+  document.getElementById('htmlRoot').lang = currentLang;
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+  });
+  applyTranslations();
+}
+
+// ── STRIPE CONFIG ──
+const STRIPE_KEY = 'pk_test_demo_r3sto_delivery';
+let stripeInstance = null;
+
+// ── RESTAURANT DATA ──
+const RESTO = {
+  name: 'Le Comptoir du Lac',
+  slug: 'lecomptoirdulac',
+  city: 'Montpreveyres',
+  phone: '+41 21 903 33 33',
+  logo: 'https://r3sto.ch/logo-r3sto.jpg',
+  rating: 4.7,
+  reviews: 128,
+  deliveryFee: 5.90,
+  freeDeliveryMin: 60,
+  minOrder: 25,
+  deliveryRadius: 8,
+  estimatedDelivery: '30-45 min',
+  estimatedPickup: '15-25 min',
+  openHours: { open:'11:30', close:'22:00', deliveryClose:'21:30' },
+  zones: [
+    { name:'Montpreveyres', fee:0, time:'15-25 min' },
+    { name:'Savigny', fee:3.90, time:'20-30 min' },
+    { name:'Lausanne', fee:5.90, time:'30-45 min' },
+    { name:'Pully', fee:5.90, time:'25-40 min' },
+    { name:'Lutry', fee:4.90, time:'25-35 min' }
+  ],
+  promos: [
+    { textKey: 'promo.freeDelivery', tag: 'PROMO' }
+  ],
+  menuDuJour: {
+    active: true,
+    title: 'Menu du jour — Vendredi',
+    items: [
+      { id:901, name:'Filets de perche du vendredi', desc:'Filets de perche meunière, frites maison, tartare maison', price:28.50, oldPrice:38.50, picto:'fish', prepMins:20 },
+      { id:902, name:'Menu veggie du jour', desc:'Risotto aux champignons, salade verte, dessert du jour', price:22.00, oldPrice:null, picto:'salad', prepMins:15, tags:['veg'] }
+    ]
+  }
+};
+
+// ── MENU DATA ──
+// imgType: 'photo' (URL) | 'picto' (key from PICTOS) | null (default picto)
+const MENU = [
+  {
+    id:'entrees', name:'Entrées', picto:'salad',
+    desc:'Fraîcheur du lac et du potager',
+    items: [
+      { id:1, name:'Tartare de féra du Léman', desc:'Féra fraîche, agrumes, avocat, sésame noir, huile de noisette', price:18.50, tags:[], imgType:'picto', img:'fish', allergens:['poisson'], prepMins:10 },
+      { id:2, name:'Salade du Comptoir', desc:'Mesclun, chevre chaud, noix, miel du Jorat, vinaigrette balsamique', price:14.50, tags:['veg'], imgType:'picto', img:'salad', allergens:['lait','fruits_coques'], prepMins:8 },
+      { id:3, name:'Velouté de potimarron', desc:'Potimarron rôti, crème fraîche, graines de courge, huile de truffe', price:12.00, tags:['veg'], imgType:'picto', img:'soup', allergens:['lait','celeri'], prepMins:5 },
+      { id:4, name:'Carpaccio de perche', desc:'Fines tranches de perche, câpres, citron, roquette, parmesan', price:21.00, tags:['new'], imgType:'picto', img:'fish', allergens:['poisson','lait'], prepMins:12 },
+    ]
+  },
+  {
+    id:'poissons', name:'Poissons du lac', picto:'fish',
+    desc:'Pêche locale du lac Léman, arrivage quotidien',
+    items: [
+      { id:10, name:'Filets de perche meunière', desc:'Perches du Léman, beurre citronnée, pommes nature, salade', price:38.50, tags:[], imgType:'photo', img:'https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=200&h=200&fit=crop', allergens:['poisson','gluten','lait'], prepMins:18 },
+      { id:11, name:'Fera entiere grillee', desc:'Féra du lac, légumes de saison, sauce vierge aux herbes', price:34.00, tags:[], imgType:'picto', img:'fish', allergens:['poisson'], prepMins:22 },
+      { id:12, name:'Brochet en croûte', desc:'Brochet du Léman en pâte feuilletée, beurre blanc, riz sauvage', price:36.00, tags:[], imgType:'picto', img:'fish', allergens:['poisson','gluten','lait','oeufs'], prepMins:25 },
+      { id:13, name:'Omble chevalier poele', desc:'Omble chevalier, risotto aux asperges, jus de viande leger', price:39.50, tags:['new'], imgType:'picto', img:'fish', allergens:['poisson','lait'], prepMins:20 },
+    ]
+  },
+  {
+    id:'viandes', name:'Viandes & Terroir', picto:'steak',
+    desc:'Viandes suisses selectionnees, cuisson au gril',
+    items: [
+      { id:20, name:'Entrecote du Simmental', desc:'300g, beurre aux herbes, frites maison, legumes grilles', price:42.00, tags:[], imgType:'photo', img:'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=200&h=200&fit=crop', allergens:['lait'], prepMins:20 },
+      { id:21, name:'Émincé de veau zurichois', desc:'Veau suisse, sauce à la crème, champignons, rösti croustillant', price:34.50, tags:[], imgType:'picto', img:'steak', allergens:['lait','gluten'], prepMins:18 },
+      { id:22, name:'Burger du Comptoir', desc:'Boeuf Swiss Angus, cheddar affiné, pickles maison, frites', price:26.50, tags:[], imgType:'photo', img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop', allergens:['gluten','lait','oeufs'], prepMins:15 },
+    ]
+  },
+  {
+    id:'desserts', name:'Desserts', picto:'dessert',
+    desc:'Pâtisseries maison et douceurs du Jorat',
+    items: [
+      { id:30, name:'Crème brûlée à la vanille', desc:'Vanille de Madagascar, caramel craquant, tuile dentelle', price:12.50, tags:['veg'], imgType:'picto', img:'dessert', allergens:['lait','oeufs','gluten'], prepMins:5 },
+      { id:31, name:'Tarte aux myrtilles', desc:'Myrtilles du Jorat, crème pâtissière, pâte sablée maison', price:11.00, tags:['veg'], imgType:'picto', img:'dessert', allergens:['gluten','lait','oeufs'], prepMins:5 },
+      { id:32, name:'Fondant au chocolat', desc:'Chocolat Cailler 70%, cœur coulant, glace vanille', price:14.00, tags:['veg'], imgType:'photo', img:'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=200&h=200&fit=crop', allergens:['gluten','lait','oeufs'], prepMins:12 },
+      { id:33, name:'Assiette de sorbets', desc:'3 boules au choix : citron, framboise, mangue, passion', price:10.00, tags:['veg'], imgType:'picto', img:'icecream', allergens:[], prepMins:3 },
+    ]
+  },
+  {
+    id:'boissons', name:'Boissons', picto:'wine',
+    desc:'Vins vaudois, bières artisanales, softs',
+    items: [
+      { id:40, name:'Chasselas AOC Lavaux', desc:'Domaine du Daley, 75cl — Blanc vaudois, sec et minéral', price:32.00, tags:[], imgType:'picto', img:'wine', allergens:['sulfites'], prepMins:1 },
+      { id:41, name:'Gamay de Morges', desc:'Cave de la Cote, 75cl — Rouge léger et fruité', price:29.00, tags:[], imgType:'picto', img:'wine', allergens:['sulfites'], prepMins:1 },
+      { id:42, name:'Bière Dr. Gab\'s IPA', desc:'Brasserie artisanale vaudoise, 33cl', price:6.50, tags:[], imgType:'picto', img:'beer', allergens:['gluten'], prepMins:1 },
+      { id:43, name:'Eau minérale Henniez', desc:'1L — plate ou gazeuse', price:5.50, tags:[], imgType:'picto', img:'water', allergens:[], prepMins:1 },
+      { id:44, name:'Limonade maison', desc:'Citron pressé, menthe fraîche, miel du Jorat', price:6.00, tags:['veg'], imgType:'picto', img:'lemon', allergens:[], prepMins:3 },
+    ]
+  }
+];
+
+// ── STATE ──
+let cart = [];
+let mode = 'delivery';
+let checkoutStep = 0;
+let customerData = {};
+const CHECKOUT_STEPS_DEL = ['Informations', 'Livraison', 'Paiement', 'Confirmation'];
+const CHECKOUT_STEPS_PIC = ['Informations', 'Retrait', 'Paiement', 'Confirmation'];
+
+// ── INIT ──
+function init() {
+  // Initialize language
+  initLanguage();
+
+  // Détection mode démo : ?demo=1 obligatoire pour voir la page pré-remplie
+  const _params = new URLSearchParams(window.location.search);
+  const _isDemo = _params.get('demo') === '1';
+  const _slug   = _params.get('r') || _params.get('resto');
+
+  if (!_isDemo && !_slug) {
+    // Production : aucun restaurant sélectionné → écran vide
+    document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;text-align:center;font-family:var(--ff, system-ui);background:var(--bg, #f7f5f0);color:var(--text, #1a2033)">' +
+      '<div style="max-width:420px">' +
+        '<div style="font-size:64px;margin-bottom:16px;opacity:.5">🛵</div>' +
+        '<h1 style="font-size:24px;font-weight:800;margin:0 0 10px">Livraison R3STO</h1>' +
+        '<p style="font-size:15px;color:var(--t3, #718096);line-height:1.6;margin:0 0 24px">Choisissez votre restaurant préféré sur notre marketplace pour commander en livraison ou à emporter.</p>' +
+        '<a href="https://r3sto.ch/restaurants/" style="display:inline-block;padding:12px 22px;background:var(--accent, #dc5050);color:#fff;font-weight:700;text-decoration:none;border-radius:10px">Découvrir les restaurants →</a>' +
+      '</div>' +
+    '</div>';
+    return;
+  }
+
+  // Restaurant header
+  const logo = document.getElementById('restoLogo');
+  if(RESTO.logo) {
+    logo.innerHTML = `<img src="${RESTO.logo}" alt="${RESTO.name}">`;
+  } else {
+    const initials = RESTO.name.split(' ').filter(w=>w.length>2).map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    logo.innerHTML = `<div class="initials">${initials}</div>`;
+  }
+  document.getElementById('restoName').textContent = RESTO.name;
+  document.getElementById('restoMeta').textContent = `${RESTO.city} · ⭐ ${RESTO.rating} (${RESTO.reviews} ${t('meta.reviews')})`;
+
+  // Promo
+  if(RESTO.promos && RESTO.promos.length) {
+    const pb = document.getElementById('promoBanner');
+    pb.style.display = 'flex';
+    pb.innerHTML = RESTO.promos.map(p => `<span class="tag">${p.tag}</span> ${t(p.textKey)}`).join(' · ');
+  }
+
+  renderMenu();
+  renderCart();
+  setupScrollSpy();
+}
+
+// ── RENDER ITEM IMAGE ──
+function renderItemImg(item) {
+  if(item.imgType === 'photo' && item.img) {
+    return `<img src="${item.img}" alt="${item.name}" loading="lazy">`;
+  }
+  const pictoKey = (item.imgType === 'picto' && item.img) ? item.img : 'salad';
+  const svg = PICTOS[pictoKey] || PICTOS.salad;
+  return `<div class="picto">${svg}</div>`;
+}
+
+// ── RENDER ALLERGENS ──
+function renderAllergens(list) {
+  if(!list || !list.length) return '';
+  return `<div class="allergen-dots">${list.map(a => {
+    const al = ALLERGENS[a];
+    if(!al) return '';
+    return `<span class="allergen-dot" style="background:${al.color}15;color:${al.color};border-color:${al.color}30;position:relative" title="${al.label}">
+      ${al.icon}
+      <span class="allergen-tooltip">${al.label}</span>
+    </span>`;
+  }).join('')}</div>`;
+}
+
+// ── RENDER PREP TIME ──
+function renderPrep(mins) {
+  if(!mins) return '';
+  return `<span class="item-prep">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    ${mins} min
+  </span>`;
+}
+
+// ── RENDER MENU ──
+function renderMenu() {
+  const catNav = document.getElementById('catNav');
+  const menuCol = document.getElementById('menuCol');
+
+  catNav.innerHTML = MENU.map((c,i) =>
+    `<button class="cat-pill${i===0?' active':''}" onclick="scrollToCat('${c.id}',this)">${c.name}</button>`
+  ).join('');
+
+  let html = '';
+
+  // Menu du jour
+  if(RESTO.menuDuJour && RESTO.menuDuJour.active) {
+    const mdj = RESTO.menuDuJour;
+    html += `
+      <div class="menu-du-jour fade-in">
+        <div class="mdj-head">
+          <span class="badge">Menu du jour</span>
+          <h3>${mdj.title}</h3>
+        </div>
+        <div class="mdj-items">
+          ${mdj.items.map(item => `
+            <div class="mdj-item" onclick="addToCart(${item.id},true)">
+              <h4>${item.name}</h4>
+              <p>${item.desc}</p>
+              <div class="mdj-foot">
+                <span>
+                  <span class="mdj-price">CHF ${fmtCHF(item.price)}</span>
+                  ${item.oldPrice ? `<span class="mdj-old">CHF ${fmtCHF(item.oldPrice)}</span>` : ''}
+                </span>
+                ${renderPrep(item.prepMins)}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // Categories
+  html += MENU.map(cat => `
+    <section class="menu-section fade-in" id="cat-${cat.id}">
+      <h2>
+        <span class="cat-icon">${PICTOS[cat.picto] || ''}</span>
+        ${cat.name}
+      </h2>
+      <p class="section-desc">${cat.desc}</p>
+      <div class="menu-grid">
+        ${cat.items.map(item => `
+          <div class="menu-item${item.available===false?' unavailable':''}" onclick="addToCart(${item.id})">
+            <div class="menu-item-img">${renderItemImg(item)}</div>
+            <div class="menu-item-body">
+              <h3>${item.name}</h3>
+              <p>${item.desc}</p>
+              <div class="menu-item-foot">
+                <div>
+                  <span class="item-price">CHF ${fmtCHF(item.price)}</span>
+                  <div class="item-meta">
+                    ${item.tags.map(tg=>`<span class="item-tag ${tg}">${t('item.'+tg)}</span>`).join('')}
+                    ${renderPrep(item.prepMins)}
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                  ${renderAllergens(item.allergens)}
+                  <button class="add-btn" title="${t('item.add')}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `).join('');
+
+  menuCol.innerHTML = html;
+}
+
+function scrollToCat(id, el) {
+  document.getElementById('cat-'+id)?.scrollIntoView({ behavior:'smooth', block:'start' });
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+// ── CART ──
+function findItem(id, isMenuDuJour) {
+  if(isMenuDuJour && RESTO.menuDuJour) {
+    const found = RESTO.menuDuJour.items.find(i => i.id === id);
+    if(found) return found;
+  }
+  for(const cat of MENU) for(const item of cat.items) if(item.id===id) return item;
+  return null;
+}
+
+function addToCart(id, isMenuDuJour) {
+  const item = findItem(id, isMenuDuJour);
+  if(!item) return;
+  const existing = cart.find(c => c.id === id);
+  if(existing) { existing.qty++; }
+  else { cart.push({ id, name:item.name, price:item.price, qty:1 }); }
+  renderCart();
+  const badge = document.getElementById('cartBadge');
+  badge.style.transform = 'scale(1.4)';
+  setTimeout(() => badge.style.transform = 'scale(1)', 150);
+}
+
+function updateQty(id, delta) {
+  const item = cart.find(c => c.id === id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0) cart = cart.filter(c => c.id !== id);
+  renderCart();
+}
+
+function clearCart() { cart = []; renderCart(); }
+function getSubtotal() { return cart.reduce((s,i) => s + i.price * i.qty, 0); }
+function getItemCount() { return cart.reduce((s,i) => s + i.qty, 0); }
+function getDeliveryFee() {
+  if(mode === 'pickup') return 0;
+  return getSubtotal() >= RESTO.freeDeliveryMin ? 0 : RESTO.deliveryFee;
+}
+function getTotal() { return getSubtotal() + getDeliveryFee(); }
+
+function renderCart() {
+  const count = getItemCount();
+  document.getElementById('cartBadge').textContent = count;
+  document.getElementById('cartBadge').setAttribute('data-count', count);
+  const cont = document.getElementById('cartContent');
+  if(count === 0) {
+    cont.innerHTML = `<div class="cart-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;color:var(--muted);margin:0 auto 10px;display:block"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+      <span data-i18n="cart.empty">${t('cart.empty')}</span></div>`;
+    return;
+  }
+  const sub = getSubtotal();
+  const fee = getDeliveryFee();
+  const total = getTotal();
+  const belowMin = mode === 'delivery' && sub < RESTO.minOrder;
+
+  // Estimated prep = max prep time across items
+  const maxPrep = Math.max(...cart.map(ci => {
+    const it = findItem(ci.id, true);
+    return it?.prepMins || 10;
+  }));
+
+  cont.innerHTML = `
+    <div class="cart-items">
+      ${cart.map(item => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="name">${item.name}</div>
+          </div>
+          <div class="cart-qty">
+            <button onclick="event.stopPropagation();updateQty(${item.id},-1)">-</button>
+            <span>${item.qty}</span>
+            <button onclick="event.stopPropagation();updateQty(${item.id},+1)">+</button>
+          </div>
+          <div class="cart-item-price">CHF ${fmtCHF(item.price*item.qty)}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="cart-footer">
+      <div class="cart-line"><span data-i18n="cart.subtotal">${t('cart.subtotal')}</span><span>CHF ${fmtCHF(sub)}</span></div>
+      ${mode==='delivery' ? `<div class="cart-line"><span data-i18n="cart.delivery">${t('cart.delivery')}</span><span${fee===0?' style="color:var(--gn);font-weight:700"':''}>
+        <span data-i18n="${fee===0?'cart.free':''}">` + (fee===0?t('cart.free'):'CHF '+fmtCHF(fee)) + `</span></span></div>` : ''}
+      ${mode==='delivery' && fee > 0 ? `<div class="cart-line" style="color:var(--gn);font-size:11px"><span><span data-i18n="cart.freeFrom">${t('cart.freeFrom')}</span> CHF ${fmtCHF(RESTO.freeDeliveryMin)}</span><span>-CHF ${fmtCHF(fee)}</span></div>` : ''}
+      <div class="cart-line" style="font-size:11px;color:var(--t3)">
+        <span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span data-i18n="cart.prep">${t('cart.prep')}</span>
+        </span>
+        <span>~${maxPrep} min</span>
+      </div>
+      <div class="cart-line total"><span data-i18n="cart.total">${t('cart.total')}</span><span>CHF ${fmtCHF(total)}</span></div>
+      ${belowMin ? `<div style="color:var(--am);font-size:11px;margin-top:6px;text-align:center"><span data-i18n="cart.minOrder">${t('cart.minOrder')}</span> ${RESTO.minOrder} <span data-i18n="cart.missing">${t('cart.missing')}</span> ${fmtCHF(RESTO.minOrder-sub)})</div>` : ''}
+      <button class="checkout-btn" ${belowMin?'disabled':''} onclick="openCheckout()">
+        <span data-i18n="cart.order">${t('cart.order')}</span> · CHF ${fmtCHF(total)}
+      </button>
+    </div>
+  `;
+}
+
+// ── MODE TOGGLE ──
+function setMode(m) {
+  mode = m;
+  document.getElementById('modeDelivery').classList.toggle('active', m==='delivery');
+  document.getElementById('modePickup').classList.toggle('active', m==='pickup');
+  const bar = document.getElementById('statusBar');
+  const statusKey = mode === 'delivery' ? 'status.delivery' : 'status.pickup';
+  bar.innerHTML = '<span class="dot"></span><span data-i18n="' + statusKey + '">' + t(statusKey) + '</span>';
+  renderCart();
+}
+
+function toggleMobileCart() {
+  const panel = document.getElementById('cartPanel');
+  if(panel.classList.contains('mobile-open')) {
+    panel.classList.remove('mobile-open');
+  } else {
+    panel.classList.add('mobile-open');
+    if(!panel.querySelector('.mobile-close')) {
+      const btn = document.createElement('button');
+      btn.className = 'mobile-close';
+      btn.textContent = currentLang === 'fr' ? 'Fermer' : currentLang === 'de' ? 'Schließen' : currentLang === 'it' ? 'Chiudi' : 'Close';
+      btn.style.cssText = 'display:block;width:100%;padding:12px;background:var(--surf2);border:none;border-radius:10px;font-family:var(--ff);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;margin-top:12px';
+      btn.onclick = () => panel.classList.remove('mobile-open');
+      panel.appendChild(btn);
+    }
+  }
+}
+
+// ── CHECKOUT FLOW ──
+function openCheckout() {
+  if(getItemCount() === 0) return;
+  checkoutStep = 0;
+  document.getElementById('checkoutModal').classList.add('open');
+  renderCheckoutStep();
+}
+
+function closeCheckout() {
+  document.getElementById('checkoutModal').classList.remove('open');
+}
+
+function getSteps() {
+  return mode === 'delivery' ? CHECKOUT_STEPS_DEL : CHECKOUT_STEPS_PIC;
+}
+
+function renderCheckoutStep() {
+  const steps = [
+    currentLang === 'de' ? t('checkout.info') : currentLang === 'it' ? t('checkout.info') : currentLang === 'en' ? t('checkout.info') : t('checkout.info'),
+    mode === 'delivery' ? t('checkout.delivery') : t('checkout.pickup'),
+    t('checkout.payment'),
+    t('checkout.confirmation')
+  ];
+  const dots = document.getElementById('stepDots');
+  dots.innerHTML = steps.map((_,i) => `<div class="step-dot${i===checkoutStep?' active':''}${i<checkoutStep?' done':''}"></div>`).join('');
+  document.getElementById('modalTitle').textContent = steps[checkoutStep];
+  const body = document.getElementById('modalBody');
+
+  if(checkoutStep === 0) {
+    body.innerHTML = `
+      <div class="form-row">
+        <div class="form-group"><label><span data-i18n="checkout.firstname">${t('checkout.firstname')}</span> <span class="req">*</span></label><input class="form-input" id="ck_fname" placeholder="Jean" value="${customerData.fname||''}" required></div>
+        <div class="form-group"><label><span data-i18n="checkout.lastname">${t('checkout.lastname')}</span> <span class="req">*</span></label><input class="form-input" id="ck_lname" placeholder="Dupont" value="${customerData.lname||''}" required></div>
+      </div>
+      <div class="form-group">
+        <label><span data-i18n="checkout.phone">${t('checkout.phone')}</span> <span class="req">*</span></label>
+        <div id="ck-phone-wrap"></div><input type="hidden" id="ck_phone" value="${customerData.phone||''}">
+        <div class="form-note" data-i18n="checkout.phoneNote">${t('checkout.phoneNote')}</div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="checkout.email">${t('checkout.email')}</label>
+        <input class="form-input" id="ck_email" type="email" placeholder="jean@exemple.ch" value="${customerData.email||''}">
+        <div class="form-note" data-i18n="checkout.emailNote">${t('checkout.emailNote')}</div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="checkout.notes">${t('checkout.notes')}</label>
+        <textarea class="form-input" id="ck_notes" rows="2" placeholder="Allergies, preferences..." style="resize:vertical">${customerData.notes||''}</textarea>
+      </div>
+      <button class="checkout-btn" onclick="nextStep()" data-i18n="checkout.continue">${t('checkout.continue')}</button>
+    `;
+    // Init R3Phone for phone input with flag
+    if(document.getElementById('ck-phone-wrap') && typeof R3Phone !== 'undefined') {
+      window._delPhone = R3Phone.init('#ck-phone-wrap', {
+        country: 'CH', selector: true, light: true,
+        onInput: function(d){ document.getElementById('ck_phone').value = d; },
+        onE164: function(e164) {
+          if(e164) document.getElementById('ck_phone').value = e164;
+        }
+      });
+    }
+  } else if(checkoutStep === 1) {
+    if(mode === 'delivery') {
+      body.innerHTML = `
+        <div class="form-group"><label><span data-i18n="checkout.address">${t('checkout.address')}</span> <span class="req">*</span></label><input class="form-input" id="ck_address" placeholder="Rue de la Gare 12" value="${customerData.address||''}"></div>
+        <div class="form-row">
+          <div class="form-group"><label><span data-i18n="checkout.zip">${t('checkout.zip')}</span> <span class="req">*</span></label><input class="form-input" id="ck_zip" placeholder="1081" value="${customerData.zip||''}"></div>
+          <div class="form-group"><label><span data-i18n="checkout.city">${t('checkout.city')}</span> <span class="req">*</span></label><input class="form-input" id="ck_city" placeholder="Montpreveyres" value="${customerData.city||''}"></div>
+        </div>
+        <div class="form-group"><label data-i18n="checkout.floor">${t('checkout.floor')}</label><input class="form-input" id="ck_floor" placeholder="3eme etage, bat. B" value="${customerData.floor||''}"></div>
+        <div class="delivery-info">
+          <div class="dinfo-item"><div class="label" data-i18n="checkout.estimatedTime">${t('checkout.estimatedTime')}</div><div class="value">${RESTO.estimatedDelivery}</div></div>
+          <div class="dinfo-item"><div class="label" data-i18n="checkout.deliveryFee">${t('checkout.deliveryFee')}</div><div class="value${getDeliveryFee()===0?' free':''}" data-i18n="${getDeliveryFee()===0?'cart.free':''}">${getDeliveryFee()===0?t('cart.free'):'CHF '+fmtCHF(getDeliveryFee())}</div></div>
+          <div class="dinfo-item"><div class="label" data-i18n="checkout.zone">${t('checkout.zone')}</div><div class="value" id="detectedZone" data-i18n="checkout.detection">${t('checkout.detection')}</div></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="checkout-btn" style="background:var(--surf2);color:var(--text);flex:.4" onclick="prevStep()" data-i18n="checkout.back">${t('checkout.back')}</button>
+          <button class="checkout-btn" style="flex:.6" onclick="nextStep()" data-i18n="checkout.continue">${t('checkout.continue')}</button>
+        </div>
+      `;
+      // Simulate zone detection
+      setTimeout(() => {
+        const z = document.getElementById('detectedZone');
+        if(z) z.textContent = 'Montpreveyres';
+      }, 500);
+    } else {
+      body.innerHTML = `
+        <div style="text-align:center;padding:12px 0">
+          <div style="margin-bottom:12px">${PICTOS.cheese}</div>
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:6px" data-i18n="checkout.pickupTitle">${t('checkout.pickupTitle')}</h3>
+          <p style="font-size:13px;color:var(--t2);margin-bottom:16px">${RESTO.name} · ${RESTO.city}</p>
+        </div>
+        <div class="delivery-info" style="justify-content:center">
+          <div class="dinfo-item" style="text-align:center"><div class="label" data-i18n="checkout.prepTime">${t('checkout.prepTime')}</div><div class="value">${RESTO.estimatedPickup}</div></div>
+        </div>
+        <div class="form-group">
+          <label data-i18n="checkout.pickupTime">${t('checkout.pickupTime')}</label>
+          <select class="form-input" id="ck_pickup_time">
+            <option value="" data-i18n="checkout.asap">${t('checkout.asap')}</option>
+            <option>12:00</option><option>12:15</option><option>12:30</option><option>12:45</option>
+            <option>13:00</option><option>13:15</option><option>13:30</option>
+            <option>18:00</option><option>18:15</option><option>18:30</option><option>18:45</option>
+            <option>19:00</option><option>19:15</option><option>19:30</option><option>19:45</option>
+            <option>20:00</option><option>20:15</option><option>20:30</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="checkout-btn" style="background:var(--surf2);color:var(--text);flex:.4" onclick="prevStep()" data-i18n="checkout.back">${t('checkout.back')}</button>
+          <button class="checkout-btn" style="flex:.6" onclick="nextStep()" data-i18n="checkout.continue">${t('checkout.continue')}</button>
+        </div>
+      `;
+    }
+  } else if(checkoutStep === 2) {
+    body.innerHTML = `
+      <div>
+        <div class="pay-option selected" onclick="selectPay(this,'online')">
+          <div class="pay-radio"></div>
+          <div class="pay-info">
+            <div class="pay-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              <span data-i18n="checkout.onlinePayment">${t('checkout.onlinePayment')}</span>
+            </div>
+            <div class="pay-desc" data-i18n="checkout.onlineDesc">${t('checkout.onlineDesc')}</div>
+            <div class="pay-icons">
+              <span class="pay-icon">VISA</span>
+              <span class="pay-icon">MC</span>
+              <span class="pay-icon">AMEX</span>
+              <span class="pay-icon">TWINT</span>
+            </div>
+          </div>
+        </div>
+        <div class="pay-option" onclick="selectPay(this,'${mode==='delivery'?'delivery':'pickup'}')">
+          <div class="pay-radio"></div>
+          <div class="pay-info">
+            <div class="pay-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span data-i18n="${mode==='delivery'?'checkout.atDelivery':'checkout.atPickup'}">${mode==='delivery'?t('checkout.atDelivery'):t('checkout.atPickup')}</span>
+            </div>
+            <div class="pay-desc" data-i18n="${mode==='delivery'?'checkout.deliveryPayDesc':'checkout.pickupPayDesc'}">${mode==='delivery'?t('checkout.deliveryPayDesc'):t('checkout.pickupPayDesc')}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--surf2);border-radius:12px;padding:14px;margin-top:16px">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--t3);margin-bottom:8px" data-i18n="checkout.summary">${t('checkout.summary')}</div>
+        ${cart.map(i=>`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${i.qty}x ${i.name}</span><span>CHF ${fmtCHF(i.price*i.qty)}</span></div>`).join('')}
+        ${mode==='delivery'?`<div style="display:flex;justify-content:space-between;font-size:12px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><span data-i18n="cart.delivery">${t('cart.delivery')}</span><span${getDeliveryFee()===0?' style="color:var(--gn);font-weight:600"':''} data-i18n="${getDeliveryFee()===0?'cart.free':''}">
+          ${getDeliveryFee()===0?t('cart.free'):'CHF '+fmtCHF(getDeliveryFee())}</span></div>`:''}
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><span data-i18n="cart.total">${t('cart.total')}</span><span>CHF ${fmtCHF(getTotal())}</span></div>
+      </div>
+
+      <label style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;font-size:12px;color:var(--t3);cursor:pointer;line-height:1.5">
+        <input type="checkbox" id="del-cgu-cb" style="margin-top:3px;accent-color:var(--ac);flex-shrink:0">
+        <span>${t('checkout.acceptCgu')}</span>
+      </label>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="checkout-btn" style="background:var(--surf2);color:var(--text);flex:.4" onclick="prevStep()" data-i18n="checkout.back">${t('checkout.back')}</button>
+        <button class="checkout-btn" style="flex:.6" id="confirmBtn" onclick="submitOrder()" data-i18n="checkout.confirm"><span>${t('checkout.confirm')}</span> · CHF ${fmtCHF(getTotal())}</button>
+      </div>
+
+      <div class="stripe-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span data-i18n="checkout.onlineDesc">Paiement sécurisé · Stripe</span>
+      </div>
+    `;
+  }
+}
+
+function selectPay(el, method) {
+  document.querySelectorAll('.pay-option').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  window._payMethod = method;
+}
+
+function saveStepData() {
+  if(checkoutStep === 0) {
+    customerData.fname = document.getElementById('ck_fname')?.value.trim() || '';
+    customerData.lname = document.getElementById('ck_lname')?.value.trim() || '';
+    customerData.phone = document.getElementById('ck_phone')?.value.trim() || '';
+    customerData.email = document.getElementById('ck_email')?.value.trim() || '';
+    customerData.notes = document.getElementById('ck_notes')?.value.trim() || '';
+  } else if(checkoutStep === 1 && mode === 'delivery') {
+    customerData.address = document.getElementById('ck_address')?.value.trim() || '';
+    customerData.zip = document.getElementById('ck_zip')?.value.trim() || '';
+    customerData.city = document.getElementById('ck_city')?.value.trim() || '';
+    customerData.floor = document.getElementById('ck_floor')?.value.trim() || '';
+  }
+}
+
+function nextStep() {
+  saveStepData();
+  if(checkoutStep === 0) {
+    if(!customerData.fname || !customerData.lname) { alert(t('checkout.nameError')); return; }
+    if(!customerData.phone || customerData.phone.replace(/[^0-9]/g,'').length < 7) { alert(t('checkout.phoneError')); return; }
+  }
+  if(checkoutStep === 1 && mode === 'delivery') {
+    if(!customerData.address || !customerData.zip || !customerData.city) { alert(t('checkout.addressError')); return; }
+  }
+  checkoutStep++;
+  renderCheckoutStep();
+}
+
+function prevStep() {
+  saveStepData();
+  if(checkoutStep > 0) checkoutStep--;
+  renderCheckoutStep();
+}
+
+// ── STRIPE CHECKOUT ──
+async function processStripePayment(orderId) {
+  const btn = document.getElementById('confirmBtn');
+  if(btn) { btn.disabled = true; btn.textContent = t('checkout.processing'); }
+  try {
+    // In production: call API to create Stripe Checkout Session
+    // const res = await fetch('https://api.r3sto.ch/delivery/create-checkout', {
+    //   method:'POST',
+    //   headers:{'Content-Type':'application/json'},
+    //   body: JSON.stringify({
+    //     orderId, items: cart, customer: customerData, mode,
+    //     total: getTotal(), deliveryFee: getDeliveryFee(),
+    //     successUrl: `https://delivery.r3sto.ch/${RESTO.slug}?order=${orderId}&status=success`,
+    //     cancelUrl: `https://delivery.r3sto.ch/${RESTO.slug}?order=${orderId}&status=cancel`
+    //   })
+    // });
+    // const { sessionId } = await res.json();
+    // const stripe = Stripe(STRIPE_KEY);
+    // await stripe.redirectToCheckout({ sessionId });
+
+    // DEMO MODE: simulate Stripe redirect
+    await new Promise(r => setTimeout(r, 1200));
+    return true;
+  } catch(e) {
+    console.error('Stripe error:', e);
+    alert(t('checkout.error'));
+    if(btn) { btn.disabled = false; btn.textContent = `${t('checkout.confirm')} · CHF ${fmtCHF(getTotal())}`; }
+    return false;
+  }
+}
+
+async function submitOrder() {
+  var cguCb = document.getElementById('del-cgu-cb');
+  if(cguCb && !cguCb.checked) { alert(t('checkout.alertCgu')); return; }
+  const orderId = 'R3-CMD-' + String(Math.floor(100000 + Math.random()*900000));
+
+  if(window._payMethod === 'online') {
+    const ok = await processStripePayment(orderId);
+    if(!ok) return;
+  }
+
+  closeCheckout();
+  showTracking(orderId);
+}
+
+// ── TRACKING ──
+function showTracking(orderId) {
+  document.getElementById('mainLayout').style.display = 'none';
+  document.querySelector('.cat-nav').style.display = 'none';
+  document.getElementById('promoBanner').style.display = 'none';
+  const tp = document.getElementById('trackingPage');
+  tp.style.display = 'block';
+  document.getElementById('trackOrderId').textContent = orderId;
+
+  const isDelivery = mode === 'delivery';
+  const now = new Date().toLocaleTimeString(currentLang==='de'?'de-CH':currentLang==='it'?'it-CH':currentLang==='en'?'en-US':'fr-CH',{hour:'2-digit',minute:'2-digit'});
+  const steps = isDelivery
+    ? [
+        { icon:'check', titleKey:'tracking.received', descKey:'tracking.receivedDesc', time:now, status:'done' },
+        { icon:'cook', titleKey:'tracking.cooking', descKey:'tracking.cookingDesc', time:'~5 min', status:'current' },
+        { icon:'box', titleKey:'tracking.ready', descKey:'tracking.readyDesc', time:'', status:'' },
+        { icon:'scooter', titleKey:'tracking.delivering', descKey:'tracking.deliveringDesc', time:'', status:'' },
+        { icon:'home', titleKey:'tracking.delivered', descKey:'tracking.deliveredDesc', time:'', status:'' }
+      ]
+    : [
+        { icon:'check', titleKey:'tracking.received', descKey:'tracking.receivedDesc', time:now, status:'done' },
+        { icon:'cook', titleKey:'tracking.cooking', descKey:'tracking.cookingDescPickup', time:'~5 min', status:'current' },
+        { icon:'ready', titleKey:'tracking.readyPickup', descKey:'tracking.readyDescPickup', time:'', status:'' }
+      ];
+
+  const iconMap = {
+    check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    cook: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>',
+    box: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+    scooter: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="19" cy="17" r="2"/><circle cx="9" cy="17" r="2"/><path d="M13 17H7V5h6l4 6h3l1 4h-4"/></svg>',
+    home: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+    ready: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>'
+  };
+
+  document.getElementById('trackSteps').innerHTML = steps.map(s => `
+    <div class="track-step ${s.status}">
+      <div class="track-icon">${iconMap[s.icon]||''}</div>
+      <div class="track-body">
+        <h4 data-i18n="${s.titleKey}">${t(s.titleKey)}</h4>
+        <p data-i18n="${s.descKey}">${t(s.descKey)}</p>
+        ${s.time ? `<div class="time">${s.time}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('etaLabel').textContent = isDelivery ? t('tracking.eta') : t('tracking.etaPickup');
+  document.getElementById('etaValue').textContent = isDelivery ? RESTO.estimatedDelivery : RESTO.estimatedPickup;
+
+  setTimeout(() => simulateProgress(1), 8000);
+}
+
+function simulateProgress(step) {
+  const icons = document.querySelectorAll('#trackSteps .track-step');
+  if(step >= icons.length) return;
+  icons.forEach((el,i) => {
+    el.classList.remove('done','current');
+    if(i < step) el.classList.add('done');
+    if(i === step) el.classList.add('current');
+  });
+  if(step < icons.length - 1) {
+    setTimeout(() => simulateProgress(step + 1), 10000 + Math.random()*5000);
+  }
+}
+
+// ── SCROLL SPY ──
+function setupScrollSpy() {
+  const sections = document.querySelectorAll('.menu-section');
+  const pills = document.querySelectorAll('.cat-pill');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting) {
+        const id = entry.target.id.replace('cat-','');
+        pills.forEach(p => p.classList.remove('active'));
+        const active = [...pills].find(p => p.onclick?.toString().includes(id));
+        if(active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin:'-100px 0px -60% 0px', threshold:0.1 });
+  sections.forEach(s => observer.observe(s));
+}
+
+// ── LAUNCH ──
+window._payMethod = 'online';
+document.addEventListener('DOMContentLoaded', init);
+</script>
+<script src="./r3sto-phone.js"></script>
+</body>
+</html>

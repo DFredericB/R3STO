@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — Palette & Logos · Référence finale</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:#f0f1f4; padding:32px; color:#1a2230; line-height:1.5; }
+  .wrap { max-width:1400px; margin:0 auto; }
+  h1.top { font-family:'Fraunces', serif; font-size:42px; font-weight:700; color:#0f1620; margin-bottom:8px; letter-spacing:-0.5px; }
+  h1.top .accent { font-style:italic; font-weight:400; color:#a07e2a; }
+  .sub { color:#6b7280; font-size:14px; margin-bottom:36px; max-width:780px; }
+
+  .section { margin-bottom:36px; }
+  .section h2 { font-family:'Fraunces', serif; font-size:24px; font-weight:700; color:#0f1620; margin-bottom:6px; letter-spacing:-0.3px; }
+  .section .sect-sub { font-size:13px; color:#6b7280; margin-bottom:18px; }
+
+  /* ============ LOGO ROW ============ */
+  .logo-row { display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; }
+  .logo-card { background:#fff; border-radius:14px; padding:24px 20px; box-shadow:0 4px 18px rgba(0,0,0,.06); }
+  .logo-card .preview { padding:36px 12px; border-radius:10px; margin-bottom:16px; text-align:center; }
+  .logo-card .preview.bg-cream { background:#fdf6ec; }
+  .logo-card .preview.bg-navy { background:#0f1620; }
+  .logo-card .preview.bg-noir { background:#0a0a0a; }
+  .logo-card .preview .logo { display:inline-block; width:120px; height:120px; background-size:contain; background-repeat:no-repeat; background-position:center; }
+  .logo-card h3 { font-family:'Fraunces', serif; font-size:18px; font-weight:700; color:#0f1620; margin-bottom:4px; }
+  .logo-card .hex { font-family:'JetBrains Mono', monospace; font-size:11px; color:#a07e2a; margin-bottom:6px; }
+  .logo-card .usage { font-size:11px; color:#6b7280; line-height:1.45; }
+
+  /* ============ PALETTE B2B ============ */
+  .palette-card { background:#0f1620; border-radius:14px; padding:36px 32px; color:#e8eef5; }
+  .palette-card.cream { background:#fdf6ec; color:#2a1a0d; }
+  .palette-card .lockup { display:inline-flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .palette-card .lockup .l-sq { width:42px; height:42px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:4px; }
+  .palette-card.cream .lockup .l-sq { background:url('./logo-r3sto-or-antique.svg'); background-size:cover; }
+  .palette-card .lockup .word { font-family:'Alethia Next', sans-serif; font-size:28px; color:#c89752; line-height:1; }
+  .palette-card.cream .lockup .word { color:#a07e2a; }
+  .palette-card h3 { font-family:'Fraunces', serif; font-size:32px; font-weight:700; margin-bottom:8px; letter-spacing:-0.5px; }
+  .palette-card h3 .it { font-style:italic; color:#c89752; font-weight:400; }
+  .palette-card.cream h3 .it { color:#a07e2a; }
+  .palette-card p.tagline { font-size:14px; color:#aab5cc; margin-bottom:24px; max-width:520px; }
+  .palette-card.cream p.tagline { color:#5a4838; }
+  .palette-card .swatches { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .sw { display:flex; flex-direction:column; align-items:center; min-width:60px; }
+  .sw .sw-color { width:54px; height:54px; border-radius:6px; border:1px solid rgba(255,255,255,.08); }
+  .palette-card.cream .sw .sw-color { border-color:rgba(0,0,0,.06); }
+  .sw .sw-name { font-size:10px; font-weight:600; margin-top:4px; }
+  .sw .sw-hex { font-size:9px; font-family:'JetBrains Mono', monospace; opacity:0.7; }
+  .palette-card .note { font-size:11px; opacity:0.6; margin-top:12px; }
+
+  /* ============ TYPO ============ */
+  .typo-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+  .typo-card { background:#fff; border-radius:14px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.05); }
+  .typo-card h4 { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#a07e2a; font-weight:700; margin-bottom:14px; }
+  .typo-card .sample-1 { font-family:'Fraunces', serif; font-size:32px; font-weight:700; color:#0f1620; line-height:1; margin-bottom:10px; letter-spacing:-0.5px; }
+  .typo-card .sample-1 .it { font-style:italic; font-weight:400; color:#a07e2a; }
+  .typo-card .sample-2 { font-family:'Inter', sans-serif; font-size:15px; color:#1a2230; margin-bottom:6px; }
+  .typo-card .sample-3 { font-family:'Inter', sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; color:#6b7280; margin-bottom:6px; }
+  .typo-card .alethia { font-family:'Alethia Next', sans-serif; font-size:38px; color:#a07e2a; line-height:1; margin-bottom:6px; }
+  .typo-card .mono { font-family:'JetBrains Mono', monospace; font-size:12px; color:#6b7280; }
+  .typo-card .desc { font-size:11px; color:#6b7280; margin-top:12px; padding-top:12px; border-top:1px solid #eee; }
+
+  /* ============ SUB-BRANDS ============ */
+  .sub-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .sub-card { padding:32px 28px; border-radius:14px; }
+  .sub-card.pass { background:#1b5e42; color:#fdf6ec; }
+  .sub-card.carat { background:#0a0a0a; color:#e8d4b8; }
+  .sub-card .lockup { display:inline-flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .sub-card .lockup .l-sq { width:40px; height:40px; background-size:cover; border-radius:4px; }
+  .sub-card.pass .lockup .l-sq { background-image:url('./logo-r3sto-blue.svg'); }
+  .sub-card.carat .lockup .l-sq { background:#0a0a0a; border:2px solid #d4af37; display:flex; align-items:center; justify-content:center; color:#d4af37; font-family:'Alethia Next',sans-serif; font-size:9px; letter-spacing:0.5px; }
+  .sub-card .lockup .word { font-family:'Alethia Next', sans-serif; font-size:28px; line-height:1; }
+  .sub-card.pass .lockup .word { color:#c9a96e; }
+  .sub-card.carat .lockup .word { color:#d4af37; }
+  .sub-card h3 { font-family:'Fraunces', serif; font-size:22px; font-weight:700; margin-bottom:6px; }
+  .sub-card p { font-size:12px; opacity:0.85; line-height:1.5; margin-bottom:12px; }
+  .sub-card .hex-row { display:flex; gap:8px; font-family:'JetBrains Mono', monospace; font-size:10px; opacity:0.7; }
+
+  /* ============ FOOTER ============ */
+  .footer { background:#fff; border-radius:14px; padding:24px 28px; font-size:13px; line-height:1.6; color:#1a2230; }
+  .footer h3 { font-family:'Fraunces', serif; font-size:20px; color:#0f1620; margin-bottom:12px; }
+  .footer .check-list { list-style:none; }
+  .footer .check-list li { padding:6px 0; }
+  .footer .check-list li::before { content:"✓"; color:#10b981; font-weight:700; margin-right:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="top">R3STO — Palette & Logos · <span class="accent">Référence finale</span></h1>
+  <p class="sub">Synthèse visuelle avant développement. Deux palettes (B2B navy/or · B2C crème/or antique), deux logos (bleu nuit · or antique), trois typographies (Fraunces · Inter · Alethia + JetBrains Mono). Sous-marques PASS et CARAT en exception assumée.</p>
+
+  <!-- ============ LOGO ROW ============ -->
+  <div class="section">
+    <h2>4 variantes du logo officiel</h2>
+    <p class="sect-sub">Forme, texte "R3STO", position et police Alethia <b>strictement identiques</b>. Seule la couleur du carré change selon le contexte.</p>
+    <div class="logo-row">
+      <div class="logo-card">
+        <div class="preview bg-cream">
+          <div class="logo" style="background-image:url('./logo-r3sto-blue.svg')"></div>
+        </div>
+        <h3>Bleu nuit officiel</h3>
+        <div class="hex">#1d4f91</div>
+        <p class="usage">⭐ Logo R3STO officiel B2B. Pour r3sto.com/pro, /mini, app, auth, admin, bill, demo, booking, menu, delivery.</p>
+      </div>
+      <div class="logo-card">
+        <div class="preview bg-cream">
+          <div class="logo" style="background-image:url('./logo-r3sto-or-antique.svg')"></div>
+        </div>
+        <h3>Or antique</h3>
+        <div class="hex">#a07e2a</div>
+        <p class="usage">⭐ Pour r3sto.com annuaire B2C (grand public crème/cuivre). Plus corporate que cuivre, fait écho au bouton "Créer mon compte" de auth.r3sto.ch.</p>
+      </div>
+      <div class="logo-card">
+        <div class="preview" style="background:#1b5e42;">
+          <div class="logo" style="background-image:url('./logo-r3sto-blue.svg')"></div>
+        </div>
+        <h3>R3STO Pass · vert forêt</h3>
+        <div class="hex">#1b5e42</div>
+        <p class="usage">Sous-marque PASS (programme fidélité conso). Logo R3STO bleu sur fond vert. Lockup avec wordmark "Pass" en or `#c9a96e`.</p>
+      </div>
+      <div class="logo-card">
+        <div class="preview bg-noir">
+          <div class="logo" style="background-image:url('./logo-r3sto-or-bright.svg')"></div>
+        </div>
+        <h3>R3STO Carat · or sur noir</h3>
+        <div class="hex">#d4af37 sur #0a0a0a</div>
+        <p class="usage">Sous-marque CARAT (label gastronomique). Logo or vif `#d4af37` sur fond noir. Exception assumée — palette propre métaux.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PALETTE B2B ============ -->
+  <div class="section">
+    <h2>Palette B2B — navy + or</h2>
+    <p class="sect-sub">Sites pro : r3sto.com/pro, /mini, app, auth, admin, bill, demo, booking, menu, delivery</p>
+    <div class="palette-card">
+      <div class="lockup"><span class="l-sq"></span><span class="word">Pro</span></div>
+      <h3>Gérer. Remplir. <span class="it">Fidéliser.</span></h3>
+      <p class="tagline">La plateforme tout-en-un pour digitaliser votre restaurant. Conçu en Suisse. 0% commission.</p>
+      <div class="swatches">
+        <div class="sw"><div class="sw-color" style="background:#0f1620"></div><div class="sw-name">Navy</div><div class="sw-hex">#0f1620</div></div>
+        <div class="sw"><div class="sw-color" style="background:#141d2c"></div><div class="sw-name">Surf 2</div><div class="sw-hex">#141d2c</div></div>
+        <div class="sw"><div class="sw-color" style="background:#1a2435"></div><div class="sw-name">Surf 3</div><div class="sw-hex">#1a2435</div></div>
+        <div class="sw"><div class="sw-color" style="background:#25304a"></div><div class="sw-name">Surf 4</div><div class="sw-hex">#25304a</div></div>
+        <div class="sw"><div class="sw-color" style="background:#c89752"></div><div class="sw-name">Or chaud ★</div><div class="sw-hex">#c89752</div></div>
+        <div class="sw"><div class="sw-color" style="background:#a07e2a"></div><div class="sw-name">Or antique</div><div class="sw-hex">#a07e2a</div></div>
+        <div class="sw"><div class="sw-color" style="background:#d4af37"></div><div class="sw-name">Or vif</div><div class="sw-hex">#d4af37</div></div>
+        <div class="sw"><div class="sw-color" style="background:#e8eef5"></div><div class="sw-name">Texte</div><div class="sw-hex">#e8eef5</div></div>
+        <div class="sw"><div class="sw-color" style="background:#aab5cc"></div><div class="sw-name">Muted</div><div class="sw-hex">#aab5cc</div></div>
+      </div>
+      <p class="note">Tokens identiques à <b>auth.r3sto.ch live</b>. Inclut un mode "light" optionnel pour l'app (toggle utilisateur).</p>
+    </div>
+  </div>
+
+  <!-- ============ PALETTE B2C ============ -->
+  <div class="section">
+    <h2>Palette B2C — crème + or antique</h2>
+    <p class="sect-sub">Annuaire grand public : r3sto.com racine uniquement (l'unique site clair)</p>
+    <div class="palette-card cream">
+      <div class="lockup"><span class="l-sq"></span><span class="word">guide gourmand</span></div>
+      <h3>Trouvez votre table. <span class="it">Sans intermédiaire.</span></h3>
+      <p class="tagline">L'annuaire des restaurateurs indépendants suisses. 0% commission. Réservation directe.</p>
+      <div class="swatches">
+        <div class="sw"><div class="sw-color" style="background:#fdf6ec"></div><div class="sw-name">Crème</div><div class="sw-hex">#fdf6ec</div></div>
+        <div class="sw"><div class="sw-color" style="background:#f4e6cf"></div><div class="sw-name">Crème 2</div><div class="sw-hex">#f4e6cf</div></div>
+        <div class="sw"><div class="sw-color" style="background:#e8d2a8"></div><div class="sw-name">Crème 3</div><div class="sw-hex">#e8d2a8</div></div>
+        <div class="sw"><div class="sw-color" style="background:#a07e2a"></div><div class="sw-name">Or antique ★</div><div class="sw-hex">#a07e2a</div></div>
+        <div class="sw"><div class="sw-color" style="background:#b8632b"></div><div class="sw-name">Cuivre</div><div class="sw-hex">#b8632b</div></div>
+        <div class="sw"><div class="sw-color" style="background:#2a1a0d"></div><div class="sw-name">Brun</div><div class="sw-hex">#2a1a0d</div></div>
+        <div class="sw"><div class="sw-color" style="background:#4a3422"></div><div class="sw-name">Brun 2</div><div class="sw-hex">#4a3422</div></div>
+        <div class="sw"><div class="sw-color" style="background:#7a5a3e"></div><div class="sw-name">Muted</div><div class="sw-hex">#7a5a3e</div></div>
+      </div>
+      <p class="note">Tokens identiques à <b>r3sto.ch live</b>. Logo or antique `#a07e2a` proposé pour cohérence avec auth bouton CTA.</p>
+    </div>
+  </div>
+
+  <!-- ============ TYPO ============ -->
+  <div class="section">
+    <h2>Typographies — 4 familles</h2>
+    <p class="sect-sub">Système réutilisable sur tous les sites R3STO</p>
+    <div class="typo-grid">
+      <div class="typo-card">
+        <h4>★ Alethia Next Regular</h4>
+        <div class="alethia">R3STO Pro</div>
+        <div class="alethia" style="font-size:28px; color:#1b5e42;">Pass</div>
+        <div class="alethia" style="font-size:28px; color:#d4af37;">Carat</div>
+        <p class="desc">Police officielle. Pour le wordmark R3STO dans le logo + sous-marques (Pro, Pass, Carat) en lockup.</p>
+      </div>
+      <div class="typo-card">
+        <h4>★ Fraunces (serif premium)</h4>
+        <div class="sample-1">Trouvez votre table. <span class="it">Sans intermédiaire.</span></div>
+        <div class="sample-1" style="font-size:22px;">Le Comptoir du Lac</div>
+        <p class="desc">Hero h1, titres élégants, noms de restos. Optical sizing 9..144, weight 300..900. Le serif "gastronomique premium" qui remplace Playfair.</p>
+      </div>
+      <div class="typo-card">
+        <h4>★ Inter + JetBrains Mono</h4>
+        <div class="sample-3">Annuaire gourmand suisse</div>
+        <div class="sample-2"><b>L'annuaire des restaurateurs indépendants suisses.</b> 0% commission, réservation directe au resto.</div>
+        <div class="mono">19 CHF/mois · 19 €/mois · 684 CHF total/3 ans</div>
+        <p class="desc">Inter pour le corps de texte UI, labels uppercase. JetBrains Mono pour dates, prix, données techniques. Lisibilité max.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SUB-BRANDS ============ -->
+  <div class="section">
+    <h2>Sous-marques (palettes propres assumées)</h2>
+    <p class="sect-sub">Exceptions intentionnelles à la palette mère — chaque sous-marque a sa propre couleur d'accompagnement</p>
+    <div class="sub-row">
+      <div class="sub-card pass">
+        <div class="lockup"><span class="l-sq"></span><span class="word">Pass</span></div>
+        <h3>Votre passeport gourmand suisse</h3>
+        <p>Programme fidélité côté consommateur. Cumulez des points dans 100+ restaurants partenaires. Echangez contre des dîners.</p>
+        <div class="hex-row">
+          <span>--bg #1b5e42</span>
+          <span>--or #c9a96e</span>
+        </div>
+      </div>
+      <div class="sub-card carat">
+        <div class="lockup"><span class="l-sq">R3STO</span><span class="word">Carat</span></div>
+        <h3>Excellence reconnue</h3>
+        <p>Label gastronomique R3STO. Évaluation indépendante 4 piliers. Trois niveaux : Bronze · Silver · Gold.</p>
+        <div class="hex-row">
+          <span>--bg #0a0a0a</span>
+          <span>--or-bright #d4af37</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <div class="footer">
+    <h3>Récap final — à valider avant code</h3>
+    <ul class="check-list">
+      <li><b>Logo bleu nuit `#1d4f91`</b> = officiel R3STO B2B (pro, mini, app, auth, admin, bill, demo, booking, menu, delivery)</li>
+      <li><b>Logo or antique `#a07e2a`</b> = pour r3sto.com B2C annuaire grand public (cohérence avec bouton "Créer mon compte" auth)</li>
+      <li><b>Palette navy + or</b> sur tous sites B2B (tokens identiques au live auth.r3sto.ch)</li>
+      <li><b>Palette crème + or antique</b> uniquement sur r3sto.com annuaire B2C (tokens identiques au live r3sto.ch)</li>
+      <li><b>Sous-marques PASS et CARAT</b> gardent leurs palettes propres (exception assumée)</li>
+      <li><b>Typographies</b> : Fraunces (serif premium · optical sizing) + Inter (sans · UI) + JetBrains Mono (data) + Alethia Next Regular (logo R3STO + wordmark Pro/Pass/Carat)</li>
+      <li><b>Règle stricte logo</b> : forme, texte "R3STO", position et police Alethia immuables. Seule la couleur du carré varie selon le contexte.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

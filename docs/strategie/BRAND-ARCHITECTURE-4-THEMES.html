@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — Architecture de marque · 4 thèmes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:#e9edf3;
+    padding:40px 24px;
+    color:#0f1620;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+  }
+  .wrap{max-width:1640px;margin:0 auto}
+
+  /* HEADER */
+  .header{margin-bottom:36px}
+  .header .ref{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:#7d8699;
+    letter-spacing:.12em;text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .header .ref b{color:#1c2e58}
+  .header h1{
+    font-family:'Fraunces',serif;
+    font-size:38px;font-weight:600;
+    color:#0f1620;letter-spacing:-.8px;
+    margin-bottom:10px;
+    font-variation-settings:'opsz' 60;
+  }
+  .header h1 em{font-style:italic;color:#a07e2a;font-weight:500}
+  .header p{color:#52576b;font-size:14px;max-width:1000px;line-height:1.65}
+  .header p b{color:#0f1620}
+
+  /* GRID 4 THEMES */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-bottom:40px;
+  }
+  @media(max-width:1280px){.grid{grid-template-columns:repeat(2,1fr)}}
+
+  /* THEME CARD */
+  .theme{
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 24px 64px rgba(15,22,32,.20);
+    display:flex;flex-direction:column;
+    min-height:680px;
+  }
+
+  /* THEME HEADER */
+  .theme-hdr{
+    padding:18px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    border-bottom:1px solid rgba(0,0,0,.04);
+  }
+  .theme-name{
+    font-family:'Fraunces',serif;
+    font-size:18px;font-weight:600;
+    letter-spacing:-.3px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .theme-tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;font-weight:500;
+    letter-spacing:.12em;text-transform:uppercase;
+  }
+
+  /* MOCK FRAME */
+  .mock{
+    flex:1;
+    padding:36px 22px;
+    position:relative;
+    overflow:hidden;
+  }
+  .mock::before{
+    content:'';position:absolute;inset:0;
+    pointer-events:none;
+  }
+
+  /* LOGO BLOCK common base */
+  .logo-row{
+    display:flex;align-items:center;justify-content:center;
+    gap:14px;margin:0 auto 22px;position:relative;z-index:1;
+  }
+  .logo{
+    width:64px;height:64px;
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Inter',sans-serif;font-weight:800;
+    font-size:13px;letter-spacing:1px;
+    flex-shrink:0;
+  }
+  .logo-wordmark{
+    font-family:'Fraunces',serif;font-style:italic;
+    font-weight:500;font-size:24px;letter-spacing:-.4px;
+    line-height:1;
+  }
+
+  /* SUB-LOGO TAG (Pro/Carat/Pass) */
+  .sublabel{
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;font-weight:600;
+    letter-spacing:.20em;text-transform:uppercase;
+    margin-bottom:20px;
+    color:#a07e2a;
+    position:relative;z-index:1;
+  }
+
+  /* TITLE */
+  .title{
+    text-align:center;
+    font-family:'Fraunces',serif;
+    font-size:22px;font-weight:600;
+    line-height:1.2;letter-spacing:-.4px;
+    margin-bottom:8px;
+    position:relative;z-index:1;
+  }
+  .title em{font-style:italic;color:#a07e2a;font-weight:500}
+
+  /* SUB */
+  .sub{
+    text-align:center;
+    font-size:12px;
+    margin-bottom:28px;
+    line-height:1.5;
+    position:relative;z-index:1;
+  }
+
+  /* CTA */
+  .cta{
+    display:block;width:100%;
+    padding:13px;border-radius:7px;
+    text-align:center;
+    font-family:'Inter',sans-serif;
+    font-size:13px;font-weight:700;
+    letter-spacing:.02em;
+    cursor:pointer;border:0;
+    transition:.18s;
+    position:relative;z-index:1;
+    margin-bottom:20px;
+  }
+
+  /* INFO BLOCK */
+  .info{
+    border-top:1px solid;
+    padding-top:18px;
+    margin-top:20px;
+    position:relative;z-index:1;
+  }
+  .info-row{
+    display:flex;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    padding:5px 0;
+  }
+  .info-row span:first-child{font-weight:400}
+  .info-row span:last-child{font-weight:600}
+
+  /* ───── THÈME 1 : R3STO PRO DARK (logo doré, comme Carat/Pass) ───── */
+  .t1 .theme-hdr{background:#0f1620;color:#e8eef5;border-bottom-color:rgba(74,107,140,.20)}
+  .t1 .theme-tag{color:#a07e2a}
+  .t1 .mock{background:#0f1620;color:#e8eef5}
+  .t1 .mock::before{
+    background:
+      radial-gradient(ellipse at 30% 0%,rgba(160,126,42,.10) 0%,transparent 55%),
+      radial-gradient(ellipse at 100% 100%,rgba(28,46,88,.18) 0%,transparent 50%);
+  }
+  .t1 .logo{background:#1c2e58;color:#fff;border:0}
+  .t1 .logo-wordmark{color:#1c2e58;background:#fff;padding:4px 12px;border-radius:6px;font-style:italic}
+  .t1 .sublabel{color:#c89752}
+  .t1 .title{color:#e8eef5}
+  .t1 .sub{color:#aab5cc}
+  .t1 .cta{background:#a07e2a;color:#0f1620;box-shadow:0 4px 16px rgba(160,126,42,.30)}
+  .t1 .info{border-top-color:rgba(160,126,42,.20)}
+  .t1 .info-row span:first-child{color:#5a657a}
+  .t1 .info-row span:last-child{color:#c89752}
+
+  /* ───── THÈME 2 : R3STO CARAT (noir luxe) ───── */
+  .t2 .theme-hdr{background:#0a0a0a;color:#f5e9c8;border-bottom-color:rgba(160,126,42,.20)}
+  .t2 .theme-tag{color:#a07e2a}
+  .t2 .mock{background:#0a0a0a;color:#f5e9c8}
+  .t2 .mock::before{
+    background:
+      radial-gradient(ellipse at 50% 0%,rgba(160,126,42,.14) 0%,transparent 55%),
+      radial-gradient(ellipse at 100% 100%,rgba(200,151,82,.10) 0%,transparent 50%);
+  }
+  .t2 .logo{background:#a07e2a;color:#0a0a0a;border:0}
+  .t2 .logo-wordmark{color:#c89752;font-style:italic}
+  .t2 .sublabel{color:#c89752}
+  .t2 .title{color:#f5e9c8}
+  .t2 .sub{color:#a89770}
+  .t2 .cta{background:#a07e2a;color:#0a0a0a;box-shadow:0 4px 16px rgba(160,126,42,.40)}
+  .t2 .info{border-top-color:rgba(160,126,42,.20)}
+  .t2 .info-row span:first-child{color:#6b5b3a}
+  .t2 .info-row span:last-child{color:#c89752}
+
+  /* ───── THÈME 3 : R3STO PASS (vert forêt) ───── */
+  .t3 .theme-hdr{background:#0f2a1f;color:#e0eee5;border-bottom-color:rgba(160,126,42,.18)}
+  .t3 .theme-tag{color:#c89752}
+  .t3 .mock{background:#1b3a2e;color:#e0eee5}
+  .t3 .mock::before{
+    background:
+      radial-gradient(ellipse at 30% 0%,rgba(160,126,42,.14) 0%,transparent 55%),
+      radial-gradient(ellipse at 100% 100%,rgba(31,80,55,.6) 0%,transparent 60%);
+  }
+  .t3 .logo{background:#1b3a2e;color:#a07e2a;border:1px solid rgba(160,126,42,.40)}
+  .t3 .logo-wordmark{color:#7fb892;font-style:italic}
+  .t3 .sublabel{color:#c89752}
+  .t3 .title{color:#f0f5ea}
+  .t3 .sub{color:#9bb39e}
+  .t3 .cta{background:#a07e2a;color:#0f2a1f;box-shadow:0 4px 16px rgba(160,126,42,.32)}
+  .t3 .info{border-top-color:rgba(74,107,140,.22)}
+  .t3 .info-row span:first-child{color:#6b8074}
+  .t3 .info-row span:last-child{color:#c89752}
+
+  /* ───── THÈME 4 : R3STO CLAIR (navy clair — annuaire + sous-sites opérationnels) ───── */
+  .t4 .theme-hdr{background:#f4f7fb;color:#0f1a30;border-bottom-color:#dde4ee}
+  .t4 .theme-tag{color:#1c2e58}
+  .t4 .mock{background:#f4f7fb;color:#0f1a30}
+  .t4 .mock::before{
+    background:
+      radial-gradient(ellipse at 30% 0%,rgba(28,46,88,.07) 0%,transparent 55%),
+      radial-gradient(ellipse at 100% 100%,rgba(160,126,42,.05) 0%,transparent 50%);
+  }
+  .t4 .logo{background:#1c2e58;color:#fff;box-shadow:0 8px 20px rgba(28,46,88,.28)}
+  .t4 .sublabel{color:#1c2e58;font-weight:700}
+  .t4 .title{color:#0f1a30}
+  .t4 .sub{color:#475a78}
+  .t4 .cta{background:#a07e2a;color:#fff;box-shadow:0 6px 18px rgba(160,126,42,.28)}
+  .t4 .info{border-top-color:#dde4ee}
+  .t4 .info-row span:first-child{color:#7a8aa3}
+  .t4 .info-row span:last-child{color:#1c2e58}
+
+  /* SYNTHESIS BLOCK */
+  .synth{
+    background:#fff;
+    border-radius:18px;
+    padding:36px 40px;
+    box-shadow:0 4px 16px rgba(15,22,32,.04);
+    margin-bottom:24px;
+  }
+  .synth h2{
+    font-family:'Fraunces',serif;
+    font-size:24px;font-weight:600;
+    color:#0f1620;letter-spacing:-.4px;
+    margin-bottom:6px;
+  }
+  .synth h2 em{font-style:italic;color:#a07e2a;font-weight:500}
+  .synth .lead{color:#52576b;font-size:14px;margin-bottom:24px;max-width:900px;line-height:1.7}
+  .synth-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+  }
+  @media(max-width:1100px){.synth-grid{grid-template-columns:repeat(2,1fr)}}
+  .sc{
+    border:1px solid #e1e5ec;
+    border-radius:12px;
+    padding:18px 18px;
+  }
+  .sc h4{
+    font-family:'Fraunces',serif;
+    font-size:15px;font-weight:600;
+    margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .sc .swatches{
+    display:flex;gap:5px;margin-bottom:12px;
+  }
+  .sc .sw{
+    width:24px;height:24px;border-radius:4px;
+    border:1px solid rgba(0,0,0,.10);
+  }
+  .sc p{font-size:12px;color:#52576b;line-height:1.6;margin-bottom:6px}
+  .sc p b{color:#0f1620}
+  .sc .applies{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:#1c2e58;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid #f0f2f6;
+    letter-spacing:.04em;
+  }
+
+  /* GOLD THREAD */
+  .gold-thread{
+    background:linear-gradient(135deg,#1a2435 0%,#0a0a0a 33%,#1b3a2e 66%,#fdf6ec 100%);
+    border-radius:18px;
+    padding:32px 40px;
+    color:#fff;
+    margin-bottom:24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .gold-thread::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,transparent,#a07e2a 30%,#c89752 50%,#a07e2a 70%,transparent);
+  }
+  .gold-thread h3{
+    font-family:'Fraunces',serif;
+    font-size:20px;font-weight:600;
+    margin-bottom:8px;letter-spacing:-.3px;
+  }
+  .gold-thread h3 em{font-style:italic;color:#c89752}
+  .gold-thread p{
+    font-size:13px;color:rgba(255,255,255,.85);
+    max-width:900px;line-height:1.7;
+  }
+  .gold-thread .swatch-row{
+    display:flex;gap:8px;margin-top:14px;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+  }
+  .gold-thread .sw-big{
+    width:36px;height:36px;border-radius:6px;
+    background:#a07e2a;border:1px solid rgba(255,255,255,.20);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="ref">Architecture de marque · <b>R3STO écosystème</b> · 2026-05-17</div>
+    <h1>4 thèmes, <em>1 famille parfaitement cohérente</em></h1>
+    <p>Famille de marques R3STO : <b>3 sub-brands B2B dark</b> (Pro · Carat luxe · Pass consumer) avec logo <b>doré</b> + <b>1 light theme partagé</b> entre l'app toggle ET l'annuaire r3sto.com B2C, avec logo navy bleu nuit. Tous reliés par <b>l'or sobre `#a07e2a`</b> — le fil rouge qui dit "même famille". <em>Le navy bleu nuit `#1c2e58` est réservé au mode light</em>, où il pop sur fond blanc.</p>
+  </div>
+
+  <!-- GOLD THREAD HIGHLIGHT -->
+  <div class="gold-thread">
+    <h3>L'or `#a07e2a` <em>= signature commune sur 4 thèmes</em></h3>
+    <p>Ce ton chaud sobre (presque mat, jamais clinquant) signe les CTAs et accents sur les 4 thèmes. <b>Sur les 3 fonds dark</b> (Pro, Carat, Pass), l'or porte aussi le logo. <b>Sur le thème light</b> (annuaire + app toggle), le navy bleu nuit <code>#1c2e58</code> reprend la main pour le logo car il pop sur fond clair. Le navy n'apparaît plus du tout sur fond sombre.</p>
+    <div class="swatch-row">
+      <span class="sw-big"></span>
+      <span>#a07e2a · or sobre primary</span>
+      <span style="opacity:.5">·</span>
+      <span style="width:28px;height:28px;display:inline-block;border-radius:6px;background:#c89752;border:1px solid rgba(255,255,255,.20)"></span>
+      <span>#c89752 · or vif hover</span>
+    </div>
+  </div>
+
+  <!-- 4 THEMES GRID -->
+  <div class="grid">
+
+    <!-- T1 : R3STO PRO DARK -->
+    <div class="theme t1">
+      <div class="theme-hdr">
+        <div class="theme-name">R3STO Pro <span class="theme-tag">core dark</span></div>
+      </div>
+      <div class="mock">
+        <div class="logo-row">
+          <div class="logo">R3STO</div>
+          <div class="logo-wordmark">Pro</div>
+        </div>
+        <div class="sublabel">gestion restaurant</div>
+        <div class="title">Réservations <em>sans</em> commission</div>
+        <div class="sub">Plateforme professionnelle hébergée en Suisse.</div>
+        <button class="cta">Commencer l'essai</button>
+        <div class="info">
+          <div class="info-row"><span>bg</span><span>#0f1620</span></div>
+          <div class="info-row"><span>surf</span><span>#1a2435</span></div>
+          <div class="info-row"><span>logo border</span><span>#a07e2a50</span></div>
+          <div class="info-row"><span>or</span><span>#a07e2a</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T2 : CARAT -->
+    <div class="theme t2">
+      <div class="theme-hdr">
+        <div class="theme-name">R3STO Carat <span class="theme-tag">luxe ultra</span></div>
+      </div>
+      <div class="mock">
+        <div class="logo-row">
+          <div class="logo">R3STO</div>
+          <div class="logo-wordmark">Carat</div>
+        </div>
+        <div class="sublabel">gastronomie 3 étoiles</div>
+        <div class="title">Service <em>d'exception</em></div>
+        <div class="sub">Programme premium pour palaces et étoilés.</div>
+        <button class="cta">Demander un accès</button>
+        <div class="info">
+          <div class="info-row"><span>bg</span><span>#0a0a0a</span></div>
+          <div class="info-row"><span>border</span><span>#a07e2a50</span></div>
+          <div class="info-row"><span>text</span><span>#f5e9c8</span></div>
+          <div class="info-row"><span>or</span><span>#a07e2a</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T3 : PASS -->
+    <div class="theme t3">
+      <div class="theme-hdr">
+        <div class="theme-name">R3STO Pass <span class="theme-tag">consumer</span></div>
+      </div>
+      <div class="mock">
+        <div class="logo-row">
+          <div class="logo">R3STO</div>
+          <div class="logo-wordmark">Pass</div>
+        </div>
+        <div class="sublabel">abonnement gourmet</div>
+        <div class="title">Réservez <em>partout</em>, payez moins</div>
+        <div class="sub">Abonnement consumer pour gourmets fidèles.</div>
+        <button class="cta">Devenir membre</button>
+        <div class="info">
+          <div class="info-row"><span>bg</span><span>#1b3a2e</span></div>
+          <div class="info-row"><span>border</span><span>#a07e2a40</span></div>
+          <div class="info-row"><span>text</span><span>#e0eee5</span></div>
+          <div class="info-row"><span>or</span><span>#a07e2a</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- T4 : R3STO CLAIR (navy clair · annuaire B2C + sous-sites opérationnels) -->
+    <div class="theme t4">
+      <div class="theme-hdr">
+        <div class="theme-name">r3sto.com <span class="theme-tag">navy clair · marketplace + ops</span></div>
+      </div>
+      <div class="mock">
+        <div class="logo-row">
+          <div class="logo">R3STO</div>
+        </div>
+        <div class="sublabel">marketplace · bill · booking · menu · delivery</div>
+        <div class="title">Découvrez les <em>meilleurs</em> restaurants</div>
+        <div class="sub">Off-white légèrement bleuté + logo navy bleu nuit qui pop. Cohérent avec dark via le navy commun + l'or.</div>
+        <button class="cta">Explorer l'annuaire</button>
+        <div class="info">
+          <div class="info-row"><span>bg</span><span>#f4f7fb</span></div>
+          <div class="info-row"><span>surf</span><span>#ffffff</span></div>
+          <div class="info-row"><span>navy logo+CTA</span><span>#1c2e58</span></div>
+          <div class="info-row"><span>or accent</span><span>#a07e2a</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SYNTHESIS -->
+  <div class="synth">
+    <h2>Quel thème pour <em>quel site</em> ?</h2>
+    <p class="lead">Mapping site → thème, validé. Les sites B2B partagent le thème R3STO Pro core. Les sub-brands Carat et Pass héritent de la palette mais inversent le fond. L'annuaire B2C est distinct.</p>
+    <div class="synth-grid">
+      <div class="sc">
+        <h4>🌙 R3STO Pro (core dark)</h4>
+        <div class="swatches">
+          <span class="sw" style="background:#0f1620"></span>
+          <span class="sw" style="background:#1a2435"></span>
+          <span class="sw" style="background:#a07e2a"></span>
+          <span class="sw" style="background:#c89752"></span>
+        </div>
+        <p>Fond navy nuit + <b>logo doré</b> (pas navy, comme Carat/Pass).</p>
+        <p><b>Sites</b> : /pro · /mini · auth · app · admin · bill · booking · menu · delivery · demo</p>
+        <div class="applies">+ toggle vers R3STO Light pour app uniquement</div>
+      </div>
+      <div class="sc">
+        <h4>◼ R3STO Carat (luxe)</h4>
+        <div class="swatches">
+          <span class="sw" style="background:#0a0a0a"></span>
+          <span class="sw" style="background:#1a1a1a"></span>
+          <span class="sw" style="background:#a07e2a"></span>
+          <span class="sw" style="background:#f5e9c8"></span>
+        </div>
+        <p>Noir profond + or chaud. Réservé aux établissements 3 étoiles / palaces.</p>
+        <p><b>Sites</b> : carat.r3sto.ch (futur) · onboarding sur invitation</p>
+        <div class="applies">programme premium pour membres haut de gamme</div>
+      </div>
+      <div class="sc">
+        <h4>🌲 R3STO Pass (consumer)</h4>
+        <div class="swatches">
+          <span class="sw" style="background:#1b3a2e"></span>
+          <span class="sw" style="background:#0f2a1f"></span>
+          <span class="sw" style="background:#a07e2a"></span>
+          <span class="sw" style="background:#e0eee5"></span>
+        </div>
+        <p>Vert forêt + or. Abonnement consumer (gourmets qui réservent souvent).</p>
+        <p><b>Sites</b> : pass.r3sto.ch (futur) · app mobile consumer</p>
+        <div class="applies">programme abonnement payant pour utilisateurs finaux</div>
+      </div>
+      <div class="sc">
+        <h4>☀ R3STO Light (toggle + B2C)</h4>
+        <div class="swatches">
+          <span class="sw" style="background:#fafafc"></span>
+          <span class="sw" style="background:#ffffff"></span>
+          <span class="sw" style="background:#1c2e58"></span>
+          <span class="sw" style="background:#a07e2a"></span>
+        </div>
+        <p>Fond clair + <b>logo navy bleu nuit</b> + or signature. Seul thème où le navy `#1c2e58` apparaît visible.</p>
+        <p><b>Sites</b> : r3sto.com racine · /restaurants · fiches resto publiques · app toggle utilisateur</p>
+        <div class="applies">cohérence app⇄annuaire — la version light de l'app = l'annuaire B2C</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILS DOREE COMMUN -->
+  <div class="synth" style="background:linear-gradient(135deg,#fffdf6,#fefbf0);border:1px solid #f0e8c8">
+    <h2>Le fil rouge · <em>l'or sobre</em></h2>
+    <p class="lead">L'or `#a07e2a` est <b>présent sur les 4 thèmes</b> aux endroits où l'utilisateur prend une action ou voit une distinction premium. C'est ce qui assure que tous ces sites disent "je suis R3STO" malgré leurs fonds différents.</p>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px">
+      <div style="background:#0f1620;color:#a07e2a;padding:14px 22px;border-radius:8px;border:1px solid #a07e2a40">R3STO Pro · or = logo + CTA</div>
+      <div style="background:#0a0a0a;color:#a07e2a;padding:14px 22px;border-radius:8px;border:1px solid #a07e2a40">Carat · or = logo + tout</div>
+      <div style="background:#1b3a2e;color:#a07e2a;padding:14px 22px;border-radius:8px;border:1px solid #a07e2a40">Pass · or = logo + badge</div>
+      <div style="background:#fafafc;color:#1c2e58;padding:14px 22px;border-radius:8px;border:1px solid #e1e5ec">R3STO Light · navy = logo / or = accents</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

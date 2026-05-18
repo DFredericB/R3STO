@@ -1,0 +1,13 @@
+# R3STO — guide gourmand international
+# Innoptim SA · Le Mont-sur-Lausanne · Suisse
+
+User-agent: *
+Allow: /
+
+# Espaces privés (post-login)
+Disallow: /compte.html
+Disallow: /pro-dashboard.html
+Disallow: /pro-claim.html
+
+# Sitemap
+Sitemap: https://r3sto.com/sitemap.xml

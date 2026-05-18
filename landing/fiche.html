@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chez Bunny's — R3STO</title>
+<meta name="description" content="Fiche restaurant R3STO — Chez Bunny's, bistro contemporain au Mont-sur-Lausanne. Réservation directe sans commission.">
+<meta name="theme-color" content="#1c2e58">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;
+  --bg-2:#e3ebf5;
+  --surf:#ffffff;
+  --navy:#1c2e58;
+  --navy-2:#13224a;
+  --gold:#a07e2a;
+  --gold-soft:#c89752;
+  --t-1:#0c1730;
+  --t-2:#4a5878;
+  --t-3:#7b88a8;
+  --border:#d6dfee;
+  --max:1180px;
+  --ff:'DM Sans',system-ui,-apple-system,sans-serif;
+  --ffm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--ff);background:var(--bg);color:var(--t-1);
+  -webkit-font-smoothing:antialiased;line-height:1.55;
+}
+a{color:inherit}
+
+/* NAV */
+.nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(244,247,251,.92);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-in{
+  max-width:var(--max);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:72px;padding:0 28px;
+}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{
+  font-size:11px;font-weight:600;color:var(--gold);
+  letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap;
+}
+@media(max-width:680px){.logo-mast{display:none}}
+.nav-links{display:flex;gap:28px}
+.nav-links a{
+  color:var(--t-2);text-decoration:none;
+  font-size:14px;font-weight:500;letter-spacing:.01em;
+  transition:.18s;
+}
+.nav-links a:hover{color:var(--navy)}
+@media(max-width:880px){.nav-links{display:none}}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--gold);color:#fff;
+  padding:9px 16px;border-radius:0;
+  font-size:13px;font-weight:600;letter-spacing:.04em;
+  text-decoration:none;text-transform:uppercase;
+  transition:.18s;
+}
+.nav-cta:hover{background:var(--gold-soft);transform:translateY(-1px)}
+
+/* CONTAINER */
+.wrap{max-width:var(--max);margin:0 auto;padding:32px 28px 80px}
+.back{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--t-2);text-decoration:none;
+  margin-bottom:24px;font-weight:500;
+}
+.back:hover{color:var(--navy)}
+
+/* HERO RESTO — mobile-first, stack vertical par défaut */
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+@media(min-width:900px){.wrap{max-width:920px;padding:32px 28px 80px}}
+.hero-resto{
+  display:flex;flex-direction:column;
+  background:var(--surf);border:1px solid var(--border);
+  margin-bottom:18px;
+}
+.hero-img{
+  aspect-ratio:4/3;width:100%;
+  background-size:cover;background-position:center;
+  position:relative;overflow:hidden;
+}
+@media(min-width:560px){.hero-img{aspect-ratio:16/10}}
+@media(min-width:900px){.hero-img{aspect-ratio:16/9;max-height:460px}}
+.hero-img .badge{
+  position:absolute;top:14px;left:14px;
+  display:inline-flex;align-items:center;gap:6px;
+  background:#0a0a0a;color:#fff;
+  border:1px solid;
+  padding:6px 11px;font-size:10.5px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+}
+.hero-img .badge .diam{font-size:13px;line-height:1}
+.hero-img .badge.tier-or     {border-color:#d4af37;color:#d4af37}
+.hero-img .badge.tier-silver {border-color:#c0c8d4;color:#c0c8d4}
+.hero-img .badge.tier-bronze {border-color:#cd7f32;color:#cd7f32}
+.hero-meta{
+  padding:22px 20px 0;
+  display:flex;flex-direction:column;
+}
+.cuisine-tag{
+  font-size:11px;font-weight:700;letter-spacing:.14em;
+  color:var(--gold);text-transform:uppercase;margin-bottom:8px;
+}
+.resto-h1{
+  font-size:28px;font-weight:800;letter-spacing:-.02em;
+  margin:0 0 6px;line-height:1.1;color:var(--navy);
+}
+@media(min-width:560px){.resto-h1{font-size:34px}}
+.resto-sub{font-size:14.5px;color:var(--t-2);margin:0 0 16px;line-height:1.5}
+.scores{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.score{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#fff8e8;border:1px solid #e6d090;
+  padding:6px 10px;font-size:11.5px;font-weight:600;
+  color:var(--gold);font-family:var(--ffm);
+}
+.score b{color:var(--t-1);font-weight:700}
+.kv{
+  display:grid;grid-template-columns:auto 1fr;
+  gap:10px 14px;font-size:13.5px;margin:0 0 20px;
+  padding-bottom:18px;border-bottom:1px solid var(--border);
+}
+.kv dt{color:var(--t-3);font-weight:500}
+.kv dd{margin:0;color:var(--t-1);font-weight:500;line-height:1.5}
+/* CTAs en bandeau plein-largeur, mobile first stack */
+.cta-row{
+  display:grid;grid-template-columns:1fr;gap:8px;
+  padding:18px 20px 22px;background:var(--surf);
+}
+@media(min-width:480px){.cta-row{grid-template-columns:1fr auto}}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:15px 22px;font-size:14px;font-weight:600;
+  letter-spacing:.02em;text-decoration:none;cursor:pointer;
+  border:1px solid transparent;transition:.18s;
+  text-transform:uppercase;
+}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy);width:100%}
+.btn-primary:hover{background:var(--gold);border-color:var(--gold)}
+.btn-ghost{background:transparent;color:var(--navy);border-color:var(--border);padding:15px 24px}
+.btn-ghost:hover{border-color:var(--navy);background:#fff}
+
+/* CONTENT BLOCKS — stack mobile, 2col seulement à partir de 1000px */
+.grid-2{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:1000px){.grid-2{grid-template-columns:2fr 1fr;gap:18px}}
+.block{
+  background:var(--surf);border:1px solid var(--border);
+  padding:20px 18px;margin-bottom:14px;
+}
+@media(min-width:560px){.block{padding:24px 24px}}
+.block h2{
+  font-size:16px;font-weight:700;letter-spacing:-.01em;
+  margin:0 0 12px;color:var(--navy);
+}
+.block p{margin:0 0 10px;color:var(--t-1);font-size:14px;line-height:1.65}
+.block p:last-child{margin-bottom:0}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{
+  background:#eaf0fa;border:1px solid var(--border);
+  border-radius:0;padding:4px 10px;
+  font-size:11.5px;font-weight:600;color:var(--navy);
+  letter-spacing:.02em;
+}
+.menu-item{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+  padding:14px 0;border-bottom:1px solid var(--border);
+}
+.menu-item:last-child{border-bottom:0}
+.menu-name{font-weight:600;font-size:14.5px}
+.menu-desc{font-size:13px;color:var(--t-2);margin-top:2px}
+.menu-price{font-family:var(--ffm);font-weight:600;color:var(--gold);white-space:nowrap}
+.hours{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;font-size:13.5px}
+.hours dt{color:var(--t-3);font-weight:500}
+.hours dd{margin:0;font-family:var(--ffm);font-size:12.5px}
+.hours .now{color:#1b3a2e;font-weight:600}
+
+/* FOOTER */
+footer{
+  background:var(--bg-2);color:var(--t-3);
+  padding:48px 28px 28px;margin-top:60px;
+  border-top:1px solid var(--border);
+}
+.foot-in{
+  max-width:var(--max);margin:0 auto;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:20px;
+  border-top:1px solid var(--border);padding-top:22px;font-size:12.5px;
+}
+.foot-in .logo-mark{width:36px;height:36px}
+.foot-brand{display:flex;align-items:center;gap:12px;color:var(--t-2)}
+
+/* RESERVATION MODAL */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(8,15,30,.7);
+  display:none;align-items:center;justify-content:center;
+  z-index:100;padding:20px;
+}
+.modal-bg.on{display:flex}
+.modal{
+  background:#fff;border-radius:0;padding:32px;
+  max-width:480px;width:100%;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.4);
+}
+.modal h3{margin:0 0 6px;font-size:22px;font-weight:800;color:var(--navy)}
+.modal p.lead{margin:0 0 22px;color:var(--t-2);font-size:14px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--t-2);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{
+  width:100%;padding:11px 13px;border:1px solid var(--border);
+  border-radius:0;font-family:var(--ff);font-size:14px;
+  background:#fff;color:var(--t-1);
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--navy)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-cta{
+  width:100%;background:var(--navy);color:#fff;
+  border:0;padding:14px;border-radius:0;
+  font-family:var(--ff);font-size:15px;font-weight:600;
+  cursor:pointer;margin-top:8px;transition:.18s;
+}
+.modal-cta:hover{background:var(--gold)}
+.modal-close{
+  background:transparent;border:0;color:var(--t-2);
+  font-size:14px;cursor:pointer;margin-top:10px;width:100%;
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Fiche</span>
+        <span class="logo-slogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <div class="nav-links">
+      <a href="/">Restaurants</a>
+      <a href="/#carat">Sélection Carat</a>
+      <a href="/#cities">Villes</a>
+      <a href="/pro.html">R3STO Pro</a>
+    </div>
+    <a href="/pro.html" class="nav-cta">Espace Pro →</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <a href="/" class="back">← Retour à l'annuaire</a>
+
+  <div class="hero-resto">
+    <div class="hero-img" id="heroImg" style="background-image:url('https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1400&q=80')">
+      <div class="badge" id="heroBadge">★ Démo R3STO</div>
+    </div>
+    <div class="hero-meta">
+      <div class="cuisine-tag" id="cuisineTag">Bistro contemporain</div>
+      <h1 class="resto-h1" id="restoName">Chez Bunny's</h1>
+      <p class="resto-sub" id="restoSub">Cuisine du marché · ambiance familiale · réservation directe sans commission.</p>
+      <div class="scores" id="scores">
+        <span class="score">— <b>Michelin</b></span>
+        <span class="score">15/20 <b>G&amp;M</b></span>
+        <span class="score">8.8 <b>R3STO</b></span>
+      </div>
+      <dl class="kv">
+        <dt>Adresse</dt><dd id="kvAddr">Avenue d'Echallens 21, Lausanne</dd>
+        <dt>Téléphone</dt><dd id="kvPhone"><a href="tel:+41216541212" style="text-decoration:none;color:var(--navy);font-weight:600">+41 21 654 12 12</a></dd>
+        <dt>Prix moyen</dt><dd id="kvPrice">CHF 35–70</dd>
+        <dt>Statut</dt><dd><span style="color:#1b3a2e;font-weight:600">● Ouvert maintenant</span></dd>
+      </dl>
+    </div>
+    <div class="cta-row">
+      <a href="javascript:void(0)" class="btn btn-primary" onclick="openResa()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Réserver une table
+      </a>
+      <a href="tel:+41216541212" class="btn btn-ghost" id="phoneBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Appeler
+      </a>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="block">
+        <h2>À propos</h2>
+        <p id="aboutP1">Bienvenue Chez Bunny's, un bistro contemporain niché au Mont-sur-Lausanne. Notre cuisine met à l'honneur les produits frais du marché, les producteurs locaux et les classiques revisités avec une touche de modernité.</p>
+        <p id="aboutP2">L'équipe vous accueille dans une ambiance chaleureuse et familiale, parfaite pour un déjeuner d'affaires, un dîner entre amis ou une occasion spéciale. Réservation en ligne directe, 0% commission, le restaurant garde 100% de vos paiements.</p>
+        <div class="tags">
+          <span class="tag">Cuisine du marché</span>
+          <span class="tag">Bistro</span>
+          <span class="tag">Familial</span>
+          <span class="tag">Réservation directe</span>
+          <span class="tag">Vins suisses</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>Menu signature</h2>
+        <div class="menu-item">
+          <div>
+            <div class="menu-name">Tartare de bœuf au couteau</div>
+            <div class="menu-desc">Filet du jour, jaune d'œuf bio, condiments maison, frites fraîches.</div>
+          </div>
+          <div class="menu-price">CHF 32</div>
+        </div>
+        <div class="menu-item">
+          <div>
+            <div class="menu-name">Filet de perche meunière</div>
+            <div class="menu-desc">Perches du lac Léman, beurre noisette, citron confit, pommes vapeur.</div>
+          </div>
+          <div class="menu-price">CHF 38</div>
+        </div>
+        <div class="menu-item">
+          <div>
+            <div class="menu-name">Risotto aux morilles</div>
+            <div class="menu-desc">Riz Carnaroli, morilles fraîches, parmesan 24 mois, huile de truffe.</div>
+          </div>
+          <div class="menu-price">CHF 34</div>
+        </div>
+        <div class="menu-item">
+          <div>
+            <div class="menu-name">Côte de bœuf maturée 40 jours</div>
+            <div class="menu-desc">Viande suisse, sauce béarnaise, pommes grenaille, salade verte. (pour 2)</div>
+          </div>
+          <div class="menu-price">CHF 95</div>
+        </div>
+        <div class="menu-item">
+          <div>
+            <div class="menu-name">Moelleux au chocolat</div>
+            <div class="menu-desc">Chocolat noir 70%, cœur coulant, glace vanille bourbon.</div>
+          </div>
+          <div class="menu-price">CHF 14</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="block">
+        <h2>Horaires</h2>
+        <dl class="hours">
+          <dt>Lundi</dt><dd>Fermé</dd>
+          <dt>Mardi</dt><dd>12:00–14:30 · 19:00–22:30</dd>
+          <dt>Mercredi</dt><dd>12:00–14:30 · 19:00–22:30</dd>
+          <dt>Jeudi</dt><dd>12:00–14:30 · 19:00–22:30</dd>
+          <dt>Vendredi</dt><dd>12:00–14:30 · 19:00–23:00</dd>
+          <dt>Samedi</dt><dd>11:30–15:00 · 19:00–23:00</dd>
+          <dt>Dimanche</dt><dd>11:30–15:00</dd>
+        </dl>
+      </div>
+
+      <div class="block">
+        <h2>Localisation</h2>
+        <p style="font-size:14px;margin:0 0 12px"><strong id="locName">Le Mont-sur-Lausanne</strong> · canton de Vaud, Suisse</p>
+        <p style="font-size:13px;color:var(--t-2);margin:0">À 5 minutes en voiture du centre de Lausanne. Parking gratuit, accès TPL ligne 8.</p>
+      </div>
+
+      <div class="block" style="background:linear-gradient(180deg,#0a0a0a 0%,#1c2e58 100%);border:1px solid rgba(200,151,82,.3);color:#fff">
+        <h2 style="color:#c89752">◆ Recommandé par R3STO</h2>
+        <p style="color:rgba(255,255,255,.75);font-size:14px">Établissement membre de notre Sélection Carat — coup de cœur de la rédaction R3STO 2026.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="36" height="36">
+      <span>Marketplace internationale des restaurateurs indépendants</span>
+    </div>
+    <div>© 2026 Innoptim SA · Lausanne · CHE-430.441.925</div>
+  </div>
+</footer>
+
+<!-- RESERVATION MODAL -->
+<div class="modal-bg" id="resaModal">
+  <div class="modal">
+    <h3 id="modalTitle">Réserver chez Chez Bunny's</h3>
+    <p class="lead">Réservation directe, 0% commission. Votre demande sera <b>confirmée par le restaurant</b> par e-mail sous quelques heures.</p>
+    <form onsubmit="return submitResa(event)">
+      <div class="row">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="resaDate" required>
+        </div>
+        <div class="field">
+          <label>Heure</label>
+          <input type="time" id="resaTime" value="19:30" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>Personnes</label>
+        <select id="resaPax" required>
+          <option value="1">1 personne</option>
+          <option value="2" selected>2 personnes</option>
+          <option value="3">3 personnes</option>
+          <option value="4">4 personnes</option>
+          <option value="5">5 personnes</option>
+          <option value="6">6 personnes</option>
+          <option value="7">7 personnes</option>
+          <option value="8">8 personnes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nom complet</label>
+        <input type="text" id="resaName" required placeholder="Jean Dupont">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="resaEmail" required placeholder="jean@example.com">
+        </div>
+        <div class="field">
+          <label>Téléphone</label>
+          <input type="tel" id="resaPhone" required placeholder="+41 79 …">
+        </div>
+      </div>
+      <button type="submit" class="modal-cta">Envoyer la demande →</button>
+      <button type="button" class="modal-close" onclick="closeResa()">Annuler</button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Database de fiches connues
+const FICHES = {
+  'chez-bunnys': {
+    name: "Chez Bunny's",
+    cuisine: "Bistro contemporain",
+    sub: "Cuisine du marché · ambiance familiale · réservation directe sans commission.",
+    badge: "★ Démo R3STO",
+    addr: "Avenue d'Echallens 21, Lausanne",
+    phone: "+41 21 654 12 12",
+    price: "CHF 35–70",
+    locName: "Le Mont-sur-Lausanne",
+    img: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1400&q=80",
+    scores: { michelin:'—', gm:'15/20', r3:'8.8' }
+  },
+  'la-pinte-crissier': {
+    name: "La Pinte",
+    cuisine: "Terroir & vins suisses",
+    sub: "Brasserie chic du chef Franck Giovannini · cuisine de bistronomie.",
+    badge: "★★ Michelin",
+    addr: "Rue de Lausanne 1, 1023 Crissier",
+    phone: "+41 21 634 05 05",
+    price: "CHF 90–160",
+    locName: "Crissier (VD)",
+    img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=80",
+    scores: { michelin:'★★', gm:'18/20', r3:'9.2' }
+  },
+  'hotel-de-ville-crissier': {
+    name: "Restaurant de l'Hôtel de Ville",
+    cuisine: "Cuisine française d'auteur",
+    sub: "Trois étoiles Michelin · maison Giovannini · institution gastronomique suisse.",
+    badge: "★★★ Michelin",
+    addr: "Rue d'Yverdon 1, 1023 Crissier",
+    phone: "+41 21 634 05 05",
+    price: "CHF 350–550",
+    locName: "Crissier (VD)",
+    img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&q=80",
+    scores: { michelin:'★★★', gm:'19/20', r3:'9.7' }
+  },
+  'denis-martin': {
+    name: "Denis Martin",
+    cuisine: "Gastronomie moléculaire",
+    sub: "Expérience 14 services · une référence de la cuisine d'avant-garde suisse.",
+    badge: "★★ Michelin",
+    addr: "Rue du Château 2, 1800 Vevey",
+    phone: "+41 21 921 12 10",
+    price: "CHF 280–420",
+    locName: "Vevey (VD)",
+    img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1400&q=80",
+    scores: { michelin:'★★', gm:'18/20', r3:'9.4' }
+  },
+  'anne-sophie-pic-beau-rivage': {
+    name: "Anne-Sophie Pic au Beau-Rivage",
+    cuisine: "Cuisine signature",
+    sub: "Palace 5 étoiles · table d'exception au bord du lac Léman.",
+    badge: "★★ Michelin",
+    addr: "Chemin de Beau-Rivage 21, 1006 Lausanne",
+    phone: "+41 21 613 33 33",
+    price: "CHF 250–400",
+    locName: "Lausanne (VD)",
+    img: "https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=1400&q=80",
+    scores: { michelin:'★★', gm:'18/20', r3:'9.3' }
+  }
+};
+
+/* RÈGLE LABEL CARAT — score composite Michelin × G&M × R3STO */
+function caratTier(scores){
+  if(!scores) return null;
+  const m  = (scores.michelin || '').match(/★/g)?.length || 0;
+  const gm = parseFloat((scores.gm || '').split('/')[0]) || 0;
+  const r3 = parseFloat(scores.r3) || 0;
+  const mNorm  = m === 3 ? 10 : m === 2 ? 9.0 : m === 1 ? 8.0 : 0;
+  const gmNorm = gm ? (gm / 2) : 0;
+  const composite = (mNorm * 0.4) + (gmNorm * 0.3) + (r3 * 0.3);
+  if(composite >= 9.3 || m >= 2 || gm >= 18) return 'or';
+  if(composite >= 8.8 || m >= 1 || gm >= 16) return 'silver';
+  if(composite >= 8.4) return 'bronze';
+  return null;
+}
+
+function loadFiche(){
+  const params = new URLSearchParams(window.location.search);
+  const slug = (params.get('slug') || 'chez-bunnys').toLowerCase();
+  const data = FICHES[slug] || FICHES['chez-bunnys'];
+
+  document.title = data.name + ' — R3STO';
+  document.getElementById('restoName').textContent = data.name;
+  document.getElementById('cuisineTag').textContent = data.cuisine;
+  document.getElementById('restoSub').textContent = data.sub;
+
+  // Badge tier auto-calculé
+  const tier = caratTier(data.scores);
+  const badge = document.getElementById('heroBadge');
+  if(tier){
+    const lbl = tier==='or'?'Carat Or':tier==='silver'?'Carat Silver':'Carat Bronze';
+    badge.className = 'badge tier-' + tier;
+    badge.innerHTML = '<span class="diam">◆</span>' + lbl;
+  } else {
+    badge.className = 'badge';
+    badge.textContent = data.badge || 'Restaurant';
+  }
+
+  document.getElementById('kvAddr').textContent = data.addr;
+  document.getElementById('kvPhone').innerHTML = '<a href="tel:'+data.phone.replace(/\s/g,'')+'" style="text-decoration:none;color:var(--navy);font-weight:600">'+data.phone+'</a>';
+  document.getElementById('kvPrice').textContent = data.price;
+  document.getElementById('locName').textContent = data.locName;
+  document.getElementById('heroImg').style.backgroundImage = "url('"+data.img+"')";
+  document.getElementById('scores').innerHTML =
+    '<span class="score">'+data.scores.michelin+' <b>Michelin</b></span>'+
+    '<span class="score">'+data.scores.gm+' <b>G&amp;M</b></span>'+
+    '<span class="score">'+data.scores.r3+' <b>R3STO</b></span>';
+  document.getElementById('modalTitle').textContent = 'Réserver chez '+data.name;
+}
+
+// ============================================================
+// BOOKING — endpoint Cloudflare Worker (à brancher au déploiement)
+// ============================================================
+const API_URL = window.R3STO_API_URL || 'https://r3sto-booking.workers.dev';
+//   ⇧ remplacer par https://r3sto-booking.<ton-compte>.workers.dev après wrangler deploy
+//   ou https://api.r3sto.com si tu as configuré le sous-domaine
+
+function openResa(){
+  document.getElementById('resaModal').classList.add('on');
+  const today = new Date();
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+  const dInput = document.getElementById('resaDate');
+  dInput.value = tomorrow.toISOString().slice(0,10);
+  dInput.min   = today.toISOString().slice(0,10); // empêche dates passées
+}
+function closeResa(){ document.getElementById('resaModal').classList.remove('on'); }
+
+async function submitResa(e){
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  if(btn){ btn.disabled = true; btn.dataset.original = btn.textContent; btn.textContent = 'Envoi en cours…'; }
+
+  // Récupère le slug courant depuis l'URL
+  const params = new URLSearchParams(window.location.search);
+  const slug = (params.get('slug') || 'chez-bunnys').toLowerCase();
+
+  const payload = {
+    slug,
+    name:  document.getElementById('resaName').value.trim(),
+    email: document.getElementById('resaEmail').value.trim(),
+    phone: document.getElementById('resaPhone').value.trim(),
+    date:  document.getElementById('resaDate').value,
+    time:  document.getElementById('resaTime').value,
+    pax:   parseInt(document.getElementById('resaPax').value, 10),
+    notes: (document.getElementById('resaNotes')?.value || '').trim()
+  };
+
+  try {
+    const res = await fetch(API_URL + '/booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Erreur lors de l\'envoi');
+
+    // Redirection vers la page de confirmation
+    const restoName = document.getElementById('restoName').textContent;
+    const q = new URLSearchParams({
+      ref:     data.ref,
+      resto:   restoName,
+      email:   payload.email,
+      date:    data.date,
+      dateIso: payload.date,
+      time:    payload.time,
+      pax:     String(payload.pax)
+    });
+    window.location.href = '/reservation-confirmee.html?' + q.toString();
+  } catch (err) {
+    if(btn){ btn.disabled = false; btn.textContent = btn.dataset.original || 'Confirmer'; }
+    alert('⚠ Impossible d\'envoyer la réservation pour le moment.\n\n'
+      + (err.message || 'Erreur inconnue')
+      + '\n\nEssayez à nouveau, ou contactez le restaurant directement.');
+  }
+  return false;
+}
+
+document.addEventListener('DOMContentLoaded', loadFiche);
+document.getElementById('resaModal').addEventListener('click', e => {
+  if(e.target.id === 'resaModal') closeResa();
+});
+</script>
+</body>
+</html>

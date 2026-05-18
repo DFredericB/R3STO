@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — 5 palettes raffinées avec bleu duo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:#eceef2; padding:24px; color:#1f2937; }
+  .wrap { max-width:1600px; margin:0 auto; }
+
+  h1.top { font-family:'Playfair Display', serif; font-weight:700; font-size:30px; margin-bottom:6px; color:#0f1620; }
+  .sub { color:#6b7280; font-size:13px; margin-bottom:20px; }
+  .intro { background:#fff; border-left:4px solid #1d4f91; padding:18px 22px; border-radius:6px; font-size:14px; line-height:1.55; margin-bottom:24px; }
+  .intro b { color:#0f1620; }
+  .intro code { background:#eef3fc; color:#1d4f91; padding:1px 5px; border-radius:3px; font-family:'SF Mono', monospace; font-size:12px; }
+
+  .columns { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
+  .col { display:flex; flex-direction:column; gap:12px; }
+
+  .col-head { background:#fff; padding:14px 14px; border-radius:10px; }
+  .col-head .name { font-family:'Playfair Display', serif; font-size:18px; font-weight:700; color:#0f1620; margin-bottom:2px; }
+  .col-head .desc { font-size:10px; color:#6b7280; line-height:1.4; margin-bottom:10px; min-height:42px; }
+  .col-head .swr { display:flex; gap:4px; flex-wrap:wrap; }
+  .col-head .swc { width:26px; height:26px; border-radius:4px; border:1px solid rgba(0,0,0,.05); }
+
+  .frame { border-radius:12px; overflow:hidden; box-shadow:0 4px 18px rgba(15,30,55,0.08); background:#fff; }
+  .frame-label { padding:8px 12px; font-size:8px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700; background:#0f1620; color:#fff; }
+  .frame-label.b2b { background:#1d4f91; }
+  .frame-label.bw { background:#14253f; }
+
+  .logo {
+    display:inline-block;
+    width:48px; height:48px;
+    background-image: url('./logo-r3sto-blue.svg');
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+  .pro-word { font-family:'Alethia Next', sans-serif; font-weight:400; font-size:30px; color:#1d4f91; line-height:1; }
+
+  /* ==== web (r3sto.com) ==== */
+  .web { padding:18px 16px; background:#fff; color:#0f1620; }
+  .web .logo { width:36px; height:36px; margin-bottom:10px; }
+  .web .kicker { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:6px; }
+  .web h2 { font-family:'Playfair Display', serif; font-size:20px; line-height:1.05; font-weight:700; margin-bottom:6px; letter-spacing:-0.3px; color:#0f1620; }
+  .web h2 .accent { font-style:italic; font-weight:400; }
+  .web .tag { font-size:10px; line-height:1.45; margin-bottom:12px; color:#4b5563; }
+  .web .search { padding:7px 9px; border-radius:7px; font-size:9px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:#f6f6f8; }
+  .web .search .ph { opacity:0.6; }
+  .web .search .btn { padding:4px 8px; border-radius:4px; font-weight:600; font-size:8px; color:#fff; }
+  .web .stats { display:flex; gap:8px; padding:8px 0; border-top:1px solid #e5e7eb; }
+  .web .stat { font-size:8px; opacity:0.7; }
+  .web .stat b { display:block; font-family:'Playfair Display', serif; font-size:13px; font-weight:700; margin-bottom:1px; opacity:1; }
+  .web .restos { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:10px; }
+  .web .resto { padding:7px; border-radius:5px; }
+  .web .resto .name { font-family:'Playfair Display', serif; font-weight:700; font-size:11px; margin-bottom:1px; }
+  .web .resto .meta { font-size:8px; opacity:0.65; margin-bottom:6px; }
+  .web .resto .pill { display:inline-block; padding:2px 5px; border-radius:8px; font-size:7px; font-weight:700; letter-spacing:0.3px; color:#fff; }
+
+  /* ==== app ==== */
+  .app { display:grid; grid-template-columns:54px 1fr; min-height:240px; background:#fff; color:#0f1620; }
+  .app .side { padding:8px 4px; display:flex; flex-direction:column; gap:3px; align-items:center; background:#f6f6f8; border-right:1px solid #e5e7eb; }
+  .app .side .logo { width:34px; height:34px; margin-bottom:8px; }
+  .app .side .nav-item { width:36px; height:24px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:600; color:#6b7280; }
+  .app .side .nav-item.active { color:#fff; }
+  .app .main { padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
+  .app .topbar { display:flex; justify-content:space-between; align-items:center; padding-bottom:6px; border-bottom:1px solid #e5e7eb; }
+  .app .topbar .ttl { font-family:'Playfair Display', serif; font-size:12px; font-weight:700; }
+  .app .topbar .pw { font-family:'Alethia Next', sans-serif; font-size:18px; color:#1d4f91; }
+  .app .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .app .kpi { padding:6px 7px; border-radius:6px; background:#f6f6f8; }
+  .app .kpi .lbl { font-size:7px; letter-spacing:0.8px; text-transform:uppercase; opacity:0.6; margin-bottom:2px; }
+  .app .kpi .val { font-family:'Playfair Display', serif; font-size:14px; font-weight:700; }
+  .app .resa { display:grid; grid-template-columns:40px 1fr 40px; gap:7px; padding:5px 7px; border-radius:5px; font-size:9px; align-items:center; background:#f6f6f8; }
+  .app .resa .h { font-family:'Playfair Display', serif; font-size:11px; font-weight:700; }
+  .app .resa .px { padding:1px 5px; border-radius:3px; font-size:7px; font-weight:700; text-align:center; color:#fff; }
+
+  /* ==== booking ==== */
+  .bw { padding:14px 14px; background:#fff; color:#0f1620; }
+  .bw .blogo-wrap { text-align:center; margin-bottom:10px; }
+  .bw .blogo-wrap .logo { width:38px; height:38px; }
+  .bw .blang { display:flex; gap:3px; justify-content:center; margin-bottom:10px; }
+  .bw .blang span { font-size:8px; padding:3px 5px; border-radius:3px; color:#6b7280; }
+  .bw .blang .active { color:#fff; font-weight:700; }
+  .bw .bkicker { text-align:center; font-size:7px; letter-spacing:1.3px; text-transform:uppercase; font-weight:700; margin-bottom:4px; opacity:0.6; }
+  .bw .bh { text-align:center; font-family:'Playfair Display', serif; font-size:14px; font-weight:700; margin-bottom:2px; }
+  .bw .bsub { text-align:center; font-size:9px; opacity:0.6; margin-bottom:12px; }
+  .bw .blbl { font-size:7px; font-weight:700; letter-spacing:1px; text-transform:uppercase; opacity:0.55; margin-bottom:3px; }
+  .bw .bdate { padding:7px 9px; border-radius:5px; font-size:10px; margin-bottom:10px; background:#f9f9fb; }
+  .bw .bpax-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:3px; margin-bottom:12px; }
+  .bw .bpax { padding:5px 0; border-radius:3px; text-align:center; font-weight:600; font-size:9px; background:#f9f9fb; }
+  .bw .bpax.active { color:#fff; }
+  .bw .bcta { padding:8px; border-radius:5px; font-weight:600; text-align:center; font-size:10px; color:#fff; }
+  .bw .bpow { text-align:center; font-size:7px; margin-top:8px; opacity:0.55; }
+
+  /* ============ V1 — Bleu duo + Or chaud (luxe) ============ */
+  .v1 .web .kicker { color:#c89752; }
+  .v1 .web h2 .accent { color:#3b82f6; }
+  .v1 .web .search .btn { background:#1d4f91; }
+  .v1 .web .stat b { color:#1d4f91; }
+  .v1 .web .stat:nth-child(3) b { color:#3b82f6; }
+  .v1 .web .resto { background:linear-gradient(135deg, #fffaf0, #fff); }
+  .v1 .web .resto .pill { background:#c89752; }
+  .v1 .web .resto:nth-child(2) .pill { background:#3b82f6; }
+  .v1 .app .side .nav-item.active { background:#1d4f91; }
+  .v1 .app .kpi:nth-child(1) .val { color:#1d4f91; }
+  .v1 .app .kpi:nth-child(2) .val { color:#3b82f6; }
+  .v1 .app .kpi:nth-child(3) .val { color:#c89752; }
+  .v1 .app .kpi:nth-child(4) .val { color:#1d4f91; }
+  .v1 .app .resa .h { color:#3b82f6; }
+  .v1 .app .resa .px { background:#c89752; }
+  .v1 .bw .blang .active { background:#1d4f91; }
+  .v1 .bw .bpax.active { background:#3b82f6; }
+  .v1 .bw .bcta { background:#1d4f91; }
+  .v1 .bw .bpow b { color:#c89752; }
+
+  /* ============ V2 — Bleu duo + Cuivre (gourmand) ============ */
+  .v2 .web .kicker { color:#b8632b; }
+  .v2 .web h2 .accent { color:#b8632b; font-style:italic; }
+  .v2 .web .search .btn { background:#1d4f91; }
+  .v2 .web .stat b { color:#1d4f91; }
+  .v2 .web .stat:nth-child(2) b { color:#b8632b; }
+  .v2 .web .stat:nth-child(3) b { color:#3b82f6; }
+  .v2 .web .resto { background:#fdf4ec; }
+  .v2 .web .resto .pill { background:#b8632b; }
+  .v2 .web .resto:nth-child(2) .pill { background:#3b82f6; }
+  .v2 .app .side .nav-item.active { background:#1d4f91; }
+  .v2 .app .kpi:nth-child(1) .val { color:#1d4f91; }
+  .v2 .app .kpi:nth-child(2) .val { color:#3b82f6; }
+  .v2 .app .kpi:nth-child(3) .val { color:#b8632b; }
+  .v2 .app .kpi:nth-child(4) .val { color:#1d4f91; }
+  .v2 .app .resa .h { color:#1d4f91; }
+  .v2 .app .resa .px { background:#b8632b; }
+  .v2 .bw .blang .active { background:#1d4f91; }
+  .v2 .bw .bpax.active { background:#b8632b; }
+  .v2 .bw .bcta { background:#1d4f91; }
+
+  /* ============ V3 — Bleu duo + Sauge (PASS family) ============ */
+  .v3 .web .kicker { color:#5a8c50; }
+  .v3 .web h2 .accent { color:#5a8c50; }
+  .v3 .web .search .btn { background:#1d4f91; }
+  .v3 .web .stat b { color:#1d4f91; }
+  .v3 .web .stat:nth-child(2) b { color:#5a8c50; }
+  .v3 .web .stat:nth-child(3) b { color:#3b82f6; }
+  .v3 .web .resto { background:#f3f8f1; border:1px solid #d8e8d3; }
+  .v3 .web .resto .pill { background:#5a8c50; }
+  .v3 .web .resto:nth-child(2) .pill { background:#3b82f6; }
+  .v3 .app .side .nav-item.active { background:#1d4f91; }
+  .v3 .app .kpi:nth-child(1) .val { color:#1d4f91; }
+  .v3 .app .kpi:nth-child(2) .val { color:#5a8c50; }
+  .v3 .app .kpi:nth-child(3) .val { color:#3b82f6; }
+  .v3 .app .kpi:nth-child(4) .val { color:#1d4f91; }
+  .v3 .app .resa .h { color:#1d4f91; }
+  .v3 .app .resa .px { background:#5a8c50; }
+  .v3 .bw .blang .active { background:#5a8c50; }
+  .v3 .bw .bpax.active { background:#1d4f91; }
+  .v3 .bw .bcta { background:#1d4f91; }
+
+  /* ============ V4 — Bleu trio + Or + Cuivre (riche gourmand premium) ============ */
+  .v4 .web .kicker { color:#b8632b; }
+  .v4 .web h2 .accent { color:#c89752; font-style:italic; }
+  .v4 .web .search .btn { background:#1d4f91; }
+  .v4 .web .stat b { color:#1d4f91; }
+  .v4 .web .stat:nth-child(2) b { color:#c89752; }
+  .v4 .web .stat:nth-child(3) b { color:#b8632b; }
+  .v4 .web .stat:nth-child(4) b { color:#3b82f6; }
+  .v4 .web .resto { background:linear-gradient(135deg, #fffaf0, #fdf4ec); }
+  .v4 .web .resto .pill { background:#c89752; }
+  .v4 .web .resto:nth-child(2) .pill { background:#3b82f6; }
+  .v4 .app .side .nav-item.active { background:#1d4f91; }
+  .v4 .app .kpi:nth-child(1) .val { color:#1d4f91; }
+  .v4 .app .kpi:nth-child(2) .val { color:#c89752; }
+  .v4 .app .kpi:nth-child(3) .val { color:#b8632b; }
+  .v4 .app .kpi:nth-child(4) .val { color:#3b82f6; }
+  .v4 .app .resa .h { color:#3b82f6; }
+  .v4 .app .resa .px { background:#b8632b; }
+  .v4 .bw .blang .active { background:#3b82f6; }
+  .v4 .bw .bpax.active { background:#c89752; }
+  .v4 .bw .bcta { background:#1d4f91; }
+
+  /* ============ V5 — Bleu duo pur (Stripe-like, max sobre) ============ */
+  .v5 .web .kicker { color:#3b82f6; }
+  .v5 .web h2 .accent { color:#3b82f6; }
+  .v5 .web .search .btn { background:#1d4f91; }
+  .v5 .web .stat b { color:#1d4f91; }
+  .v5 .web .stat:nth-child(2) b { color:#3b82f6; }
+  .v5 .web .resto { background:#eff6ff; }
+  .v5 .web .resto .pill { background:#3b82f6; }
+  .v5 .web .resto:nth-child(2) .pill { background:#1d4f91; }
+  .v5 .app .side .nav-item.active { background:#1d4f91; }
+  .v5 .app .kpi:nth-child(1) .val { color:#1d4f91; }
+  .v5 .app .kpi:nth-child(2) .val { color:#3b82f6; }
+  .v5 .app .kpi:nth-child(3) .val { color:#1d4f91; }
+  .v5 .app .kpi:nth-child(4) .val { color:#3b82f6; }
+  .v5 .app .resa .h { color:#1d4f91; }
+  .v5 .app .resa .px { background:#3b82f6; }
+  .v5 .bw .blang .active { background:#1d4f91; }
+  .v5 .bw .bpax.active { background:#3b82f6; }
+  .v5 .bw .bcta { background:#1d4f91; }
+
+  .footer-note { background:#fff; border-radius:10px; padding:18px 22px; margin-top:18px; font-size:13px; line-height:1.6; color:#1f2937; }
+  .footer-note b { color:#0f1620; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="top">R3STO — 5 palettes raffinées · bleu duo + accent secondaire</h1>
+  <p class="sub">Bleu officiel <code>#1d4f91</code> + bleu clair <code>#3b82f6</code> partout. Le 3e accent varie. Logo officiel + Alethia.</p>
+
+  <div class="intro">
+    <b>Nouveauté</b> : ajout du <b>bleu clair <code>#3b82f6</code></b> comme accent vif (liens, hover, badges info, h2 italique).
+    Ça apporte de la profondeur et différencie de booking (qui n'utilise qu'un seul bleu).
+    Le bleu officiel <code>#1d4f91</code> reste pour le logo, primary CTA et headlines.
+    Le <b>3e accent</b> (or, cuivre, sauge, multi) donne l'âme à chaque version.
+  </div>
+
+  <div class="columns">
+
+    <!-- V1 — Or -->
+    <div class="col v1">
+      <div class="col-head">
+        <div class="name">V1 — Or chaud</div>
+        <div class="desc">Bleu duo + or chaud. Luxe gastronomie, signature haut de gamme.</div>
+        <div class="swr">
+          <div class="swc" style="background:#1d4f91"></div>
+          <div class="swc" style="background:#3b82f6"></div>
+          <div class="swc" style="background:#c89752"></div>
+          <div class="swc" style="background:#fffaf0"></div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label">r3sto.com</div>
+        <div class="web">
+          <span class="logo"></span>
+          <div class="kicker">★ Annuaire gourmand</div>
+          <h2>Trouvez votre table. <span class="accent">Sans intermédiaire.</span></h2>
+          <p class="tag">19'461 tables · 0% commission · Réservation directe.</p>
+          <div class="search"><span class="ph">🔍 Chercher…</span><span class="btn">Chercher →</span></div>
+          <div class="stats">
+            <div class="stat"><b>19'461</b>tables</div>
+            <div class="stat"><b>612</b>CARAT</div>
+            <div class="stat"><b>26</b>cantons</div>
+            <div class="stat"><b>0%</b>com.</div>
+          </div>
+          <div class="restos">
+            <div class="resto"><div class="name">Chez Bunny's</div><div class="meta">Lausanne</div><span class="pill">★ CARAT</span></div>
+            <div class="resto"><div class="name">Comptoir du Lac</div><div class="meta">Lausanne</div><span class="pill">Réserver</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label b2b">app.r3sto.ch</div>
+        <div class="app">
+          <div class="side">
+            <span class="logo"></span>
+            <div class="nav-item active">Résa</div><div class="nav-item">Ord.</div><div class="nav-item">Liv.</div><div class="nav-item">Cash</div>
+          </div>
+          <div class="main">
+            <div class="topbar"><span class="ttl">Vendredi 15 mai</span><span class="pw">Pro</span></div>
+            <div class="kpis">
+              <div class="kpi"><div class="lbl">Couverts</div><div class="val">87</div></div>
+              <div class="kpi"><div class="lbl">Résa</div><div class="val">34</div></div>
+              <div class="kpi"><div class="lbl">CA</div><div class="val">3'480</div></div>
+              <div class="kpi"><div class="lbl">Tx</div><div class="val">94%</div></div>
+            </div>
+            <div class="resa"><div class="h">19:30</div><div>Marc Dupont</div><div class="px">4p</div></div>
+            <div class="resa"><div class="h">20:00</div><div>Famille Schmid</div><div class="px">6p</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label bw">booking</div>
+        <div class="bw">
+          <div class="blogo-wrap"><span class="logo"></span></div>
+          <div class="blang"><span class="active">FR</span><span>DE</span><span>IT</span><span>EN</span></div>
+          <div class="bkicker">Choisissez votre table</div>
+          <div class="bh">Comptoir du Lac</div>
+          <div class="bsub">Lausanne · Cuisine suisse</div>
+          <div class="bdate">15 / 05 / 2026</div>
+          <div class="bpax-grid"><div class="bpax">1</div><div class="bpax active">2</div><div class="bpax">3</div><div class="bpax">4</div><div class="bpax">5</div><div class="bpax">6+</div></div>
+          <div class="bcta">Voir dispos →</div>
+          <div class="bpow">Propulsé par <b>R3STO</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V2 — Cuivre -->
+    <div class="col v2">
+      <div class="col-head">
+        <div class="name">V2 — Cuivre gourmand</div>
+        <div class="desc">Bleu duo + cuivre. Ton "guide gourmand suisse" élégant et accessible.</div>
+        <div class="swr">
+          <div class="swc" style="background:#1d4f91"></div>
+          <div class="swc" style="background:#3b82f6"></div>
+          <div class="swc" style="background:#b8632b"></div>
+          <div class="swc" style="background:#fdf4ec"></div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label">r3sto.com</div>
+        <div class="web">
+          <span class="logo"></span>
+          <div class="kicker">★ Annuaire gourmand</div>
+          <h2>Trouvez votre table. <span class="accent">Sans intermédiaire.</span></h2>
+          <p class="tag">19'461 tables · 0% commission · Réservation directe.</p>
+          <div class="search"><span class="ph">🔍 Chercher…</span><span class="btn">Chercher →</span></div>
+          <div class="stats">
+            <div class="stat"><b>19'461</b>tables</div>
+            <div class="stat"><b>612</b>CARAT</div>
+            <div class="stat"><b>26</b>cantons</div>
+            <div class="stat"><b>0%</b>com.</div>
+          </div>
+          <div class="restos">
+            <div class="resto"><div class="name">Chez Bunny's</div><div class="meta">Lausanne</div><span class="pill">★ CARAT</span></div>
+            <div class="resto"><div class="name">Comptoir du Lac</div><div class="meta">Lausanne</div><span class="pill">Réserver</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label b2b">app.r3sto.ch</div>
+        <div class="app">
+          <div class="side">
+            <span class="logo"></span>
+            <div class="nav-item active">Résa</div><div class="nav-item">Ord.</div><div class="nav-item">Liv.</div><div class="nav-item">Cash</div>
+          </div>
+          <div class="main">
+            <div class="topbar"><span class="ttl">Vendredi 15 mai</span><span class="pw">Pro</span></div>
+            <div class="kpis">
+              <div class="kpi"><div class="lbl">Couverts</div><div class="val">87</div></div>
+              <div class="kpi"><div class="lbl">Résa</div><div class="val">34</div></div>
+              <div class="kpi"><div class="lbl">CA</div><div class="val">3'480</div></div>
+              <div class="kpi"><div class="lbl">Tx</div><div class="val">94%</div></div>
+            </div>
+            <div class="resa"><div class="h">19:30</div><div>Marc Dupont</div><div class="px">4p</div></div>
+            <div class="resa"><div class="h">20:00</div><div>Famille Schmid</div><div class="px">6p</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label bw">booking</div>
+        <div class="bw">
+          <div class="blogo-wrap"><span class="logo"></span></div>
+          <div class="blang"><span class="active">FR</span><span>DE</span><span>IT</span><span>EN</span></div>
+          <div class="bkicker">Choisissez votre table</div>
+          <div class="bh">Comptoir du Lac</div>
+          <div class="bsub">Lausanne · Cuisine suisse</div>
+          <div class="bdate">15 / 05 / 2026</div>
+          <div class="bpax-grid"><div class="bpax">1</div><div class="bpax active">2</div><div class="bpax">3</div><div class="bpax">4</div><div class="bpax">5</div><div class="bpax">6+</div></div>
+          <div class="bcta">Voir dispos →</div>
+          <div class="bpow">Propulsé par <b>R3STO</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V3 — Sauge -->
+    <div class="col v3">
+      <div class="col-head">
+        <div class="name">V3 — Sauge moderne</div>
+        <div class="desc">Bleu duo + vert sauge. Ton tech-friendly, lien naturel avec PASS.</div>
+        <div class="swr">
+          <div class="swc" style="background:#1d4f91"></div>
+          <div class="swc" style="background:#3b82f6"></div>
+          <div class="swc" style="background:#5a8c50"></div>
+          <div class="swc" style="background:#f3f8f1"></div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label">r3sto.com</div>
+        <div class="web">
+          <span class="logo"></span>
+          <div class="kicker">★ Annuaire gourmand</div>
+          <h2>Trouvez votre table. <span class="accent">Sans intermédiaire.</span></h2>
+          <p class="tag">19'461 tables · 0% commission · Réservation directe.</p>
+          <div class="search"><span class="ph">🔍 Chercher…</span><span class="btn">Chercher →</span></div>
+          <div class="stats">
+            <div class="stat"><b>19'461</b>tables</div>
+            <div class="stat"><b>612</b>CARAT</div>
+            <div class="stat"><b>26</b>cantons</div>
+            <div class="stat"><b>0%</b>com.</div>
+          </div>
+          <div class="restos">
+            <div class="resto"><div class="name">Chez Bunny's</div><div class="meta">Lausanne</div><span class="pill">★ CARAT</span></div>
+            <div class="resto"><div class="name">Comptoir du Lac</div><div class="meta">Lausanne</div><span class="pill">Réserver</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label b2b">app.r3sto.ch</div>
+        <div class="app">
+          <div class="side">
+            <span class="logo"></span>
+            <div class="nav-item active">Résa</div><div class="nav-item">Ord.</div><div class="nav-item">Liv.</div><div class="nav-item">Cash</div>
+          </div>
+          <div class="main">
+            <div class="topbar"><span class="ttl">Vendredi 15 mai</span><span class="pw">Pro</span></div>
+            <div class="kpis">
+              <div class="kpi"><div class="lbl">Couverts</div><div class="val">87</div></div>
+              <div class="kpi"><div class="lbl">Résa</div><div class="val">34</div></div>
+              <div class="kpi"><div class="lbl">CA</div><div class="val">3'480</div></div>
+              <div class="kpi"><div class="lbl">Tx</div><div class="val">94%</div></div>
+            </div>
+            <div class="resa"><div class="h">19:30</div><div>Marc Dupont</div><div class="px">4p</div></div>
+            <div class="resa"><div class="h">20:00</div><div>Famille Schmid</div><div class="px">6p</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label bw">booking</div>
+        <div class="bw">
+          <div class="blogo-wrap"><span class="logo"></span></div>
+          <div class="blang"><span class="active">FR</span><span>DE</span><span>IT</span><span>EN</span></div>
+          <div class="bkicker">Choisissez votre table</div>
+          <div class="bh">Comptoir du Lac</div>
+          <div class="bsub">Lausanne · Cuisine suisse</div>
+          <div class="bdate">15 / 05 / 2026</div>
+          <div class="bpax-grid"><div class="bpax">1</div><div class="bpax active">2</div><div class="bpax">3</div><div class="bpax">4</div><div class="bpax">5</div><div class="bpax">6+</div></div>
+          <div class="bcta">Voir dispos →</div>
+          <div class="bpow">Propulsé par <b>R3STO</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V4 — Multi -->
+    <div class="col v4">
+      <div class="col-head">
+        <div class="name">V4 — Multi premium</div>
+        <div class="desc">Bleu duo + or + cuivre. Le plus riche, gourmand suisse premium maximum.</div>
+        <div class="swr">
+          <div class="swc" style="background:#1d4f91"></div>
+          <div class="swc" style="background:#3b82f6"></div>
+          <div class="swc" style="background:#c89752"></div>
+          <div class="swc" style="background:#b8632b"></div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label">r3sto.com</div>
+        <div class="web">
+          <span class="logo"></span>
+          <div class="kicker">★ Annuaire gourmand</div>
+          <h2>Trouvez votre table. <span class="accent">Sans intermédiaire.</span></h2>
+          <p class="tag">19'461 tables · 0% commission · Réservation directe.</p>
+          <div class="search"><span class="ph">🔍 Chercher…</span><span class="btn">Chercher →</span></div>
+          <div class="stats">
+            <div class="stat"><b>19'461</b>tables</div>
+            <div class="stat"><b>612</b>CARAT</div>
+            <div class="stat"><b>26</b>cantons</div>
+            <div class="stat"><b>0%</b>com.</div>
+          </div>
+          <div class="restos">
+            <div class="resto"><div class="name">Chez Bunny's</div><div class="meta">Lausanne</div><span class="pill">★ CARAT</span></div>
+            <div class="resto"><div class="name">Comptoir du Lac</div><div class="meta">Lausanne</div><span class="pill">Réserver</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label b2b">app.r3sto.ch</div>
+        <div class="app">
+          <div class="side">
+            <span class="logo"></span>
+            <div class="nav-item active">Résa</div><div class="nav-item">Ord.</div><div class="nav-item">Liv.</div><div class="nav-item">Cash</div>
+          </div>
+          <div class="main">
+            <div class="topbar"><span class="ttl">Vendredi 15 mai</span><span class="pw">Pro</span></div>
+            <div class="kpis">
+              <div class="kpi"><div class="lbl">Couverts</div><div class="val">87</div></div>
+              <div class="kpi"><div class="lbl">Résa</div><div class="val">34</div></div>
+              <div class="kpi"><div class="lbl">CA</div><div class="val">3'480</div></div>
+              <div class="kpi"><div class="lbl">Tx</div><div class="val">94%</div></div>
+            </div>
+            <div class="resa"><div class="h">19:30</div><div>Marc Dupont</div><div class="px">4p</div></div>
+            <div class="resa"><div class="h">20:00</div><div>Famille Schmid</div><div class="px">6p</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label bw">booking</div>
+        <div class="bw">
+          <div class="blogo-wrap"><span class="logo"></span></div>
+          <div class="blang"><span class="active">FR</span><span>DE</span><span>IT</span><span>EN</span></div>
+          <div class="bkicker">Choisissez votre table</div>
+          <div class="bh">Comptoir du Lac</div>
+          <div class="bsub">Lausanne · Cuisine suisse</div>
+          <div class="bdate">15 / 05 / 2026</div>
+          <div class="bpax-grid"><div class="bpax">1</div><div class="bpax active">2</div><div class="bpax">3</div><div class="bpax">4</div><div class="bpax">5</div><div class="bpax">6+</div></div>
+          <div class="bcta">Voir dispos →</div>
+          <div class="bpow">Propulsé par <b>R3STO</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V5 — Bleu duo pur -->
+    <div class="col v5">
+      <div class="col-head">
+        <div class="name">V5 — Bleu duo pur</div>
+        <div class="desc">Uniquement bleu officiel + bleu clair. Style Stripe, max sobre. Booking sublimé.</div>
+        <div class="swr">
+          <div class="swc" style="background:#1d4f91"></div>
+          <div class="swc" style="background:#3b82f6"></div>
+          <div class="swc" style="background:#eff6ff"></div>
+          <div class="swc" style="background:#ffffff;border:1px solid #ddd"></div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label">r3sto.com</div>
+        <div class="web">
+          <span class="logo"></span>
+          <div class="kicker">★ Annuaire gourmand</div>
+          <h2>Trouvez votre table. <span class="accent">Sans intermédiaire.</span></h2>
+          <p class="tag">19'461 tables · 0% commission · Réservation directe.</p>
+          <div class="search"><span class="ph">🔍 Chercher…</span><span class="btn">Chercher →</span></div>
+          <div class="stats">
+            <div class="stat"><b>19'461</b>tables</div>
+            <div class="stat"><b>612</b>CARAT</div>
+            <div class="stat"><b>26</b>cantons</div>
+            <div class="stat"><b>0%</b>com.</div>
+          </div>
+          <div class="restos">
+            <div class="resto"><div class="name">Chez Bunny's</div><div class="meta">Lausanne</div><span class="pill">★ CARAT</span></div>
+            <div class="resto"><div class="name">Comptoir du Lac</div><div class="meta">Lausanne</div><span class="pill">Réserver</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label b2b">app.r3sto.ch</div>
+        <div class="app">
+          <div class="side">
+            <span class="logo"></span>
+            <div class="nav-item active">Résa</div><div class="nav-item">Ord.</div><div class="nav-item">Liv.</div><div class="nav-item">Cash</div>
+          </div>
+          <div class="main">
+            <div class="topbar"><span class="ttl">Vendredi 15 mai</span><span class="pw">Pro</span></div>
+            <div class="kpis">
+              <div class="kpi"><div class="lbl">Couverts</div><div class="val">87</div></div>
+              <div class="kpi"><div class="lbl">Résa</div><div class="val">34</div></div>
+              <div class="kpi"><div class="lbl">CA</div><div class="val">3'480</div></div>
+              <div class="kpi"><div class="lbl">Tx</div><div class="val">94%</div></div>
+            </div>
+            <div class="resa"><div class="h">19:30</div><div>Marc Dupont</div><div class="px">4p</div></div>
+            <div class="resa"><div class="h">20:00</div><div>Famille Schmid</div><div class="px">6p</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-label bw">booking</div>
+        <div class="bw">
+          <div class="blogo-wrap"><span class="logo"></span></div>
+          <div class="blang"><span class="active">FR</span><span>DE</span><span>IT</span><span>EN</span></div>
+          <div class="bkicker">Choisissez votre table</div>
+          <div class="bh">Comptoir du Lac</div>
+          <div class="bsub">Lausanne · Cuisine suisse</div>
+          <div class="bdate">15 / 05 / 2026</div>
+          <div class="bpax-grid"><div class="bpax">1</div><div class="bpax active">2</div><div class="bpax">3</div><div class="bpax">4</div><div class="bpax">5</div><div class="bpax">6+</div></div>
+          <div class="bcta">Voir dispos →</div>
+          <div class="bpow">Propulsé par <b>R3STO</b></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">
+    <b>Constante dans les 5 versions :</b> bleu officiel <code style="background:#eef3fc;padding:1px 5px;border-radius:3px;color:#1d4f91;font-family:monospace;font-size:12px">#1d4f91</code> (logo + CTA principal) + <b>bleu clair</b> <code style="background:#eef6ff;padding:1px 5px;border-radius:3px;color:#3b82f6;font-family:monospace;font-size:12px">#3b82f6</code> (badges info, accent vif, italique h2).<br><br>
+    <b>Mon avis :</b><br>
+    • <b>V2 (cuivre)</b> reste mon préféré pour le côté "gourmand suisse" qui colle au positionnement.<br>
+    • <b>V4 (multi)</b> est riche mais peut sembler "trop" — pour pubs print, oui ; pour web courant, attention saturation.<br>
+    • <b>V5 (duo bleu pur)</b> est ce qui ressemblera le plus à booking actuel — choix sage si vous voulez la continuité.<br>
+    • <b>V1 (or)</b> pour le luxe pur.<br>
+    • <b>V3 (sauge)</b> pour la cohérence sous-marque PASS.
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Légal — R3STO</title>
+<meta name="description" content="Conditions générales, confidentialité, cookies et mentions légales de R3STO — guide gourmand international édité par Innoptim SA.">
+<meta name="theme-color" content="#1c2e58">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--bg-2:#e3ebf5;--surf:#ffffff;
+  --navy:#1c2e58;--navy-2:#13224a;
+  --gold:#a07e2a;--gold-soft:#c89752;
+  --t-1:#0c1730;--t-2:#4a5878;--t-3:#7b88a8;
+  --border:#d6dfee;--max:1180px;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);-webkit-font-smoothing:antialiased;line-height:1.65}
+a{color:inherit}
+
+.nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+.nav-out{font-size:13px;color:var(--t-2);text-decoration:none;font-weight:500}
+.nav-out:hover{color:var(--navy)}
+
+/* HEAD */
+.head{
+  background:var(--bg-2);border-bottom:1px solid var(--border);
+  padding:48px 24px 36px;
+}
+.head-in{max-width:var(--max);margin:0 auto}
+.eyebrow{font-family:var(--fm);font-size:10.5px;font-weight:700;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px;display:block}
+.head h1{font-size:34px;font-weight:800;color:var(--navy);margin:0 0 6px;letter-spacing:-.02em;line-height:1.1}
+.head .meta{font-family:var(--fm);font-size:12.5px;color:var(--t-3);letter-spacing:.04em}
+.head .meta b{color:var(--t-2);font-weight:600}
+
+/* TABS */
+.tabs{
+  position:sticky;top:72px;z-index:30;
+  background:var(--bg);border-bottom:1px solid var(--border);
+}
+.tabs-in{
+  max-width:var(--max);margin:0 auto;padding:0 24px;
+  display:flex;gap:0;overflow-x:auto;
+}
+.tabs a{
+  padding:14px 18px;font-family:var(--ff);font-size:13.5px;font-weight:600;
+  color:var(--t-3);text-decoration:none;border-bottom:2px solid transparent;
+  transition:.15s;white-space:nowrap;letter-spacing:.01em;
+}
+.tabs a:hover{color:var(--t-1)}
+.tabs a.on{color:var(--navy);border-bottom-color:var(--gold)}
+
+/* CONTENT */
+.wrap{max-width:920px;margin:0 auto;padding:36px 24px 80px}
+section{
+  background:var(--surf);border:1px solid var(--border);
+  padding:36px 32px;margin-bottom:18px;scroll-margin-top:120px;
+}
+@media(max-width:560px){section{padding:24px 20px}}
+section h2{
+  font-size:24px;font-weight:800;color:var(--navy);
+  margin:0 0 6px;letter-spacing:-.01em;line-height:1.15;
+}
+section .updated{
+  font-family:var(--fm);font-size:11.5px;color:var(--t-3);
+  letter-spacing:.04em;margin-bottom:24px;
+  padding-bottom:18px;border-bottom:1px solid var(--border);
+}
+section h3{
+  font-size:16px;font-weight:700;color:var(--navy);
+  margin:28px 0 10px;letter-spacing:-.005em;
+}
+section h3:first-of-type{margin-top:0}
+section p{margin:0 0 12px;font-size:14.5px;color:var(--t-1);line-height:1.7}
+section ul{margin:0 0 14px;padding-left:20px;font-size:14.5px}
+section ul li{margin-bottom:6px;line-height:1.6}
+section ul li b{color:var(--navy);font-weight:600}
+section strong{color:var(--navy);font-weight:700}
+
+/* Tables RGPD */
+.rgpd-table{
+  width:100%;border-collapse:collapse;margin:14px 0 20px;
+  font-size:13.5px;
+}
+.rgpd-table th,.rgpd-table td{
+  text-align:left;padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+.rgpd-table th{
+  background:var(--bg-2);color:var(--navy);
+  font-family:var(--fm);font-size:10.5px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+}
+.rgpd-table td b{color:var(--navy)}
+
+/* Cookie types */
+.cookie-grid{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}
+@media(min-width:680px){.cookie-grid{grid-template-columns:1fr 1fr}}
+.cookie-card{
+  background:var(--bg-2);border:1px solid var(--border);
+  padding:16px 18px;
+}
+.cookie-card.essential{border-color:#1b3a2e;background:#f0f8f3}
+.cookie-card .lbl{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--fm);font-size:10.5px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:4px 9px;background:#fff;color:var(--t-3);border:1px solid var(--border);
+  margin-bottom:10px;
+}
+.cookie-card.essential .lbl{color:#1b3a2e;border-color:#cce2d4}
+.cookie-card h4{font-size:14.5px;font-weight:700;color:var(--navy);margin:0 0 6px}
+.cookie-card p{font-size:13px;color:var(--t-2);margin:0;line-height:1.55}
+
+/* Corporate card */
+.corp-card{
+  background:linear-gradient(135deg,var(--navy) 0%,#0a0a0a 100%);
+  color:#fff;padding:32px;
+}
+.corp-card .label{
+  font-family:var(--fm);font-size:11px;font-weight:700;
+  color:var(--gold-soft);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;
+}
+.corp-card h3{color:#fff;margin:0 0 6px;font-size:22px;letter-spacing:-.01em}
+.corp-card .tag{font-size:13.5px;color:rgba(255,255,255,.7);margin-bottom:24px}
+.corp-grid{display:grid;grid-template-columns:1fr;gap:14px 28px;font-size:14px}
+@media(min-width:560px){.corp-grid{grid-template-columns:auto 1fr}}
+.corp-grid dt{
+  font-family:var(--fm);font-size:10.5px;font-weight:600;
+  color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;
+}
+.corp-grid dd{margin:0;color:#fff;font-weight:500}
+.corp-grid dd a{color:var(--gold-soft);text-decoration:none;border-bottom:1px dotted var(--gold-soft)}
+.corp-grid dd a:hover{color:#fff;border-color:#fff}
+
+footer{background:var(--bg-2);border-top:1px solid var(--border);padding:32px 28px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em}
+footer a{color:var(--gold);text-decoration:none;font-weight:600}
+footer a:hover{color:var(--navy)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Légal</span>
+        <span class="logo-slogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <a href="/" class="nav-out">← Retour annuaire</a>
+  </div>
+</nav>
+
+<header class="head">
+  <div class="head-in">
+    <span class="eyebrow">Documents officiels · R3STO</span>
+    <h1>Légal &amp; Confidentialité</h1>
+    <div class="meta">R3STO · édité par <b>Innoptim SA</b> · Lausanne · Suisse · Mise à jour : 18 mai 2026</div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-in">
+    <a href="#cgu" data-tab="cgu" class="on">Conditions générales</a>
+    <a href="#privacy" data-tab="privacy">Confidentialité &amp; RGPD</a>
+    <a href="#cookies" data-tab="cookies">Cookies</a>
+    <a href="#mentions" data-tab="mentions">Mentions légales</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- CGU -->
+  <section id="cgu">
+    <h2>Conditions générales d'utilisation</h2>
+    <div class="updated">Version 1.2 · en vigueur depuis le 18 mai 2026</div>
+
+    <h3>1. Objet</h3>
+    <p>Les présentes Conditions Générales d'Utilisation (« CGU ») régissent l'accès et l'utilisation de la plateforme R3STO accessible à l'adresse <strong>r3sto.com</strong> et ses sous-domaines, exploitée par Innoptim SA, société anonyme de droit suisse.</p>
+
+    <h3>2. Acceptation</h3>
+    <p>L'accès à R3STO implique l'acceptation pleine et entière des présentes CGU. Toute personne (gourmand, restaurateur ou visiteur) qui navigue sur r3sto.com reconnaît avoir lu, compris et accepté ces dispositions.</p>
+
+    <h3>3. Services proposés</h3>
+    <ul>
+      <li><b>Annuaire gourmand</b> : recherche, consultation et notation de restaurants indépendants.</li>
+      <li><b>Réservation directe</b> : mise en relation sans intermédiaire ni commission entre les gourmands et les restaurateurs.</li>
+      <li><b>Label Carat</b> : système de notation transparent (Or / Silver / Bronze) basé sur les distinctions Michelin, Gault&Millau et notation R3STO.</li>
+      <li><b>R3STO Pro</b> : espace d'administration payant pour les restaurateurs (gestion fiche, photos, menu, réservations, plan d'abonnement de 19 à 79 CHF / mois HT).</li>
+    </ul>
+
+    <h3>4. Compte utilisateur</h3>
+    <p>La création d'un compte gourmand est gratuite. Elle s'effectue par <strong>lien magique envoyé par email</strong> (pas de mot de passe). Chaque utilisateur s'engage à fournir des informations exactes et à protéger la confidentialité de son adresse email.</p>
+
+    <h3>5. Obligations des restaurateurs (R3STO Pro)</h3>
+    <ul>
+      <li>Le restaurateur doit revendiquer sa fiche via la procédure de vérification (appel automatique, email professionnel ou courrier postal).</li>
+      <li>Les informations publiées (adresse, horaires, menu, prix) doivent être <b>exactes et à jour</b>.</li>
+      <li>Aucune commission ne sera prélevée sur les réservations. Seul l'abonnement mensuel est facturé.</li>
+      <li>R3STO se réserve le droit de retirer une fiche en cas de manquement (fausses informations, comportement frauduleux).</li>
+    </ul>
+
+    <h3>6. Réservations</h3>
+    <p>R3STO agit comme un <strong>intermédiaire technique</strong> entre le gourmand et le restaurant. La réservation crée un contrat <b>directement entre le client et l'établissement</b>. R3STO ne perçoit aucune commission et ne saurait être tenue responsable d'un litige relatif à la prestation du restaurant (qualité du repas, accueil, annulation par l'établissement).</p>
+
+    <h3>7. Système de diamants ◆</h3>
+    <p>Le programme de fidélité « Diamants ◆ » est gratuit. 1 ◆ est attribué par réservation honorée, 1 ◆ bonus pour un avis vérifié, 2 ◆ pour un parrainage. Les diamants n'ont pas de valeur monétaire et ne sont pas échangeables contre des espèces. Ils ouvrent droit à des avantages décrits sur la page Mon compte.</p>
+
+    <h3>8. Propriété intellectuelle</h3>
+    <p>L'ensemble des éléments de la plateforme (marque <strong>R3STO</strong>, logo, label <strong>Carat</strong>, palette de couleurs, code source, contenus rédactionnels) sont la propriété exclusive d'Innoptim SA et protégés par le droit suisse et international. Toute reproduction sans autorisation écrite est interdite.</p>
+
+    <h3>9. Limitation de responsabilité</h3>
+    <p>R3STO s'engage à fournir un service avec la plus grande diligence. Sa responsabilité ne saurait être engagée pour :</p>
+    <ul>
+      <li>une interruption temporaire de service (maintenance, panne fournisseur d'hébergement) ;</li>
+      <li>l'exactitude des informations transmises par les restaurateurs ou les sources publiques (Google Places, Michelin, Gault&Millau) ;</li>
+      <li>un dommage indirect ou immatériel.</li>
+    </ul>
+
+    <h3>10. Droit applicable</h3>
+    <p>Les présentes CGU sont régies par le <strong>droit suisse</strong>. Tout litige relatif à leur interprétation ou exécution relève de la compétence exclusive des tribunaux du <b>canton de Vaud</b>, sauf disposition légale impérative contraire.</p>
+  </section>
+
+  <!-- PRIVACY -->
+  <section id="privacy">
+    <h2>Politique de confidentialité &amp; RGPD</h2>
+    <div class="updated">Conforme au RGPD (UE 2016/679) et à la nLPD suisse · 18 mai 2026</div>
+
+    <h3>1. Qui sommes-nous ?</h3>
+    <p>Le responsable du traitement des données est <strong>Innoptim SA</strong>, Avenue d'Echallens 21, Lausanne, Suisse (IDE <b>CHE-430.441.925</b>). Contact : <a href="mailto:privacy@r3sto.com" style="color:var(--gold)">privacy@r3sto.com</a>.</p>
+
+    <h3>2. Quelles données collectons-nous ?</h3>
+    <table class="rgpd-table">
+      <thead><tr><th>Catégorie</th><th>Données</th><th>Finalité</th><th>Conservation</th></tr></thead>
+      <tbody>
+        <tr><td><b>Compte gourmand</b></td><td>Email, prénom, nom, téléphone, ville, langue</td><td>Authentification, réservations</td><td>Tant que le compte est actif</td></tr>
+        <tr><td><b>Réservations</b></td><td>Date, heure, pax, restaurant, demandes spéciales</td><td>Confirmation au resto + au client</td><td>3 ans (obligation comptable)</td></tr>
+        <tr><td><b>Favoris &amp; diamants</b></td><td>Slugs restos favoris, compteur ◆</td><td>Personnalisation expérience</td><td>Tant que le compte est actif</td></tr>
+        <tr><td><b>Restaurateurs</b></td><td>Raison sociale, IBAN, IDE, email contact</td><td>Facturation R3STO Pro</td><td>10 ans (obligation fiscale)</td></tr>
+        <tr><td><b>Logs techniques</b></td><td>Adresse IP, user-agent, horodatage</td><td>Sécurité, prévention abus</td><td>12 mois</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3. Base légale</h3>
+    <ul>
+      <li><b>Exécution du contrat</b> : compte, réservations, abonnement Pro (art. 6.1.b RGPD).</li>
+      <li><b>Obligation légale</b> : facturation, comptabilité (art. 6.1.c RGPD).</li>
+      <li><b>Intérêt légitime</b> : sécurité, prévention fraude (art. 6.1.f RGPD).</li>
+      <li><b>Consentement</b> : newsletters, offres partenaires (art. 6.1.a RGPD) — révocable à tout moment.</li>
+    </ul>
+
+    <h3>4. Vos droits</h3>
+    <p>Conformément au RGPD et à la nLPD, vous disposez des droits suivants, exerçables à tout moment via <a href="mailto:privacy@r3sto.com" style="color:var(--gold)">privacy@r3sto.com</a> :</p>
+    <ul>
+      <li><b>Accès</b> : obtenir copie de toutes vos données.</li>
+      <li><b>Rectification</b> : corriger les données inexactes.</li>
+      <li><b>Effacement</b> : suppression définitive (dit « droit à l'oubli »).</li>
+      <li><b>Portabilité</b> : recevoir vos données dans un format machine.</li>
+      <li><b>Opposition</b> : refuser certains traitements.</li>
+      <li><b>Réclamation</b> : auprès du Préposé fédéral suisse (PFPDT) ou d'une autorité européenne (CNIL en France, etc.).</li>
+    </ul>
+
+    <h3>5. Partage des données</h3>
+    <p>Vos données <strong>ne sont jamais vendues</strong>. Elles sont partagées uniquement avec :</p>
+    <ul>
+      <li>Le <b>restaurant</b> que vous réservez (nom, téléphone, demandes spéciales).</li>
+      <li>Nos <b>sous-traitants techniques</b> : Infomaniak (hébergement, Suisse), Supabase (base de données, UE), Postmark (emails transactionnels, UE). Tous sont liés par contrat RGPD.</li>
+      <li>Les <b>autorités</b> en cas de réquisition judiciaire.</li>
+    </ul>
+
+    <h3>6. Sécurité</h3>
+    <p>Toutes les données sont chiffrées en transit (TLS 1.3) et au repos (AES-256). L'authentification se fait par lien magique pour éliminer les fuites de mots de passe. Aucune carte bancaire n'est stockée sur nos serveurs.</p>
+
+    <h3>7. Transferts hors UE/Suisse</h3>
+    <p>Aucun transfert de données hors UE ou Suisse n'est effectué. Tous nos serveurs et nos sous-traitants sont basés en Suisse ou dans l'Union européenne.</p>
+  </section>
+
+  <!-- COOKIES -->
+  <section id="cookies">
+    <h2>Politique cookies</h2>
+    <div class="updated">Approche minimaliste · cookies strictement nécessaires uniquement · 18 mai 2026</div>
+
+    <h3>1. Qu'est-ce qu'un cookie ?</h3>
+    <p>Un cookie est un petit fichier texte déposé sur votre appareil lors de votre visite. Il permet au site de reconnaître votre navigateur et de mémoriser certaines informations (langue, session, préférences).</p>
+
+    <h3>2. Notre approche</h3>
+    <p>R3STO utilise <strong>uniquement des cookies strictement nécessaires</strong> au fonctionnement du service. <b>Aucun cookie publicitaire, aucun cookie de tracking tiers (Google Analytics, Meta Pixel, etc.)</b>. Vous n'avez donc pas besoin de consentement RGPD bandeau cookies sur R3STO.</p>
+
+    <div class="cookie-grid">
+      <div class="cookie-card essential">
+        <span class="lbl">✓ Essentiel</span>
+        <h4>r3sto_session</h4>
+        <p>Maintien de votre session de connexion (lien magique). Durée : 90 jours, prolongée à chaque visite.</p>
+      </div>
+      <div class="cookie-card essential">
+        <span class="lbl">✓ Essentiel</span>
+        <h4>r3sto_email</h4>
+        <p>Mémorisation de votre email pour la prochaine connexion. Local au navigateur, jamais transmis à des tiers.</p>
+      </div>
+      <div class="cookie-card essential">
+        <span class="lbl">✓ Essentiel</span>
+        <h4>r3sto_lang</h4>
+        <p>Langue d'affichage de l'interface (FR / EN / DE / IT). Durée : 1 an.</p>
+      </div>
+      <div class="cookie-card essential">
+        <span class="lbl">✓ Essentiel</span>
+        <h4>r3sto_country</h4>
+        <p>Pays de filtrage par défaut sur l'annuaire. Durée : 1 an.</p>
+      </div>
+    </div>
+
+    <h3>3. Comment gérer les cookies ?</h3>
+    <p>Tous les navigateurs modernes permettent de bloquer ou supprimer les cookies via leurs paramètres. <b>Attention</b> : si vous bloquez les cookies essentiels, vous ne pourrez plus rester connecté ni voir vos favoris ou vos réservations.</p>
+
+    <h3>4. Cookies tiers ?</h3>
+    <p>R3STO n'embarque <strong>aucun pixel, tag ou cookie de tiers publicitaire</strong>. Les seules ressources externes chargées sont :</p>
+    <ul>
+      <li><b>Google Fonts</b> (DM Sans, JetBrains Mono) — ne pose aucun cookie.</li>
+      <li><b>Unsplash</b> (images de démonstration) — ne pose aucun cookie.</li>
+    </ul>
+  </section>
+
+  <!-- MENTIONS -->
+  <section id="mentions">
+    <h2>Mentions légales</h2>
+    <div class="updated">Obligations légales suisses (LCD) et françaises (LCEN) · 18 mai 2026</div>
+
+    <div class="corp-card">
+      <div class="label">Société éditrice</div>
+      <h3>Innoptim SA</h3>
+      <div class="tag">Société anonyme de droit suisse · éditrice de la plateforme R3STO</div>
+      <dl class="corp-grid">
+        <dt>Siège social</dt><dd>Lausanne, Suisse</dd>
+        <dt>IDE</dt><dd>CHE-430.441.925</dd>
+        <dt>TVA</dt><dd>Non assujettie (CHF &lt; 100'000 / an)</dd>
+        <dt>Capital social</dt><dd>CHF 100'000 entièrement libéré</dd>
+        <dt>Directeur publication</dt><dd>Damien Fredericb · Directeur Innoptim SA</dd>
+        <dt>Contact général</dt><dd><a href="mailto:contact@r3sto.com">contact@r3sto.com</a></dd>
+        <dt>Contact RGPD</dt><dd><a href="mailto:privacy@r3sto.com">privacy@r3sto.com</a></dd>
+        <dt>Site corporate</dt><dd><a href="https://innoptim.ch" target="_blank" rel="noopener">innoptim.ch</a></dd>
+      </dl>
+    </div>
+
+    <h3 style="margin-top:32px">Hébergement</h3>
+    <p>La plateforme R3STO est hébergée par <strong>Infomaniak Network SA</strong>, Rue Eugène-Marziano 25, 1227 Genève, Suisse. Infomaniak est certifiée ISO 27001 et fonctionne à <strong>100 % à l'énergie renouvelable suisse</strong>. <a href="https://infomaniak.com" target="_blank" rel="noopener" style="color:var(--gold)">infomaniak.com</a></p>
+
+    <h3>Propriété intellectuelle</h3>
+    <p>La marque <strong>R3STO</strong>, le label <strong>Carat</strong> (avec ses 3 niveaux Or / Silver / Bronze symbolisés par le diamant ◆) et l'ensemble des contenus rédactionnels, photos, vidéos, illustrations, codes sources et interfaces sont protégés par le droit d'auteur et le droit des marques. © 2026 Innoptim SA. Tous droits réservés.</p>
+
+    <h3>Signalement de contenu</h3>
+    <p>Pour signaler un contenu illicite, une atteinte aux droits ou un comportement frauduleux d'un utilisateur ou d'un restaurateur, écrivez à <a href="mailto:abuse@r3sto.com" style="color:var(--gold)">abuse@r3sto.com</a>. Toute notification sera traitée sous 72 h ouvrées.</p>
+
+    <h3>Médiation de la consommation</h3>
+    <p>En cas de litige non résolu directement avec R3STO, vous pouvez saisir gratuitement le médiateur suisse compétent ou, pour les consommateurs européens, la plateforme de règlement en ligne des litiges de la Commission européenne : <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" style="color:var(--gold)">ec.europa.eu/consumers/odr</a>.</p>
+  </section>
+
+</div>
+
+<footer>
+  © 2026 <a href="https://innoptim.ch" target="_blank" rel="noopener">Innoptim SA</a> · R3STO — guide gourmand international<br>
+  Toutes les mentions ci-dessus s'appliquent à r3sto.com et ses sous-domaines.
+</footer>
+
+<script>
+// Active l'onglet courant selon le hash
+function syncTabs(){
+  const hash = (window.location.hash || '#cgu').replace('#','');
+  document.querySelectorAll('.tabs a').forEach(a => {
+    a.classList.toggle('on', a.dataset.tab === hash);
+  });
+}
+window.addEventListener('hashchange', syncTabs);
+syncTabs();
+// IntersectionObserver pour mettre à jour l'onglet au scroll
+const ob = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting && e.intersectionRatio > 0.3){
+      document.querySelectorAll('.tabs a').forEach(a => a.classList.remove('on'));
+      const a = document.querySelector('.tabs a[data-tab="' + e.target.id + '"]');
+      if(a) a.classList.add('on');
+    }
+  });
+}, { rootMargin:'-30% 0px -55% 0px', threshold:[0,.3,.6,1] });
+document.querySelectorAll('section').forEach(s => ob.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mon restaurant — R3STO Pro</title>
+<meta name="theme-color" content="#1c2e58">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--bg-2:#e3ebf5;--surf:#ffffff;
+  --navy:#1c2e58;--navy-2:#13224a;
+  --gold:#a07e2a;--gold-soft:#c89752;
+  --t-1:#0c1730;--t-2:#4a5878;--t-3:#7b88a8;
+  --border:#d6dfee;--max:1180px;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+
+.nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+.nav-out{font-size:13px;color:var(--t-2);text-decoration:none;font-weight:500;cursor:pointer;background:none;border:0;font-family:var(--ff)}
+
+/* HEADER resto */
+.resto-head{
+  background:var(--surf);border-bottom:1px solid var(--border);
+  padding:24px 28px;
+}
+.resto-head-in{
+  max-width:var(--max);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+}
+.resto-head h1{font-size:22px;font-weight:800;color:var(--navy);margin:0 0 4px;letter-spacing:-.01em}
+.resto-head .addr{font-size:13px;color:var(--t-3);font-family:var(--fm)}
+.status-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#fff8e8;border:1px solid #e6d090;
+  padding:7px 12px;font-family:var(--fm);font-size:11px;font-weight:700;
+  color:var(--gold);letter-spacing:.12em;text-transform:uppercase;
+}
+.status-badge.live{background:#e7f5ec;border-color:#9ec5b0;color:#1b3a2e}
+
+/* STATS row */
+.stats-row{
+  max-width:var(--max);margin:0 auto;padding:24px 28px 0;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
+}
+@media(min-width:680px){.stats-row{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--surf);border:1px solid var(--border);padding:18px 18px}
+.stat .lbl{font-family:var(--fm);font-size:10.5px;font-weight:600;color:var(--t-3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.stat .val{font-size:24px;font-weight:800;color:var(--navy);letter-spacing:-.5px;line-height:1}
+.stat .val small{font-size:13px;color:var(--gold);margin-left:6px;font-weight:600}
+.stat .sub{font-size:11px;color:var(--t-3);font-family:var(--fm);margin-top:6px}
+
+/* TABS */
+.tabs{
+  max-width:var(--max);margin:24px auto 0;padding:0 28px;
+  display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;
+}
+.tabs button{
+  background:none;border:0;border-bottom:2px solid transparent;
+  padding:14px 16px;font-family:var(--ff);font-size:13.5px;font-weight:600;
+  color:var(--t-3);cursor:pointer;transition:.15s;white-space:nowrap;
+}
+.tabs button.on{color:var(--navy);border-bottom-color:var(--gold)}
+.tabs button:hover:not(.on){color:var(--t-1)}
+
+.wrap{max-width:var(--max);margin:0 auto;padding:24px 28px 60px}
+.panel{display:none}
+.panel.on{display:block}
+
+/* Cards & forms */
+.card{background:var(--surf);border:1px solid var(--border);padding:24px 22px;margin-bottom:14px}
+.card h2{font-size:16px;font-weight:700;color:var(--navy);margin:0 0 4px;letter-spacing:-.01em}
+.card .desc{font-size:13px;color:var(--t-3);margin:0 0 18px;line-height:1.5}
+.row{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:560px){.row{grid-template-columns:1fr 1fr}}
+.field label{display:block;font-size:11.5px;font-weight:600;color:var(--t-3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+.field input,.field textarea,.field select{
+  width:100%;padding:11px 13px;border:1px solid var(--border);
+  background:#fff;font-family:var(--ff);font-size:14px;color:var(--t-1);
+  border-radius:0;outline:none;
+}
+.field textarea{resize:vertical;min-height:90px}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--navy)}
+
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{padding:12px 22px;border-radius:0;font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;border:1px solid;font-family:var(--ff);transition:.18s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-primary:hover{background:var(--gold);border-color:var(--gold)}
+.btn-ghost{background:transparent;color:var(--navy);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--navy)}
+
+/* Photos grid */
+.photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+@media(min-width:560px){.photo-grid{grid-template-columns:repeat(4,1fr)}}
+.photo{aspect-ratio:1/1;background-size:cover;background-position:center;border:1px solid var(--border);position:relative}
+.photo .x{position:absolute;top:6px;right:6px;background:#fff;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--t-2);cursor:pointer;font-size:13px;border:1px solid var(--border)}
+.photo .x:hover{color:#b03434;border-color:#b03434}
+.photo.add{background:#fff;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--t-3);cursor:pointer;gap:6px;font-size:11.5px;font-weight:600}
+.photo.add:hover{border-color:var(--navy);color:var(--navy)}
+
+/* Hours */
+.hours-grid{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center;font-size:13.5px}
+.hours-grid dt{font-weight:600;color:var(--t-2)}
+.hours-grid dd{margin:0;font-family:var(--fm);font-size:12.5px;color:var(--navy)}
+.hours-grid dd.closed{color:var(--t-3)}
+
+/* Menu items */
+.menu-item{
+  display:grid;grid-template-columns:1fr auto auto;gap:10px 14px;align-items:start;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.menu-item:last-child{border-bottom:0}
+.menu-item input.name{font-weight:600;font-size:14px;border:0;background:transparent;padding:4px 0;color:var(--navy);width:100%}
+.menu-item input.desc{font-size:12.5px;color:var(--t-2);border:0;background:transparent;padding:4px 0;width:100%;grid-column:1/-1}
+.menu-item input.price{font-family:var(--fm);font-weight:600;color:var(--gold);border:0;background:transparent;width:80px;text-align:right;padding:4px 0}
+.menu-item .del{cursor:pointer;color:var(--t-3);background:none;border:0;font-size:14px;padding:4px 6px}
+.menu-item .del:hover{color:#b03434}
+
+/* Réservations */
+.resa-row{
+  display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+  padding:14px 16px;background:#fff;border:1px solid var(--border);margin-bottom:8px;
+}
+.resa-time{font-family:var(--fm);font-weight:700;color:var(--navy);font-size:14px}
+.resa-name{font-weight:600;font-size:14px;color:var(--navy)}
+.resa-meta{font-size:12px;color:var(--t-3);font-family:var(--fm);margin-top:2px}
+.resa-status{font-family:var(--fm);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border:1px solid}
+.resa-status.ok{color:#1b3a2e;border-color:#cce2d4;background:#f0f8f3}
+.resa-status.pending{color:var(--gold);border-color:#e6d090;background:#fff8e8}
+
+footer{background:var(--bg-2);border-top:1px solid var(--border);padding:24px 28px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em;margin-top:60px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">R3STO Pro</span>
+        <span class="logo-slogan">tableau&nbsp;de&nbsp;bord</span>
+      </span>
+    </a>
+    <button class="nav-out" onclick="logout()">Déconnexion →</button>
+  </div>
+</nav>
+
+<div class="resto-head">
+  <div class="resto-head-in">
+    <div>
+      <h1>Chez Bunny's</h1>
+      <div class="addr">Avenue d'Echallens 21, Lausanne · <a href="/fiche.html?slug=chez-bunnys" target="_blank" style="color:var(--gold);text-decoration:none;font-weight:600">Voir la fiche publique →</a></div>
+    </div>
+    <div class="status-badge live">● Live sur r3sto.com</div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat">
+    <div class="lbl">Vues fiche · 30j</div>
+    <div class="val">1 247 <small>+18%</small></div>
+    <div class="sub">vs mois précédent</div>
+  </div>
+  <div class="stat">
+    <div class="lbl">Réservations</div>
+    <div class="val">47 <small>+12%</small></div>
+    <div class="sub">132 couverts</div>
+  </div>
+  <div class="stat">
+    <div class="lbl">Score R3STO</div>
+    <div class="val">8.8 <small style="color:var(--gold-soft)">◆ Bronze</small></div>
+    <div class="sub">basé sur 87 avis</div>
+  </div>
+  <div class="stat">
+    <div class="lbl">Économisé vs TheFork</div>
+    <div class="val">+428 <small style="color:#1b3a2e">CHF</small></div>
+    <div class="sub">ce mois-ci</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="on" onclick="setTab('infos',this)">Infos resto</button>
+  <button onclick="setTab('photos',this)">Photos</button>
+  <button onclick="setTab('horaires',this)">Horaires</button>
+  <button onclick="setTab('menu',this)">Menu</button>
+  <button onclick="setTab('resas',this)">Réservations</button>
+  <button onclick="setTab('billing',this)">Plan &amp; facturation</button>
+</div>
+
+<div class="wrap">
+
+  <!-- INFOS -->
+  <div class="panel on" id="panel-infos">
+    <div class="card">
+      <h2>Identité</h2>
+      <p class="desc">Modifications enregistrées automatiquement. Toute info publique apparaît sur votre fiche r3sto.com.</p>
+      <div class="row">
+        <div class="field"><label>Nom du resto</label><input type="text" value="Chez Bunny's"></div>
+        <div class="field"><label>Type de cuisine</label><input type="text" value="Bistro contemporain"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Téléphone (réservations)</label><input type="tel" value="+41 21 654 12 12"></div>
+        <div class="field"><label>Email contact</label><input type="email" value="contact@chez-bunnys.ch"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Adresse</label><input type="text" value="Route de Lausanne 12"></div>
+        <div class="field"><label>Ville · Code postal</label><input type="text" value="Lausanne"></div>
+      </div>
+      <div class="field">
+        <label>Description publique</label>
+        <textarea>Bistro contemporain niché au Mont-sur-Lausanne. Cuisine du marché, produits frais, ambiance familiale. Réservation directe sans commission.</textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="alert('✓ Modifications enregistrées')">Enregistrer</button>
+        <a href="/fiche.html?slug=chez-bunnys" target="_blank" class="btn btn-ghost">Aperçu fiche →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHOTOS -->
+  <div class="panel" id="panel-photos">
+    <div class="card">
+      <h2>Photos de votre établissement</h2>
+      <p class="desc">8 photos importées depuis Google. Glissez pour réorganiser. La première sert d'image principale.</p>
+      <div class="photo-grid">
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400&q=80')"><span class="x">×</span></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80')"><span class="x">×</span></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&q=80')"><span class="x">×</span></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80')"><span class="x">×</span></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80')"><span class="x">×</span></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80')"><span class="x">×</span></div>
+        <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=400&q=80')"><span class="x">×</span></div>
+        <div class="photo add" onclick="alert('Sélection fichiers (drag&amp;drop en V2)')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HORAIRES -->
+  <div class="panel" id="panel-horaires">
+    <div class="card">
+      <h2>Horaires d'ouverture</h2>
+      <p class="desc">Vos horaires apparaissent sur votre fiche publique et déterminent les créneaux de réservation disponibles.</p>
+      <dl class="hours-grid">
+        <dt>Lundi</dt><dd class="closed">Fermé</dd>
+        <dt>Mardi</dt><dd>12:00 – 14:30  ·  19:00 – 22:30</dd>
+        <dt>Mercredi</dt><dd>12:00 – 14:30  ·  19:00 – 22:30</dd>
+        <dt>Jeudi</dt><dd>12:00 – 14:30  ·  19:00 – 22:30</dd>
+        <dt>Vendredi</dt><dd>12:00 – 14:30  ·  19:00 – 23:00</dd>
+        <dt>Samedi</dt><dd>11:30 – 15:00  ·  19:00 – 23:00</dd>
+        <dt>Dimanche</dt><dd>11:30 – 15:00</dd>
+      </dl>
+      <div class="btn-row">
+        <button class="btn btn-ghost">Modifier les horaires</button>
+        <button class="btn btn-ghost">Ajouter une fermeture exceptionnelle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div class="panel" id="panel-menu">
+    <div class="card">
+      <h2>Menu signature</h2>
+      <p class="desc">Affichez 3 à 10 plats représentatifs sur votre fiche publique. Pour le menu complet, vous pourrez uploader un PDF (V2).</p>
+      <div class="menu-item">
+        <input class="name" value="Tartare de bœuf au couteau">
+        <input class="price" value="CHF 32">
+        <button class="del">×</button>
+        <input class="desc" value="Filet du jour, jaune d'œuf bio, condiments maison, frites fraîches.">
+      </div>
+      <div class="menu-item">
+        <input class="name" value="Filet de perche meunière">
+        <input class="price" value="CHF 38">
+        <button class="del">×</button>
+        <input class="desc" value="Perches du lac Léman, beurre noisette, citron confit, pommes vapeur.">
+      </div>
+      <div class="menu-item">
+        <input class="name" value="Risotto aux morilles">
+        <input class="price" value="CHF 34">
+        <button class="del">×</button>
+        <input class="desc" value="Riz Carnaroli, morilles fraîches, parmesan 24 mois, huile de truffe.">
+      </div>
+      <div class="menu-item">
+        <input class="name" value="Côte de bœuf maturée 40j">
+        <input class="price" value="CHF 95">
+        <button class="del">×</button>
+        <input class="desc" value="Viande suisse, sauce béarnaise, pommes grenaille, salade verte (pour 2).">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost">+ Ajouter un plat</button>
+        <button class="btn btn-primary">Enregistrer le menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RÉSAS -->
+  <div class="panel" id="panel-resas">
+    <div class="card">
+      <h2>Réservations à venir</h2>
+      <p class="desc">Vous recevez chaque résa par email + dans cette liste. Pas de commission, jamais.</p>
+      <div class="resa-row">
+        <div class="resa-time">Ven. 22 mai<br>19:30</div>
+        <div>
+          <div class="resa-name">Jean Dupont · 2 pers.</div>
+          <div class="resa-meta">+41 79 123 45 67 · jean.dupont@exemple.com</div>
+        </div>
+        <span class="resa-status ok">● Confirmée</span>
+      </div>
+      <div class="resa-row">
+        <div class="resa-time">Sam. 23 mai<br>12:30</div>
+        <div>
+          <div class="resa-name">Marie Bernard · 4 pers.</div>
+          <div class="resa-meta">+41 78 987 65 43 · "Anniversaire — gâteau possible ?"</div>
+        </div>
+        <span class="resa-status pending">○ À confirmer</span>
+      </div>
+      <div class="resa-row">
+        <div class="resa-time">Sam. 23 mai<br>20:00</div>
+        <div>
+          <div class="resa-name">Thomas Müller · 6 pers.</div>
+          <div class="resa-meta">+41 76 222 11 00 · Allergie noix</div>
+        </div>
+        <span class="resa-status ok">● Confirmée</span>
+      </div>
+      <div class="resa-row">
+        <div class="resa-time">Dim. 24 mai<br>12:00</div>
+        <div>
+          <div class="resa-name">Sophie Laurent · 3 pers.</div>
+          <div class="resa-meta">+41 79 555 44 33</div>
+        </div>
+        <span class="resa-status ok">● Confirmée</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BILLING -->
+  <div class="panel" id="panel-billing">
+    <div class="card">
+      <h2>Plan actuel · Essentiel</h2>
+      <p class="desc">Vous êtes en essai gratuit jusqu'au <b style="color:var(--navy)">1<sup>er</sup> juin 2026</b>. Aucun prélèvement avant cette date.</p>
+      <div style="background:#fff8e8;border:1px solid #e6d090;padding:18px 22px;margin-bottom:18px">
+        <div style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Plan en cours</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+          <div>
+            <div style="font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.01em">Essentiel</div>
+            <div style="font-size:13px;color:var(--t-2)">Fiche premium · réservations illimitées · support FR/DE/IT/EN</div>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:var(--navy);font-family:var(--fm)">39 CHF<span style="font-size:12px;color:var(--t-3);font-weight:500"> / mois</span></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost">Changer de plan</button>
+        <button class="btn btn-ghost">Voir les factures</button>
+        <button class="btn btn-ghost" style="color:#b03434;border-color:#e7b8b8">Résilier</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Coordonnées de paiement &amp; IBAN</h2>
+      <p class="desc">L'IBAN sert à recevoir directement les paiements clients (acompte / addition prépayée si activé).</p>
+      <div class="row">
+        <div class="field"><label>IBAN</label><input type="text" placeholder="CH00 0000 0000 0000 0000 0"></div>
+        <div class="field"><label>Titulaire du compte</label><input type="text" placeholder="Innoptim SA"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Mode facturation</label>
+          <select><option>Mensuelle</option><option>Annuelle (-15%)</option></select>
+        </div>
+        <div class="field"><label>Numéro TVA (optionnel)</label><input type="text" placeholder="CHE-000.000.000 TVA"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>© 2026 Innoptim SA · R3STO Pro · 0 % commission, jamais</footer>
+
+<script>
+function setTab(name, btn){
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('panel-' + name).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function logout(){
+  if(!confirm('Se déconnecter ?')) return;
+  localStorage.removeItem('r3sto_email');
+  localStorage.removeItem('r3sto_mode');
+  window.location.href = '/';
+}
+</script>
+</body>
+</html>

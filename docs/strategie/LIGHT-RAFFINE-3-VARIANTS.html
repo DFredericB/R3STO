@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — 3 variantes light raffinées</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:#eceef2; padding:32px; color:#1a2230; line-height:1.5; }
+  .wrap { max-width:1600px; margin:0 auto; }
+  h1 { font-family:'Fraunces', serif; font-size:32px; font-weight:700; margin-bottom:6px; letter-spacing:-0.5px; }
+  .sub { color:#6b7280; font-size:13px; margin-bottom:28px; max-width:780px; }
+
+  .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; }
+  .col-h { padding:14px 18px; text-align:center; }
+  .col-h .title { font-family:'Fraunces', serif; font-size:18px; font-weight:700; color:#1a2230; }
+  .col-h .desc { font-size:11px; color:#6b7280; margin-top:4px; line-height:1.4; min-height:32px; }
+  .col-h .palette { display:flex; gap:5px; justify-content:center; margin-top:10px; }
+  .col-h .sw { width:18px; height:18px; border-radius:3px; border:1px solid rgba(0,0,0,.06); }
+
+  .auth-frame { border-radius:14px; overflow:hidden; box-shadow:0 16px 48px rgba(15,30,55,0.10); min-height:820px; padding:64px 32px; }
+  .url-bar { padding:10px 18px; font-family:'JetBrains Mono', monospace; font-size:11px; display:flex; justify-content:space-between; border-bottom:1px solid; }
+
+  /* ============ V1 — PUR MINIMAL ============ */
+  .v1 {
+    background: #ffffff;
+  }
+  .v1.url-bar { background:#fafafc; color:#1d4f91; border-color:#e1e5ec; }
+  .v1 .card { max-width:440px; margin:0 auto; padding:0; }
+  .v1 .logo { display:block; margin:0 auto 32px; width:72px; height:72px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:6px; }
+  .v1 .title { font-family:'Fraunces', serif; font-size:34px; font-weight:600; text-align:center; color:#0f1620; margin-bottom:8px; letter-spacing:-0.5px; line-height:1.15; }
+  .v1 .title .it { font-style:italic; font-weight:400; color:#1d4f91; }
+  .v1 .subtitle { text-align:center; font-size:14px; color:#6b7280; margin-bottom:40px; }
+  .v1 .label { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; color:#1d4f91; margin-bottom:6px; }
+  .v1 .input { width:100%; padding:13px 16px; border-radius:8px; background:#fafafc; border:1px solid #e1e5ec; color:#0f1620; font-size:14px; font-family:'Inter', sans-serif; margin-bottom:20px; }
+  .v1 .input:focus { outline:3px solid #1d4f9120; border-color:#1d4f91; }
+  .v1 .input::placeholder { color:#8e9baa; }
+  .v1 .opt-link { display:block; font-size:12px; color:#a07e2a; text-decoration:underline; margin-bottom:24px; font-weight:500; }
+  .v1 .cta { width:100%; padding:15px; background:#1d4f91; color:#fff; border:0; border-radius:8px; font-family:'Inter', sans-serif; font-weight:700; font-size:14px; cursor:pointer; letter-spacing:0.3px; }
+  .v1 .cta:hover { background:#14253f; }
+  .v1 .terms { text-align:center; font-size:11px; color:#8e9baa; margin-top:14px; }
+  .v1 .signin { text-align:center; font-size:13px; color:#3d4f66; margin-top:32px; padding-top:24px; border-top:1px solid #e1e5ec; }
+  .v1 .signin a { color:#1d4f91; font-weight:600; text-decoration:none; }
+  .v1 .domain { text-align:center; font-family:'JetBrains Mono', monospace; font-size:10px; color:#8e9baa; margin-top:40px; }
+
+  /* ============ V2 — IVOIRE EDITORIAL ============ */
+  .v2 {
+    background: #fdfaf2;
+  }
+  .v2.url-bar { background:#fbf5e8; color:#a07e2a; border-color:#e8d4b8; }
+  .v2 .card { max-width:440px; margin:0 auto; padding:0; }
+  .v2 .logo { display:block; margin:0 auto 32px; width:72px; height:72px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:6px; }
+  .v2 .title { font-family:'Fraunces', serif; font-size:38px; font-weight:600; text-align:center; color:#2a1a0d; margin-bottom:10px; letter-spacing:-0.8px; line-height:1.1; }
+  .v2 .title .it { font-style:italic; font-weight:400; color:#a07e2a; }
+  .v2 .subtitle { text-align:center; font-family:'Fraunces', serif; font-style:italic; font-size:15px; color:#7a5a3e; margin-bottom:44px; }
+  .v2 .label { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; color:#a07e2a; margin-bottom:6px; }
+  .v2 .input { width:100%; padding:13px 16px; border-radius:8px; background:#fdfaf2; border:1px solid #e8d4b8; color:#2a1a0d; font-size:14px; font-family:'Inter', sans-serif; margin-bottom:20px; }
+  .v2 .input:focus { outline:3px solid #a07e2a20; border-color:#a07e2a; }
+  .v2 .input::placeholder { color:#a8997d; }
+  .v2 .opt-link { display:block; font-size:12px; color:#a07e2a; text-decoration:underline; margin-bottom:24px; font-weight:500; font-style:italic; }
+  .v2 .cta { width:100%; padding:15px; background:#a07e2a; color:#fdfaf2; border:0; border-radius:8px; font-family:'Inter', sans-serif; font-weight:700; font-size:14px; cursor:pointer; letter-spacing:0.3px; }
+  .v2 .cta:hover { background:#7d6220; }
+  .v2 .terms { text-align:center; font-size:11px; color:#a8997d; margin-top:14px; }
+  .v2 .signin { text-align:center; font-size:13px; color:#5a4838; margin-top:32px; padding-top:24px; border-top:1px solid #e8d4b8; }
+  .v2 .signin a { color:#a07e2a; font-weight:600; text-decoration:none; font-style:italic; }
+  .v2 .domain { text-align:center; font-family:'JetBrains Mono', monospace; font-size:10px; color:#a8997d; margin-top:40px; }
+
+  /* ============ V3 — PREMIUM CHAMPAGNE ============ */
+  .v3 {
+    background: #fafaf7;
+  }
+  .v3.url-bar { background:#f5f5ee; color:#7a6d56; border-color:#e0dccd; }
+  .v3 .card { max-width:440px; margin:0 auto; padding:0; }
+  .v3 .logo { display:block; margin:0 auto 36px; width:72px; height:72px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:6px; }
+  .v3 .title { font-family:'Fraunces', serif; font-size:36px; font-weight:500; text-align:center; color:#1a1a18; margin-bottom:8px; letter-spacing:-0.5px; line-height:1.1; }
+  .v3 .title .it { font-style:italic; color:#bfa166; }
+  .v3 .subtitle { text-align:center; font-size:13px; color:#78716c; margin-bottom:44px; font-family:'Fraunces', serif; font-style:italic; }
+  .v3 .label { font-size:9px; letter-spacing:2px; text-transform:uppercase; font-weight:600; color:#bfa166; margin-bottom:7px; }
+  .v3 .input { width:100%; padding:13px 16px; border-radius:6px; background:transparent; border:1px solid #d6d0bd; color:#1a1a18; font-size:14px; font-family:'Inter', sans-serif; margin-bottom:20px; }
+  .v3 .input:focus { outline:3px solid #bfa16630; border-color:#bfa166; }
+  .v3 .input::placeholder { color:#a8a194; }
+  .v3 .opt-link { display:block; font-size:12px; color:#bfa166; text-decoration:underline; margin-bottom:24px; font-weight:500; }
+  .v3 .cta { width:100%; padding:15px; background:#1a1a18; color:#fafaf7; border:0; border-radius:6px; font-family:'Inter', sans-serif; font-weight:600; font-size:14px; cursor:pointer; letter-spacing:1px; text-transform:uppercase; }
+  .v3 .cta:hover { background:#000; }
+  .v3 .terms { text-align:center; font-size:11px; color:#a8a194; margin-top:14px; }
+  .v3 .signin { text-align:center; font-size:13px; color:#78716c; margin-top:32px; padding-top:24px; border-top:1px solid #e0dccd; }
+  .v3 .signin a { color:#bfa166; font-weight:600; text-decoration:none; }
+  .v3 .domain { text-align:center; font-family:'JetBrains Mono', monospace; font-size:10px; color:#a8a194; margin-top:40px; }
+
+  /* ANALYSIS */
+  .analysis { background:#fff; border-radius:14px; padding:28px 32px; margin-top:24px; }
+  .analysis h2 { font-family:'Fraunces', serif; font-size:22px; color:#1a2230; margin-bottom:18px; }
+  .ag-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; margin-bottom:18px; }
+  .ag h3 { font-size:14px; font-weight:700; margin-bottom:10px; padding:5px 10px; border-radius:5px; display:inline-block; }
+  .ag.v1 h3 { color:#1d4f91; background:#1d4f9115; }
+  .ag.v2 h3 { color:#a07e2a; background:#a07e2a15; }
+  .ag.v3 h3 { color:#bfa166; background:#bfa16615; }
+  .ag p { font-size:12px; color:#3d4f66; line-height:1.55; margin-bottom:6px; }
+  .ag p b { color:#1a2230; }
+  .verdict { padding-top:18px; border-top:1px solid #e1e5ec; font-size:13px; color:#1a2230; line-height:1.65; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>R3STO — 3 variantes light raffinées</h1>
+  <p class="sub">Inspirées de la finesse de booking.r3sto.ch que vous trouvez réussi. Même page signup, 3 ambiances différentes pour choisir LE bon ton. À comparer côte à côte.</p>
+
+  <div class="grid">
+
+    <!-- V1 — Pur minimal -->
+    <div>
+      <div class="col-h">
+        <div class="title">V1 — Pur minimal</div>
+        <div class="desc">Blanc + navy + or antique en accent. Style Stripe/Linear. Sobre, intemporel, rassurant.</div>
+        <div class="palette">
+          <span class="sw" style="background:#ffffff;border:1px solid #ccc"></span>
+          <span class="sw" style="background:#fafafc"></span>
+          <span class="sw" style="background:#1d4f91"></span>
+          <span class="sw" style="background:#a07e2a"></span>
+        </div>
+      </div>
+      <div class="auth-frame v1">
+        <div class="card">
+          <span class="logo"></span>
+          <div class="title">Créer votre compte. <span class="it">Sans engagement.</span></div>
+          <div class="subtitle">Essai gratuit 14 jours · 0% commission sur vos réservations</div>
+
+          <div class="label">Email *</div>
+          <input class="input" placeholder="adresse@email.com">
+
+          <div class="label">Nom du restaurant</div>
+          <input class="input" placeholder="ex: Le Bistro du Centre">
+
+          <div class="label">Mot de passe *</div>
+          <input class="input" type="password" placeholder="8 caractères minimum">
+
+          <div class="label">Confirmer le mot de passe *</div>
+          <input class="input" type="password" placeholder="Répéter">
+
+          <a class="opt-link">+ Ajouter nom et téléphone (optionnel)</a>
+
+          <button class="cta">Créer mon compte</button>
+          <div class="terms">En créant un compte, vous acceptez nos conditions d'utilisation.</div>
+          <div class="signin">Déjà un compte ? <a>Se connecter</a></div>
+          <div class="domain">auth.r3sto.com</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V2 — Ivoire éditorial -->
+    <div>
+      <div class="col-h">
+        <div class="title">V2 — Ivoire éditorial</div>
+        <div class="desc">Crème ivoire + navy + or antique. Style Fraunces italique. Plus chaleureux, "guide gourmand".</div>
+        <div class="palette">
+          <span class="sw" style="background:#fdfaf2"></span>
+          <span class="sw" style="background:#fbf5e8"></span>
+          <span class="sw" style="background:#1d4f91"></span>
+          <span class="sw" style="background:#a07e2a"></span>
+        </div>
+      </div>
+      <div class="auth-frame v2">
+        <div class="card">
+          <span class="logo"></span>
+          <div class="title">Créer votre compte. <span class="it">Sans intermédiaire.</span></div>
+          <div class="subtitle">Essai gratuit 14 jours · 0% commission sur vos réservations</div>
+
+          <div class="label">Email *</div>
+          <input class="input" placeholder="adresse@email.com">
+
+          <div class="label">Nom du restaurant</div>
+          <input class="input" placeholder="ex: Le Bistro du Centre">
+
+          <div class="label">Mot de passe *</div>
+          <input class="input" type="password" placeholder="8 caractères minimum">
+
+          <div class="label">Confirmer le mot de passe *</div>
+          <input class="input" type="password" placeholder="Répéter">
+
+          <a class="opt-link">+ Ajouter nom et téléphone (optionnel)</a>
+
+          <button class="cta">Créer mon compte</button>
+          <div class="terms">En créant un compte, vous acceptez nos conditions d'utilisation.</div>
+          <div class="signin">Déjà un compte ? <a>Se connecter</a></div>
+          <div class="domain">auth.r3sto.com</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V3 — Premium champagne -->
+    <div>
+      <div class="col-h">
+        <div class="title">V3 — Premium champagne</div>
+        <div class="desc">Pierre + or champagne `#bfa166` + noir charbon. Style Hermès/Cartier. Le plus luxe.</div>
+        <div class="palette">
+          <span class="sw" style="background:#fafaf7"></span>
+          <span class="sw" style="background:#f5f5ee"></span>
+          <span class="sw" style="background:#1a1a18"></span>
+          <span class="sw" style="background:#bfa166"></span>
+        </div>
+      </div>
+      <div class="auth-frame v3">
+        <div class="card">
+          <span class="logo"></span>
+          <div class="title">Créer votre compte <span class="it">R3STO</span></div>
+          <div class="subtitle">Essai gratuit · sans commission, sans intermédiaire</div>
+
+          <div class="label">Email *</div>
+          <input class="input" placeholder="adresse@email.com">
+
+          <div class="label">Nom du restaurant</div>
+          <input class="input" placeholder="ex: Le Bistro du Centre">
+
+          <div class="label">Mot de passe *</div>
+          <input class="input" type="password" placeholder="8 caractères minimum">
+
+          <div class="label">Confirmer le mot de passe *</div>
+          <input class="input" type="password" placeholder="Répéter">
+
+          <a class="opt-link">+ Ajouter nom et téléphone (optionnel)</a>
+
+          <button class="cta">Créer mon compte</button>
+          <div class="terms">En créant un compte, vous acceptez nos conditions d'utilisation.</div>
+          <div class="signin">Déjà un compte ? <a>Se connecter</a></div>
+          <div class="domain">auth.r3sto.com</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="analysis">
+    <h2>Analyse comparative</h2>
+    <div class="ag-grid">
+      <div class="ag v1">
+        <h3>V1 — Pur minimal</h3>
+        <p><b>Ton</b> : Stripe-like, neutre, professionnel suisse.</p>
+        <p><b>Pour</b> : universel, scalable international, lisibilité max, rassure les restaurateurs habitués à l'admin (banque, fiduciaire).</p>
+        <p><b>Contre</b> : peut sembler "n'importe quel SaaS" — moins de signature brand.</p>
+      </div>
+      <div class="ag v2">
+        <h3>V2 — Ivoire éditorial</h3>
+        <p><b>Ton</b> : guide gourmand, chaleureux, Fraunces italique = papier à l'ancienne.</p>
+        <p><b>Pour</b> : signature brand affirmée, cohérent avec annuaire B2C, gourmand sans tomber dans le folklore.</p>
+        <p><b>Contre</b> : possible confusion avec le B2C annuaire si vous voulez différencier B2B ↔ B2C par palette.</p>
+      </div>
+      <div class="ag v3">
+        <h3>V3 — Premium champagne</h3>
+        <p><b>Ton</b> : luxe contemporain, Hermès/Cartier, or champagne `#bfa166` + bouton noir.</p>
+        <p><b>Pour</b> : le plus "haute gastronomie", distingué, premium pur.</p>
+        <p><b>Contre</b> : peut intimider les petits bistros (Mini cible), moins accessible visuellement.</p>
+      </div>
+    </div>
+    <p class="verdict">
+      <b>Réflexion</b> : V1 est le plus "Booking-style" (votre référence "fin et classe"). V2 est plus brand-R3STO mais peut se confondre avec le B2C. V3 est le plus luxe mais cible une niche. <b>Si je devais conseiller</b> : V1 pour /pro et /mini (rassurant, scalable, Stripe-like = booking-like), V2 pour r3sto.com annuaire B2C (cohérence gourmand). V3 pour Carat éventuellement (luxe pur). Mais c'est votre choix. Dites laquelle vous parle pour l'auth/pro/mini.
+    </p>
+  </div>
+</div>
+</body>
+</html>

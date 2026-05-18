@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demande envoyée — R3STO</title>
+<meta name="theme-color" content="#1c2e58">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--bg-2:#e3ebf5;--surf:#ffffff;
+  --navy:#1c2e58;--gold:#a07e2a;--gold-soft:#c89752;
+  --t-1:#0c1730;--t-2:#4a5878;--t-3:#7b88a8;
+  --border:#d6dfee;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+.nav{background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;object-fit:contain}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+.nav-back{font-size:13px;color:var(--t-2);text-decoration:none;font-weight:500}
+
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.box{max-width:560px;width:100%}
+.success{
+  background:#fff;border:1px solid var(--border);
+  padding:40px 36px;text-align:center;
+}
+.tick{
+  width:64px;height:64px;background:#1b3a2e;color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:30px;font-weight:800;margin-bottom:20px;
+}
+.eyebrow{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;display:block}
+h1{font-size:26px;font-weight:800;color:var(--navy);margin:0 0 10px;letter-spacing:-.02em;line-height:1.15}
+.lead{font-size:15px;color:var(--t-2);line-height:1.6;margin:0 0 24px}
+.lead b{color:var(--t-1)}
+
+.recap{
+  background:#fff8e8;border:1px solid #e6d090;
+  padding:20px 22px;text-align:left;margin-bottom:24px;
+}
+.recap .ref{font-family:var(--fm);font-size:10.5px;font-weight:700;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+.recap dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px}
+.recap dt{color:var(--t-3);font-weight:500}
+.recap dd{margin:0;color:var(--t-1);font-weight:600}
+.recap dd.mono{font-family:var(--fm);font-size:12.5px}
+
+.cta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border:1px solid;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;transition:.18s;border-radius:0;cursor:pointer;font-family:var(--ff);background:none}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-primary:hover{background:var(--gold);border-color:var(--gold)}
+.btn-ghost{color:var(--navy);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--navy)}
+
+.note{margin-top:24px;padding-top:20px;border-top:1px solid var(--border);font-size:12.5px;color:var(--t-3);line-height:1.6}
+.note a{color:var(--gold);font-weight:600;text-decoration:none}
+.note a:hover{color:var(--navy)}
+
+footer{padding:20px 28px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em;border-top:1px solid var(--border);background:var(--bg-2)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Réservation</span>
+        <span class="logo-slogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <a href="/" class="nav-back">← Annuaire</a>
+  </div>
+</nav>
+
+<main>
+  <div class="box">
+    <div class="success">
+      <div class="tick">✓</div>
+      <span class="eyebrow">Demande envoyée</span>
+      <h1 id="confTitle">Votre demande a été transmise à Chez Bunny's.</h1>
+      <p class="lead">Un récapitulatif vient de partir vers <b id="confEmail">votre boîte</b>. Le restaurant va <b>confirmer votre demande</b> sous quelques heures — vous recevrez un second email avec la confirmation définitive.</p>
+
+      <div class="recap">
+        <div class="ref">Référence · <span id="confRef">—</span></div>
+        <dl>
+          <dt>Restaurant</dt><dd id="confResto">—</dd>
+          <dt>Date</dt><dd id="confDate">—</dd>
+          <dt>Heure</dt><dd id="confTime">—</dd>
+          <dt>Personnes</dt><dd id="confPax">—</dd>
+        </dl>
+      </div>
+
+      <div class="cta-row">
+        <a href="#" id="ctaCal" class="btn btn-ghost">📅 Ajouter à mon agenda</a>
+        <a href="/" class="btn btn-primary">Retour à l'annuaire →</a>
+      </div>
+
+      <div class="note">
+        <b>Un imprévu&nbsp;?</b> Pour modifier ou annuler, écrivez à
+        <a href="mailto:contact@r3sto.com" id="mailMod">contact@r3sto.com</a>
+        avec votre référence en objet. Réponse sous quelques heures (jours ouvrés).
+        <br><br>
+        ◆ <b>+1 diamant</b> gagné dès que vous aurez honoré cette réservation.
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2026 Innoptim SA · R3STO — guide gourmand international</footer>
+
+<script>
+// Lecture des paramètres URL passés depuis le modal
+const p = new URLSearchParams(window.location.search);
+const ref   = p.get('ref')   || '—';
+const resto = p.get('resto') || 'votre restaurant';
+const email = p.get('email') || 'votre boîte';
+const date  = p.get('date')  || '—';
+const time  = p.get('time')  || '—';
+const pax   = p.get('pax')   || '—';
+
+document.getElementById('confTitle').textContent = 'Votre demande a été transmise à ' + resto + '.';
+document.getElementById('confEmail').textContent = email;
+document.getElementById('confRef').textContent   = ref;
+document.getElementById('confResto').textContent = resto;
+document.getElementById('confDate').textContent  = date;
+document.getElementById('confTime').textContent  = time;
+document.getElementById('confPax').textContent   = pax + (parseInt(pax) > 1 ? ' personnes' : ' personne');
+
+// Lien mailto enrichi avec la référence
+document.getElementById('mailMod').href = 'mailto:contact@r3sto.com?subject=' + encodeURIComponent('Modifier réservation ' + ref);
+
+// Bouton agenda — génère un .ics téléchargeable
+document.getElementById('ctaCal').addEventListener('click', function(e){
+  e.preventDefault();
+  const dtIso = (p.get('dateIso') || '').replace(/-/g, ''); // YYYYMMDD
+  const tm = (time.replace(':','') + '00') || '193000';
+  const start = dtIso + 'T' + tm;
+  // +90 min
+  const startDate = new Date((p.get('dateIso') || '2026-01-01') + 'T' + (time || '19:30') + ':00');
+  const endDate = new Date(startDate.getTime() + 90 * 60 * 1000);
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+  const ics = [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//R3STO//Booking//FR','BEGIN:VEVENT',
+    'UID:' + ref + '@r3sto.com',
+    'DTSTAMP:' + fmt(new Date()),
+    'DTSTART:' + fmt(startDate),
+    'DTEND:' + fmt(endDate),
+    'SUMMARY:Réservation R3STO — ' + resto,
+    'DESCRIPTION:Réservation ' + pax + ' personne(s). Référence : ' + ref,
+    'LOCATION:' + resto,
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'r3sto-' + ref + '.ics';
+  a.click();
+});
+</script>
+</body>
+</html>

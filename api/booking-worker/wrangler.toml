@@ -1,0 +1,21 @@
+name = "r3sto-booking"
+main = "src/index.js"
+compatibility_date = "2026-05-18"
+
+# Variables d'environnement publiques (non-sensibles)
+# Pour les secrets (POSTMARK_TOKEN), utilisez : wrangler secret put POSTMARK_TOKEN
+[vars]
+ALLOWED_ORIGINS = "https://r3sto.com,https://www.r3sto.com,http://localhost:3000"
+# FROM_EMAIL et ADMIN_EMAIL peuvent être déclarés ici en var publique, ou en secret
+# Exemple :
+# FROM_EMAIL  = "noreply@r3sto.com"
+# ADMIN_EMAIL = "contact@r3sto.com"
+
+# Routes (à activer après avoir vérifié le domaine sur Cloudflare)
+# [[routes]]
+# pattern = "api.r3sto.com/booking/*"
+# zone_name = "r3sto.com"
+
+# Logs Cloudflare (Workers Logpush ou Tail)
+[observability]
+enabled = true

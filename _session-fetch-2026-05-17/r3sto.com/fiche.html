@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title id="pageTitle">Fiche restaurant — R3STO</title>
+<meta name="description" id="pageDesc" content="Découvrez ce restaurant sur R3STO, l'annuaire gastronomique suisse.">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/jpeg" href="/logo-r3sto.jpg">
+<link rel="canonical" id="pageCanon" href="https://r3sto.com/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1620;--surf:#0f1620;--surf2:#141d2c;
+  --text:#e8eef5;--t2:#aab5cc;--t3:#aab5cc;--t4:#5a657a;
+  --bl:#c89752;--bl2:#a07e2a;--gn:#c89752;--gn2:#a07e2a;--rd:#dc5050;--am:#e89420;
+  --border:rgba(42,26,13,.1);--shadow:0 2px 12px rgba(42,26,13,.06);
+  --ff:'DM Sans',system-ui,-apple-system,sans-serif;
+  --max:1160px;--r:14px
+}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:var(--bl2);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.nav{position:sticky;top:0;z-index:100;background:rgba(253,246,236,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px}
+.nav-left{display:flex;align-items:center;gap:10px}
+.nav-left img{height:30px;width:30px;border-radius:0;object-fit:cover}
+.nav-left strong{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.2px}
+.nav-right a{font-size:13px;font-weight:600;color:var(--t2);padding:8px 14px;border-radius:8px;border:1px solid var(--border);transition:.15s}
+.nav-right a:hover{background:var(--surf2);text-decoration:none}
+
+.wrap{max-width:var(--max);margin:0 auto;padding:24px 20px 80px}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--t3);font-size:13px;font-weight:500;margin-bottom:14px;transition:.15s}
+.back:hover{color:var(--bl);text-decoration:none}
+
+/* ── HERO ── */
+.hero{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px;position:relative}
+.hero-img{width:100%;aspect-ratio:16/9;min-height:260px;max-height:420px;background:linear-gradient(135deg,#e6eef9,#141d2c);background-size:cover;background-position:center;position:relative}
+.hero-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.6))}
+.hero-title-block{position:absolute;bottom:22px;left:26px;right:26px;color:#fff;z-index:2}
+.hero-title-block .badge{display:inline-block;padding:3px 10px;background:rgba(253,246,236,.96);color:var(--text);border-radius:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.hero-title-block h1{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.5px;margin-bottom:4px;text-shadow:0 2px 8px rgba(0,0,0,.45)}
+.hero-title-block .sub{font-size:14px;opacity:.95;text-shadow:0 1px 4px rgba(0,0,0,.45)}
+.illus-badge{position:absolute;top:12px;left:12px;z-index:3;background:rgba(0,0,0,.55);color:#fff;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;backdrop-filter:blur(8px);display:none}
+.illus-badge.on{display:block}
+
+/* ── BANDE RESA HORIZONTALE (Variante A) ── */
+.resa-bar{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 20px;box-shadow:0 4px 20px rgba(42,26,13,.07);margin-bottom:18px}
+.resa-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;gap:12px;flex-wrap:wrap}
+.resa-head h2{font-size:16px;font-weight:900;letter-spacing:-.2px}
+.resa-head .sub{font-size:12px;color:var(--t3)}
+.resa-head .sub b{color:var(--gn);font-weight:800}
+.resa-row1{display:grid;grid-template-columns:150px 130px 1fr auto;gap:12px;align-items:end}
+.resa-row2{display:grid;grid-template-columns:1.2fr 1.3fr 1fr auto;gap:12px;align-items:end;margin-top:12px}
+.resa-row3{margin-top:12px}
+.resa-result{margin-top:12px;padding:10px 14px;border-radius:9px;font-size:13px;display:none}
+.resa-result.ok{display:block;background:rgba(26,158,110,.1);color:var(--gn2);border:1px solid rgba(26,158,110,.25)}
+.resa-result.err{display:block;background:rgba(220,80,80,.08);color:var(--rd);border:1px solid rgba(220,80,80,.2)}
+.resa-foot{margin-top:10px;font-size:11px;color:var(--t4);line-height:1.5}
+.resa-foot b{color:var(--t3)}
+
+@media(max-width:900px){
+  .resa-row1{grid-template-columns:1fr 1fr}
+  .resa-row1 > .slots-wrap{grid-column:1/-1}
+  .resa-row1 > .btn-wrap{grid-column:1/-1}
+  .resa-row2{grid-template-columns:1fr 1fr}
+  .resa-row2 > .btn-wrap{grid-column:1/-1}
+}
+
+/* ── Form atoms ── */
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select,.field textarea{padding:10px 12px;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:var(--ff);background:var(--surf);color:var(--text);width:100%;font-weight:500}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--bl2);box-shadow:0 0 0 2px rgba(59,125,216,.15)}
+.field textarea{min-height:50px;resize:vertical}
+.slots{display:flex;flex-wrap:wrap;gap:6px}
+.slot{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:var(--surf);transition:.15s;user-select:none;color:var(--t2)}
+.slot:hover{border-color:var(--bl2);color:var(--bl)}
+.slot.on{background:var(--bl);color:#fff;border-color:var(--bl)}
+.submit-btn{padding:11px 22px;border:none;border-radius:9px;background:var(--gn);color:#fff;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.02em;font-family:var(--ff);white-space:nowrap;transition:.15s}
+.submit-btn:hover{background:var(--gn2)}
+.submit-btn:disabled{opacity:.5;cursor:wait}
+.hp{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0!important}
+
+/* ── INFOS & notice ── */
+.grid-main{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:800px){.grid-main{grid-template-columns:1fr}}
+
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.card h3{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.row{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.row:last-child{border-bottom:none}
+.row .icon{font-size:15px;color:var(--t3);width:22px;flex-shrink:0;line-height:1.5}
+.row .lbl{color:var(--t3);min-width:85px;font-weight:500;line-height:1.5}
+.row .val{color:var(--text);font-weight:500;line-height:1.5;flex:1}
+.row .val a{font-weight:600}
+
+.notice{background:#fff8e6;border:1px solid #f5c87d;color:#6b4310;padding:14px 16px;border-radius:10px;font-size:13px;line-height:1.55}
+.notice b{font-weight:800;display:block;margin-bottom:4px}
+.notice a{color:#6b4310;text-decoration:underline;font-weight:700}
+
+/* ── SUGGESTIONS ── */
+.sugg{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+.sugg h3{font-size:17px;font-weight:900;letter-spacing:-.3px;margin-bottom:3px}
+.sugg .sugg-sub{font-size:13px;color:var(--t3);margin-bottom:16px}
+.sugg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.sugg-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.sugg-grid{grid-template-columns:1fr}}
+.sugg-card{background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s;text-decoration:none;color:inherit;display:flex;flex-direction:column}
+.sugg-card:hover{border-color:var(--bl2);transform:translateY(-2px);box-shadow:0 4px 14px rgba(42,26,13,.08);text-decoration:none}
+.sugg-img{height:120px;background-size:cover;background-position:center;position:relative}
+.sugg-img .illus-mini{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.55);color:#fff;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;backdrop-filter:blur(6px)}
+.sugg-body{padding:11px 12px 14px;flex:1;display:flex;flex-direction:column;gap:4px}
+.sugg-name{font-size:13px;font-weight:800;color:var(--text);line-height:1.25}
+.sugg-meta{font-size:11px;color:var(--t3);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.sugg-meta span.dot::before{content:'·';margin-right:6px}
+.sugg-loading{grid-column:1/-1;text-align:center;padding:30px;color:var(--t3);font-size:13px}
+
+/* ── States ── */
+.loading,.err{text-align:center;padding:80px 20px;color:var(--t3)}
+.loading .spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--bl);border-radius:50%;margin:0 auto 14px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err h2{color:var(--rd);font-size:22px;margin-bottom:8px}
+.err p{font-size:14px;margin-bottom:20px}
+.err a.btn-back{display:inline-block;padding:10px 22px;background:var(--bl);color:#fff;border-radius:10px;font-weight:700;font-size:14px}
+
+    /* Sticky bottom bar mobile (mobile-first 75% résas) */
+    .sticky-resa-mobile{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:10px 14px env(safe-area-inset-bottom,10px);box-shadow:0 -4px 16px rgba(42,26,13,.08);z-index:90;display:none}
+    .sticky-resa-mobile a{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#5a8c50,#4a7340);color:#fff;text-decoration:none;padding:14px 20px;border-radius:12px;font-weight:800;font-size:15px;min-height:50px;box-shadow:0 2px 10px rgba(26,158,110,.35)}
+    @media(max-width:760px){.sticky-resa-mobile{display:block}body{padding-bottom:80px}}
+
+  </style>
+</head>
+<body>
+
+<!-- shared-header-css -->
+<style>
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:72px;background:rgba(15,22,32,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(74,107,140,.32);box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 4px 24px rgba(0,0,0,.35)}
+.topbar .wrap{max-width:1180px;margin:0 auto;padding:0 24px;height:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px}
+.logo{display:flex;align-items:center;gap:0;text-decoration:none;justify-self:start}
+.logo-img{width:44px;height:44px;object-fit:contain;border-radius:0;display:block;flex-shrink:0}
+.nav{display:flex;align-items:center;gap:2px;justify-self:center;flex-wrap:nowrap}
+.nav a{padding:7px 10px;font-size:13px;color:#aab5cc;font-weight:500;border-radius:2px;transition:.15s;white-space:nowrap;text-decoration:none}
+.nav a:hover{color:#e8eef5;background:#25304a}
+.topbar-right{display:flex;align-items:center;gap:10px;justify-self:end}
+.intl{display:flex;align-items:center;gap:10px}
+.country-pick,.lang-pick{position:relative}
+.country-btn,.lang-btn{display:inline-flex;align-items:center;gap:5px;background:#25304a;border:1px solid rgba(74,107,140,.32);color:#e8eef5;padding:6px 10px;border-radius:2px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif}
+.lang-btn{font-family:'JetBrains Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+.country-btn:hover,.lang-btn:hover{border-color:rgba(200,151,82,.4);color:#c89752}
+.country-menu,.lang-menu{position:absolute;top:calc(100% + 6px);right:0;background:#1a2435;border:1px solid rgba(200,151,82,.4);border-radius:4px;box-shadow:0 24px 60px rgba(0,0,0,.6);min-width:240px;max-height:420px;overflow-y:auto;padding:8px;z-index:200;display:none}
+.country-menu.open,.lang-menu.open{display:block}
+.country-menu a,.lang-menu a{display:flex;align-items:center;gap:12px;padding:10px 14px;font-size:14px;color:#e8eef5;border-radius:2px;transition:.12s;font-weight:500}
+.country-menu a:hover,.lang-menu a:hover{background:#c897521f;color:#c89752}
+.country-menu a.on,.lang-menu a.on{color:#c89752;background:#c897521f;font-weight:600;border-left:2px solid #c89752}
+.btn-pro{background:linear-gradient(135deg,#c89752,#a07e2a);color:#0f1620;font-weight:700;border:1px solid #d4af37;padding:11px 20px;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;box-shadow:0 4px 14px rgba(200,151,82,.3);border-radius:2px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-pro:hover{background:linear-gradient(135deg,#d4af37,#c89752);transform:translateY(-1px)}
+@media(max-width:1280px){.lang-pick{display:none}}
+@media(max-width:1100px){.intl{display:none}.nav a:nth-child(n+5){display:none}}
+@media(max-width:780px){.nav{gap:0}.nav a{padding:6px 8px;font-size:12px}}
+body{padding-top:72px}
+</style>
+
+<header class="topbar">
+  <div class="wrap">
+    <a href="/" class="logo" aria-label="R3STO">
+      <img src="logo-r3sto-orange.jpg" alt="R3STO" class="logo-img" width="44" height="44">
+    </a>
+    <nav class="nav">
+      <a href="/">Restos</a>
+      <a href="/carte/">Carte</a>
+      <a href="/decouvrir/">Découvrir</a>
+      <a href="/carat/">CARAT</a>
+      <a href="/account/login.html">Compte</a>
+      <a href="https://admin.futuraurant.com/" style="opacity:.65;font-size:12.5px" title="Espace clients Futuraurant (legacy)">Futuraurant</a>
+    </nav>
+    <div class="topbar-right">
+      <div class="intl">
+        <div class="country-pick">
+          <button class="country-btn" id="countryBtn" onclick="toggleCountryMenu(event)" aria-haspopup="true">
+            <span class="country-flag" id="curFlag">🇨🇭</span>
+            <span id="curCountry">Suisse</span>
+            <span style="font-size:9px;margin-left:2px">▾</span>
+          </button>
+          <div class="country-menu" id="countryMenu" role="menu">
+            <div style="font-family:var(--fm);font-size:9.5px;letter-spacing:1.4px;color:var(--t3);text-transform:uppercase;padding:6px 14px 6px;font-weight:600">Europe principale</div>
+            <a href="#" data-c="CH" data-flag="🇨🇭" data-name="Suisse" class="on">🇨🇭 Suisse</a>
+            <a href="#" data-c="FR" data-flag="🇫🇷" data-name="France">🇫🇷 France</a>
+            <a href="#" data-c="BE" data-flag="🇧🇪" data-name="Belgique">🇧🇪 Belgique</a>
+            <a href="#" data-c="LU" data-flag="🇱🇺" data-name="Luxembourg">🇱🇺 Luxembourg</a>
+            <a href="#" data-c="DE" data-flag="🇩🇪" data-name="Allemagne">🇩🇪 Allemagne</a>
+            <a href="#" data-c="IT" data-flag="🇮🇹" data-name="Italie">🇮🇹 Italie</a>
+            <a href="#" data-c="ES" data-flag="🇪🇸" data-name="Espagne">🇪🇸 Espagne</a>
+            <a href="#" data-c="PT" data-flag="🇵🇹" data-name="Portugal">🇵🇹 Portugal</a>
+            <a href="#" data-c="NL" data-flag="🇳🇱" data-name="Pays-Bas">🇳🇱 Pays-Bas</a>
+            <a href="#" data-c="AT" data-flag="🇦🇹" data-name="Autriche">🇦🇹 Autriche</a>
+            <a href="#" data-c="US" data-flag="🇺🇸" data-name="USA">🇺🇸 USA</a>
+            <a href="#" data-c="CA" data-flag="🇨🇦" data-name="Canada">🇨🇦 Canada</a>
+            <div style="font-family:var(--fm);font-size:9.5px;letter-spacing:1.4px;color:var(--t3);text-transform:uppercase;padding:14px 14px 6px;border-top:1px solid var(--border);margin-top:6px">Amérique du Nord</div>
+            <a href="#" data-c="MX" data-flag="🇲🇽" data-name="Mexique">🇲🇽 Mexique</a>
+            <div style="font-family:var(--fm);font-size:9.5px;letter-spacing:1.4px;color:var(--t3);text-transform:uppercase;padding:14px 14px 6px;border-top:1px solid var(--border);margin-top:6px">Europe étendue</div>
+            <a href="#" data-c="GB" data-flag="🇬🇧" data-name="Royaume-Uni">🇬🇧 Royaume-Uni</a>
+            <a href="#" data-c="IE" data-flag="🇮🇪" data-name="Irlande">🇮🇪 Irlande</a>
+            <a href="#" data-c="DK" data-flag="🇩🇰" data-name="Danemark">🇩🇰 Danemark</a>
+            <a href="#" data-c="SE" data-flag="🇸🇪" data-name="Suède">🇸🇪 Suède</a>
+            <a href="#" data-c="NO" data-flag="🇳🇴" data-name="Norvège">🇳🇴 Norvège</a>
+            <a href="#" data-c="FI" data-flag="🇫🇮" data-name="Finlande">🇫🇮 Finlande</a>
+            <a href="#" data-c="PL" data-flag="🇵🇱" data-name="Pologne">🇵🇱 Pologne</a>
+            <a href="#" data-c="CZ" data-flag="🇨🇿" data-name="Tchéquie">🇨🇿 Tchéquie</a>
+            <a href="#" data-c="GR" data-flag="🇬🇷" data-name="Grèce">🇬🇷 Grèce</a>
+            <a href="#" data-c="MC" data-flag="🇲🇨" data-name="Monaco">🇲🇨 Monaco</a>
+            <a href="#" data-c="LI" data-flag="🇱🇮" data-name="Liechtenstein">🇱🇮 Liechtenstein</a>
+          </div>
+        </div>
+        <div class="lang-pick">
+          <button class="lang-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-haspopup="true">
+            <span id="curLang">FR</span>
+            <span style="font-size:9px;margin-left:2px">▾</span>
+          </button>
+          <div class="lang-menu" id="langMenu" role="menu">
+            <a href="#" data-lang="fr" data-name="Français" class="on">🇫🇷 Français</a>
+            <a href="#" data-lang="en" data-name="English">🇬🇧 English</a>
+            <a href="#" data-lang="de" data-name="Deutsch">🇩🇪 Deutsch</a>
+            <a href="#" data-lang="it" data-name="Italiano">🇮🇹 Italiano</a>
+            <a href="#" data-lang="es" data-name="Español">🇪🇸 Español</a>
+            <a href="#" data-lang="pt" data-name="Português">🇵🇹 Português</a>
+            <a href="#" data-lang="nl" data-name="Nederlands">🇳🇱 Nederlands</a>
+            <a href="#" data-lang="ja" data-name="日本語">🇯🇵 日本語</a>
+            <a href="#" data-lang="zh" data-name="中文">🇨🇳 中文</a>
+            <a href="#" data-lang="ar" data-name="العربية">🇸🇦 العربية</a>
+          </div>
+        </div>
+      </div>
+      <a href="/pro/" class="btn btn-pro">Espace pro <span style="margin-left:4px">→</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <a class="back" href="/" aria-label="Retour à l'annuaire">← Retour à l'annuaire</a>
+
+  <div id="loading" class="loading">
+    <div class="spin"></div>
+    <div>Chargement de la fiche…</div>
+  </div>
+
+  <div id="err" class="err" style="display:none">
+    <h2>Restaurant introuvable</h2>
+    <p id="errMsg">Ce restaurant n'est plus disponible ou le lien est invalide.</p>
+    <a class="btn-back" href="/">Retour à l'annuaire</a>
+  </div>
+
+  <div id="content" style="display:none">
+
+    <!-- HERO -->
+    <article class="hero">
+      <div class="illus-badge" id="illusBadge">Image d'illustration</div>
+      <div class="hero-img" id="heroImg">
+        <div class="hero-title-block">
+          <span class="badge" id="resBadge">Restaurant</span>
+          <h1 id="resName">—</h1>
+          <div class="sub" id="resSub">—</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══ ÉTAT A : Réservation temps réel (Starter+ avec bookingUrl) ═══ -->
+    <div id="stateReserveDirect" class="resa-bar" style="display:none;background:linear-gradient(135deg,#eaf7f0,#d4efe0);border-color:#c89752">
+      <div class="resa-head">
+        <h2>✓ Réservation confirmée instantanément</h2>
+        <div class="sub"><b style="color:#8e4f23">Disponibilités en temps réel</b> · 0 commission</div>
+      </div>
+      <div style="padding:4px 0 8px;font-size:14px;color:#aab5cc;line-height:1.5">
+        Ce restaurant gère ses tables sur R3STO : votre réservation est <b>confirmée instantanément</b>, sans attendre de retour par email.
+      </div>
+      <a id="bookingDirectBtn" href="#" class="submit-btn" style="display:inline-block;margin-top:8px;padding:14px 32px;text-decoration:none;background:#c89752">🍽️ Réserver une table maintenant →</a>
+    </div>
+
+    <!-- ═══ ÉTAT D : Pas d'email, pas claimé — contact direct uniquement ═══ -->
+    <div id="stateContactOnly" class="resa-bar" style="display:none;background:#f6f8fb;border-color:#c8d1dc">
+      <div class="resa-head">
+        <h2>📞 Contactez directement le restaurant</h2>
+        <div class="sub"><b>R3STO n'a pas d'email public</b> pour ce restaurant — appelez-le directement pour réserver.</div>
+      </div>
+      <div id="contactOnlyActions" style="padding:10px 0 4px;display:flex;gap:10px;flex-wrap:wrap"></div>
+      <div style="margin-top:14px;padding:12px 14px;background:#fff4e6;border:1px solid #e89420;border-radius:8px;font-size:12px;color:#5a3810;line-height:1.5">
+        <b>Propriétaire ?</b> Cette fiche ne peut pas encore recevoir de réservations en ligne.
+        <a id="contactClaimLink" href="#" style="color:#c77e15;font-weight:700;text-decoration:underline">Revendiquez-la gratuitement</a> pour activer le formulaire de résa et centraliser les demandes.
+      </div>
+    </div>
+
+    <!-- ═══ ÉTAT B/C : Form demande résa (claimed Free OU email public unclaimed) ═══ -->
+    <div id="stateRequestForm" class="resa-bar" style="display:none">
+      <div class="resa-head">
+        <h2>Demander une table</h2>
+        <div class="sub"><b>0 commission</b> · transmis en direct au restaurant</div>
+      </div>
+
+      <form id="resaForm" autocomplete="on" novalidate>
+        <input type="hidden" name="slug" id="f_slug" value="">
+        <input type="hidden" name="restaurantName" id="f_name" value="">
+        <input type="text" name="website_hp" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <div class="resa-row1">
+          <div class="field">
+            <label for="r_date">Date</label>
+            <input id="r_date" name="date" type="date" required>
+          </div>
+          <div class="field">
+            <label for="r_party">Couverts</label>
+            <select id="r_party" name="party" required>
+              <option value="1">1 personne</option>
+              <option value="2" selected>2 personnes</option>
+              <option value="3">3 personnes</option>
+              <option value="4">4 personnes</option>
+              <option value="5">5 personnes</option>
+              <option value="6">6 personnes</option>
+              <option value="7">7 personnes</option>
+              <option value="8">8+ (groupe)</option>
+            </select>
+          </div>
+          <div class="field slots-wrap">
+            <label>Heure souhaitée</label>
+            <div class="slots" id="slotsBox">
+              <div class="slot" data-t="12:00">12h00</div>
+              <div class="slot" data-t="12:30">12h30</div>
+              <div class="slot" data-t="13:00">13h00</div>
+              <div class="slot" data-t="13:30">13h30</div>
+              <div class="slot" data-t="19:00">19h00</div>
+              <div class="slot" data-t="19:30">19h30</div>
+              <div class="slot" data-t="20:00">20h00</div>
+              <div class="slot" data-t="20:30">20h30</div>
+            </div>
+            <input type="hidden" id="r_time" name="time" required>
+          </div>
+          <div class="btn-wrap" style="display:none">
+            <button type="submit" class="submit-btn">Continuer →</button>
+          </div>
+        </div>
+
+        <div class="resa-row2">
+          <div class="field">
+            <label for="r_fname">Prénom</label>
+            <input id="r_fname" name="firstName" type="text" required placeholder="Pierre" autocomplete="given-name">
+          </div>
+          <div class="field">
+            <label for="r_lname">Nom</label>
+            <input id="r_lname" name="lastName" type="text" required placeholder="Dubois" autocomplete="family-name">
+          </div>
+          <div class="field">
+            <label for="r_email">Email</label>
+            <input id="r_email" name="email" type="email" required placeholder="vous@exemple.ch" autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="r_phone">Téléphone</label>
+            <input id="r_phone" name="phone" type="tel" required placeholder="+41 79 123 45 67" autocomplete="tel" inputmode="tel">
+          </div>
+          <div class="btn-wrap">
+            <button type="submit" id="resaSubmit" class="submit-btn">Envoyer →</button>
+          </div>
+        </div>
+
+        <div class="resa-row3">
+          <div class="field">
+            <label for="r_msg">Message (optionnel)</label>
+            <textarea id="r_msg" name="message" placeholder="Allergie, anniversaire, table terrasse…"></textarea>
+          </div>
+        </div>
+
+        <div id="resaResult" class="resa-result"></div>
+        <div class="resa-foot">
+          En envoyant, vous acceptez que vos coordonnées soient transmises à <b id="footName">ce restaurant</b>. R3STO ne prélève aucune commission.
+        </div>
+        <div id="resaDisclaimerUnclaimed" class="resa-foot" style="display:none;margin-top:6px;padding:8px 10px;background:#fff8e6;border:1px solid #f5c87d;border-radius:6px;color:#6b4310;font-size:11px">
+          <b style="color:#6b4310">Réponse non garantie :</b> ce restaurant n'est pas encore inscrit sur R3STO. Sa réponse dépend de sa disponibilité à lire ses emails. Pour une confirmation instantanée, privilégiez les restaurants avec le badge « Réservation temps réel » ;-)
+        </div>
+      </form>
+    </div>
+
+    <!-- INFOS + NOTICE -->
+    <div class="grid-main">
+      <div class="card">
+        <h3>Informations</h3>
+        <div id="rows"></div>
+      </div>
+      <div id="noticeBlock">
+        <div id="unclaimedNote" class="notice" style="display:none">
+          <b>Fiche non revendiquée</b>
+          Propriétaire ? <a id="claimLink" href="https://pro.r3sto.ch/">Revendiquez-la gratuitement</a> pour activer la réservation confirmée en temps réel, uploader vos vraies photos et afficher vos promotions.
+        </div>
+      </div>
+    </div>
+
+    <!-- SUGGESTIONS -->
+    <div class="sugg">
+      <h3 id="suggTitle">Autres restaurants à proximité</h3>
+      <div class="sugg-sub" id="suggSub">Découvrez d'autres tables dans la région.</div>
+      <div class="sugg-grid" id="suggGrid">
+        <div class="sugg-loading">Chargement…</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var API = 'https://api.r3sto.ch/public/directory/';
+  var RESA_API = 'https://api.r3sto.ch/public/reservation-request';
+  var TRACK_API = 'https://api.r3sto.ch/public/track';
+
+  // ═══ Photo pool — Unsplash hot-link (licence commerciale OK, hot-link autorisé) ═══
+  // Rotation par hash du slug pour éviter que tous les italiens aient la même photo.
+  var PHOTOS = {
+    italienne: ['1565299624946-b28f40a0ca4b','1574071318508-1cdbab80d002','1555072956-7758afb20e8f','1571997478779-2adcbbe9ab2f','1513104890138-7c749659a591'],
+    italien:   ['1565299624946-b28f40a0ca4b','1574071318508-1cdbab80d002','1555072956-7758afb20e8f','1571997478779-2adcbbe9ab2f','1513104890138-7c749659a591'],
+    pizzeria:  ['1565299624946-b28f40a0ca4b','1513104890138-7c749659a591','1595854341625-f33ee10dbf94','1555072956-7758afb20e8f','1517248135467-4c7edcad34c4'],
+    pizza:     ['1565299624946-b28f40a0ca4b','1513104890138-7c749659a591','1595854341625-f33ee10dbf94','1555072956-7758afb20e8f'],
+    asiatique: ['1579584425555-c3ce17fd4351','1617196034796-73dfa7b1fd56','1569718212165-3a8278d5f624','1553621042-f6e147245754','1563379926898-05f4575a45d8'],
+    japonaise: ['1579584425555-c3ce17fd4351','1553621042-f6e147245754','1563379926898-05f4575a45d8','1617196034796-73dfa7b1fd56'],
+    sushi:     ['1579584425555-c3ce17fd4351','1553621042-f6e147245754'],
+    chinoise:  ['1563379926898-05f4575a45d8','1569718212165-3a8278d5f624','1617196034796-73dfa7b1fd56'],
+    thailandaise:['1569718212165-3a8278d5f624','1563379926898-05f4575a45d8'],
+    indienne:  ['1565557623262-b51c2513a641','1585937421612-70a008356fbe','1517244683847-7456b63c5969'],
+    francaise: ['1544025162-d76694265947','1559339352-11d035aa65de','1414235077428-338989a2e8c0','1555396273-367ea4eb4db5','1551782450-a2132b4ba21d'],
+    française: ['1544025162-d76694265947','1559339352-11d035aa65de','1414235077428-338989a2e8c0','1555396273-367ea4eb4db5','1551782450-a2132b4ba21d'],
+    brasserie: ['1559339352-11d035aa65de','1414235077428-338989a2e8c0','1551782450-a2132b4ba21d','1544025162-d76694265947'],
+    bistro:    ['1544025162-d76694265947','1559339352-11d035aa65de','1414235077428-338989a2e8c0'],
+    'regionale':['1544025162-d76694265947','1559339352-11d035aa65de','1551782450-a2132b4ba21d'],
+    'régionale':['1544025162-d76694265947','1559339352-11d035aa65de','1551782450-a2132b4ba21d'],
+    suisse:    ['1544025162-d76694265947','1551782450-a2132b4ba21d','1559339352-11d035aa65de'],
+    gastronomique:['1552566626-52f8b828add9','1600891964092-4316c288032e','1546039907-4c5d95d09716','1565958011703-44f9829ba187','1414235077428-338989a2e8c0'],
+    mediterraneenne:['1540189549336-e6e99c3679fe','1562967914-608f82629710','1544025162-d76694265947'],
+    méditerranéenne:['1540189549336-e6e99c3679fe','1562967914-608f82629710','1544025162-d76694265947'],
+    libanaise: ['1562967914-608f82629710','1626804475297-41608ea09aeb','1540189549336-e6e99c3679fe'],
+    steakhouse:['1558030006-450675393462','1504113888839-1c8ac629a8c0','1529692236671-f1f6cf9683ba','1546833999-b9f581a1996d'],
+    americaine:['1558030006-450675393462','1504113888839-1c8ac629a8c0','1546833999-b9f581a1996d'],
+    vegetarienne:['1540420773420-3366772f4999','1546069901-ba9599a7e63c','1512621776951-a57141f2eefd'],
+    végétarienne:['1540420773420-3366772f4999','1546069901-ba9599a7e63c','1512621776951-a57141f2eefd'],
+    'fruits de mer':['1559339352-11d035aa65de','1546039907-4c5d95d09716'],
+    mexicaine: ['1565299585323-38d6b0500e40','1504544750208-dc0358e63f7f'],
+    fusion:    ['1559329007-40df8a9345d8','1552566626-52f8b828add9','1600891964092-4316c288032e'],
+    // amenity fallback
+    bar:       ['1514933651103-005eec06c04b','1470337458703-46ad1756a187','1572116469696-31de0f17cc34'],
+    cafe:      ['1501339847302-ac426a4a7cbb','1495474472287-4d71bcdd2085','1453614512568-c4024d13c92e'],
+    café:      ['1501339847302-ac426a4a7cbb','1495474472287-4d71bcdd2085','1453614512568-c4024d13c92e'],
+    pub:       ['1470337458703-46ad1756a187','1514933651103-005eec06c04b','1572116469696-31de0f17cc34'],
+    // default pool (bistro chaleureux générique)
+    _default:  ['1517248135467-4c7edcad34c4','1559329007-40df8a9345d8','1414235077428-338989a2e8c0','1544025162-d76694265947','1559339352-11d035aa65de','1551782450-a2132b4ba21d']
+  };
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s||'').replace(/[&<>"']/g, function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  function hashStr(s){ var h=0; s=String(s||''); for(var i=0;i<s.length;i++) h=((h<<5)-h)+s.charCodeAt(i); return Math.abs(h); }
+
+  function getSlug(){
+    var u = new URL(window.location.href);
+    var slug = u.searchParams.get('slug') || '';
+    if(!slug){
+      var m = u.pathname.match(/\/restaurants\/([a-z0-9-]+)/i);
+      if(m) slug = m[1];
+    }
+    return slug.trim();
+  }
+
+  function pickPhoto(slug, cuisineTag, amenity){
+    var key = (cuisineTag||'').toLowerCase().trim() || (amenity||'').toLowerCase().trim();
+    var pool = PHOTOS[key] || PHOTOS._default;
+    var idx = hashStr(slug) % pool.length;
+    var photoId = pool[idx];
+    return 'https://images.unsplash.com/photo-' + photoId + '?w=1200&q=60&auto=format&fit=crop&h=500&fm=webp';
+  }
+
+  // ═══ Tracking (silencieux si endpoint 404/down) ═══
+  var SESSION_ID = (function(){
+    try {
+      var s = sessionStorage.getItem('r3sto_session');
+      if(!s){ s = 'fs_' + Date.now() + '_' + Math.random().toString(36).slice(2,10); sessionStorage.setItem('r3sto_session', s); }
+      return s;
+    } catch(e){ return 'fs_anon'; }
+  })();
+  function track(event, meta){
+    try {
+      fetch(TRACK_API, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({event:event, session_id:SESSION_ID, pageUrl:location.href, meta:meta||{}}),
+        keepalive:true
+      }).catch(function(){});
+    } catch(e){}
+  }
+
+  function render(r){
+    $('loading').style.display = 'none';
+    $('content').style.display = 'block';
+
+    var name = r.name || 'Restaurant';
+    var city = [r.postcode, r.city].filter(Boolean).join(' ');
+    var cuisineHuman = r.cuisine || (r.cuisineTag ? r.cuisineTag.charAt(0).toUpperCase()+r.cuisineTag.slice(1) : null) || 'Restaurant';
+    var subParts = [r.address, city, r.canton].filter(Boolean);
+    if(!subParts.length) subParts.push('Suisse');
+
+    document.title = name + ' — R3STO';
+    $('pageTitle').textContent = name + ' — R3STO';
+    $('pageDesc').setAttribute('content', name + (city?', '+city:'') + '. Consultez les informations et demandez une réservation sur R3STO.');
+    $('pageCanon').href = 'https://r3sto.com/restaurants/' + encodeURIComponent(r.slug || '');
+
+    $('resName').textContent = name;
+    $('resSub').textContent = subParts.join(' · ');
+    // Badge : CARAT en priorité (or/argent/bronze) puis cuisine + ville (FIX 04/05/2026)
+    var caratLvl = (r.caratEffective || r.caratLevel || r.caratSignalLevel || '').toString().toLowerCase();
+    var caratIcons = { gold: '★', silver: '★', bronze: '★', or: '★', argent: '★', 'platine': '★' };
+    var caratColors = { gold: '#d4af37', silver: '#cdd0d6', bronze: '#cd9961', or: '#d4af37', argent: '#cdd0d6' };
+    var caratLabel = { gold: 'CARAT OR', silver: 'CARAT ARGENT', bronze: 'CARAT BRONZE', or: 'CARAT OR', argent: 'CARAT ARGENT', platine: 'CARAT PLATINE' };
+    if (caratLvl && caratLabel[caratLvl]) {
+      $('resBadge').innerHTML = '<span style="color:' + (caratColors[caratLvl]||'#c89752') + ';font-weight:700">' + caratIcons[caratLvl] + ' ' + caratLabel[caratLvl] + '</span>';
+      $('resBadge').style.background = 'rgba(0,0,0,.35)';
+      $('resBadge').style.border = '1px solid ' + (caratColors[caratLvl]||'#c89752');
+    } else {
+      var badgeTxt = cuisineHuman + (r.city ? ' · ' + r.city : '');
+      $('resBadge').textContent = badgeTxt;
+    }
+
+    // Photo : vraie photo si dispo + onerror fallback Unsplash (Google Places URLs expirent / 404 — FIX 04/05/2026)
+    var photoUrl = r.photo || (r.photos && r.photos[0]);
+    var fallbackUrl = pickPhoto(r.slug, r.cuisineTag, r.amenity);
+    function applyHero(url, isFallback){
+      $('heroImg').style.backgroundImage = "url('" + url.replace(/'/g,"%27") + "')";
+      if(isFallback) $('illusBadge').classList.add('on');
+    }
+    if(photoUrl){
+      // Test si la photo charge réellement (Google Places API peut renvoyer 404)
+      var probe = new Image();
+      probe.onload = function(){ applyHero(photoUrl, false); };
+      probe.onerror = function(){ applyHero(fallbackUrl, true); };
+      probe.src = photoUrl;
+      // Affiche le fallback IMMÉDIATEMENT (pas d'écran vide) — sera écrasé si la vraie photo charge
+      applyHero(fallbackUrl, true);
+    } else {
+      applyHero(fallbackUrl, true);
+    }
+
+    // Informations
+    var rows = '';
+    if(r.address){
+      rows += '<div class="row"><span class="icon">📍</span><span class="lbl">Adresse</span><span class="val">' + esc(r.address) + (city?' · '+esc(city):'') + '</span></div>';
+    } else if(city){
+      rows += '<div class="row"><span class="icon">📍</span><span class="lbl">Ville</span><span class="val">' + esc(city) + '</span></div>';
+    }
+    if(r.canton){
+      rows += '<div class="row"><span class="icon">🇨🇭</span><span class="lbl">Canton</span><span class="val">' + esc(r.canton) + '</span></div>';
+    }
+    if(r.phone){
+      var phoneClean = r.phone.replace(/\s+/g,'');
+      rows += '<div class="row"><span class="icon">📞</span><span class="lbl">Téléphone</span><span class="val"><a href="tel:' + esc(phoneClean) + '" data-track="phone_click">' + esc(r.phone) + '</a></span></div>';
+    }
+    if(r.website){
+      var web = r.website; if(!/^https?:/i.test(web)) web = 'https://' + web;
+      rows += '<div class="row"><span class="icon">🌐</span><span class="lbl">Site web</span><span class="val"><a href="' + esc(web) + '" target="_blank" rel="noopener nofollow" data-track="website_click">' + esc(r.website) + '</a></span></div>';
+    }
+    if(r.email){
+      rows += '<div class="row"><span class="icon">✉️</span><span class="lbl">Email</span><span class="val"><a href="mailto:' + esc(r.email) + '" data-track="email_click">' + esc(r.email) + '</a></span></div>';
+    }
+    if(r.openingHours){
+      rows += '<div class="row"><span class="icon">🕐</span><span class="lbl">Horaires</span><span class="val">' + esc(r.openingHours) + '</span></div>';
+    }
+    if(r.amenity && r.amenity !== 'restaurant'){
+      rows += '<div class="row"><span class="icon">🏷️</span><span class="lbl">Type</span><span class="val">' + esc(r.amenity) + '</span></div>';
+    }
+    if(!rows){
+      rows = '<div class="row"><span class="val" style="color:var(--t3);font-style:italic">Infos de contact non disponibles. Revendiquez cette fiche pour les compléter.</span></div>';
+    }
+    $('rows').innerHTML = rows;
+
+    // Bind tracking on info clicks
+    $('rows').querySelectorAll('a[data-track]').forEach(function(a){
+      a.addEventListener('click', function(){ track(a.getAttribute('data-track'), {slug:r.slug}); });
+    });
+
+    // Form fill
+    $('f_slug').value = r.slug || '';
+    $('f_name').value = name;
+    $('footName').textContent = name;
+
+    // Claim notice
+    var isClaimed = r.claimStatus === 'claimed' || (r.plan && r.plan !== 'free' && r.plan !== 'unclaimed');
+    var claimUrl = 'https://pro.r3sto.ch/claim?slug=' + encodeURIComponent(r.slug || r.id);
+    if(!isClaimed){
+      $('unclaimedNote').style.display = 'block';
+      $('claimLink').href = claimUrl;
+      $('claimLink').addEventListener('click', function(){ track('claim_click', {slug:r.slug}); });
+    }
+
+    // ═══ Dispatch état selon joignabilité ═══
+    //   A : claimed + bookingUrl → réservation temps réel
+    //   B : claimed (Free) → form demande, route direct au dashboard
+    //   C : unclaimed + email public → form + disclaimer réponse non garantie
+    //   D : unclaimed sans email → contact direct phone uniquement
+    var hasEmail = !!(r.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email));
+    var hasBookingUrl = !!r.bookingUrl;
+    var state;
+    if(isClaimed && hasBookingUrl){ state = 'A'; }
+    else if(isClaimed){ state = 'B'; }
+    else if(hasEmail){ state = 'C'; }
+    else { state = 'D'; }
+
+    if(state === 'A'){
+      $('stateReserveDirect').style.display = 'block';
+      $('bookingDirectBtn').href = r.bookingUrl;
+      $('bookingDirectBtn').addEventListener('click', function(){ track('booking_direct_click', {slug:r.slug}); });
+      // Bonus : afficher aussi le form en dessous pour ceux qui veulent message custom
+      $('stateRequestForm').style.display = 'block';
+    } else if(state === 'B' || state === 'C' || state === 'D'){
+      // B/C/D = même form de résa unifié, disclaimer adapté
+      $('stateRequestForm').style.display = 'block';
+      if(state === 'C'){ $('resaDisclaimerUnclaimed').style.display = 'block'; }
+      if(state === 'D'){
+        // D = pas d'email public : afficher aussi gros bouton Appeler + disclaimer "transmis manuellement"
+        $('resaDisclaimerUnclaimed').style.display = 'block';
+        $('resaDisclaimerUnclaimed').innerHTML = '<b style="color:#6b4310">Réponse non garantie :</b> ce restaurant n\'a pas confirmé son email public. R3STO transmettra votre demande manuellement, mais le délai peut être plus long. Pour confirmation rapide, appelez directement ;-)';
+        $('stateContactOnly').style.display = 'block';
+        var actions = '';
+        if(r.phone){
+          var phoneClean = r.phone.replace(/\s+/g,'');
+          actions += '<a href="tel:' + esc(phoneClean) + '" data-track="phone_click" style="display:inline-flex;align-items:center;gap:8px;padding:13px 22px;background:#c89752;color:#fff;text-decoration:none;border-radius:10px;font-weight:800;font-size:14px">📞 Appeler ' + esc(r.phone) + '</a>';
+        }
+        if(r.website){
+          var web = r.website; if(!/^https?:/i.test(web)) web = 'https://' + web;
+          actions += '<a href="' + esc(web) + '" target="_blank" rel="noopener" data-track="website_click" style="display:inline-flex;align-items:center;gap:8px;padding:13px 22px;background:#fff;color:#c89752;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;border:1.5px solid #c89752">🌐 Visiter le site</a>';
+        }
+        $('contactOnlyActions').innerHTML = actions || '<div style="color:var(--t3);font-style:italic;font-size:13px">Pas de téléphone public. Utilisez le formulaire ci-dessous, R3STO transmettra.</div>';
+        $('contactOnlyActions').querySelectorAll('a[data-track]').forEach(function(a){
+          a.addEventListener('click', function(){ track(a.getAttribute('data-track'), {slug:r.slug, from:'contact_only'}); });
+        });
+        $('contactClaimLink').href = claimUrl;
+        $('contactClaimLink').addEventListener('click', function(){ track('claim_click', {slug:r.slug, from:'contact_only'}); });
+      }
+    } else if(false) {
+      // D : contact only
+      $('stateContactOnly').style.display = 'block';
+      var actions = '';
+      if(r.phone){
+        var phoneClean = r.phone.replace(/\s+/g,'');
+        actions += '<a href="tel:' + esc(phoneClean) + '" data-track="phone_click" style="display:inline-flex;align-items:center;gap:8px;padding:13px 22px;background:#c89752;color:#fff;text-decoration:none;border-radius:10px;font-weight:800;font-size:14px">📞 Appeler ' + esc(r.phone) + '</a>';
+      }
+      if(r.website){
+        var web = r.website; if(!/^https?:/i.test(web)) web = 'https://' + web;
+        actions += '<a href="' + esc(web) + '" target="_blank" rel="noopener" data-track="website_click" style="display:inline-flex;align-items:center;gap:8px;padding:13px 22px;background:#fff;color:#c89752;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;border:1.5px solid #c89752">🌐 Visiter le site</a>';
+      }
+      if(!actions){
+        actions = '<div style="color:var(--t3);font-style:italic;font-size:13px">Aucun moyen de contact public disponible pour ce restaurant.</div>';
+      }
+      $('contactOnlyActions').innerHTML = actions;
+      $('contactOnlyActions').querySelectorAll('a[data-track]').forEach(function(a){
+        a.addEventListener('click', function(){ track(a.getAttribute('data-track'), {slug:r.slug, from:'contact_only'}); });
+      });
+      $('contactClaimLink').href = claimUrl;
+      $('contactClaimLink').addEventListener('click', function(){ track('claim_click', {slug:r.slug, from:'contact_only'}); });
+    }
+
+    // Track fiche view avec état
+    track('fiche_view', {slug:r.slug, city:r.city, cuisineTag:r.cuisineTag, claim:r.claimStatus, state:state});
+
+    // Suggestions
+    loadSuggestions(r);
+  }
+
+  function showErr(msg){
+    $('loading').style.display = 'none';
+    $('err').style.display = 'block';
+    if(msg) $('errMsg').textContent = msg;
+  }
+
+  // ═══ Suggestions restos à proximité ═══
+  function loadSuggestions(r){
+    var grid = $('suggGrid');
+    var titleEl = $('suggTitle');
+    var subEl = $('suggSub');
+    if(r.city){
+      titleEl.textContent = 'Autres restaurants à ' + r.city;
+      subEl.textContent = 'Découvrez d\'autres tables à proximité du ' + (r.name || 'restaurant') + '.';
+    } else if(r.canton){
+      titleEl.textContent = 'Autres restaurants dans le canton ' + r.canton;
+    }
+    // Proximité géo réelle (Haversine) si lat/lon disponibles, sinon fallback ville/canton
+    var url;
+    if(r.lat != null && r.lon != null){
+      // near=lat,lon trie par distance ASC ; bonus filtre canton pour pas tomber dans un autre canton
+      url = 'https://api.r3sto.ch/public/directory?near=' + r.lat + ',' + r.lon + '&limit=12';
+      if(r.cantonIso){ url += '&canton=' + encodeURIComponent(r.cantonIso); }
+    } else if(r.city){
+      url = 'https://api.r3sto.ch/public/directory?city=' + encodeURIComponent(r.city) + '&limit=12';
+    } else if(r.cantonIso){
+      url = 'https://api.r3sto.ch/public/directory?canton=' + encodeURIComponent(r.cantonIso) + '&limit=12';
+    } else {
+      url = 'https://api.r3sto.ch/public/directory?country=CH&limit=12';
+    }
+    fetch(url, {headers:{'Accept':'application/json'}})
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        if(!data || !data.ok || !data.restaurants){ grid.innerHTML = '<div class="sugg-loading">Aucune suggestion disponible.</div>'; return; }
+        var list = data.restaurants.filter(function(x){ return x.slug && x.slug !== r.slug; }).slice(0, 4);
+        if(!list.length){ grid.innerHTML = '<div class="sugg-loading">Aucune autre fiche trouvée.</div>'; return; }
+        grid.innerHTML = list.map(function(x){
+          var photo = x.photo || pickPhoto(x.slug, x.cuisineTag, x.amenity);
+          var isIllus = !x.photo;
+          var cuisineLabel = x.cuisine || (x.cuisineTag ? x.cuisineTag.charAt(0).toUpperCase()+x.cuisineTag.slice(1) : null) || 'Restaurant';
+          var meta = [cuisineLabel];
+          if(x.city && x.city !== r.city) meta.push('<span class="dot">' + esc(x.city) + '</span>');
+          return '<a class="sugg-card" href="/restaurants/' + encodeURIComponent(x.slug) + '" data-sugg="' + esc(x.slug) + '">'
+            + '<div class="sugg-img" style="background-image:url(\'' + photo.replace(/'/g,'%27') + '\')">'
+            + (isIllus ? '<span class="illus-mini">Illustration</span>' : '')
+            + '</div>'
+            + '<div class="sugg-body">'
+            + '<div class="sugg-name">' + esc(x.name) + '</div>'
+            + '<div class="sugg-meta">' + meta.join('') + '</div>'
+            + '</div></a>';
+        }).join('');
+        grid.querySelectorAll('a[data-sugg]').forEach(function(a){
+          a.addEventListener('click', function(){ track('suggestion_click', {from:r.slug, to:a.getAttribute('data-sugg')}); });
+        });
+      })
+      .catch(function(){ grid.innerHTML = '<div class="sugg-loading">Impossible de charger les suggestions.</div>'; });
+  }
+
+  // ═══ Init resa form ═══
+  function initResaForm(){
+    var d = new Date(); var iso = d.toISOString().slice(0,10);
+    var dateEl = $('r_date');
+    if (dateEl) { dateEl.min = iso; dateEl.value = iso; }
+
+    var slots = document.querySelectorAll('#slotsBox .slot');
+    var timeInput = $('r_time');
+
+    // Filtre slots passés si date == aujourd'hui
+    function filterPastSlots(){
+      var sel = dateEl.value;
+      var todayIso = new Date().toISOString().slice(0,10);
+      var nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+      slots.forEach(function(s){
+        var t = s.getAttribute('data-t') || '';
+        var parts = t.split(':');
+        var slotMin = (parseInt(parts[0],10)||0) * 60 + (parseInt(parts[1],10)||0);
+        var isPast = (sel === todayIso) && (slotMin <= nowMin + 30); // marge 30 min
+        s.style.display = isPast ? 'none' : '';
+        s.style.opacity = isPast ? 0.3 : 1;
+        s.style.pointerEvents = isPast ? 'none' : 'auto';
+      });
+    }
+    filterPastSlots();
+    if (dateEl) dateEl.addEventListener('change', filterPastSlots);
+
+    slots.forEach(function(s){
+      s.addEventListener('click', function(){
+        if (s.style.display === 'none') return;
+        slots.forEach(function(x){x.classList.remove('on')});
+        s.classList.add('on');
+        timeInput.value = s.getAttribute('data-t');
+      });
+    });
+
+    var form = $('resaForm');
+    var btn = $('resaSubmit');
+    var result = $('resaResult');
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      result.className = 'resa-result';
+      result.textContent = '';
+      if (!timeInput.value) {
+        result.className = 'resa-result err';
+        result.textContent = 'Choisissez un créneau horaire.';
+        return;
+      }
+      // Validation : pas de réservation dans le passé
+      var selDate = dateEl.value;
+      var selTime = timeInput.value;
+      if (selDate && selTime) {
+        var resaDt = new Date(selDate + 'T' + selTime + ':00');
+        var nowDt = new Date();
+        if (resaDt.getTime() <= nowDt.getTime() + 30*60*1000) {
+          result.className = 'resa-result err';
+          result.textContent = 'Réservation impossible dans le passé ou trop proche. Choisissez au minimum 30 min à l\'avance.';
+          return;
+        }
+      }
+      if (form.querySelector('[name=website_hp]').value) return;
+
+      var data = Object.fromEntries(new FormData(form).entries());
+      // Concat firstName + lastName → name pour backend
+      var fn = (data.firstName || '').trim();
+      var ln = (data.lastName || '').trim();
+      data.name = (fn + ' ' + ln).trim() || data.name || '';
+      data.source = 'fiche-fallback';
+      data.pageUrl = location.href;
+
+      btn.disabled = true; btn.textContent = 'Envoi…';
+      track('resa_submit', {slug:data.slug, party:data.party});
+
+      fetch(RESA_API, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(data)
+      }).then(function(r){
+        return r.json().then(function(j){ return { ok:r.ok, body:j }; });
+      }).then(function(res){
+        btn.disabled = false; btn.textContent = 'Envoyer →';
+        if (res.ok && res.body && res.body.ok) {
+          result.className = 'resa-result ok';
+          result.innerHTML = '✓ Demande envoyée. Le restaurant vous contactera par email ou téléphone.';
+          track('resa_success', {slug:data.slug});
+          form.reset();
+          slots.forEach(function(x){x.classList.remove('on')});
+          timeInput.value = '';
+          if (dateEl) dateEl.value = iso;
+        } else {
+          result.className = 'resa-result err';
+          result.textContent = (res.body && res.body.error) ? res.body.error : 'Échec de l\'envoi. Essayez par téléphone.';
+          track('resa_error', {slug:data.slug, error:res.body && res.body.error});
+        }
+      }).catch(function(){
+        btn.disabled = false; btn.textContent = 'Envoyer →';
+        result.className = 'resa-result err';
+        result.textContent = 'Problème réseau. Essayez d\'appeler le restaurant directement.';
+        track('resa_error', {slug:data.slug, error:'network'});
+      });
+    });
+  }
+
+  // ═══ Bootstrap ═══
+  var slug = getSlug();
+  if(!slug){ showErr('Aucun restaurant spécifié dans l\'URL.'); return; }
+
+  initResaForm();
+
+  fetch(API + encodeURIComponent(slug), { headers: {'Accept':'application/json'} })
+    .then(function(res){ return res.json().then(function(j){ return {status:res.status, body:j}; }); })
+    .then(function(pack){
+      if(pack.status === 200 && pack.body && pack.body.ok && pack.body.restaurant){
+        render(pack.body.restaurant);
+      } else {
+        showErr(pack.body && pack.body.error ? pack.body.error : 'Ce restaurant n\'est pas dans notre base.');
+        track('fiche_not_found', {slug:slug});
+      }
+    })
+    .catch(function(e){
+      console.error('[fiche] fetch failed', e);
+      showErr('Erreur de connexion au serveur. Réessayez dans un instant.');
+    });
+})();
+</script>
+
+<!-- Sticky bottom bar mobile -->
+<div class="sticky-resa-mobile">
+  <a href="#resa" data-track="resa_sticky_click">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>
+    Réserver une table
+  </a>
+</div>
+
+<footer>
+  <div class="footer-grid wrap" style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr;gap:32px;padding:60px 0 24px">
+    <div class="footer-about">
+      <a href="/" class="logo">
+        <img class="logo-img" src="/logo-r3sto-orange.jpg" alt="R3STO" width="44" height="44">
+      </a>
+      <p style="margin-top:18px;color:var(--t2);font-size:13.5px;line-height:1.65">Marketplace internationale des restaurateurs indépendants. Réservation directe, 0% commission, pour toujours.</p>
+      <p style="margin-top:14px;color:var(--t3);font-size:12px;line-height:1.6">Édité par <strong style="color:var(--t2)">Innoptim SA</strong> · 1052 Le Mont-sur-Lausanne (VD) · IDE CHE-430.441.925</p>
+    </div>
+    <div>
+      <h4 style="font-family:var(--ff);font-weight:600;font-size:13px;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Trouver</h4>
+      <a href="/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Restos près de moi</a>
+      <a href="/carte/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Carte interactive</a>
+      <a href="/decouvrir/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Découvrir</a>
+      <a href="/listes/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Top listes</a>
+      <a href="/itineraires/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Itinéraires</a>
+    </div>
+    <div>
+      <h4 style="font-family:var(--ff);font-weight:600;font-size:13px;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Écosystème</h4>
+      <a href="/pro/" style="display:block;padding:5px 0;color:var(--or);font-size:13.5px;font-weight:600">R3STO Pro</a>
+      <a href="/carat/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Label CARAT</a>
+      <a href="/legal/pass.html" style="display:block;padding:5px 0;color:var(--t3);font-size:13.5px;font-style:italic">Pass · Bientôt</a>
+      <a href="/comparatif/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Comparatif</a>
+    </div>
+    <div>
+      <h4 style="font-family:var(--ff);font-weight:600;font-size:13px;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Accès</h4>
+      <a href="/account/login.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Connexion</a>
+      <a href="/account/signup.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Créer un compte</a>
+      <a href="/account/reset.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Mot de passe oublié</a>
+      <a href="https://admin.futuraurant.com/" style="display:block;padding:5px 0;color:var(--am);font-size:13.5px">Espace Futuraurant</a>
+    </div>
+    <div>
+      <h4 style="font-family:var(--ff);font-weight:600;font-size:13px;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Contact</h4>
+      <a href="mailto:contact@r3sto.ch" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">Nous contacter</a>
+      <a href="mailto:pro@r3sto.ch" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">Équipe Pro</a>
+      <a href="/legal/cgv.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">CGV</a>
+      <a href="/legal/cgu.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">CGU</a>
+      <a href="/legal/confidentialite.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">Confidentialité</a>
+      <a href="/legal/mentions.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">Mentions légales</a>
+    </div>
+  </div>
+  <div class="footer-bottom wrap" style="border-top:1px solid var(--border);padding:20px 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--t3)">
+    <div>© 2026 Innoptim SA · Le Mont-sur-Lausanne, Suisse · IDE CHE-430.441.925</div>
+    <div>Made for the world · Hosted by Infomaniak</div>
+  </div>
+</footer>
+</body>
+</html>

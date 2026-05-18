@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Carte des restaurants — R3STO</title>
+<meta name="description" content="Tous les restaurants de Suisse sur une carte interactive. Trouvez une table près de vous.">
+<link rel="canonical" href="https://r3sto.com/carte">
+<link rel="icon" type="image/jpeg" href="/logo-r3sto.jpg">
+<meta name="theme-color" content="#1a9e6e">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--text:#1a2332;--t2:#3d4f66;--t3:#6b7d94;--bl:#2b5ba0;--gn:#1a9e6e;--am:#e89420;--rd:#dc5050;--surf:#fff;--border:rgba(30,50,80,.1);--ff:'DM Sans',system-ui,sans-serif}
+html,body{height:100%;font-family:var(--ff)}
+body{background:#0b1120;color:var(--text);overflow:hidden}
+.topbar{position:absolute;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.topbar a.back{display:inline-flex;align-items:center;gap:5px;color:var(--t2);text-decoration:none;font-weight:700;font-size:13px;padding:6px 10px;border-radius:8px}
+.topbar a.back:hover{background:#f3f5f8}
+.topbar img.logo{height:28px;width:28px;border-radius:0}
+.topbar h1{font-size:14px;font-weight:800;color:var(--text);flex:1;letter-spacing:-.2px}
+.topbar .stats{font-size:11px;color:var(--t3);font-weight:700}
+#map{position:absolute;top:50px;left:0;right:0;bottom:0}
+.fab{position:absolute;right:14px;bottom:90px;z-index:999;background:var(--bl);color:#fff;border:0;border-radius:50%;width:48px;height:48px;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(43,91,160,.4);display:flex;align-items:center;justify-content:center}
+.fab:hover{background:#224d8a}
+.fab.green{background:var(--gn);bottom:148px}
+.fab.green:hover{background:#15825a}
+.bottom-sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:18px 18px 0 0;padding:14px 16px env(safe-area-inset-bottom,12px);z-index:998;max-height:40vh;overflow-y:auto;box-shadow:0 -6px 24px rgba(30,50,80,.15);transform:translateY(0);transition:transform .25s}
+.bottom-sheet.hidden{transform:translateY(100%)}
+.bottom-sheet .grip{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 10px}
+.bottom-sheet .resto-name{font-size:18px;font-weight:900;color:var(--text);letter-spacing:-.2px}
+.bottom-sheet .resto-meta{font-size:13px;color:var(--t3);margin-top:2px}
+.bottom-sheet .resto-rating{display:inline-flex;align-items:center;gap:4px;color:var(--am);font-weight:700;margin-top:8px;font-size:13px}
+.bottom-sheet .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.bottom-sheet .btn{display:inline-flex;align-items:center;gap:5px;padding:10px 14px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;min-height:44px}
+.bottom-sheet .btn.primary{background:linear-gradient(135deg,#1a9e6e,#15825a);color:#fff}
+.bottom-sheet .btn.ghost{background:#f3f5f8;color:var(--text)}
+.carat-badge{display:inline-block;padding:3px 8px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;border:1px solid;margin-left:8px}
+.carat-badge.gold{background:linear-gradient(135deg,#f5d787,#b8860b);color:#1a1400;border-color:#8a6400}
+.carat-badge.silver{background:linear-gradient(135deg,#e8e8ec,#a8a8b2);color:#1a1a22;border-color:#6a6a75}
+.carat-badge.bronze{background:linear-gradient(135deg,#dfa772,#8b5a2b);color:#1a0d00;border-color:#5a3a19}
+.legend{position:absolute;left:14px;bottom:14px;z-index:998;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);padding:8px 10px;border-radius:10px;font-size:11px;color:var(--t2);line-height:1.5;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.legend .row{display:flex;align-items:center;gap:5px}
+.legend .pill{width:10px;height:10px;border-radius:50%;display:inline-block}
+.toast{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;z-index:1001;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.show{opacity:1}
+.leaflet-marker-icon.r3sto-pin{filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+</style>
+</head>
+<body>
+
+<!-- shared-header-css -->
+<style>
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:72px;background:rgba(15,22,32,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(74,107,140,.32);box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 4px 24px rgba(0,0,0,.35)}
+.topbar .wrap{max-width:1180px;margin:0 auto;padding:0 24px;height:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px}
+.logo{display:flex;align-items:center;gap:0;text-decoration:none;justify-self:start}
+.logo-img{width:44px;height:44px;object-fit:contain;border-radius:0;display:block;flex-shrink:0}
+.nav{display:flex;align-items:center;gap:2px;justify-self:center;flex-wrap:nowrap}
+.nav a{padding:7px 10px;font-size:13px;color:#aab5cc;font-weight:500;border-radius:2px;transition:.15s;white-space:nowrap;text-decoration:none}
+.nav a:hover{color:#e8eef5;background:#25304a}
+.topbar-right{display:flex;align-items:center;gap:10px;justify-self:end}
+.intl{display:flex;align-items:center;gap:10px}
+.country-pick,.lang-pick{position:relative}
+.country-btn,.lang-btn{display:inline-flex;align-items:center;gap:5px;background:#25304a;border:1px solid rgba(74,107,140,.32);color:#e8eef5;padding:6px 10px;border-radius:2px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif}
+.lang-btn{font-family:'JetBrains Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+.country-btn:hover,.lang-btn:hover{border-color:rgba(200,151,82,.4);color:#c89752}
+.country-menu,.lang-menu{position:absolute;top:calc(100% + 6px);right:0;background:#1a2435;border:1px solid rgba(200,151,82,.4);border-radius:4px;box-shadow:0 24px 60px rgba(0,0,0,.6);min-width:240px;max-height:420px;overflow-y:auto;padding:8px;z-index:200;display:none}
+.country-menu.open,.lang-menu.open{display:block}
+.country-menu a,.lang-menu a{display:flex;align-items:center;gap:12px;padding:10px 14px;font-size:14px;color:#e8eef5;border-radius:2px;transition:.12s;font-weight:500}
+.country-menu a:hover,.lang-menu a:hover{background:#c897521f;color:#c89752}
+.country-menu a.on,.lang-menu a.on{color:#c89752;background:#c897521f;font-weight:600;border-left:2px solid #c89752}
+.btn-pro{background:linear-gradient(135deg,#c89752,#a07e2a);color:#0f1620;font-weight:700;border:1px solid #d4af37;padding:11px 20px;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;box-shadow:0 4px 14px rgba(200,151,82,.3);border-radius:2px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-pro:hover{background:linear-gradient(135deg,#d4af37,#c89752);transform:translateY(-1px)}
+@media(max-width:1280px){.lang-pick{display:none}}
+@media(max-width:1100px){.intl{display:none}.nav a:nth-child(n+5){display:none}}
+@media(max-width:780px){.nav{gap:0}.nav a{padding:6px 8px;font-size:12px}}
+body{padding-top:72px}
+</style>
+
+<header class="topbar">
+  <div class="wrap">
+    <a href="/" class="logo" aria-label="R3STO">
+      <img src="logo-r3sto-orange.jpg" alt="R3STO" class="logo-img" width="44" height="44">
+    </a>
+    <nav class="nav">
+      <a href="/">Restos</a>
+      <a href="/carte/">Carte</a>
+      <a href="/decouvrir/">Découvrir</a>
+      <a href="/carat/">CARAT</a>
+      <a href="/account/login.html">Compte</a>
+      <a href="https://admin.futuraurant.com/" style="opacity:.65;font-size:12.5px" title="Espace clients Futuraurant (legacy)">Futuraurant</a>
+    </nav>
+    <div class="topbar-right">
+      <div class="intl">
+        <div class="country-pick">
+          <button class="country-btn" id="countryBtn" onclick="toggleCountryMenu(event)" aria-haspopup="true">
+            <span class="country-flag" id="curFlag">🇨🇭</span>
+            <span id="curCountry">Suisse</span>
+            <span style="font-size:9px;margin-left:2px">▾</span>
+          </button>
+          <div class="country-menu" id="countryMenu" role="menu">
+            <div style="font-family:var(--fm);font-size:9.5px;letter-spacing:1.4px;color:var(--t3);text-transform:uppercase;padding:6px 14px 6px;font-weight:600">Europe principale</div>
+            <a href="#" data-c="CH" data-flag="🇨🇭" data-name="Suisse" class="on">🇨🇭 Suisse</a>
+            <a href="#" data-c="FR" data-flag="🇫🇷" data-name="France">🇫🇷 France</a>
+            <a href="#" data-c="BE" data-flag="🇧🇪" data-name="Belgique">🇧🇪 Belgique</a>
+            <a href="#" data-c="LU" data-flag="🇱🇺" data-name="Luxembourg">🇱🇺 Luxembourg</a>
+            <a href="#" data-c="DE" data-flag="🇩🇪" data-name="Allemagne">🇩🇪 Allemagne</a>
+            <a href="#" data-c="IT" data-flag="🇮🇹" data-name="Italie">🇮🇹 Italie</a>
+            <a href="#" data-c="ES" data-flag="🇪🇸" data-name="Espagne">🇪🇸 Espagne</a>
+            <a href="#" data-c="PT" data-flag="🇵🇹" data-name="Portugal">🇵🇹 Portugal</a>
+            <a href="#" data-c="NL" data-flag="🇳🇱" data-name="Pays-Bas">🇳🇱 Pays-Bas</a>
+            <a href="#" data-c="AT" data-flag="🇦🇹" data-name="Autriche">🇦🇹 Autriche</a>
+            <a href="#" data-c="US" data-flag="🇺🇸" data-name="USA">🇺🇸 USA</a>
+            <a href="#" data-c="CA" data-flag="🇨🇦" data-name="Canada">🇨🇦 Canada</a>
+            <div style="font-family:var(--fm);font-size:9.5px;letter-spacing:1.4px;color:var(--t3);text-transform:uppercase;padding:14px 14px 6px;border-top:1px solid var(--border);margin-top:6px">Amérique du Nord</div>
+            <a href="#" data-c="MX" data-flag="🇲🇽" data-name="Mexique">🇲🇽 Mexique</a>
+            <div style="font-family:var(--fm);font-size:9.5px;letter-spacing:1.4px;color:var(--t3);text-transform:uppercase;padding:14px 14px 6px;border-top:1px solid var(--border);margin-top:6px">Europe étendue</div>
+            <a href="#" data-c="GB" data-flag="🇬🇧" data-name="Royaume-Uni">🇬🇧 Royaume-Uni</a>
+            <a href="#" data-c="IE" data-flag="🇮🇪" data-name="Irlande">🇮🇪 Irlande</a>
+            <a href="#" data-c="DK" data-flag="🇩🇰" data-name="Danemark">🇩🇰 Danemark</a>
+            <a href="#" data-c="SE" data-flag="🇸🇪" data-name="Suède">🇸🇪 Suède</a>
+            <a href="#" data-c="NO" data-flag="🇳🇴" data-name="Norvège">🇳🇴 Norvège</a>
+            <a href="#" data-c="FI" data-flag="🇫🇮" data-name="Finlande">🇫🇮 Finlande</a>
+            <a href="#" data-c="PL" data-flag="🇵🇱" data-name="Pologne">🇵🇱 Pologne</a>
+            <a href="#" data-c="CZ" data-flag="🇨🇿" data-name="Tchéquie">🇨🇿 Tchéquie</a>
+            <a href="#" data-c="GR" data-flag="🇬🇷" data-name="Grèce">🇬🇷 Grèce</a>
+            <a href="#" data-c="MC" data-flag="🇲🇨" data-name="Monaco">🇲🇨 Monaco</a>
+            <a href="#" data-c="LI" data-flag="🇱🇮" data-name="Liechtenstein">🇱🇮 Liechtenstein</a>
+          </div>
+        </div>
+        <div class="lang-pick">
+          <button class="lang-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-haspopup="true">
+            <span id="curLang">FR</span>
+            <span style="font-size:9px;margin-left:2px">▾</span>
+          </button>
+          <div class="lang-menu" id="langMenu" role="menu">
+            <a href="#" data-lang="fr" data-name="Français" class="on">🇫🇷 Français</a>
+            <a href="#" data-lang="en" data-name="English">🇬🇧 English</a>
+            <a href="#" data-lang="de" data-name="Deutsch">🇩🇪 Deutsch</a>
+            <a href="#" data-lang="it" data-name="Italiano">🇮🇹 Italiano</a>
+            <a href="#" data-lang="es" data-name="Español">🇪🇸 Español</a>
+            <a href="#" data-lang="pt" data-name="Português">🇵🇹 Português</a>
+            <a href="#" data-lang="nl" data-name="Nederlands">🇳🇱 Nederlands</a>
+            <a href="#" data-lang="ja" data-name="日本語">🇯🇵 日本語</a>
+            <a href="#" data-lang="zh" data-name="中文">🇨🇳 中文</a>
+            <a href="#" data-lang="ar" data-name="العربية">🇸🇦 العربية</a>
+          </div>
+        </div>
+      </div>
+      <a href="/pro/" class="btn btn-pro">Espace pro <span style="margin-left:4px">→</span></a>
+    </div>
+  </div>
+</header>
+<div class="topbar">
+  <a href="/" class="back">←</a>
+  <img src="/logo-r3sto.jpg" alt="R3STO" class="logo">
+  <h1>Carte des restaurants</h1>
+  <span class="stats" id="stats">…</span>
+</div>
+<div id="map"></div>
+<button class="fab green" id="fabGeo" title="Près de moi">📍</button>
+<button class="fab" id="fabReset" title="Toute la Suisse">⊕</button>
+<div class="legend">
+  <div class="row"><span class="pill" style="background:#b8860b"></span> CARAT Or</div>
+  <div class="row"><span class="pill" style="background:#a8a8b2"></span> CARAT Silver</div>
+  <div class="row"><span class="pill" style="background:#cd7f32"></span> CARAT Bronze</div>
+  <div class="row"><span class="pill" style="background:#2b5ba0"></span> Autre</div>
+</div>
+<div class="bottom-sheet hidden" id="sheet">
+  <div class="grip"></div>
+  <div id="sheetContent"></div>
+</div>
+<div class="toast" id="toast">…</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="/track.js" defer></script>
+<script>
+(function(){
+var API='https://api.r3sto.ch/public';
+var map=L.map('map',{zoomControl:false}).setView([46.8,8.2],8);
+L.control.zoom({position:'topright'}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+var cluster = L.layerGroup().addTo(map);
+
+function pinHtml(carat){
+  var color = carat==='gold'?'#b8860b':carat==='silver'?'#a8a8b2':carat==='bronze'?'#cd7f32':'#2b5ba0';
+  return '<div class="r3sto-pin" style="width:24px;height:24px;background:'+color+';border:2px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 4px rgba(0,0,0,.3)"></div>';
+}
+function showSheet(r){
+  var c = r.caratLevel||r.caratEffective||r.caratSignalLevel||null;
+  var badge = c?'<span class="carat-badge '+c+'">CARAT '+c.toUpperCase()+'</span>':'';
+  var rating = r.rating?('<div class="resto-rating">★ '+r.rating+(r.reviewsCount?' ('+r.reviewsCount+' avis)':'')+'</div>'):'';
+  document.getElementById('sheetContent').innerHTML =
+    '<div class="resto-name">'+(r.name||'')+badge+'</div>'+
+    '<div class="resto-meta">'+(r.cuisine||'')+(r.city?' · '+r.city:'')+(r.address?' · '+r.address:'')+'</div>'+
+    rating+
+    '<div class="actions">'+
+      '<a href="/restaurants/'+r.slug+'" class="btn primary">Voir &amp; réserver →</a>'+
+      (r.phone?'<a href="tel:'+r.phone+'" class="btn ghost">📞 Appeler</a>':'')+
+      (r.lat&&r.lon?'<a href="https://www.google.com/maps/search/?api=1&query='+r.lat+','+r.lon+'" target="_blank" rel="noopener" class="btn ghost">🧭 Itinéraire</a>':'')+
+    '</div>';
+  document.getElementById('sheet').classList.remove('hidden');
+  if(window.R3STO&&window.R3STO.track) window.R3STO.track('map_pin_click', {slug:r.slug});
+}
+document.getElementById('sheet').addEventListener('click', function(e){
+  if(e.target.classList.contains('grip')) document.getElementById('sheet').classList.add('hidden');
+});
+
+var loaded = 0;
+function loadVisible(){
+  var b = map.getBounds();
+  if(map.getZoom() < 9){
+    showToast('Zoom plus pour voir les restaurants');
+    cluster.clearLayers();
+    return;
+  }
+  var bbox = b.getSouth()+','+b.getWest()+','+b.getNorth()+','+b.getEast();
+  fetch(API+'/directory?country=CH&limit=300&near=' + (b.getCenter().lat) + ',' + (b.getCenter().lng))
+    .then(function(r){return r.json()})
+    .then(function(d){
+      cluster.clearLayers();
+      if(!d.restaurants) return;
+      var n=0;
+      d.restaurants.forEach(function(r){
+        if(!r.lat||!r.lon) return;
+        if(!b.contains([r.lat,r.lon])) return;
+        var c = r.caratEffective||r.caratLevel||r.caratSignalLevel||null;
+        var icon = L.divIcon({html:pinHtml(c),className:'r3sto-pin-wrap',iconSize:[24,24],iconAnchor:[12,24]});
+        var m = L.marker([r.lat,r.lon],{icon:icon}).addTo(cluster);
+        m.on('click', function(){showSheet(r)});
+        n++;
+      });
+      loaded = n;
+      document.getElementById('stats').textContent = n + ' restaurants visibles';
+    });
+}
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')}, 2500);
+}
+
+map.on('moveend', loadVisible);
+map.whenReady(function(){
+  setTimeout(loadVisible, 300);
+});
+
+document.getElementById('fabGeo').addEventListener('click', function(){
+  if(!navigator.geolocation){showToast('Géoloc non disponible');return}
+  showToast('Localisation…');
+  navigator.geolocation.getCurrentPosition(function(p){
+    map.setView([p.coords.latitude, p.coords.longitude], 14);
+    L.circle([p.coords.latitude, p.coords.longitude], {radius:200,color:'#2b5ba0',fillColor:'#2b5ba0',fillOpacity:.15}).addTo(map);
+  }, function(){showToast('Géoloc refusée')}, {timeout:8000});
+});
+document.getElementById('fabReset').addEventListener('click', function(){
+  map.setView([46.8, 8.2], 8);
+});
+})();
+</script>
+<footer>
+  <div class="footer-grid wrap" style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr;gap:32px;padding:60px 0 24px">
+    <div class="footer-about">
+      <a href="/" class="logo">
+        <img class="logo-img" src="/logo-r3sto-orange.jpg" alt="R3STO" width="44" height="44">
+      </a>
+      <p style="margin-top:18px;color:var(--t2);font-size:13.5px;line-height:1.65">Marketplace internationale des restaurateurs indépendants. Réservation directe, 0% commission, pour toujours.</p>
+      <p style="margin-top:14px;color:var(--t3);font-size:12px;line-height:1.6">Édité par <strong style="color:var(--t2)">Innoptim SA</strong> · 1052 Le Mont-sur-Lausanne (VD) · IDE CHE-430.441.925</p>
+    </div>
+    <div>
+      <h4 style="font-family:var(--ff);font-weight:600;font-size:13px;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Trouver</h4>
+      <a href="/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Restos près de moi</a>
+      <a href="/carte/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Carte interactive</a>
+      <a href="/decouvrir/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Découvrir</a>
+      <a href="/listes/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Top listes</a>
+      <a href="/itineraires/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Itinéraires</a>
+    </div>
+    <div>
+      <h4 style="font-family:var(--ff);font-weight:600;font-size:13px;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Écosystème</h4>
+      <a href="/pro/" style="display:block;padding:5px 0;color:var(--or);font-size:13.5px;font-weight:600">R3STO Pro</a>
+      <a href="/carat/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Label CARAT</a>
+      <a href="/legal/pass.html" style="display:block;padding:5px 0;color:var(--t3);font-size:13.5px;font-style:italic">Pass · Bientôt</a>
+      <a href="/comparatif/" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Comparatif</a>
+    </div>
+    <div>
+      <h4 style="font-family:var(--ff);font-weight:600;font-size:13px;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Accès</h4>
+      <a href="/account/login.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Connexion</a>
+      <a href="/account/signup.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Créer un compte</a>
+      <a href="/account/reset.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px;transition:.15s">Mot de passe oublié</a>
+      <a href="https://admin.futuraurant.com/" style="display:block;padding:5px 0;color:var(--am);font-size:13.5px">Espace Futuraurant</a>
+    </div>
+    <div>
+      <h4 style="font-family:var(--ff);font-weight:600;font-size:13px;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Contact</h4>
+      <a href="mailto:contact@r3sto.ch" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">Nous contacter</a>
+      <a href="mailto:pro@r3sto.ch" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">Équipe Pro</a>
+      <a href="/legal/cgv.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">CGV</a>
+      <a href="/legal/cgu.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">CGU</a>
+      <a href="/legal/confidentialite.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">Confidentialité</a>
+      <a href="/legal/mentions.html" style="display:block;padding:5px 0;color:var(--t2);font-size:13.5px">Mentions légales</a>
+    </div>
+  </div>
+  <div class="footer-bottom wrap" style="border-top:1px solid var(--border);padding:20px 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--t3)">
+    <div>© 2026 Innoptim SA · Le Mont-sur-Lausanne, Suisse · IDE CHE-430.441.925</div>
+    <div>Made for the world · Hosted by Infomaniak</div>
+  </div>
+</footer>
+</body>
+</html>

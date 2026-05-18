@@ -1,0 +1,18 @@
+{
+  "name": "r3sto-booking-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker — handler de réservations R3STO + envoi emails Postmark",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "secret:postmark": "wrangler secret put POSTMARK_TOKEN",
+    "secret:from": "wrangler secret put FROM_EMAIL",
+    "secret:admin": "wrangler secret put ADMIN_EMAIL"
+  },
+  "devDependencies": {
+    "wrangler": "^3.86.0"
+  }
+}

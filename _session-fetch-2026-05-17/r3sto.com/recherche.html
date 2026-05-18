@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Résultats de recherche · R3STO</title>
+<meta name="description" content="Résultats de recherche R3STO — annuaire des restaurateurs indépendants. Trouvez votre table, réservez sans intermédiaire.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/logo-r3sto-orange.jpg">
+<meta name="theme-color" content="#0f1620">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..900&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1620;--bg2:#141d2c;--surf:#1a2435;--surf2:#25304a;
+  --text:#e8eef5;--t2:#aab5cc;--t3:#5a657a;
+  --border:rgba(74,107,140,.32);--border2:#4a6b8c52;
+  --or:#c89752;--or-deep:#a07e2a;--or-bright:#d4af37;--or-soft:#c897521f;
+  --serif:"Fraunces",Georgia,serif;--ff:"Inter",system-ui,sans-serif;
+  --br:4px;--br2:2px;--hh:72px;
+}
+html,body{overflow-x:hidden}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;font-size:15px}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font-family:var(--ff);cursor:pointer;border:none;background:none;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--hh);background:rgba(15,22,32,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2)}
+.topbar .wrap{height:100%;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.logo-img{width:44px;height:44px;border-radius:0}
+.nav{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.nav a{padding:7px 10px;font-size:13px;color:var(--t2);font-weight:500;border-radius:var(--br2);transition:.15s;white-space:nowrap}
+.nav a:hover{color:var(--text);background:var(--surf2)}
+.btn-pro{background:linear-gradient(135deg,var(--or),var(--or-deep));color:var(--bg);font-weight:700;padding:11px 18px;border-radius:var(--br2);font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase}
+
+main{padding-top:calc(var(--hh) + 32px);min-height:100vh;padding-bottom:80px}
+
+.results-head{margin-bottom:36px}
+.crumb{font-size:13px;color:var(--t3);margin-bottom:10px}
+.crumb a{color:var(--or)}
+h1.results-title{font-family:var(--serif);font-weight:400;font-size:36px;letter-spacing:-.02em;line-height:1.15;margin-bottom:6px}
+.results-meta{font-size:14px;color:var(--t2)}
+.results-meta b{color:var(--or);font-weight:600}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
+.filter{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;background:var(--surf);border:1px solid var(--border);border-radius:99px;font-size:12.5px;color:var(--t2)}
+.filter b{color:var(--text);font-weight:500}
+.filter button{margin-left:4px;font-size:14px;color:var(--t3);line-height:1;padding:0}
+.filter button:hover{color:var(--or)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-top:30px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--br);overflow:hidden;transition:.2s;display:flex;flex-direction:column}
+.card:hover{border-color:var(--or);transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.card-photo{width:100%;aspect-ratio:4/3;background:#0d141d center/cover no-repeat;position:relative}
+.card-badge{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:99px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);border:1px solid}
+.card-badge.gold{color:#d4af37;border-color:#d4af37}
+.card-badge.silver{color:#cdd0d6;border-color:#cdd0d6}
+.card-badge.bronze{color:#cd9961;border-color:#cd9961}
+.card-body{padding:18px;flex:1;display:flex;flex-direction:column;gap:8px}
+.card-name{font-family:var(--serif);font-size:19px;font-weight:500;color:var(--text);line-height:1.25}
+.card-cuisine{font-size:12.5px;color:var(--or);font-weight:500;text-transform:uppercase;letter-spacing:1px}
+.card-meta{font-size:13px;color:var(--t2)}
+.card-meta .sep{color:var(--t3);margin:0 6px}
+.card-foot{padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
+.card-foot .price{color:var(--t2)}
+.card-foot .cta{color:var(--or);font-weight:600}
+.card:hover .cta{color:var(--or-bright)}
+
+.loader,.empty,.error-box{padding:60px 24px;text-align:center;color:var(--t2)}
+.loader .spin{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--or);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty h2{font-family:var(--serif);font-weight:400;color:var(--text);margin-bottom:8px;font-size:24px}
+.empty .btn{display:inline-block;margin-top:16px;padding:10px 22px;background:var(--or);color:var(--bg);border-radius:var(--br2);font-weight:600;font-size:13px}
+
+footer{background:var(--bg2);border-top:1px solid var(--border);margin-top:80px;padding:50px 0 24px;font-size:13px;color:var(--t2)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:center}
+footer .links{display:flex;gap:18px;flex-wrap:wrap}
+footer a{color:var(--t2)}footer a:hover{color:var(--or)}
+
+@media(max-width:760px){
+  h1.results-title{font-size:28px}
+  .nav a:not(:first-child){display:none}
+  .grid{grid-template-columns:1fr 1fr;gap:14px}
+  .card-body{padding:14px}.card-foot{padding:10px 14px}
+  .card-name{font-size:16px}
+}
+@media(max-width:480px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a href="/" class="logo" aria-label="R3STO">
+      <img src="/logo-r3sto-orange.jpg" alt="R3STO" class="logo-img" width="44" height="44">
+    </a>
+    <nav class="nav">
+      <a href="/">Restos</a>
+      <a href="/carte/">Carte</a>
+      <a href="/decouvrir/">Découvrir</a>
+      <a href="/carat/">CARAT</a>
+      <a href="/account/login.html">Compte</a>
+      <a href="https://admin.futuraurant.com/" style="opacity:.65;font-size:12.5px" title="Espace clients Futuraurant (legacy)">Futuraurant</a>
+    </nav>
+    <a href="/pro/" class="btn-pro">Espace pro →</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="results-head">
+    <div class="crumb"><a href="/">Restos</a> · <span id="crumbCtx">Recherche</span></div>
+    <h1 class="results-title" id="title">Résultats</h1>
+    <div class="results-meta" id="meta">Chargement…</div>
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <div id="results">
+    <div class="loader">
+      <div class="spin"></div>
+      <div>Recherche en cours…</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 Innoptim SA · Le Mont-sur-Lausanne · IDE CHE-430.441.925</div>
+    <div class="links">
+      <a href="/legal/mentions.html">Mentions</a>
+      <a href="/legal/confidentialite.html">Confidentialité</a>
+      <a href="/legal/cgu.html">CGU</a>
+      <a href="/pro/">Espace pro</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var API = 'https://api.r3sto.ch/public/directory';
+  var TRACK_API = 'https://api.r3sto.ch/public/track';
+  var qp = new URLSearchParams(location.search);
+
+  // Lecture des filtres URL (compat home + carte)
+  var country = qp.get('country') || 'CH';
+  var city    = qp.get('city')    || qp.get('place') || '';
+  var cuisine = qp.get('cuisine') || qp.get('dish')  || '';
+  var q       = qp.get('q')       || '';
+  var carat   = qp.get('carat')   || '';
+  var when    = qp.get('when')    || '';
+  var pax     = qp.get('pax')     || '';
+
+  // Pool Unsplash fallback (Google Places URLs expirent)
+  var FALLBACK_PHOTOS = ['1517248135467-4c7edcad34c4','1559329007-40df8a9345d8','1414235077428-338989a2e8c0','1544025162-d76694265947','1559339352-11d035aa65de','1551782450-a2132b4ba21d','1424847651672-bf20a4b0982b','1592861956120-e524fc739696','1467003909585-2f8a72700288'];
+  function hashStr(s){var h=0;s=String(s||'');for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i);return Math.abs(h);}
+  function fallbackPhoto(slug){var idx=hashStr(slug)%FALLBACK_PHOTOS.length;return 'https://images.unsplash.com/photo-'+FALLBACK_PHOTOS[idx]+'?w=600&q=70&auto=format&fit=crop&h=450&fm=webp';}
+  function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  // Affiche les filtres actifs
+  function renderFilters(){
+    var f = document.getElementById('filters');
+    var html = '';
+    if(country && country!=='ALL') html += '<span class="filter">🌍 <b>'+esc(country)+'</b></span>';
+    if(city) html += '<span class="filter">📍 <b>'+esc(city)+'</b></span>';
+    if(cuisine) html += '<span class="filter">🍽️ <b>'+esc(cuisine)+'</b></span>';
+    if(q) html += '<span class="filter">🔎 <b>'+esc(q)+'</b></span>';
+    if(carat) html += '<span class="filter">★ <b>CARAT '+esc(carat).toUpperCase()+'</b></span>';
+    if(when) html += '<span class="filter">📅 <b>'+esc(when)+'</b></span>';
+    if(pax) html += '<span class="filter">👥 <b>'+esc(pax)+'p</b></span>';
+    f.innerHTML = html;
+  }
+
+  // Build query
+  function buildQuery(){
+    var p = new URLSearchParams();
+    p.set('country', country);
+    if(city){ p.set('city', city); p.set('place', city); }
+    if(cuisine){ p.set('cuisine', cuisine); p.set('dish', cuisine); }
+    if(q) p.set('q', q);
+    if(carat) p.set('carat', carat);
+    p.set('limit', '24');
+    return p.toString();
+  }
+
+  // Title
+  function buildTitle(){
+    var parts = [];
+    if(cuisine) parts.push(cuisine.charAt(0).toUpperCase()+cuisine.slice(1));
+    if(city) parts.push('à '+city);
+    else if(country && country!=='ALL') parts.push('('+country+')');
+    var t = parts.length ? 'Restos '+parts.join(' ') : 'Tous les restaurants';
+    document.getElementById('title').textContent = t;
+    document.title = t + ' · R3STO';
+    document.getElementById('crumbCtx').textContent = parts.length ? parts.join(' ') : 'Recherche';
+  }
+
+  // Render card
+  function cardHtml(r){
+    var photo = r.photo || fallbackPhoto(r.slug);
+    var carat = (r.caratEffective || r.caratLevel || r.caratSignalLevel || '').toLowerCase();
+    var caratLabel = {gold:'OR',silver:'ARGENT',bronze:'BRONZE',or:'OR',argent:'ARGENT'}[carat] || '';
+    var cuisineHuman = (r.cuisineTag || (r.cuisine||'').split(',')[0] || 'Restaurant').replace(/\b\w/g,function(c){return c.toUpperCase()});
+    var subParts = [r.city, (r.cantonIso||r.canton||'').replace('CH-','')].filter(Boolean).join(' · ');
+    var caratClass = (carat==='gold'||carat==='or')?'gold':(carat==='silver'||carat==='argent')?'silver':(carat==='bronze')?'bronze':'';
+
+    return '<a class="card" href="/restaurants/'+encodeURIComponent(r.slug)+'" data-slug="'+esc(r.slug)+'">'+
+      '<div class="card-photo" style="background-image:url('+JSON.stringify(photo)+')">'+
+        (caratLabel ? '<span class="card-badge '+caratClass+'">★ '+caratLabel+'</span>' : '')+
+      '</div>'+
+      '<div class="card-body">'+
+        '<div class="card-cuisine">'+esc(cuisineHuman)+'</div>'+
+        '<div class="card-name">'+esc(r.name||'')+'</div>'+
+        '<div class="card-meta">'+esc(subParts)+'</div>'+
+      '</div>'+
+      '<div class="card-foot">'+
+        '<span class="price">'+(r.priceRange||'·')+'</span>'+
+        '<span class="cta">Voir &amp; réserver →</span>'+
+      '</div>'+
+    '</a>';
+  }
+
+  // Track each photo to handle 404 (Google Places URL expired)
+  function bindPhotoFallbacks(){
+    document.querySelectorAll('.card-photo[style*="googleapis"]').forEach(function(el){
+      var url = (el.style.backgroundImage.match(/url\("(.+?)"\)/) || [])[1];
+      if(!url) return;
+      var card = el.closest('.card');
+      var slug = card ? card.getAttribute('data-slug') : '';
+      var probe = new Image();
+      probe.onerror = function(){ el.style.backgroundImage = "url('"+fallbackPhoto(slug)+"')"; };
+      probe.src = url;
+    });
+  }
+
+  // Fetch & render
+  function search(){
+    renderFilters();
+    buildTitle();
+    fetch(API + '?' + buildQuery(), { headers:{'Accept':'application/json'} })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d || !d.ok || !d.restaurants){
+          document.getElementById('results').innerHTML = '<div class="error-box">Erreur de chargement.</div>';
+          return;
+        }
+        var n = d.total || d.restaurants.length;
+        document.getElementById('meta').innerHTML = '<b>'+n+'</b> restaurant'+(n>1?'s':'')+' trouvé'+(n>1?'s':'')+' · les <b>'+d.restaurants.length+'</b> meilleur'+(d.restaurants.length>1?'s':'')+' selon vos critères';
+
+        if(!d.restaurants.length){
+          document.getElementById('results').innerHTML = '<div class="empty"><h2>Aucun résultat</h2><p>Essayez d\'élargir vos critères ou changez de ville.</p><a class="btn" href="/">Nouvelle recherche</a></div>';
+          return;
+        }
+
+        document.getElementById('results').innerHTML = '<div class="grid">'+d.restaurants.map(cardHtml).join('')+'</div>';
+        bindPhotoFallbacks();
+
+        // Track
+        try{ fetch(TRACK_API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({event:'search_results', source:'r3sto.com', city:city, cuisine:cuisine, country:country, count:d.restaurants.length})}).catch(function(){}); }catch(e){}
+      })
+      .catch(function(e){
+        console.error('[recherche] fetch failed', e);
+        document.getElementById('results').innerHTML = '<div class="error-box">Erreur de connexion. <a href="/" style="color:var(--or)">Retour à l\'accueil</a></div>';
+      });
+  }
+
+  search();
+})();
+</script>
+</body>
+</html>

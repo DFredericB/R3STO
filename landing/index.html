@@ -1,1179 +1,2501 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R3STO - La gestion de restaurant intelligente</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
-            color: #e0e7ff;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Utilities */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #4480d8 0%, #60a5fa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4480d8 0%, #5a8ff5 100%);
-            color: white;
-            box-shadow: 0 10px 25px rgba(68, 128, 216, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(68, 128, 216, 0.4);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: #4480d8;
-            border: 2px solid #4480d8;
-        }
-
-        .btn-secondary:hover {
-            background: #4480d8;
-            color: white;
-        }
-
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Header */
-        header {
-            background: rgba(10, 15, 30, 0.8);
-            backdrop-filter: blur(10px);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(68, 128, 216, 0.1);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
-        }
-
-        .logo span {
-            color: #4480d8;
-        }
-
-        nav {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        nav a {
-            color: #e0e7ff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        nav a:hover {
-            color: #4480d8;
-        }
-
-        @media (max-width: 768px) {
-            nav {
-                display: none;
-            }
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            padding-top: 60px;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(68, 128, 216, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .hero::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -5%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(96, 165, 250, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 8s ease-in-out infinite reverse;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(30px); }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            max-width: 800px;
-        }
-
-        .hero-logo {
-            font-size: 4rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .hero h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 700;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-
-        .hero .subheadline {
-            font-size: clamp(1rem, 3vw, 1.4rem);
-            color: #a5b4fc;
-            margin-bottom: 2rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-cta {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 3rem;
-            flex-wrap: wrap;
-            font-size: 0.95rem;
-            color: #cbd5e1;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .stat-dot {
-            width: 8px;
-            height: 8px;
-            background: #4480d8;
-            border-radius: 50%;
-        }
-
-        /* Features Section */
-        .features {
-            padding: 100px 0;
-            position: relative;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: clamp(1.8rem, 4vw, 2.8rem);
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: #a5b4fc;
-            font-size: 1.1rem;
-            margin-bottom: 4rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        .feature-card {
-            background: linear-gradient(135deg, rgba(68, 128, 216, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
-            border: 1px solid rgba(68, 128, 216, 0.2);
-            border-radius: 12px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(68, 128, 216, 0.5);
-            background: linear-gradient(135deg, rgba(68, 128, 216, 0.15) 0%, rgba(96, 165, 250, 0.1) 100%);
-            box-shadow: 0 20px 40px rgba(68, 128, 216, 0.15);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            display: inline-block;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #4480d8 0%, #60a5fa 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .feature-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 0.8rem;
-            color: white;
-        }
-
-        .feature-card p {
-            color: #cbd5e1;
-            font-size: 0.95rem;
-        }
-
-        /* How It Works */
-        .how-it-works {
-            padding: 100px 0;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(10, 15, 30, 0.8) 100%);
-        }
-
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .step-card {
-            text-align: center;
-            position: relative;
-        }
-
-        .step-number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #4480d8;
-            margin-bottom: 1rem;
-        }
-
-        .step-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 0.8rem;
-            color: white;
-        }
-
-        .step-card p {
-            color: #a5b4fc;
-        }
-
-        /* Pricing Section */
-        .pricing {
-            padding: 100px 0;
-        }
-
-        .pricing-toggle {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 3rem;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 60px;
-            height: 32px;
-            background: rgba(68, 128, 216, 0.2);
-            border-radius: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            border: 1px solid rgba(68, 128, 216, 0.3);
-        }
-
-        .toggle-switch.annual {
-            background: #4480d8;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 26px;
-            height: 26px;
-            background: white;
-            border-radius: 50%;
-            transition: left 0.3s ease;
-        }
-
-        .toggle-switch.annual .toggle-slider {
-            left: 31px;
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .pricing-card {
-            background: linear-gradient(135deg, rgba(68, 128, 216, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
-            border: 1px solid rgba(68, 128, 216, 0.2);
-            border-radius: 12px;
-            padding: 2.5rem;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .pricing-card.featured {
-            transform: scale(1.05);
-            border-color: #4480d8;
-            background: linear-gradient(135deg, rgba(68, 128, 216, 0.2) 0%, rgba(96, 165, 250, 0.1) 100%);
-            box-shadow: 0 20px 40px rgba(68, 128, 216, 0.2);
-        }
-
-        .pricing-badge {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #4480d8;
-            color: white;
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .pricing-card h3 {
-            font-size: 1.5rem;
-            color: white;
-            margin-bottom: 1rem;
-        }
-
-        .price {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #4480d8;
-            margin-bottom: 0.5rem;
-        }
-
-        .price-currency {
-            font-size: 1rem;
-        }
-
-        .price-period {
-            color: #a5b4fc;
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .discount-badge {
-            display: inline-block;
-            background: rgba(68, 128, 216, 0.2);
-            color: #60a5fa;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .feature-list {
-            list-style: none;
-            margin-bottom: 2rem;
-        }
-
-        .feature-list li {
-            padding: 0.8rem 0;
-            color: #cbd5e1;
-            border-bottom: 1px solid rgba(68, 128, 216, 0.1);
-        }
-
-        .feature-list li:before {
-            content: '✓';
-            color: #4480d8;
-            font-weight: bold;
-            margin-right: 0.8rem;
-        }
-
-        .pricing-card .btn {
-            width: 100%;
-            text-align: center;
-        }
-
-        /* Testimonials */
-        .testimonials {
-            padding: 100px 0;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(10, 15, 30, 0.8) 100%);
-        }
-
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .testimonial-card {
-            background: linear-gradient(135deg, rgba(68, 128, 216, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
-            border: 1px solid rgba(68, 128, 216, 0.2);
-            border-radius: 12px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .testimonial-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(68, 128, 216, 0.5);
-        }
-
-        .testimonial-quote {
-            color: #e0e7ff;
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-            font-style: italic;
-            line-height: 1.8;
-        }
-
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .author-avatar {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #4480d8 0%, #60a5fa 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        .author-info h4 {
-            color: white;
-            font-size: 1rem;
-            margin-bottom: 0.2rem;
-        }
-
-        .author-info p {
-            color: #a5b4fc;
-            font-size: 0.85rem;
-        }
-
-        /* FAQ */
-        .faq {
-            padding: 100px 0;
-        }
-
-        .faq-container {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .faq-item {
-            border-bottom: 1px solid rgba(68, 128, 216, 0.2);
-            padding: 1.5rem 0;
-        }
-
-        .faq-question {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding: 0.5rem 0;
-            transition: color 0.3s ease;
-        }
-
-        .faq-question:hover {
-            color: #4480d8;
-        }
-
-        .faq-question h3 {
-            font-size: 1.1rem;
-            color: white;
-            flex: 1;
-        }
-
-        .faq-toggle {
-            font-size: 1.5rem;
-            color: #4480d8;
-            transition: transform 0.3s ease;
-        }
-
-        .faq-item.active .faq-toggle {
-            transform: rotate(180deg);
-        }
-
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            color: #a5b4fc;
-            line-height: 1.8;
-        }
-
-        .faq-item.active .faq-answer {
-            max-height: 500px;
-            margin-top: 1rem;
-        }
-
-        /* Final CTA */
-        .final-cta {
-            padding: 80px 0;
-            background: linear-gradient(135deg, rgba(68, 128, 216, 0.15) 0%, rgba(96, 165, 250, 0.05) 100%);
-            border: 1px solid rgba(68, 128, 216, 0.2);
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 80px;
-        }
-
-        .final-cta h2 {
-            font-size: clamp(2rem, 4vw, 2.8rem);
-            margin-bottom: 1.5rem;
-            color: white;
-        }
-
-        .cta-form {
-            display: flex;
-            gap: 1rem;
-            max-width: 500px;
-            margin: 0 auto 1.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .cta-form input {
-            flex: 1;
-            min-width: 250px;
-            padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(68, 128, 216, 0.3);
-            border-radius: 8px;
-            color: white;
-            font-family: inherit;
-            transition: all 0.3s ease;
-        }
-
-        .cta-form input::placeholder {
-            color: #a5b4fc;
-        }
-
-        .cta-form input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #4480d8;
-        }
-
-        .cta-subtext {
-            color: #a5b4fc;
-            font-size: 0.95rem;
-        }
-
-        /* Footer */
-        footer {
-            background: rgba(10, 15, 30, 0.6);
-            border-top: 1px solid rgba(68, 128, 216, 0.1);
-            padding: 3rem 0 1rem;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-section h3 {
-            color: white;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .footer-section a {
-            display: block;
-            color: #a5b4fc;
-            text-decoration: none;
-            margin-bottom: 0.8rem;
-            transition: color 0.3s ease;
-        }
-
-        .footer-section a:hover {
-            color: #4480d8;
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(68, 128, 216, 0.1);
-            padding-top: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .footer-credit {
-            color: #a5b4fc;
-            font-size: 0.95rem;
-        }
-
-        @media (max-width: 768px) {
-            .hero {
-                padding-top: 80px;
-            }
-
-            .hero-logo {
-                font-size: 2.5rem;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .hero-cta {
-                flex-direction: column;
-                gap: 0.8rem;
-            }
-
-            .hero-cta .btn {
-                width: 100%;
-            }
-
-            .stats-bar {
-                gap: 1rem;
-                font-size: 0.85rem;
-            }
-
-            .features-grid,
-            .testimonials-grid,
-            .steps-grid,
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .pricing-card.featured {
-                transform: scale(1);
-            }
-
-            .final-cta {
-                padding: 50px 20px;
-            }
-
-            .cta-form {
-                flex-direction: column;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1c2e58">
+<title>R3STO — L'annuaire international des restaurants · réservez sans commission</title>
+<meta name="description" content="Découvrez et réservez en ligne les meilleurs restaurants — Suisse, France, Allemagne, Italie et 50+ pays. Sans commission cachée, en soutenant directement le restaurateur.">
+<meta name="keywords" content="restaurant, réservation, annuaire restaurants, sans commission, table en ligne, gastronomie, Suisse, France, Allemagne, Italie, gourmet">
+<meta name="author" content="R3STO · Innoptim SA">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:title" content="R3STO — L'annuaire gourmand international">
+<meta property="og:description" content="Découvrez et réservez les meilleurs restaurants dans 55+ pays. Sans commission cachée. Le guide gourmand qui valorise les restaurateurs indépendants.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://r3sto.com">
+<meta property="og:locale" content="fr_CH">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:locale:alternate" content="it_IT">
+<meta property="og:image" content="https://r3sto.com/og-r3sto-annuaire.jpg">
+<meta property="og:site_name" content="R3STO">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="R3STO — L'annuaire gourmand international">
+<meta name="twitter:description" content="Réservez les meilleurs restaurants dans 55+ pays. Sans commission.">
+<link rel="canonical" href="https://r3sto.com">
+<link rel="alternate" hreflang="fr" href="https://r3sto.com">
+<link rel="alternate" hreflang="en" href="https://r3sto.com/?lang=en">
+<link rel="alternate" hreflang="de" href="https://r3sto.com/?lang=de">
+<link rel="alternate" hreflang="it" href="https://r3sto.com/?lang=it">
+<link rel="alternate" hreflang="x-default" href="https://r3sto.com">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"R3STO","url":"https://r3sto.com","description":"L'annuaire international des restaurants indépendants. Réservation directe sans commission cachée.","inLanguage":["fr","en","de","it"],"potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://r3sto.com/recherche.html?q={search_term_string}"},"query-input":"required name=search_term_string"},"publisher":{"@type":"Organization","name":"Innoptim SA","address":{"@type":"PostalAddress","addressLocality":"Le Mont-sur-Lausanne","addressCountry":"CH"}}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* {margin:0;padding:0;box-sizing:border-box}
+
+/* =========================================================
+   R3STO CLAIR · annuaire B2C
+   Palette navy clair (off-white bleuté + navy bleu nuit + or)
+   ========================================================= */
+:root {
+  --bg:#eef3fa;            /* off-white plus saturé navy-tint */
+  --bg-2:#e1e9f4;
+  --surf:#ffffff;
+  --surf-2:#f6f9fc;
+
+  --text:#0f1a30;          /* navy très foncé pour body */
+  --t-2:#475a78;
+  --t-3:#7a8aa3;
+
+  --border:#dde4ee;
+  --border-2:#c4ceda;
+
+  --navy:#1c2e58;          /* logo bleu nuit · seul thème où il apparaît */
+  --navy-dark:#142447;
+  --navy-soft:#e4eaf4;
+
+  --gold:#a07e2a;
+  --gold-bright:#7d6220;
+  --gold-soft:#fdf5e0;
+
+  --danger:#dc2626;
+  --dot:#10b981;
+
+  --ff:'DM Sans',-apple-system,system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+
+  --max:1200px;
+  --rad:14px;
+  --rad-card:16px;
+}
+html {scroll-behavior:smooth}
+body {
+  font-family:var(--ff);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  font-weight:400;
+}
+a {color:var(--navy);text-decoration:none;transition:.15s}
+a:hover {color:var(--navy-dark)}
+img {max-width:100%;display:block}
+section {padding:96px 24px;position:relative}
+.inner {max-width:var(--max);margin:0 auto}
+
+/* =========================================================
+   NAV
+   ========================================================= */
+.nav {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(244,247,251,.86);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-in {
+  max-width:var(--max);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:72px;padding:0 28px;
+}
+.logo {display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-mark {
+  width:44px;height:44px;
+  border-radius:0;
+  flex-shrink:0;
+  display:block;
+  object-fit:contain;
+  background:transparent;
+}
+.logo-text { display:none !important; }
+.logo-mast {
+  display:flex;flex-direction:column;
+  line-height:1;margin-left:4px;
+  border-left:1px solid var(--border);
+  padding-left:12px;
+}
+.logo-title {
+  font-family:var(--ff);
+  font-size:15px;font-weight:700;
+  color:var(--navy);
+  letter-spacing:-.01em;
+  white-space:nowrap;
+  margin-bottom:4px;
+}
+.logo-slogan {
+  font-family:var(--ff);
+  font-size:11px;font-weight:600;
+  color:var(--gold);
+  letter-spacing:.12em;
+  white-space:nowrap;
+  text-transform:uppercase;
+  font-style:italic;
+}
+@media(max-width:680px){ .logo-mast{display:none} }
+.nav-links {display:flex;gap:22px;align-items:center}
+.nav-links a {
+  color:var(--t-2);font-size:13px;font-weight:500;
+  letter-spacing:.01em;white-space:nowrap;
+}
+.nav-links a:hover {color:var(--navy)}
+.nav-right {display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.nav-login {
+  font-family:var(--ff);font-size:13px;font-weight:600;
+  color:var(--t-2);text-decoration:none;
+  padding:7px 12px;border-radius:0;letter-spacing:.01em;
+  transition:.15s;border:1px solid transparent;
+}
+.nav-login:hover {color:var(--navy);border-color:var(--border)}
+.nav-login.connected{color:var(--navy);border-color:var(--gold);background:#fff8e8}
+.nav-pro {
+  font-family:var(--fm);font-size:11px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;letter-spacing:.14em;
+  border:1px solid var(--gold);padding:9px 14px;border-radius:0;
+  transition:.18s;
+}
+.nav-pro:hover {background:var(--gold-soft);color:var(--gold-bright)}
+.nav-cta {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 22px;background:var(--gold);color:#fff;
+  border-radius:0;font-family:var(--ff);font-size:13px;font-weight:700;
+  letter-spacing:.02em;transition:.18s;border:0;cursor:pointer;
+  box-shadow:0 6px 16px rgba(160,126,42,.26);
+}
+.nav-cta:hover {
+  background:var(--gold-bright);color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(125,98,32,.36);
+}
+.mob-menu {display:none;background:0;border:0;color:var(--text);font-size:22px;cursor:pointer}
+
+/* COUNTRY SWITCHER */
+.country {position:relative}
+.country-btn {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 14px;background:var(--surf);border:1px solid var(--border);
+  border-radius:0;cursor:pointer;
+  font-family:var(--ff);font-size:13px;font-weight:600;color:var(--text);
+  transition:.15s;
+}
+.country-btn:hover {border-color:var(--navy);color:var(--navy)}
+.country-flag {font-size:16px;line-height:1}
+.country-name {letter-spacing:.01em}
+.country-menu {
+  display:none;position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:0;padding:8px;min-width:340px;max-height:560px;overflow-y:auto;
+  box-shadow:0 16px 40px rgba(28,46,88,.16);z-index:10;
+}
+.cm-search-wrap {position:sticky;top:0;background:var(--surf);padding:6px 4px;margin-bottom:4px;border-bottom:1px solid var(--border);z-index:1}
+.cm-search {
+  width:100%;padding:9px 12px;border:1px solid var(--border);
+  border-radius:0;background:var(--bg-2);
+  font-family:var(--ff);font-size:13px;color:var(--text);outline:none;
+  transition:.15s;
+}
+.cm-search:focus {border-color:var(--navy);background:var(--surf);box-shadow:0 0 0 3px rgba(28,46,88,.08)}
+.cm-search::placeholder {color:var(--t-3)}
+.country-menu.open {display:block}
+.country-section {
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;letter-spacing:.14em;
+  padding:10px 12px 6px;border-top:1px solid var(--border);
+  margin-top:4px;
+}
+.country-section:first-child {border-top:0;margin-top:0;padding-top:6px}
+.country-menu button {
+  width:100%;text-align:left;
+  padding:9px 12px;border:0;background:transparent;
+  font-family:var(--ff);font-size:13px;font-weight:500;
+  color:var(--text);cursor:pointer;border-radius:0;
+  transition:.12s;display:flex;align-items:center;gap:10px;
+  justify-content:space-between;
+}
+.country-menu button:hover {background:var(--bg-2);color:var(--navy)}
+.cm-lang {
+  font-family:var(--fm);font-size:10px;font-weight:500;
+  color:var(--t-3);letter-spacing:.06em;
+}
+
+/* LANG PILLS — indépendants du country switcher */
+.lang {display:flex;gap:2px}
+.lang button {
+  padding:5px 10px;border:1px solid var(--border);
+  background:transparent;color:var(--t-3);
+  font-family:var(--ff);font-size:10px;font-weight:700;
+  letter-spacing:.10em;text-transform:uppercase;
+  cursor:pointer;border-radius:0;transition:.15s;
+}
+.lang button.on {background:var(--navy);color:#fff;border-color:var(--navy)}
+.lang button:hover:not(.on):not(.soon) {color:var(--text);border-color:var(--navy)}
+.lang button.soon {opacity:.35;cursor:not-allowed;position:relative;color:var(--t-3);border-style:dashed}
+.lang button.soon::after {content:'·';position:absolute;top:-3px;right:3px;color:var(--gold);font-size:14px;font-weight:900;line-height:1}
+@media(max-width:1280px){.country-name{display:none}}
+@media(max-width:1180px){
+  .nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:var(--surf);flex-direction:column;padding:24px;gap:18px;border-bottom:1px solid var(--border);z-index:60}
+  .nav-links.open{display:flex}
+  .mob-menu{display:block}
+  .nav-login{display:none}
+}
+@media(max-width:760px){
+  .lang{display:none}
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero {
+  padding:110px 24px 70px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+@media(max-width:760px){.hero{padding:96px 16px 50px}}
+.hero::before {
+  content:'';position:absolute;top:0;left:50%;
+  transform:translateX(-50%);width:1200px;height:600px;
+  background:radial-gradient(ellipse,rgba(28,46,88,.08) 0%,transparent 60%);
+  pointer-events:none;
+}
+.hero::after {
+  content:'';position:absolute;bottom:-200px;right:-100px;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(160,126,42,.10) 0%,transparent 60%);
+  pointer-events:none;
+}
+.hero-in {position:relative;z-index:2;max-width:880px;margin:0 auto}
+.hero-eyebrow {
+  display:inline-flex;align-items:center;gap:12px;
+  font-family:var(--fm);font-size:11px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;
+  letter-spacing:.16em;margin-bottom:18px;
+}
+.hero-eyebrow::before,.hero-eyebrow::after {
+  content:'';width:24px;height:1px;background:var(--gold);opacity:.5;
+}
+.hero h1 {
+  font-family:var(--ff);
+  font-size:clamp(40px,6.5vw,76px);
+  font-weight:800;
+  line-height:1.05;
+  letter-spacing:-2.4px;
+  margin:0 auto 26px;max-width:840px;
+  color:var(--text);
+}
+.hero h1 .navy {color:var(--navy)}
+.hero-sub {
+  font-size:clamp(16px,1.7vw,19px);font-weight:400;
+  color:var(--t-2);max-width:680px;margin:0 auto 40px;
+  line-height:1.65;
+}
+
+/* SEARCH BAR — sobre, 3 champs (nom + plat + lieu) */
+.search {
+  max-width:1100px;margin:0 auto 18px;
+  display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;
+  align-items:stretch;
+}
+.search-field {
+  display:flex;align-items:center;gap:12px;
+  background:#fff;border:1px solid var(--border);
+  padding:0 18px;border-radius:0;
+  transition:.15s;
+}
+.search-field:focus-within {border-color:var(--navy)}
+.search-field svg {width:18px;height:18px;color:var(--gold);flex-shrink:0;stroke-width:2}
+.search-field-label {display:none}
+.search-field input {
+  border:0;background:transparent;font-family:var(--ff);
+  font-size:15px;color:var(--text);width:100%;font-weight:500;outline:none;
+  padding:18px 0;
+}
+.search-field input::placeholder {color:var(--t-3);font-weight:400}
+.search-cta {
+  background:var(--gold);color:#fff;border:0;cursor:pointer;
+  padding:0 32px;border-radius:0;
+  font-family:var(--ff);font-size:14px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:.18s;
+}
+.search-cta:hover {background:var(--gold-bright)}
+@media(max-width:980px){
+  .search{grid-template-columns:1fr 1fr;gap:8px}
+  .search-cta{grid-column:1/-1;width:100%;padding:16px}
+}
+@media(max-width:580px){
+  .search{grid-template-columns:1fr}
+}
+
+/* SUGGEST ROW — affiché uniquement après choix ville ou géoloc */
+.suggest-row {
+  max-width:1100px;margin:14px auto 24px;
+  display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;
+  font-family:var(--ff);
+}
+.suggest-row[hidden] { display:none; }
+.suggest-label {
+  font-family:var(--fm,'JetBrains Mono',monospace);
+  font-size:11px;font-weight:600;color:var(--t-3);
+  letter-spacing:.12em;text-transform:uppercase;
+  padding-top:10px;
+}
+.suggest-pills {display:flex;gap:8px;flex-wrap:wrap;flex:1}
+.suggest-pill {
+  display:inline-flex;align-items:center;gap:8px;
+  background:#fff;border:1px solid var(--border);
+  padding:9px 14px;border-radius:0;
+  font-size:13px;font-weight:600;color:var(--navy);
+  text-decoration:none;letter-spacing:.01em;
+  transition:.18s;
+}
+.suggest-pill em {color:var(--t-3);font-style:normal;font-weight:500;font-size:12.5px;margin-left:4px}
+.suggest-pill:hover {border-color:var(--navy);transform:translateY(-1px)}
+.suggest-pill .sp-diam {
+  display:inline-block;font-size:11px;line-height:1;
+  transform:rotate(0deg);flex-shrink:0;
+}
+.suggest-pill.tier-or .sp-diam {color:var(--gold)}
+.suggest-pill.tier-silver .sp-diam {color:#9aa4b8}
+.suggest-pill.tier-bronze .sp-diam {color:#b8632b}
+.suggest-pill.see-more {
+  background:var(--navy);color:#fff;border-color:var(--navy);
+}
+.suggest-pill.see-more:hover {background:var(--gold);border-color:var(--gold)}
+
+/* GEOLOC CTA — sous searchbar, toujours visible */
+.geoloc-cta {
+  max-width:1100px;margin:18px auto 30px;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  flex-wrap:wrap;font-family:var(--ff);
+}
+.geoloc-btn {
+  display:inline-flex;align-items:center;gap:9px;
+  background:#fff;color:var(--navy);
+  border:1px solid var(--border);
+  padding:11px 18px;border-radius:0;
+  font-family:var(--ff);font-size:13.5px;font-weight:600;
+  letter-spacing:.01em;cursor:pointer;transition:.18s;
+}
+.geoloc-btn:hover {border-color:var(--navy);background:#fff;transform:translateY(-1px)}
+.geoloc-btn svg {color:var(--gold)}
+.geoloc-btn[data-state="loading"] {opacity:.7;cursor:wait}
+.geoloc-btn[data-state="ok"] {background:#1b3a2e;color:#fff;border-color:#1b3a2e}
+.geoloc-btn[data-state="ok"] svg {color:#fff}
+.geoloc-sep {font-size:12px;color:var(--t-3);font-style:italic}
+.geoloc-link {
+  font-size:13.5px;font-weight:600;color:var(--gold);
+  text-decoration:none;letter-spacing:.01em;transition:.15s;
+}
+.geoloc-link:hover {color:var(--navy)}
+
+.hero-trust {
+  display:flex;gap:30px;justify-content:center;flex-wrap:wrap;
+  font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.04em;
+}
+.hero-trust span {display:inline-flex;align-items:center;gap:8px}
+.hero-trust b {color:var(--navy);font-weight:600}
+.hero-trust .dot-online {
+  width:7px;height:7px;border-radius:50%;background:var(--dot);
+  animation:pulse 2s infinite;
+  box-shadow:0 0 0 3px rgba(16,185,129,.20);
+}
+@keyframes pulse {0%,100%{opacity:1}50%{opacity:.4}}
+
+/* =========================================================
+   STATS STRIP — bandeau navy unicolore, class
+   ========================================================= */
+.stats {
+  background:var(--navy);
+  padding:64px 24px;
+}
+.stats-grid {
+  max-width:var(--max);margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr);
+}
+.stats-grid > div {
+  padding:8px 32px;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+  border-left:1px solid rgba(255,255,255,.12);
+}
+.stats-grid > div:first-child { border-left:0; padding-left:0; }
+.stat-n {
+  font-family:var(--ff);font-size:clamp(34px,4.5vw,54px);
+  font-weight:800;letter-spacing:-1.8px;line-height:1;
+  color:#fff;
+}
+.stat-n .gold { color:var(--gold-soft, #c89752); }
+.stat-l {
+  font-family:var(--ffm);font-size:11px;
+  color:rgba(255,255,255,.55);
+  margin-top:16px;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;
+}
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:32px 0}
+  .stats-grid > div:nth-child(3){border-left:0;padding-left:0}
+  .stats-grid > div{padding:8px 24px}
+  .stats-grid > div:first-child{padding-left:0}
+}
+@media(max-width:540px){
+  .stats-grid{grid-template-columns:1fr;gap:0}
+  .stats-grid > div{border-left:0;border-top:1px solid rgba(255,255,255,.12);padding:24px 0 0}
+  .stats-grid > div:first-child{border-top:0;padding-top:0}
+}
+
+/* =========================================================
+   SECTION HEADERS
+   ========================================================= */
+.s-badge {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:0;
+  background:var(--navy-soft);border:1px solid rgba(28,46,88,.18);
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.14em;
+  color:var(--navy);margin-bottom:20px;
+}
+.s-title {
+  font-family:var(--ff);font-size:clamp(30px,4vw,46px);
+  font-weight:800;line-height:1.1;letter-spacing:-1.5px;
+  margin-bottom:16px;color:var(--text);
+}
+.s-title .navy {color:var(--navy)}
+.s-title .gold {color:var(--gold)}
+.s-sub {
+  font-size:17px;color:var(--t-2);
+  max-width:640px;line-height:1.65;
+}
+.s-head {text-align:center;margin-bottom:56px}
+.s-head .s-sub {margin:0 auto}
+
+/* =========================================================
+   PROX ACTIONS (geolocation CTA)
+   ========================================================= */
+.prox-actions {
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  margin-top:22px;flex-wrap:wrap;
+}
+.prox-btn {
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--navy);color:#fff;
+  border:1px solid var(--navy);
+  padding:11px 20px;border-radius:0;
+  font-family:var(--ff);font-size:14px;font-weight:600;
+  letter-spacing:.01em;cursor:pointer;
+  transition:.18s;
+}
+.prox-btn:hover {
+  background:var(--gold);border-color:var(--gold);color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px -10px rgba(160,126,42,.55);
+}
+.prox-btn[data-state="loading"] { opacity:.7;cursor:wait; }
+.prox-btn[data-state="ok"] {
+  background:#1b3a2e;border-color:#1b3a2e;color:#fff;
+}
+.prox-or {
+  font-size:13px;color:var(--t-2);font-style:italic;
+}
+.prox-link {
+  font-size:14px;font-weight:600;color:var(--navy);
+  text-decoration:none;letter-spacing:.01em;
+  transition:.18s;
+}
+.prox-link:hover { color:var(--gold); }
+
+/* =========================================================
+   CARAT SELECTION (premium curated)
+   ========================================================= */
+.carat-band {
+  background:linear-gradient(180deg,#0a0a0a 0%,#1c2e58 100%);
+  color:#fff;
+  padding:88px 0 96px;
+  margin-top:96px;
+}
+.carat-band .s-title { color:#fff; }
+.carat-band .s-sub  { color:rgba(255,255,255,.78); }
+.carat-band .s-badge {
+  background:rgba(255,255,255,.06);
+  border-color:rgba(200,151,82,.35);
+  color:var(--gold-soft, #c89752);
+}
+.carat-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  margin-top:20px;
+}
+@media(max-width:1100px){.carat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.carat-grid{grid-template-columns:1fr}}
+.carat-card {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(200,151,82,.18);
+  border-radius:0;overflow:hidden;
+  transition:.25s;display:flex;flex-direction:column;
+}
+.carat-card:hover {
+  transform:translateY(-3px);
+  border-color:rgba(200,151,82,.45);
+  box-shadow:0 18px 40px -20px rgba(0,0,0,.6);
+}
+.carat-img {
+  height:200px;background-size:cover;background-position:center;
+  position:relative;
+}
+.carat-tier {
+  position:absolute;top:12px;left:12px;
+  display:inline-flex;align-items:center;gap:7px;
+  background:#0a0a0a;color:#fff;
+  border:1px solid;
+  font-size:10.5px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  padding:6px 11px;border-radius:0;
+}
+.carat-tier .diam {font-size:13px;line-height:1}
+.carat-tier.tier-or     {border-color:#d4af37;color:#d4af37}
+.carat-tier.tier-or .diam     {color:#d4af37}
+.carat-tier.tier-silver {border-color:#c0c8d4;color:#c0c8d4}
+.carat-tier.tier-silver .diam {color:#c0c8d4}
+.carat-tier.tier-bronze {border-color:#cd7f32;color:#cd7f32}
+.carat-tier.tier-bronze .diam {color:#cd7f32}
+
+/* Explainer "règles du label Carat" — fond clair sous le header */
+.carat-rules {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  max-width:920px;margin:30px auto 30px;
+}
+@media(max-width:740px){.carat-rules{grid-template-columns:1fr}}
+.carat-rule {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(200,151,82,.18);
+  padding:18px 18px 20px;
+}
+.carat-rule .diam {font-size:18px;line-height:1;margin-bottom:8px;display:block}
+.carat-rule .name {
+  font-size:11px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;margin-bottom:8px;
+}
+.carat-rule.tier-or .diam, .carat-rule.tier-or .name     {color:#d4af37}
+.carat-rule.tier-silver .diam, .carat-rule.tier-silver .name {color:#c0c8d4}
+.carat-rule.tier-bronze .diam, .carat-rule.tier-bronze .name {color:#cd7f32}
+.carat-rule .criteria {
+  font-size:12.5px;color:rgba(255,255,255,.7);
+  line-height:1.55;font-family:var(--fm,'JetBrains Mono',monospace);
+}
+.carat-rule .criteria b {color:#fff;font-weight:700}
+.carat-body { padding:20px 20px 22px;flex:1;display:flex;flex-direction:column; }
+.carat-name {
+  font-size:19px;font-weight:700;letter-spacing:-.01em;
+  color:#fff;margin-bottom:4px;
+}
+.carat-cuisine {
+  font-size:13px;color:rgba(255,255,255,.65);margin-bottom:14px;
+}
+.carat-scores {
+  display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;
+}
+.carat-score {
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(200,151,82,.1);
+  border:1px solid rgba(200,151,82,.3);
+  border-radius:0;padding:6px 10px;
+  font-size:12px;font-weight:600;color:#c89752;
+}
+.carat-score b { color:#fff;font-weight:700; }
+.carat-meta {
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:12.5px;color:rgba(255,255,255,.6);
+  margin-top:auto;padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.carat-cta {
+  display:inline-flex;align-items:center;gap:5px;
+  color:var(--gold-soft, #c89752);text-decoration:none;
+  font-weight:600;letter-spacing:.01em;font-size:13px;
+}
+.carat-cta:hover { color:#fff; }
+
+/* =========================================================
+   FEATURED RESTOS GRID
+   ========================================================= */
+.resto-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+}
+@media(max-width:1100px){.resto-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.resto-grid{grid-template-columns:1fr}}
+
+.resto {
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:0;
+  overflow:hidden;
+  transition:.25s;
+  display:flex;flex-direction:column;
+}
+.resto-link {
+  display:flex;flex-direction:column;flex:1;
+  color:inherit;text-decoration:none;cursor:pointer;
+}
+.resto:hover {
+  transform:translateY(-6px);
+  box-shadow:0 24px 56px rgba(28,46,88,.18);
+  border-color:var(--navy);
+}
+.resto-img {
+  width:100%;aspect-ratio:16/10;
+  background-size:cover;background-position:center;
+  position:relative;overflow:hidden;
+}
+.resto-img::after {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.30) 100%);
+  pointer-events:none;
+}
+.resto-badge {
+  position:absolute;top:12px;left:12px;z-index:2;
+  background:rgba(28,46,88,.92);color:#fff;
+  font-family:var(--fm);font-size:9px;font-weight:700;
+  padding:5px 10px;border-radius:0;
+  letter-spacing:.10em;text-transform:uppercase;
+  backdrop-filter:blur(8px);
+}
+.resto-badge.gold {background:var(--gold)}
+.resto-fav {
+  position:absolute;top:12px;right:12px;z-index:2;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.94);color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;
+  backdrop-filter:blur(8px);transition:.15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.18);
+}
+.resto-fav:hover {color:var(--gold);transform:scale(1.1)}
+.resto-body {padding:20px;display:flex;flex-direction:column;flex:1;gap:14px}
+.resto-head {display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.resto-name {
+  font-family:var(--ff);font-size:19px;font-weight:800;
+  color:var(--text);letter-spacing:-.4px;margin-bottom:4px;
+  line-height:1.2;
+}
+.resto-cuisine {
+  font-family:var(--ff);font-size:12.5px;color:var(--t-2);
+  line-height:1.4;
+}
+.resto-rating {text-align:right;flex-shrink:0}
+.resto-stars {color:var(--gold);font-size:13px;letter-spacing:1.5px;line-height:1}
+.resto-count {
+  font-family:var(--fm);font-size:10px;color:var(--t-3);
+  margin-top:4px;letter-spacing:.04em;
+}
+.resto-meta {
+  display:flex;gap:14px;flex-wrap:wrap;
+  padding-bottom:10px;border-bottom:1px solid var(--border);
+  font-family:var(--fm);font-size:11.5px;color:var(--t-2);letter-spacing:.02em;
+}
+.rm {display:inline-flex;align-items:center;gap:6px}
+.rm svg {width:13px;height:13px;color:var(--navy);stroke-width:2}
+.rm.price {color:var(--gold);font-weight:700}
+.resto-tags {display:flex;gap:5px;flex-wrap:wrap}
+.resto-tags span {
+  font-family:var(--ff);font-size:10.5px;font-weight:600;
+  background:var(--navy-soft);color:var(--navy);
+  padding:4px 9px;border-radius:0;letter-spacing:.02em;
+}
+.resto-cta-row {
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:10px;margin-top:auto;
+}
+.resto-status {
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  letter-spacing:.06em;
+}
+.resto-status.open {color:#0a9c6e}
+.resto-status.closed {color:var(--t-3)}
+.resto-book {
+  font-family:var(--ff);font-size:13px;font-weight:700;
+  color:var(--gold);text-decoration:none;letter-spacing:.01em;
+}
+.resto-book:hover {color:var(--gold-bright)}
+
+.btn-show-more {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 32px;border-radius:0;
+  background:var(--gold);color:#fff;
+  font-family:var(--ff);font-size:14px;font-weight:700;
+  letter-spacing:.02em;text-decoration:none;transition:.18s;
+  box-shadow:0 6px 18px rgba(160,126,42,.28);
+}
+.btn-show-more:hover {
+  background:var(--gold-bright);color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 10px 26px rgba(125,98,32,.36);
+}
+.btn-show-more svg {transition:transform .2s}
+.btn-show-more:hover svg {transform:translateX(4px)}
+
+/* =========================================================
+   CITIES STRIP
+   ========================================================= */
+.cities {background:var(--bg-2)}
+.cities-grid {
+  display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:48px;
+}
+.city {
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:0;
+  padding:20px 16px;text-align:center;
+  cursor:pointer;transition:.2s;text-decoration:none;display:block;
+}
+.city:hover {
+  border-color:var(--navy);transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(28,46,88,.10);
+}
+.city-name {
+  font-family:var(--ff);font-size:15px;font-weight:700;
+  color:var(--text);margin-bottom:4px;letter-spacing:-.2px;
+}
+.city-count {
+  font-family:var(--fm);font-size:10px;color:var(--gold);
+  font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+}
+@media(max-width:900px){.cities-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.cities-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* =========================================================
+   PRO CROSS-LINK
+   ========================================================= */
+/* PRO BAND — pitch section pour restaurateurs */
+.pro-band {
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 100%);
+  color:#fff;position:relative;overflow:hidden;
+}
+.pro-band::before {
+  content:'';position:absolute;top:-200px;right:-100px;
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(160,126,42,.20) 0%,transparent 60%);
+  filter:blur(40px);pointer-events:none;
+}
+.pro-band-in {
+  max-width:var(--max);margin:0 auto;
+  padding:64px 24px;position:relative;z-index:1;
+}
+@media(min-width:760px){.pro-band-in{padding:80px 32px}}
+.pro-head {text-align:center;max-width:760px;margin:0 auto 44px}
+.pro-eyebrow {
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--fm);font-size:10.5px;font-weight:700;
+  color:var(--gold-soft);text-transform:uppercase;
+  letter-spacing:.18em;margin-bottom:18px;
+}
+.pro-eyebrow::before,.pro-eyebrow::after {content:'';width:24px;height:1px;background:rgba(200,151,82,.45)}
+.pro-band h2 {
+  font-family:var(--ff);font-size:clamp(28px,4.2vw,44px);
+  font-weight:800;line-height:1.05;letter-spacing:-1.4px;
+  margin:0 0 14px;color:#fff;
+}
+.pro-band h2 .gold {color:var(--gold-soft)}
+.pro-band h2 strike {color:rgba(255,255,255,.4);text-decoration-thickness:2px;font-weight:700}
+.pro-band .lead {
+  font-size:15.5px;color:rgba(255,255,255,.78);line-height:1.65;
+  margin:0;
+}
+
+/* Comparison vs concurrent */
+.pro-compare {
+  display:grid;grid-template-columns:1fr;gap:14px;
+  max-width:760px;margin:0 auto 44px;
+}
+@media(min-width:680px){.pro-compare{grid-template-columns:1fr 1fr}}
+.pro-cmp {
+  border:1px solid rgba(255,255,255,.14);
+  padding:22px 24px;background:rgba(255,255,255,.03);
+  display:flex;flex-direction:column;
+}
+.pro-cmp.win {border-color:var(--gold-soft);background:rgba(200,151,82,.05)}
+.pro-cmp-lbl {
+  font-family:var(--fm);font-size:10px;font-weight:700;
+  color:rgba(255,255,255,.55);text-transform:uppercase;
+  letter-spacing:.16em;margin-bottom:10px;
+}
+.pro-cmp.win .pro-cmp-lbl {color:var(--gold-soft)}
+.pro-cmp-amount {
+  font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1;
+  margin-bottom:8px;color:#fff;
+}
+.pro-cmp.lose .pro-cmp-amount {color:#ff8484}
+.pro-cmp.win .pro-cmp-amount {color:var(--gold-soft)}
+.pro-cmp-desc {font-size:13px;color:rgba(255,255,255,.65);line-height:1.5}
+
+/* 4 bénéfices avec icônes */
+.pro-perks {
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+  max-width:920px;margin:0 auto 44px;
+}
+@media(min-width:760px){.pro-perks{grid-template-columns:repeat(4,1fr)}}
+.pro-perk {
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
+  padding:22px 18px;text-align:left;
+}
+.pro-perk-ic {
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  background:rgba(200,151,82,.14);border:1px solid rgba(200,151,82,.35);
+  margin-bottom:12px;color:var(--gold-soft);
+}
+.pro-perk h4 {
+  font-size:14px;font-weight:700;color:#fff;
+  margin:0 0 4px;letter-spacing:-.01em;
+}
+.pro-perk p {
+  font-size:12.5px;color:rgba(255,255,255,.65);
+  line-height:1.5;margin:0;
+}
+
+/* Comment ça marche — 3 étapes (claim + auto-fill + publier) */
+.pro-flow {
+  max-width:920px;margin:0 auto 44px;
+  display:grid;grid-template-columns:1fr;gap:14px;position:relative;
+}
+@media(min-width:760px){.pro-flow{grid-template-columns:repeat(3,1fr);gap:18px}}
+.pro-flow-step {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);
+  padding:24px 22px;position:relative;
+}
+.pro-flow-step .num {
+  font-family:var(--fm);font-size:11px;font-weight:700;
+  color:var(--gold-soft);letter-spacing:.16em;
+  text-transform:uppercase;margin-bottom:10px;display:block;
+}
+.pro-flow-step h4 {
+  font-size:16px;font-weight:700;color:#fff;
+  margin:0 0 8px;letter-spacing:-.01em;line-height:1.25;
+}
+.pro-flow-step p {
+  font-size:13px;color:rgba(255,255,255,.7);
+  line-height:1.55;margin:0 0 12px;
+}
+.pro-flow-step .tag {
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--fm);font-size:10.5px;font-weight:600;
+  color:var(--gold-soft);letter-spacing:.1em;
+  background:rgba(200,151,82,.1);
+  border:1px solid rgba(200,151,82,.3);
+  padding:5px 9px;text-transform:uppercase;
+}
+
+/* Témoignage */
+.pro-quote {
+  max-width:680px;margin:0 auto 36px;text-align:center;
+  padding:24px 28px;border-top:1px solid rgba(255,255,255,.1);
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.pro-quote q {
+  font-size:17px;color:rgba(255,255,255,.92);
+  font-style:italic;line-height:1.55;
+}
+.pro-quote .by {
+  display:block;margin-top:10px;
+  font-family:var(--fm);font-size:11px;
+  color:var(--gold-soft);letter-spacing:.12em;text-transform:uppercase;
+}
+
+/* CTA final */
+.pro-cta-row {
+  display:flex;align-items:center;justify-content:center;gap:18px;
+  flex-wrap:wrap;
+}
+.pro-band-cta {
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 32px;background:var(--gold);color:#fff;
+  border:1px solid var(--gold);
+  border-radius:0;font-family:var(--ff);font-size:14px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;
+  transition:.18s;text-decoration:none;
+}
+.pro-band-cta:hover {background:var(--gold-soft);border-color:var(--gold-soft);transform:translateY(-1px)}
+.pro-band-secondary {
+  font-size:14px;color:rgba(255,255,255,.85);
+  text-decoration:underline;text-decoration-color:rgba(255,255,255,.3);
+  text-underline-offset:4px;font-weight:500;
+}
+.pro-band-secondary:hover {color:var(--gold-soft);text-decoration-color:var(--gold-soft)}
+
+/* =========================================================
+   RESERVATION MODAL
+   ========================================================= */
+.modal-backdrop {
+  display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(15,26,48,.65);backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  align-items:flex-start;justify-content:center;
+  padding:48px 16px;overflow-y:auto;
+}
+.modal-backdrop.open {display:flex}
+.modal {
+  background:var(--surf);border-radius:0;
+  max-width:520px;width:100%;
+  box-shadow:0 32px 80px rgba(15,26,48,.30);
+  position:relative;overflow:hidden;
+  animation:modalIn .2s ease-out;
+}
+@keyframes modalIn {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.modal-close {
+  position:absolute;top:14px;right:14px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--bg-2);border:0;cursor:pointer;
+  font-size:22px;line-height:1;color:var(--t-2);
+  display:flex;align-items:center;justify-content:center;
+  transition:.15s;z-index:2;
+}
+.modal-close:hover {background:var(--navy);color:#fff}
+.modal-header {padding:32px 32px 24px;border-bottom:1px solid var(--border)}
+.modal-eyebrow {
+  font-family:var(--fm);font-size:11px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;letter-spacing:.14em;
+  margin-bottom:8px;
+}
+.modal-title {
+  font-family:var(--ff);font-size:24px;font-weight:800;
+  color:var(--text);letter-spacing:-.5px;margin-bottom:6px;
+}
+.modal-sub {font-size:13px;color:var(--t-2);line-height:1.5}
+.modal-form {padding:24px 32px 28px;display:flex;flex-direction:column;gap:16px}
+.form-row {display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.form-row:has(input[type=email]) {grid-template-columns:1fr 1fr}
+.form-field label {
+  display:block;font-family:var(--fm);font-size:10px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;letter-spacing:.14em;
+  margin-bottom:6px;
+}
+.form-field input,.form-field select,.form-field textarea {
+  width:100%;padding:11px 14px;border:1px solid var(--border);
+  border-radius:0;background:var(--bg-2);color:var(--text);
+  font-family:var(--ff);font-size:14px;outline:none;
+  transition:.15s;font-weight:500;
+}
+.form-field textarea {resize:vertical;font-family:var(--ff);min-height:60px}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus {
+  border-color:var(--navy);background:var(--surf);
+  box-shadow:0 0 0 3px rgba(28,46,88,.08);
+}
+.modal-cta {
+  background:var(--gold);color:#fff;border:0;cursor:pointer;
+  padding:14px 24px;border-radius:0;
+  font-family:var(--ff);font-size:14px;font-weight:700;letter-spacing:.02em;
+  transition:.18s;margin-top:8px;
+  box-shadow:0 6px 18px rgba(160,126,42,.28);
+}
+.modal-cta:hover {
+  background:var(--gold-bright);transform:translateY(-1px);
+  box-shadow:0 10px 26px rgba(125,98,32,.38);
+}
+.modal-note {
+  font-family:var(--fm);font-size:10px;color:var(--t-3);
+  text-align:center;line-height:1.5;margin-top:4px;letter-spacing:.02em;
+}
+@media(max-width:560px){
+  .form-row{grid-template-columns:1fr}
+  .modal-header{padding:24px 22px 18px}
+  .modal-form{padding:18px 22px 22px}
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.footer {
+  background:var(--bg-2);
+  border-top:1px solid var(--border);
+  padding:64px 24px 32px;
+}
+.footer-grid {
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr;gap:40px;
+  max-width:var(--max);margin:0 auto;
+}
+@media(max-width:1100px){.footer-grid{grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}.footer-grid > div:nth-child(5){grid-column:span 2}}
+.footer-brand p {
+  font-size:13px;color:var(--t-3);line-height:1.65;
+  margin-top:14px;max-width:300px;
+}
+.footer-col h4 {
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.16em;
+  color:var(--gold);margin-bottom:18px;
+}
+/* Légal & Corporate : palette neutre (admin, pas marketing) */
+.footer-col.admin h4 { color:var(--t-2); }
+.footer-col.admin a  { color:var(--t-3); font-size:12.5px; }
+.footer-col.admin a:hover { color:var(--t-1); }
+.footer-col a {
+  display:block;font-family:var(--ff);font-size:13px;
+  color:var(--t-2);margin-bottom:10px;transition:.15s;
+}
+.footer-col a:hover {color:var(--navy)}
+.footer-bot {
+  max-width:var(--max);margin:40px auto 0;
+  padding-top:24px;border-top:1px solid var(--border);
+  display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;
+  font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em;
+  line-height:1.7;
+}
+.footer-bot .corp { display:flex;flex-direction:column;gap:4px; }
+.footer-bot .corp b { color:var(--t-2); font-weight:600; letter-spacing:.04em; }
+.footer-bot .corp a { color:var(--t-3); text-decoration:none; border-bottom:1px dotted var(--t-3); }
+.footer-bot .corp a:hover { color:var(--navy); border-color:var(--navy); }
+.footer-bot .made {
+  text-align:right; color:var(--t-3); white-space:nowrap;
+}
+@media(max-width:640px){.footer-bot{grid-template-columns:1fr;text-align:left}.footer-bot .made{text-align:left;white-space:normal}}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:32px}}
+@media(max-width:640px){.footer-grid{grid-template-columns:1fr;gap:32px}.footer-bot{flex-direction:column;text-align:center}}
+
+/* OVERRIDE for real PNG logo (replaces CSS-text version) */
+img.logo-mark { object-fit:cover; display:block; }
+</style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">R<span>3</span>STO</div>
-                <nav>
-                    <a href="#features">Fonctionnalités</a>
-                    <a href="#pricing">Tarifs</a>
-                    <a href="#faq">FAQ</a>
-                    <a href="https://demo.r3sto.ch" target="_blank">Démo</a>
-                </nav>
-            </div>
+
+<!-- =========================================================
+     NAV
+     ========================================================= -->
+<nav class="nav" id="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title" id="logoTitle">Annuaire</span>
+        <span class="logo-slogan" id="logoSlogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="/recherche.html">Restaurants</a>
+      <a href="/#carat">Carat ◆</a>
+      <a href="/pro.html">Pro</a>
+      <a href="/about.html">À propos</a>
+    </div>
+    <div class="nav-right">
+      <div class="lang" id="langPills">
+        <button class="on" onclick="setLang('en',this)">EN</button>
+        <button onclick="setLang('fr',this)">FR</button>
+        <button onclick="setLang('de',this)">DE</button>
+        <button onclick="setLang('it',this)">IT</button>
+      </div>
+      <div class="country" id="countrySwitch">
+        <button class="country-btn" onclick="toggleCountry()" id="countryBtn">
+          <span class="country-flag" id="countryFlag">🌍</span>
+          <span class="country-name" id="countryName">Worldwide</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="country-menu" id="countryMenu">
+          <div class="cm-search-wrap"><input type="text" class="cm-search" id="cmSearch" placeholder="Search country..." oninput="filterCountries(this.value)"></div>
+          <div class="country-section">🌐 Global</div>
+          <button onclick="setCountry('ww')">🌍 Worldwide <span class="cm-lang">EN</span></button>
+
+          <div class="country-section">🇪🇺 Europe</div>
+          <button onclick="setCountry('ch')">🇨🇭 Switzerland <span class="cm-lang">DE · FR · IT · RM</span></button>
+          <button onclick="setCountry('fr')">🇫🇷 France <span class="cm-lang">FR</span></button>
+          <button onclick="setCountry('de')">🇩🇪 Germany <span class="cm-lang">DE</span></button>
+          <button onclick="setCountry('it')">🇮🇹 Italy <span class="cm-lang">IT</span></button>
+          <button onclick="setCountry('at')">🇦🇹 Austria <span class="cm-lang">DE</span></button>
+          <button onclick="setCountry('be')">🇧🇪 Belgium <span class="cm-lang">NL · FR · DE</span></button>
+          <button onclick="setCountry('lu')">🇱🇺 Luxembourg <span class="cm-lang">LB · FR · DE</span></button>
+          <button onclick="setCountry('mc')">🇲🇨 Monaco <span class="cm-lang">FR</span></button>
+          <button onclick="setCountry('li')">🇱🇮 Liechtenstein <span class="cm-lang">DE</span></button>
+          <button onclick="setCountry('ad')">🇦🇩 Andorra <span class="cm-lang">CA · ES · FR</span></button>
+          <button onclick="setCountry('sm')">🇸🇲 San Marino <span class="cm-lang">IT</span></button>
+          <button onclick="setCountry('va')">🇻🇦 Vatican City <span class="cm-lang">IT · LA</span></button>
+          <button onclick="setCountry('nl')">🇳🇱 Netherlands <span class="cm-lang">NL · EN</span></button>
+          <button onclick="setCountry('es')">🇪🇸 Spain <span class="cm-lang">ES · CA · GL · EU</span></button>
+          <button onclick="setCountry('pt')">🇵🇹 Portugal <span class="cm-lang">PT</span></button>
+          <button onclick="setCountry('uk')">🇬🇧 United Kingdom <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('ie')">🇮🇪 Ireland <span class="cm-lang">EN · GA</span></button>
+          <button onclick="setCountry('dk')">🇩🇰 Denmark <span class="cm-lang">DA · EN</span></button>
+          <button onclick="setCountry('se')">🇸🇪 Sweden <span class="cm-lang">SV · EN</span></button>
+          <button onclick="setCountry('no')">🇳🇴 Norway <span class="cm-lang">NO · EN</span></button>
+          <button onclick="setCountry('fi')">🇫🇮 Finland <span class="cm-lang">FI · SV · EN</span></button>
+          <button onclick="setCountry('is')">🇮🇸 Iceland <span class="cm-lang">IS · EN</span></button>
+          <button onclick="setCountry('pl')">🇵🇱 Poland <span class="cm-lang">PL · EN</span></button>
+          <button onclick="setCountry('cz')">🇨🇿 Czech Republic <span class="cm-lang">CS · EN</span></button>
+          <button onclick="setCountry('sk')">🇸🇰 Slovakia <span class="cm-lang">SK · EN</span></button>
+          <button onclick="setCountry('hu')">🇭🇺 Hungary <span class="cm-lang">HU · EN</span></button>
+          <button onclick="setCountry('ro')">🇷🇴 Romania <span class="cm-lang">RO · EN</span></button>
+          <button onclick="setCountry('bg')">🇧🇬 Bulgaria <span class="cm-lang">BG · EN</span></button>
+          <button onclick="setCountry('gr')">🇬🇷 Greece <span class="cm-lang">EL · EN</span></button>
+          <button onclick="setCountry('hr')">🇭🇷 Croatia <span class="cm-lang">HR · EN</span></button>
+          <button onclick="setCountry('si')">🇸🇮 Slovenia <span class="cm-lang">SL · EN</span></button>
+          <button onclick="setCountry('rs')">🇷🇸 Serbia <span class="cm-lang">SR · EN</span></button>
+          <button onclick="setCountry('ee')">🇪🇪 Estonia <span class="cm-lang">ET · EN</span></button>
+          <button onclick="setCountry('lv')">🇱🇻 Latvia <span class="cm-lang">LV · EN</span></button>
+          <button onclick="setCountry('lt')">🇱🇹 Lithuania <span class="cm-lang">LT · EN</span></button>
+          <button onclick="setCountry('mt')">🇲🇹 Malta <span class="cm-lang">MT · EN</span></button>
+          <button onclick="setCountry('cy')">🇨🇾 Cyprus <span class="cm-lang">EL · EN</span></button>
+          <button onclick="setCountry('tr')">🇹🇷 Turkey <span class="cm-lang">TR · EN</span></button>
+
+          <div class="country-section">🌎 North America</div>
+          <button onclick="setCountry('us')">🇺🇸 United States <span class="cm-lang">EN · ES</span></button>
+          <button onclick="setCountry('ca')">🇨🇦 Canada <span class="cm-lang">EN · FR</span></button>
+          <button onclick="setCountry('mx')">🇲🇽 Mexico <span class="cm-lang">ES · EN</span></button>
+
+          <div class="country-section">🌎 South America</div>
+          <button onclick="setCountry('br')">🇧🇷 Brazil <span class="cm-lang">PT · EN</span></button>
+          <button onclick="setCountry('ar')">🇦🇷 Argentina <span class="cm-lang">ES · EN</span></button>
+          <button onclick="setCountry('cl')">🇨🇱 Chile <span class="cm-lang">ES · EN</span></button>
+          <button onclick="setCountry('co')">🇨🇴 Colombia <span class="cm-lang">ES · EN</span></button>
+          <button onclick="setCountry('pe')">🇵🇪 Peru <span class="cm-lang">ES · EN</span></button>
+
+          <div class="country-section">🌏 Asia &amp; Middle East</div>
+          <button onclick="setCountry('jp')">🇯🇵 Japan <span class="cm-lang">JA · EN</span></button>
+          <button onclick="setCountry('cn')">🇨🇳 China <span class="cm-lang">ZH · EN</span></button>
+          <button onclick="setCountry('kr')">🇰🇷 South Korea <span class="cm-lang">KO · EN</span></button>
+          <button onclick="setCountry('sg')">🇸🇬 Singapore <span class="cm-lang">EN · ZH · MS</span></button>
+          <button onclick="setCountry('hk')">🇭🇰 Hong Kong <span class="cm-lang">ZH · EN</span></button>
+          <button onclick="setCountry('th')">🇹🇭 Thailand <span class="cm-lang">TH · EN</span></button>
+          <button onclick="setCountry('vn')">🇻🇳 Vietnam <span class="cm-lang">VI · EN</span></button>
+          <button onclick="setCountry('id')">🇮🇩 Indonesia <span class="cm-lang">ID · EN</span></button>
+          <button onclick="setCountry('my')">🇲🇾 Malaysia <span class="cm-lang">MS · EN</span></button>
+          <button onclick="setCountry('ph')">🇵🇭 Philippines <span class="cm-lang">FIL · EN</span></button>
+          <button onclick="setCountry('in')">🇮🇳 India <span class="cm-lang">HI · EN</span></button>
+          <button onclick="setCountry('ae')">🇦🇪 UAE <span class="cm-lang">AR · EN</span></button>
+          <button onclick="setCountry('sa')">🇸🇦 Saudi Arabia <span class="cm-lang">AR · EN</span></button>
+          <button onclick="setCountry('il')">🇮🇱 Israel <span class="cm-lang">HE · EN</span></button>
+          <button onclick="setCountry('qa')">🇶🇦 Qatar <span class="cm-lang">AR · EN</span></button>
+
+          <div class="country-section">🌍 Africa</div>
+          <button onclick="setCountry('za')">🇿🇦 South Africa <span class="cm-lang">EN · ZU · AF</span></button>
+          <button onclick="setCountry('ma')">🇲🇦 Morocco <span class="cm-lang">AR · FR</span></button>
+          <button onclick="setCountry('eg')">🇪🇬 Egypt <span class="cm-lang">AR · EN</span></button>
+          <button onclick="setCountry('tn')">🇹🇳 Tunisia <span class="cm-lang">AR · FR</span></button>
+          <button onclick="setCountry('ke')">🇰🇪 Kenya <span class="cm-lang">EN · SW</span></button>
+          <button onclick="setCountry('ng')">🇳🇬 Nigeria <span class="cm-lang">EN</span></button>
+
+          <div class="country-section">🌏 Oceania</div>
+          <button onclick="setCountry('au')">🇦🇺 Australia <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('nz')">🇳🇿 New Zealand <span class="cm-lang">EN · MI</span></button>
         </div>
-    </header>
+      </div>
+      <a href="/login.html" class="nav-login" id="navLogin">Connexion</a>
+      <a href="/pro.html" class="nav-pro" id="navPro">Espace Pro <span class="pro-long">→</span></a>
+      <button class="mob-menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+    </div>
+  </div>
+</nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container" style="position: relative; z-index: 10;">
-            <div class="hero-content fade-in">
-                <div class="hero-logo gradient-text">R3STO</div>
-                <h1>La gestion de restaurant intelligente</h1>
-                <p class="subheadline">Réservations, plan de salle, widget client, marketing — tout en un.</p>
+<!-- =========================================================
+     HERO + SEARCH
+     ========================================================= -->
+<section class="hero" id="search">
+  <div class="hero-in">
+    <span class="hero-eyebrow" id="heroEyebrow">The international gourmet guide</span>
+    <h1 id="heroH1">Discover the <span class="navy">best</span><br>restaurants <span id="heroScope">worldwide</span>.</h1>
+    <p class="hero-sub" id="heroSub">The directory that highlights independent restaurateurs. Book online directly, without hidden commission, supporting the establishment.</p>
 
-                <div class="hero-cta">
-                    <a href="#pricing" class="btn btn-primary">Essayer gratuitement</a>
-                    <a href="https://demo.r3sto.ch" target="_blank" class="btn btn-secondary">Voir la démo</a>
-                </div>
+    <form class="search" id="searchForm" onsubmit="return doSearch(event)">
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v13h18V7"/><path d="M3 7l9-4 9 4"/><path d="M12 11v9"/></svg>
+        <input type="text" name="nom" id="searchName" placeholder="Nom du restaurant">
+      </div>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        <input type="text" name="plat" id="searchDish" placeholder="Plat ou cuisine">
+      </div>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <input type="text" name="lieu" id="searchLoc" placeholder="Ville ou région">
+      </div>
+      <button type="submit" class="search-cta" data-i18n="search.cta">
+        Chercher
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </form>
 
-                <div class="stats-bar">
-                    <div class="stat-item">
-                        <span class="stat-dot"></span>
-                        <span>500+ restaurants</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-dot"></span>
-                        <span>200'000+ réservations</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-dot"></span>
-                        <span>98% satisfaction</span>
-                    </div>
-                </div>
+    <!-- SUGGESTIONS — cachées par défaut, affichées au focus du champ Ville ou géoloc -->
+    <div class="suggest-row" id="suggestRow" hidden>
+      <span class="suggest-label" id="suggestLabel">Suggestions près de vous :</span>
+      <div class="suggest-pills" id="suggestPills"></div>
+    </div>
+
+    <!-- CTA géoloc visible par défaut, sous la recherche -->
+    <div class="geoloc-cta">
+      <button type="button" class="geoloc-btn" onclick="getNearbyRestos()" id="geolocBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>Restaurants près de moi</span>
+      </button>
+      <span class="geoloc-sep">ou</span>
+      <a class="geoloc-link" href="#carat">Voir la sélection Carat ◆</a>
+    </div>
+
+    <div class="hero-trust">
+      <span><span class="dot-online"></span><b id="trust1n">+12K</b> <span id="trust1l">bookings / day</span></span>
+      <span><b id="trust2n">No</b> <span id="trust2l">hidden commission</span></span>
+      <span><b id="trust3n">1.2M+</b> <span id="trust3l">restaurants</span></span>
+      <span><b id="trust4n">Instant</b> <span id="trust4l">confirmation</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     STATS — dynamiques selon pays sélectionné
+     ========================================================= -->
+<div class="stats">
+  <div class="stats-grid" id="statsGrid">
+    <div><div class="stat-n" id="stat1">1.2M+</div><div class="stat-l" id="stat1l">Restaurants worldwide</div></div>
+    <div><div class="stat-n"><span class="gold" id="stat2">120+</span></div><div class="stat-l" id="stat2l">Cities covered</div></div>
+    <div><div class="stat-n" id="stat3">42</div><div class="stat-l" id="stat3l">Countries available</div></div>
+    <div><div class="stat-n" id="stat4">24/7</div><div class="stat-l" id="stat4l">Instant booking</div></div>
+  </div>
+</div>
+
+<!-- =========================================================
+     FEATURED RESTAURANTS
+     ========================================================= -->
+<section>
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-badge" id="proxBadge">📍 Près de vous</div>
+      <h2 class="s-title" id="proxTitle">Les meilleurs restaurants <span class="gold">près de vous</span></h2>
+      <p class="s-sub" id="proxSub">Activez la géolocalisation pour découvrir les bonnes tables à quelques minutes seulement.</p>
+      <div class="prox-actions">
+        <button class="prox-btn" id="proxBtn" onclick="getNearbyRestos()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Voir les restaurants près de moi
+        </button>
+        <span class="prox-or">ou</span>
+        <a href="/recherche.html" class="prox-link">parcourir toutes les villes →</a>
+      </div>
+    </div>
+
+    <div class="resto-grid">
+      <!-- CHEZ BUNNY'S — Demo resto principal R3STO -->
+      <article class="resto" data-slug="chez-bunnys">
+        <a class="resto-link" href="/fiche.html?slug=chez-bunnys">
+          <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&q=80')">
+            <div class="resto-badge gold">★ Demo R3STO</div>
+            <div class="resto-fav" onclick="event.preventDefault();event.stopPropagation();this.textContent=this.textContent==='♡'?'♥':'♡';">♡</div>
+          </div>
+          <div class="resto-body">
+            <div class="resto-head">
+              <div>
+                <div class="resto-name">Chez Bunny's</div>
+                <div class="resto-cuisine">Bistro contemporain · cuisine du marché</div>
+              </div>
+              <div class="resto-rating">
+                <div class="resto-stars">★★★★★</div>
+                <div class="resto-count">88 avis</div>
+              </div>
             </div>
+            <div class="resto-meta">
+              <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Le Mont-sur-Lausanne</span>
+              <span class="rm price">CHF 35–70</span>
+            </div>
+            <div class="resto-tags">
+              <span>Bistro</span>
+              <span>Marché</span>
+              <span>Familial</span>
+            </div>
+          </div>
+        </a>
+        <div class="resto-cta-row">
+          <div class="resto-status open">● Ouvert</div>
+          <a href="javascript:void(0)" class="resto-book" onclick="openResa('Chez Bunny\\'s')">Réserver →</a>
         </div>
-    </section>
+      </article>
 
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <div class="container">
-            <h2 class="section-title fade-in">Les fonctionnalités les plus puissantes</h2>
-            <p class="section-subtitle fade-in">Tout ce dont vous avez besoin pour optimiser votre restaurant</p>
-
-            <div class="features-grid">
-                <div class="feature-card fade-in">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Plan de salle interactif</h3>
-                    <p>Drag & drop en temps réel. Optimisez l'occupation et gérez les couverts avec facilité.</p>
-                </div>
-
-                <div class="feature-card fade-in">
-                    <div class="feature-icon">📅</div>
-                    <h3>Widget de réservation</h3>
-                    <p>Intégrable en 2 clics sur votre site. Personnalisable à vos couleurs et services.</p>
-                </div>
-
-                <div class="feature-card fade-in">
-                    <div class="feature-icon">🤖</div>
-                    <h3>Gestion intelligente IA</h3>
-                    <p>Placement optimal automatique. Prédictions de no-show et recommandations intelligentes.</p>
-                </div>
-
-                <div class="feature-card fade-in">
-                    <div class="feature-icon">👥</div>
-                    <h3>CRM & Fidélité</h3>
-                    <p>Fiches clients complètes. Programmes de fidélité pour augmenter la rétention.</p>
-                </div>
-
-                <div class="feature-card fade-in">
-                    <div class="feature-icon">📱</div>
-                    <h3>QR Code & Paiement</h3>
-                    <p>Menu numérique, addition sur mobile, intégration TWINT et cartes bancaires.</p>
-                </div>
-
-                <div class="feature-card fade-in">
-                    <div class="feature-icon">📊</div>
-                    <h3>Multi-sites & Analytics</h3>
-                    <p>Gérez plusieurs établissements. Tableaux de bord et rapports détaillés en temps réel.</p>
-                </div>
+      <article class="resto" data-slug="la-pinte-crissier">
+        <a class="resto-link" href="/fiche.html?slug=la-pinte-crissier">
+          <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80')">
+            <div class="resto-badge gold">★★ Michelin</div>
+            <div class="resto-fav" onclick="event.preventDefault();event.stopPropagation();this.textContent=this.textContent==='♡'?'♥':'♡';">♡</div>
+          </div>
+          <div class="resto-body">
+            <div class="resto-head">
+              <div>
+                <div class="resto-name">La Pinte</div>
+                <div class="resto-cuisine">Cuisine du terroir · vins suisses</div>
+              </div>
+              <div class="resto-rating">
+                <div class="resto-stars">★★★★★</div>
+                <div class="resto-count">328 avis</div>
+              </div>
             </div>
+            <div class="resto-meta">
+              <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Crissier · 7 km</span>
+              <span class="rm price">CHF 90–160</span>
+            </div>
+            <div class="resto-tags">
+              <span>Gastronomique</span>
+              <span>Terrasse</span>
+              <span>Cave à vin</span>
+            </div>
+          </div>
+        </a>
+        <div class="resto-cta-row">
+          <div class="resto-status open">● Ouvert</div>
+          <a href="javascript:void(0)" class="resto-book" onclick="openResa('La Pinte')">Réserver →</a>
         </div>
-    </section>
+      </article>
 
-    <!-- How It Works -->
-    <section class="how-it-works">
-        <div class="container">
-            <h2 class="section-title fade-in">Commencer en 3 étapes</h2>
-
-            <div class="steps-grid">
-                <div class="step-card fade-in">
-                    <div class="step-number">1</div>
-                    <h3>Créez votre compte</h3>
-                    <p>En 2 minutes, configurez votre profil restaurant et activez votre essai gratuit.</p>
-                </div>
-
-                <div class="step-card fade-in">
-                    <div class="step-number">2</div>
-                    <h3>Configurez vos salles</h3>
-                    <p>Ajoutez vos espaces, services, tarifs et préférences de réservation.</p>
-                </div>
-
-                <div class="step-card fade-in">
-                    <div class="step-number">3</div>
-                    <h3>Acceptez les réservations</h3>
-                    <p>Recevez et gérez les réservations 24/7 depuis le widget ou notre plateforme.</p>
-                </div>
-            </div>
+      <article class="resto" data-slug="le-petit-boeuf">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80')">
+          <div class="resto-badge">Coup de cœur</div>
+          <div class="resto-fav">♡</div>
         </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section class="pricing" id="pricing">
-        <div class="container">
-            <h2 class="section-title fade-in">Tarifs transparents et justes</h2>
-            <p class="section-subtitle fade-in">Sans contrat, sans frais cachés. Annulez à tout moment.</p>
-
-            <div class="pricing-toggle" style="margin-bottom: 3rem;">
-                <span>Mensuel</span>
-                <div class="toggle-switch" id="pricingToggle">
-                    <div class="toggle-slider"></div>
-                </div>
-                <span>Annuel</span>
-                <span class="discount-badge" style="margin-bottom: 0; margin-left: 1rem;">Économisez 2 mois</span>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Le Petit Boeuf</div>
+              <div class="resto-cuisine">Grill suisse · cuisine du marché</div>
             </div>
-
-            <div class="pricing-grid">
-                <div class="pricing-card fade-in">
-                    <h3>Bistro</h3>
-                    <div class="price"><span class="price-currency">CHF</span> <span id="price-bistro">39</span></div>
-                    <div class="price-period">/mois</div>
-                    <ul class="feature-list">
-                        <li>Widget de réservation</li>
-                        <li>Plan de salle</li>
-                        <li>Emails automatiques</li>
-                        <li>Jusqu'à 50 réservations/mois</li>
-                    </ul>
-                    <a href="https://api.r3sto.ch" target="_blank" class="btn btn-secondary" style="width: 100%; text-align: center;">Commencer</a>
-                </div>
-
-                <div class="pricing-card featured fade-in">
-                    <div class="pricing-badge">Le plus populaire</div>
-                    <h3>Resto</h3>
-                    <div class="price"><span class="price-currency">CHF</span> <span id="price-resto">59</span></div>
-                    <div class="price-period">/mois</div>
-                    <ul class="feature-list">
-                        <li>Tout Bistro inclus</li>
-                        <li>QR Code et paiement</li>
-                        <li>SMS automatiques</li>
-                        <li>CRM et fidélité</li>
-                        <li>Réservations illimitées</li>
-                    </ul>
-                    <a href="https://api.r3sto.ch" target="_blank" class="btn btn-primary" style="width: 100%; text-align: center;">Commencer</a>
-                </div>
-
-                <div class="pricing-card fade-in">
-                    <h3>Gastro</h3>
-                    <div class="price"><span class="price-currency">CHF</span> <span id="price-gastro">79</span></div>
-                    <div class="price-period">/mois</div>
-                    <ul class="feature-list">
-                        <li>Tout Resto inclus</li>
-                        <li>Multi-sites</li>
-                        <li>IA & prédictions</li>
-                        <li>API complète</li>
-                        <li>Support prioritaire</li>
-                    </ul>
-                    <a href="https://api.r3sto.ch" target="_blank" class="btn btn-secondary" style="width: 100%; text-align: center;">Commencer</a>
-                </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">142 avis</div>
             </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Flon, Lausanne</span>
+            <span class="rm price">CHF 45–80</span>
+          </div>
+          <div class="resto-tags">
+            <span>Bistro</span>
+            <span>Grill</span>
+            <span>Tendance</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+          </div>
         </div>
-    </section>
+      </article>
 
-    <!-- Testimonials -->
-    <section class="testimonials">
-        <div class="container">
-            <h2 class="section-title fade-in">Nos restaurants adorent R3STO</h2>
-            <p class="section-subtitle fade-in">Découvrez comment les restaurateurs suisses optimisent leur service</p>
-
-            <div class="testimonials-grid">
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote">"R3STO nous a permis de doubler le nombre de réservations en trois mois. L'interface est intuitive et le support répond en moins de 2 heures."</div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">MR</div>
-                        <div class="author-info">
-                            <h4>Marc Rossi</h4>
-                            <p>Restaurant Milano, Genève</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote">"Avant R3STO, on gerait les réservations sur papier. Maintenant c'est automatisé et nos clients peuvent payer via QR Code. Un game-changer!"</div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">SL</div>
-                        <div class="author-info">
-                            <h4>Sophia Laurent</h4>
-                            <p>Bistro La Table, Lausanne</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote">"L'IA de R3STO prédit les no-show avec une précision étonnante. Ça nous a sauvé d'énormes pertes de chiffre d'affaires."</div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">JK</div>
-                        <div class="author-info">
-                            <h4>Jean Keller</h4>
-                            <p>Gastronomie Suisse, Zurich</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <article class="resto" data-slug="alt-505">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80')">
+          <div class="resto-badge">Tendance</div>
+          <div class="resto-fav">♡</div>
         </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="faq" id="faq">
-        <div class="container">
-            <h2 class="section-title fade-in">Questions fréquemment posées</h2>
-
-            <div class="faq-container">
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <h3>Comment fonctionne la période d'essai ?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        Vous bénéficiez de 14 jours d'accès gratuit à toutes les fonctionnalités. Aucune carte de crédit requise pour commencer. À la fin de l'essai, vous pouvez choisir un plan ou annuler sans engagement.
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <h3>Puis-je changer de plan ?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        Oui, absolument. Vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements prennent effet immédiatement et nous ajustons votre facturation proportionnellement.
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <h3>R3STO fonctionne-t-il sur mobile ?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        Totalement. Notre plateforme est responsive et fonctionne parfaitement sur smartphone, tablette et ordinateur. Le widget de réservation s'adapte à tous les appareils.
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <h3>Comment intégrer le widget sur mon site ?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        C'est très simple. Nous vous fournissons un code iframe que vous collez sur votre site. Aucune connaissance en développement requise. Le widget se met à jour automatiquement et se synchronise en temps réel avec votre planning.
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <h3>Mes données sont-elles sécurisées ?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        Oui, nous utilisons le chiffrement SSL/TLS, les serveurs sont hébergés en Suisse, et nous respectons le RGPD et les lois de protection des données suisses. Vos données clients sont protégées avec les normes les plus strictes.
-                    </div>
-                </div>
-
-                <div class="faq-item fade-in">
-                    <div class="faq-question">
-                        <h3>Vous offrez un support en cas de problème ?</h3>
-                        <span class="faq-toggle">+</span>
-                    </div>
-                    <div class="faq-answer">
-                        Oui, nous offrons un support par email 24/7 pour tous les plans. Les clients Gastro bénéficient d'un support prioritaire avec un temps de réponse garanti. Nous avons aussi une base de connaissances complète et des tutoriels vidéo.
-                    </div>
-                </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Alt. 505</div>
+              <div class="resto-cuisine">Bar à vins · tapas valaisannes</div>
             </div>
-        </div>
-    </section>
-
-    <!-- Final CTA -->
-    <section class="final-cta">
-        <div class="container">
-            <h2 class="fade-in">Prêt à transformer votre restaurant ?</h2>
-            <form class="cta-form fade-in" onsubmit="handleCTASubmit(event)">
-                <input type="email" placeholder="Votre email" required>
-                <button type="submit" class="btn btn-primary">Commencer</button>
-            </form>
-            <p class="cta-subtext fade-in">Essai gratuit 14 jours · Sans carte de crédit</p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Produit</h3>
-                    <a href="#features">Fonctionnalités</a>
-                    <a href="#pricing">Tarifs</a>
-                    <a href="https://demo.r3sto.ch" target="_blank">Démo</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Entreprise</h3>
-                    <a href="https://r3sto.ch" target="_blank">À propos</a>
-                    <a href="https://r3sto.ch/contact" target="_blank">Contact</a>
-                    <a href="https://blog.r3sto.ch" target="_blank">Blog</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Légal</h3>
-                    <a href="https://r3sto.ch/cgv" target="_blank">CGV</a>
-                    <a href="https://r3sto.ch/confidentialite" target="_blank">Confidentialité</a>
-                    <a href="https://r3sto.ch/mentions" target="_blank">Mentions légales</a>
-                </div>
-
-                <div class="footer-section">
-                    <h3>R3STO</h3>
-                    <p style="color: #a5b4fc; font-size: 0.95rem; line-height: 1.6;">La plateforme de gestion de restaurant la plus intuitive de Suisse.</p>
-                </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">87 avis</div>
             </div>
-
-            <div class="footer-bottom">
-                <div class="footer-credit">Fait avec ❤️ en Suisse</div>
-                <div class="footer-credit">© 2026 R3STO · Tous droits réservés</div>
-            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Centre, Sion</span>
+            <span class="rm price">CHF 30–55</span>
+          </div>
+          <div class="resto-tags">
+            <span>Bar à vin</span>
+            <span>Tapas</span>
+            <span>Late night</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+          </div>
         </div>
-    </footer>
+      </article>
 
-    <script>
-        // Smooth scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+      <article class="resto" data-slug="osteria-del-mare">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80')">
+          <div class="resto-badge gold">Nouveau</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Osteria del Mare</div>
+              <div class="resto-cuisine">Italien · poisson frais</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★½</div>
+              <div class="resto-count">64 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Eaux-Vives, Genève</span>
+            <span class="rm price">CHF 60–110</span>
+          </div>
+          <div class="resto-tags">
+            <span>Italien</span>
+            <span>Poisson</span>
+            <span>Lac</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+          </div>
+        </div>
+      </article>
 
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
+      <article class="resto" data-slug="pizza-napoli">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80')">
+          <div class="resto-badge">Recommandé</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Pizza Napoli</div>
+              <div class="resto-cuisine">Pizzeria napolitaine · four à bois</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">412 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Vieille-Ville, Berne</span>
+            <span class="rm price">CHF 18–32</span>
+          </div>
+          <div class="resto-tags">
+            <span>Pizza</span>
+            <span>Famille</span>
+            <span>Take-away</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+          </div>
+        </div>
+      </article>
 
-        document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
-        });
+      <article class="resto" data-slug="sakura">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=800&q=80')">
+          <div class="resto-badge gold">★ Michelin</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Sakura</div>
+              <div class="resto-cuisine">Japonais · omakase · sushi premium</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">198 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Centre, Zürich</span>
+            <span class="rm price">CHF 120–250</span>
+          </div>
+          <div class="resto-tags">
+            <span>Japonais</span>
+            <span>Sushi</span>
+            <span>Premium</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status closed">● Fermé · ouvre 19h</div>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div style="text-align:center;margin-top:48px">
+      <a href="/restaurants" class="btn-show-more">
+        Voir les 1200+ restaurants
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
 
-        // Pricing toggle
-        const toggle = document.getElementById('pricingToggle');
-        const bistroPrice = document.getElementById('price-bistro');
-        const restoPrice = document.getElementById('price-resto');
-        const gastroPrice = document.getElementById('price-gastro');
+<!-- =========================================================
+     SÉLECTION CARAT — 3 tiers Or / Silver / Bronze
+     ========================================================= -->
+<section class="carat-band" id="carat">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-badge" id="caratBadge">◆ Label Carat</div>
+      <h2 class="s-title" id="caratTitle">Le label <span style="color:#d4af37">Carat</span> distingue les meilleures tables</h2>
+      <p class="s-sub" id="caratSub">Une notation transparente, basée sur un score composite : étoiles Michelin (40 %), points Gault&amp;Millau (30 %), note R3STO vérifiée (30 %). Mis à jour chaque saison.</p>
+    </div>
 
-        let isAnnual = false;
+    <!-- Règlement des 3 tiers -->
+    <div class="carat-rules">
+      <div class="carat-rule tier-or">
+        <span class="diam">◆</span>
+        <div class="name">Carat Or</div>
+        <div class="criteria">Score composite <b>≥ 9.3 / 10</b><br>OU ≥ 2 étoiles Michelin<br>OU ≥ 18/20 Gault&amp;Millau</div>
+      </div>
+      <div class="carat-rule tier-silver">
+        <span class="diam">◆</span>
+        <div class="name">Carat Silver</div>
+        <div class="criteria">Score composite <b>≥ 8.8 / 10</b><br>OU 1 étoile Michelin<br>OU ≥ 16/20 Gault&amp;Millau</div>
+      </div>
+      <div class="carat-rule tier-bronze">
+        <span class="diam">◆</span>
+        <div class="name">Carat Bronze</div>
+        <div class="criteria">Score composite <b>≥ 8.4 / 10</b><br>OU coup de cœur rédaction R3STO vérifié</div>
+      </div>
+    </div>
 
-        toggle.addEventListener('click', () => {
-            isAnnual = !isAnnual;
-            toggle.classList.toggle('annual');
+    <div class="carat-grid">
 
-            if (isAnnual) {
-                bistroPrice.textContent = '429'; // 39 * 12 - 2 mois
-                restoPrice.textContent = '649'; // 59 * 12 - 2 mois
-                gastroPrice.textContent = '869'; // 79 * 12 - 2 mois
-            } else {
-                bistroPrice.textContent = '39';
-                restoPrice.textContent = '59';
-                gastroPrice.textContent = '79';
-            }
-        });
+      <article class="carat-card">
+        <a class="resto-link" href="/fiche.html?slug=hotel-de-ville-crissier" style="text-decoration:none;color:inherit;display:contents">
+          <div class="carat-img" style="background-image:url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80')">
+            <div class="carat-tier tier-or"><span class="diam">◆</span>Carat Or</div>
+          </div>
+          <div class="carat-body">
+            <div class="carat-name">Restaurant de l'Hôtel de Ville</div>
+            <div class="carat-cuisine">Cuisine française d'auteur · Franck Giovannini</div>
+            <div class="carat-scores">
+              <span class="carat-score">★★★ <b>Michelin</b></span>
+              <span class="carat-score">19/20 <b>G&amp;M</b></span>
+              <span class="carat-score">9.7 <b>R3STO</b></span>
+            </div>
+            <div class="carat-meta">
+              <span>Crissier · 8 km</span>
+              <span class="carat-cta">Découvrir →</span>
+            </div>
+          </div>
+        </a>
+      </article>
 
-        // FAQ accordion
-        document.querySelectorAll('.faq-question').forEach(question => {
-            question.addEventListener('click', () => {
-                const item = question.closest('.faq-item');
-                const isActive = item.classList.contains('active');
+      <article class="carat-card">
+        <a class="resto-link" href="/fiche.html?slug=denis-martin" style="text-decoration:none;color:inherit;display:contents">
+          <div class="carat-img" style="background-image:url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=900&q=80')">
+            <div class="carat-tier tier-or"><span class="diam">◆</span>Carat Or</div>
+          </div>
+          <div class="carat-body">
+            <div class="carat-name">Denis Martin</div>
+            <div class="carat-cuisine">Gastronomie moléculaire · expérience 14 services</div>
+            <div class="carat-scores">
+              <span class="carat-score">★★ <b>Michelin</b></span>
+              <span class="carat-score">18/20 <b>G&amp;M</b></span>
+              <span class="carat-score">9.4 <b>R3STO</b></span>
+            </div>
+            <div class="carat-meta">
+              <span>Vevey · 22 km</span>
+              <span class="carat-cta">Découvrir →</span>
+            </div>
+          </div>
+        </a>
+      </article>
 
-                document.querySelectorAll('.faq-item').forEach(i => {
-                    i.classList.remove('active');
-                });
+      <article class="carat-card">
+        <a class="resto-link" href="/fiche.html?slug=anne-sophie-pic-beau-rivage" style="text-decoration:none;color:inherit;display:contents">
+          <div class="carat-img" style="background-image:url('https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=900&q=80')">
+            <div class="carat-tier tier-or"><span class="diam">◆</span>Carat Or</div>
+          </div>
+          <div class="carat-body">
+            <div class="carat-name">Anne-Sophie Pic au Beau-Rivage</div>
+            <div class="carat-cuisine">Cuisine signature · palace lac Léman</div>
+            <div class="carat-scores">
+              <span class="carat-score">★★ <b>Michelin</b></span>
+              <span class="carat-score">18/20 <b>G&amp;M</b></span>
+              <span class="carat-score">9.3 <b>R3STO</b></span>
+            </div>
+            <div class="carat-meta">
+              <span>Lausanne · 4 km</span>
+              <span class="carat-cta">Découvrir →</span>
+            </div>
+          </div>
+        </a>
+      </article>
 
-                if (!isActive) {
-                    item.classList.add('active');
-                }
-            });
-        });
+      <article class="carat-card">
+        <a class="resto-link" href="/fiche.html?slug=ecco-ascona" style="text-decoration:none;color:inherit;display:contents">
+          <div class="carat-img" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80')">
+            <div class="carat-tier tier-silver"><span class="diam">◆</span>Carat Silver</div>
+          </div>
+          <div class="carat-body">
+            <div class="carat-name">Ecco Ascona</div>
+            <div class="carat-cuisine">Cuisine italienne contemporaine · Rolf Fliegauf</div>
+            <div class="carat-scores">
+              <span class="carat-score">★★ <b>Michelin</b></span>
+              <span class="carat-score">18/20 <b>G&amp;M</b></span>
+              <span class="carat-score">9.2 <b>R3STO</b></span>
+            </div>
+            <div class="carat-meta">
+              <span>Ascona · 198 km</span>
+              <span class="carat-cta">Découvrir →</span>
+            </div>
+          </div>
+        </a>
+      </article>
 
-        // CTA form submission
-        function handleCTASubmit(e) {
-            e.preventDefault();
-            const email = e.target.querySelector('input[type="email"]').value;
+      <article class="carat-card">
+        <a class="resto-link" href="/fiche.html?slug=le-pont-de-brent" style="text-decoration:none;color:inherit;display:contents">
+          <div class="carat-img" style="background-image:url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=900&q=80')">
+            <div class="carat-tier tier-silver"><span class="diam">◆</span>Carat Silver</div>
+          </div>
+          <div class="carat-body">
+            <div class="carat-name">Le Pont de Brent</div>
+            <div class="carat-cuisine">Cuisine classique revisitée · Stéphane Décotterd</div>
+            <div class="carat-scores">
+              <span class="carat-score">★ <b>Michelin</b></span>
+              <span class="carat-score">17/20 <b>G&amp;M</b></span>
+              <span class="carat-score">9.0 <b>R3STO</b></span>
+            </div>
+            <div class="carat-meta">
+              <span>Brent · 26 km</span>
+              <span class="carat-cta">Découvrir →</span>
+            </div>
+          </div>
+        </a>
+      </article>
 
-            // Log for demo purposes - in production, this would send to a backend
-            console.log('CTA submission:', email);
+      <article class="carat-card">
+        <a class="resto-link" href="/fiche.html?slug=chez-bunnys" style="text-decoration:none;color:inherit;display:contents">
+          <div class="carat-img" style="background-image:url('https://images.unsplash.com/photo-1552566626-52f8b828add9?w=900&q=80')">
+            <div class="carat-tier tier-bronze"><span class="diam">◆</span>Carat Bronze</div>
+          </div>
+          <div class="carat-body">
+            <div class="carat-name">Chez Bunny's</div>
+            <div class="carat-cuisine">Bistro contemporain · cuisine du marché</div>
+            <div class="carat-scores">
+              <span class="carat-score">— <b>Michelin</b></span>
+              <span class="carat-score">15/20 <b>G&amp;M</b></span>
+              <span class="carat-score">8.8 <b>R3STO</b></span>
+            </div>
+            <div class="carat-meta">
+              <span>Lausanne · 3 km</span>
+              <span class="carat-cta">Découvrir →</span>
+            </div>
+          </div>
+        </a>
+      </article>
 
-            // Redirect to signup
-            window.location.href = 'https://api.r3sto.ch?email=' + encodeURIComponent(email);
-        }
+    </div>
+    <div style="text-align:center;margin-top:48px">
+      <a href="/carat" class="btn-show-more" style="background:transparent;border:1px solid rgba(200,151,82,.4);color:#c89752">
+        Voir toute la sélection Carat
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
 
-        // Add scroll-to-top functionality
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
-            if (window.scrollY > 100) {
-                header.style.boxShadow = '0 10px 30px rgba(68, 128, 216, 0.1)';
-            } else {
-                header.style.boxShadow = 'none';
-            }
-        });
-    </script>
+<!-- =========================================================
+     CITIES
+     ========================================================= -->
+<section class="cities">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-badge">Explorer par ville</div>
+      <h2 class="s-title">Où voulez-vous <span class="navy">manger</span> ce soir ?</h2>
+    </div>
+    <div class="cities-grid">
+      <a href="/villes/lausanne" class="city"><div class="city-name">Lausanne</div><div class="city-count">312 restos</div></a>
+      <a href="/villes/geneve" class="city"><div class="city-name">Genève</div><div class="city-count">428 restos</div></a>
+      <a href="/villes/zurich" class="city"><div class="city-name">Zürich</div><div class="city-count">186 restos</div></a>
+      <a href="/villes/berne" class="city"><div class="city-name">Berne</div><div class="city-count">94 restos</div></a>
+      <a href="/villes/sion" class="city"><div class="city-name">Sion</div><div class="city-count">62 restos</div></a>
+      <a href="/villes/fribourg" class="city"><div class="city-name">Fribourg</div><div class="city-count">58 restos</div></a>
+      <a href="/villes/neuchatel" class="city"><div class="city-name">Neuchâtel</div><div class="city-count">47 restos</div></a>
+      <a href="/villes/montreux" class="city"><div class="city-name">Montreux</div><div class="city-count">39 restos</div></a>
+      <a href="/villes/vevey" class="city"><div class="city-name">Vevey</div><div class="city-count">33 restos</div></a>
+      <a href="/villes/lugano" class="city"><div class="city-name">Lugano</div><div class="city-count">71 restos</div></a>
+      <a href="/villes/bale" class="city"><div class="city-name">Bâle</div><div class="city-count">112 restos</div></a>
+      <a href="/villes" class="city" style="background:var(--navy);color:#fff;border-color:var(--navy)"><div class="city-name" style="color:#fff">Toutes</div><div class="city-count" style="color:var(--gold-soft)">26 villes</div></a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     PRO CROSS-LINK
+     ========================================================= -->
+<section class="pro-band" id="pro">
+  <div class="pro-band-in">
+
+    <!-- HEADER : promesse forte + sous-titre -->
+    <div class="pro-head">
+      <div class="pro-eyebrow">R3STO Pro · L'espace des restaurateurs</div>
+      <h2>Vos clients sont à <span class="gold">vous</span>.<br>Vos réservations aussi.</h2>
+      <p class="lead">Ras-le-bol de reverser 12 à 18 % à un intermédiaire à chaque couvert ? Chez R3STO, vous gardez tout. Un abonnement fixe, point. Les réservations arrivent directement sur votre email ou votre téléphone — comme si elles avaient appelé.</p>
+    </div>
+
+    <!-- COMPARAISON vs concurrent (chiffres parlants) -->
+    <div class="pro-compare">
+      <div class="pro-cmp lose">
+        <span class="pro-cmp-lbl">Avec une plateforme à commission</span>
+        <div class="pro-cmp-amount">– 5 760 CHF / an</div>
+        <div class="pro-cmp-desc">Pour 50 couverts par mois à 80 CHF, c'est 480 CHF qui partent ailleurs. Tous les mois.</div>
+      </div>
+      <div class="pro-cmp win">
+        <span class="pro-cmp-lbl">Avec R3STO Pro</span>
+        <div class="pro-cmp-amount">– 228 CHF / an</div>
+        <div class="pro-cmp-desc">19 CHF par mois, c'est tout. <b style="color:#fff">Vous économisez 5 532 CHF — soit l'équivalent d'un mi-temps d'employé en plus.</b></div>
+      </div>
+    </div>
+
+    <!-- 4 BÉNÉFICES avec icônes -->
+    <div class="pro-perks">
+      <div class="pro-perk">
+        <div class="pro-perk-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h4>0 % commission</h4>
+        <p>Abonnement fixe, vous gardez 100 % de chaque réservation.</p>
+      </div>
+      <div class="pro-perk">
+        <div class="pro-perk-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h4>Site web inclus</h4>
+        <p>Votre site dédié sous votre nom de domaine dès Signature.</p>
+      </div>
+      <div class="pro-perk">
+        <div class="pro-perk-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h4>Remplissage auto</h4>
+        <p>Adresse, photos, horaires, menu : tout pré-rempli depuis Google. Vous validez, c'est en ligne.</p>
+      </div>
+      <div class="pro-perk">
+        <div class="pro-perk-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h4>Support 7 j / 7</h4>
+        <p>Équipe humaine en Suisse, FR / DE / IT / EN. Réponse &lt; 2 h.</p>
+      </div>
+    </div>
+
+    <!-- FLOW — comment ça marche en 3 étapes (claim + auto-fill + publier) -->
+    <div class="pro-flow">
+      <div class="pro-flow-step">
+        <span class="num">Étape 1 · 30 sec</span>
+        <h4>Trouvez votre restaurant</h4>
+        <p>Tapez le nom de votre établissement. Nous le reconnaissons sur Google, OpenStreetMap et notre annuaire. Cliquez pour le revendiquer.</p>
+        <span class="tag">🔍 Claim</span>
+      </div>
+      <div class="pro-flow-step">
+        <span class="num">Étape 2 · 0 sec</span>
+        <h4>On remplit pour vous</h4>
+        <p>Adresse, téléphone, horaires d'ouverture, photos, premier menu, type de cuisine : on importe tout depuis vos profils publics. Aucune saisie.</p>
+        <span class="tag">⚡ Auto-fill Google Places</span>
+      </div>
+      <div class="pro-flow-step">
+        <span class="num">Étape 3 · 5 min</span>
+        <h4>Validez & publiez</h4>
+        <p>Vérifiez les infos, ajoutez votre IBAN pour recevoir les paiements directs, choisissez votre plan. Vous êtes en ligne sur l'annuaire R3STO.</p>
+        <span class="tag">✓ Live sur r3sto.com</span>
+      </div>
+    </div>
+
+    <!-- TÉMOIGNAGE -->
+    <div class="pro-quote">
+      <q>En 6 mois sur R3STO Pro, on a économisé l'équivalent d'un demi-salaire d'employé. Et on parle enfin directement à nos clients, sans intermédiaire.</q>
+      <span class="by">— Chez Bunny's · Le Mont-sur-Lausanne</span>
+    </div>
+
+    <!-- CTA FINAL -->
+    <div class="pro-cta-row">
+      <a href="/pro.html" class="pro-band-cta">
+        Essayer 14 jours gratuits
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/pro.html#tarifs" class="pro-band-secondary">Voir les tarifs · dès 19 CHF / mois</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="logo">
+        <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      </a>
+      <p>L'annuaire gourmand international. Découvrez et réservez en ligne dans les meilleurs restaurants indépendants partout dans le monde.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Découvrir</h4>
+      <a href="/restaurants">Tous les restaurants</a>
+      <a href="/cuisines">Par cuisine</a>
+      <a href="/villes">Par ville</a>
+      <a href="#carat">Label Carat</a>
+    </div>
+    <div class="footer-col">
+      <h4>Restaurateurs</h4>
+      <a href="/pro.html">R3STO Pro</a>
+      <a href="/mini">R3STO Mini</a>
+      <a href="https://auth.r3sto.com/signup">Créer un compte</a>
+      <a href="https://app.r3sto.com">Mon restaurant</a>
+    </div>
+    <div class="footer-col admin">
+      <h4>Légal</h4>
+      <a href="/legal.html#cgu">Conditions générales</a>
+      <a href="/legal.html#privacy">Confidentialité &amp; RGPD</a>
+      <a href="/legal.html#cookies">Cookies</a>
+      <a href="/legal.html#mentions">Mentions légales</a>
+    </div>
+    <div class="footer-col admin">
+      <h4>Société</h4>
+      <a href="https://innoptim.ch" target="_blank" rel="noopener">Innoptim SA</a>
+      <a href="/about.html">À propos R3STO</a>
+      <a href="/security.html">Sécurité &amp; hébergement</a>
+      <a href="mailto:contact@r3sto.com">contact@r3sto.com</a>
+    </div>
+  </div>
+  <div class="footer-bot">
+    <div class="corp">
+      <span>© 2026 <a href="https://innoptim.ch" target="_blank" rel="noopener"><b>Innoptim SA</b></a> · Société éditrice de R3STO</span>
+      <span>Avenue d'Echallens 21, Lausanne (VD) — Suisse · IDE <b>CHE-430.441.925</b> · TVA non assujettie</span>
+    </div>
+    <div class="made">
+      🇨🇭 Fait en Suisse<br>
+      Hébergé par Infomaniak · 100 % énergie renouvelable
+    </div>
+  </div>
+</footer>
+
+<!-- =========================================================
+     RESERVATION MODAL (mock fonctionnel)
+     ========================================================= -->
+<div class="modal-backdrop" id="resaBackdrop" onclick="closeResa(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeResa()" aria-label="Fermer">&times;</button>
+    <div class="modal-header">
+      <div class="modal-eyebrow" id="resaResto">—</div>
+      <h2 class="modal-title">Réservez votre table</h2>
+      <p class="modal-sub">Confirmation instantanée, sans commission, directement auprès du restaurant.</p>
+    </div>
+    <form class="modal-form" onsubmit="submitResa(event)">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" id="resaDate" required>
+        </div>
+        <div class="form-field">
+          <label>Heure</label>
+          <select id="resaTime" required>
+            <option value="">—</option>
+            <option>12:00</option><option>12:15</option><option>12:30</option><option>12:45</option>
+            <option>13:00</option><option>13:15</option><option>13:30</option><option>13:45</option>
+            <option>14:00</option>
+            <option>18:30</option><option>18:45</option><option>19:00</option><option>19:15</option>
+            <option>19:30</option><option>19:45</option><option>20:00</option><option>20:15</option>
+            <option>20:30</option><option>20:45</option><option>21:00</option><option>21:15</option>
+            <option>21:30</option><option>22:00</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Personnes</label>
+          <select id="resaPpl" required>
+            <option value="2" selected>2</option>
+            <option value="1">1</option>
+            <option value="3">3</option><option value="4">4</option>
+            <option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8+</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Votre nom</label>
+        <input type="text" placeholder="Nom et prénom" required>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" placeholder="adresse@email.com" required>
+        </div>
+        <div class="form-field">
+          <label>Téléphone</label>
+          <input type="tel" placeholder="+41 79 ...">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Demande particulière (optionnel)</label>
+        <textarea rows="2" placeholder="Allergie, table en terrasse, anniversaire..."></textarea>
+      </div>
+      <button type="submit" class="modal-cta">Confirmer la réservation</button>
+      <p class="modal-note">En réservant, vous acceptez les conditions de R3STO. Sans commission, vous soutenez directement l'établissement.</p>
+    </form>
+  </div>
+</div>
+
+<script>
+// === RESERVATION MODAL ===
+function openResa(restoName){
+  document.getElementById('resaResto').textContent = restoName || 'Restaurant R3STO';
+  // Date par défaut : aujourd'hui
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('resaDate').value = today;
+  document.getElementById('resaDate').min = today;
+  document.getElementById('resaBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeResa(e){
+  if(e && e.target.id !== 'resaBackdrop' && !e.target.classList.contains('modal-close')) return;
+  document.getElementById('resaBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function submitResa(e){
+  e.preventDefault();
+  const date = document.getElementById('resaDate').value;
+  const time = document.getElementById('resaTime').value;
+  const ppl = document.getElementById('resaPpl').value;
+  const resto = document.getElementById('resaResto').textContent;
+  alert('✓ Demande envoyée\n\n' + resto + '\n' + date + ' à ' + time + '\n' + ppl + ' personne(s)\n\nVous recevrez un email de confirmation sous 5 minutes.');
+  closeResa();
+}
+// Close on escape
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeResa(); });
+
+// Nav scroll
+window.addEventListener('scroll', function(){
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* =========================================================
+   COUNTRY SWITCHER — change stats + scope
+   ========================================================= */
+const COUNTRIES = {
+  ww: {flag:'🌍',name:'Worldwide',scope:'worldwide',lang:'en',
+       stat1:'1.2M+',stat1l:'Restaurants worldwide',stat2:'120+',stat2l:'Cities covered',stat3:'42',stat3l:'Countries available',stat4:'24/7',stat4l:'Instant booking',
+       trust1n:'+12K',trust1l:'bookings / day',trust3n:'1.2M+',trust3l:'restaurants'},
+  ch: {flag:'🇨🇭',name:'Switzerland',scope:'in Switzerland',lang:'fr',
+       stat1:'19K+',stat1l:'Restaurants in Switzerland',stat2:'26',stat2l:'Swiss cities',stat3:'14',stat3l:'Cuisines',stat4:'100%',stat4l:'Independent',
+       trust1n:'+800',trust1l:'bookings / day',trust3n:'19K+',trust3l:'Swiss restaurants'},
+  fr: {flag:'🇫🇷',name:'France',scope:'in France',lang:'fr',
+       stat1:'180K+',stat1l:'Restaurants in France',stat2:'350+',stat2l:'Cities covered',stat3:'22',stat3l:'Régions',stat4:'100%',stat4l:'Indépendants',
+       trust1n:'+5K',trust1l:'bookings / day',trust3n:'180K+',trust3l:'restaurants'},
+  de: {flag:'🇩🇪',name:'Germany',scope:'in Germany',lang:'de',
+       stat1:'220K+',stat1l:'Restaurants in Germany',stat2:'410+',stat2l:'Cities covered',stat3:'16',stat3l:'Bundesländer',stat4:'100%',stat4l:'Independent',
+       trust1n:'+6K',trust1l:'bookings / day',trust3n:'220K+',trust3l:'restaurants'},
+  it: {flag:'🇮🇹',name:'Italy',scope:'in Italy',lang:'it',
+       stat1:'170K+',stat1l:'Restaurants in Italy',stat2:'290+',stat2l:'Cities covered',stat3:'20',stat3l:'Regioni',stat4:'100%',stat4l:'Indipendenti',
+       trust1n:'+4K',trust1l:'bookings / day',trust3n:'170K+',trust3l:'restaurants'},
+  at: {flag:'🇦🇹',name:'Austria',scope:'in Austria',lang:'de',
+       stat1:'48K+',stat1l:'Restaurants in Austria',stat2:'62',stat2l:'Cities covered',stat3:'9',stat3l:'Bundesländer',stat4:'100%',stat4l:'Unabhängig',
+       trust1n:'+1.5K',trust1l:'bookings / day',trust3n:'48K+',trust3l:'restaurants'},
+  be: {flag:'🇧🇪',name:'Belgium',scope:'in Belgium',lang:'fr',
+       stat1:'52K+',stat1l:'Restaurants in Belgium',stat2:'70',stat2l:'Cities covered',stat3:'10',stat3l:'Provinces',stat4:'100%',stat4l:'Indépendants',
+       trust1n:'+1.7K',trust1l:'bookings / day',trust3n:'52K+',trust3l:'restaurants'},
+  lu: {flag:'🇱🇺',name:'Luxembourg',scope:'in Luxembourg',lang:'fr',
+       stat1:'2.8K+',stat1l:'Restaurants in Luxembourg',stat2:'12',stat2l:'Localités',stat3:'4',stat3l:'Langues officielles',stat4:'100%',stat4l:'Indépendants',
+       trust1n:'+95',trust1l:'bookings / day',trust3n:'2.8K+',trust3l:'restaurants'},
+  mc: {flag:'🇲🇨',name:'Monaco',scope:'in Monaco',lang:'fr',
+       stat1:'320+',stat1l:'Restaurants in Monaco',stat2:'1',stat2l:'Principauté',stat3:'8',stat3l:'Étoilés Michelin',stat4:'100%',stat4l:'Premium',
+       trust1n:'+45',trust1l:'bookings / day',trust3n:'320+',trust3l:'restaurants'},
+  nl: {flag:'🇳🇱',name:'Netherlands',scope:'in the Netherlands',lang:'en',
+       stat1:'78K+',stat1l:'Restaurants in Netherlands',stat2:'120+',stat2l:'Cities covered',stat3:'12',stat3l:'Provinces',stat4:'100%',stat4l:'Independent',
+       trust1n:'+2.4K',trust1l:'bookings / day',trust3n:'78K+',trust3l:'restaurants'},
+  es: {flag:'🇪🇸',name:'Spain',scope:'in Spain',lang:'en',
+       stat1:'265K+',stat1l:'Restaurants in Spain',stat2:'380+',stat2l:'Cities covered',stat3:'17',stat3l:'Comunidades',stat4:'100%',stat4l:'Independientes',
+       trust1n:'+7K',trust1l:'bookings / day',trust3n:'265K+',trust3l:'restaurants'},
+  pt: {flag:'🇵🇹',name:'Portugal',scope:'in Portugal',lang:'en',
+       stat1:'85K+',stat1l:'Restaurants in Portugal',stat2:'140+',stat2l:'Cities covered',stat3:'18',stat3l:'Distritos',stat4:'100%',stat4l:'Independent',
+       trust1n:'+2.1K',trust1l:'bookings / day',trust3n:'85K+',trust3l:'restaurants'},
+  uk: {flag:'🇬🇧',name:'United Kingdom',scope:'in the UK',lang:'en',
+       stat1:'195K+',stat1l:'Restaurants in the UK',stat2:'320+',stat2l:'Cities covered',stat3:'4',stat3l:'Nations',stat4:'100%',stat4l:'Independent',
+       trust1n:'+5.5K',trust1l:'bookings / day',trust3n:'195K+',trust3l:'restaurants'},
+  ie: {flag:'🇮🇪',name:'Ireland',scope:'in Ireland',lang:'en',
+       stat1:'22K+',stat1l:'Restaurants in Ireland',stat2:'48',stat2l:'Cities covered',stat3:'32',stat3l:'Counties',stat4:'100%',stat4l:'Independent',
+       trust1n:'+780',trust1l:'bookings / day',trust3n:'22K+',trust3l:'restaurants'},
+  us: {flag:'🇺🇸',name:'United States',scope:'in the USA',lang:'en',
+       stat1:'1.0M+',stat1l:'Restaurants in the USA',stat2:'2.5K+',stat2l:'Cities covered',stat3:'50',stat3l:'States',stat4:'100%',stat4l:'Independent',
+       trust1n:'+25K',trust1l:'bookings / day',trust3n:'1.0M+',trust3l:'restaurants'},
+  ca: {flag:'🇨🇦',name:'Canada',scope:'in Canada',lang:'en',
+       stat1:'95K+',stat1l:'Restaurants in Canada',stat2:'180+',stat2l:'Cities covered',stat3:'13',stat3l:'Provinces',stat4:'100%',stat4l:'Independent',
+       trust1n:'+2.8K',trust1l:'bookings / day',trust3n:'95K+',trust3l:'restaurants'}
+};
+
+function toggleCountry(){
+  document.getElementById('countryMenu').classList.toggle('open');
+}
+/* Map des données rapides : flag, nom, langue, stats par défaut pour pays non détaillés */
+const COUNTRY_INFO = {
+  // EU détaillés sont dans COUNTRIES déjà
+  li:{flag:'🇱🇮',name:'Liechtenstein',lang:'de',n:'180+'},
+  ad:{flag:'🇦🇩',name:'Andorra',lang:'fr',n:'220+'},
+  sm:{flag:'🇸🇲',name:'San Marino',lang:'it',n:'150+'},
+  va:{flag:'🇻🇦',name:'Vatican City',lang:'it',n:'25+'},
+  dk:{flag:'🇩🇰',name:'Denmark',lang:'en',n:'18K+'},
+  se:{flag:'🇸🇪',name:'Sweden',lang:'en',n:'28K+'},
+  no:{flag:'🇳🇴',name:'Norway',lang:'en',n:'14K+'},
+  fi:{flag:'🇫🇮',name:'Finland',lang:'en',n:'12K+'},
+  is:{flag:'🇮🇸',name:'Iceland',lang:'en',n:'1.4K+'},
+  pl:{flag:'🇵🇱',name:'Poland',lang:'en',n:'85K+'},
+  cz:{flag:'🇨🇿',name:'Czech Republic',lang:'en',n:'42K+'},
+  sk:{flag:'🇸🇰',name:'Slovakia',lang:'en',n:'18K+'},
+  hu:{flag:'🇭🇺',name:'Hungary',lang:'en',n:'24K+'},
+  ro:{flag:'🇷🇴',name:'Romania',lang:'en',n:'32K+'},
+  bg:{flag:'🇧🇬',name:'Bulgaria',lang:'en',n:'14K+'},
+  gr:{flag:'🇬🇷',name:'Greece',lang:'en',n:'46K+'},
+  hr:{flag:'🇭🇷',name:'Croatia',lang:'en',n:'12K+'},
+  si:{flag:'🇸🇮',name:'Slovenia',lang:'en',n:'6K+'},
+  rs:{flag:'🇷🇸',name:'Serbia',lang:'en',n:'10K+'},
+  ee:{flag:'🇪🇪',name:'Estonia',lang:'en',n:'2.8K+'},
+  lv:{flag:'🇱🇻',name:'Latvia',lang:'en',n:'3.2K+'},
+  lt:{flag:'🇱🇹',name:'Lithuania',lang:'en',n:'4.6K+'},
+  mt:{flag:'🇲🇹',name:'Malta',lang:'en',n:'1.8K+'},
+  cy:{flag:'🇨🇾',name:'Cyprus',lang:'en',n:'4.2K+'},
+  tr:{flag:'🇹🇷',name:'Turkey',lang:'en',n:'180K+'},
+  // North America
+  mx:{flag:'🇲🇽',name:'Mexico',lang:'en',n:'420K+'},
+  // South America
+  br:{flag:'🇧🇷',name:'Brazil',lang:'en',n:'380K+'},
+  ar:{flag:'🇦🇷',name:'Argentina',lang:'en',n:'120K+'},
+  cl:{flag:'🇨🇱',name:'Chile',lang:'en',n:'42K+'},
+  co:{flag:'🇨🇴',name:'Colombia',lang:'en',n:'62K+'},
+  pe:{flag:'🇵🇪',name:'Peru',lang:'en',n:'38K+'},
+  // Asia/ME
+  jp:{flag:'🇯🇵',name:'Japan',lang:'en',n:'620K+'},
+  cn:{flag:'🇨🇳',name:'China',lang:'en',n:'4.5M+'},
+  kr:{flag:'🇰🇷',name:'South Korea',lang:'en',n:'320K+'},
+  sg:{flag:'🇸🇬',name:'Singapore',lang:'en',n:'14K+'},
+  hk:{flag:'🇭🇰',name:'Hong Kong',lang:'en',n:'18K+'},
+  th:{flag:'🇹🇭',name:'Thailand',lang:'en',n:'180K+'},
+  vn:{flag:'🇻🇳',name:'Vietnam',lang:'en',n:'95K+'},
+  id:{flag:'🇮🇩',name:'Indonesia',lang:'en',n:'140K+'},
+  my:{flag:'🇲🇾',name:'Malaysia',lang:'en',n:'52K+'},
+  ph:{flag:'🇵🇭',name:'Philippines',lang:'en',n:'72K+'},
+  in:{flag:'🇮🇳',name:'India',lang:'en',n:'480K+'},
+  ae:{flag:'🇦🇪',name:'UAE',lang:'en',n:'18K+'},
+  sa:{flag:'🇸🇦',name:'Saudi Arabia',lang:'en',n:'32K+'},
+  il:{flag:'🇮🇱',name:'Israel',lang:'en',n:'14K+'},
+  qa:{flag:'🇶🇦',name:'Qatar',lang:'en',n:'4.8K+'},
+  // Africa
+  za:{flag:'🇿🇦',name:'South Africa',lang:'en',n:'48K+'},
+  ma:{flag:'🇲🇦',name:'Morocco',lang:'en',n:'32K+'},
+  eg:{flag:'🇪🇬',name:'Egypt',lang:'en',n:'62K+'},
+  tn:{flag:'🇹🇳',name:'Tunisia',lang:'en',n:'14K+'},
+  ke:{flag:'🇰🇪',name:'Kenya',lang:'en',n:'18K+'},
+  ng:{flag:'🇳🇬',name:'Nigeria',lang:'en',n:'42K+'},
+  // Oceania
+  au:{flag:'🇦🇺',name:'Australia',lang:'en',n:'95K+'},
+  nz:{flag:'🇳🇿',name:'New Zealand',lang:'en',n:'18K+'}
+};
+function makeFallback(code){
+  const info = COUNTRY_INFO[code];
+  if(!info) return null;
+  return {
+    flag:info.flag, name:info.name, scope:'in '+info.name, lang:info.lang,
+    stat1:info.n, stat1l:'Restaurants in '+info.name,
+    stat2:'—',  stat2l:'Cities',
+    stat3:'—',  stat3l:'Regions',
+    stat4:'100%', stat4l:'Independent',
+    trust1n:'+'+Math.max(50,Math.round(parseInt(info.n)/30))+(info.n.includes('M')?'K':''),
+    trust1l:'bookings / day',
+    trust3n:info.n, trust3l:'restaurants'
+  };
+}
+
+/* Filter countries by name */
+function filterCountries(q){
+  const query = q.toLowerCase().trim();
+  document.querySelectorAll('.country-menu button').forEach(btn => {
+    if(btn.classList.contains('country-section')) return;
+    const text = btn.textContent.toLowerCase();
+    btn.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
+  document.querySelectorAll('.country-section').forEach(s => {
+    // Find next sibling buttons until next section, show section if any button visible
+    let next = s.nextElementSibling;
+    let anyVisible = false;
+    while(next && !next.classList.contains('country-section')){
+      if(next.tagName === 'BUTTON' && next.style.display !== 'none') anyVisible = true;
+      next = next.nextElementSibling;
+    }
+    s.style.display = (!query || anyVisible) ? '' : 'none';
+  });
+}
+
+let CUR_COUNTRY = 'ww';
+let CUR_LANG = 'en';
+/* Scope multilingue par pays */
+const SCOPE_TR = {
+  en: {ww:'worldwide', ch:'in Switzerland', fr:'in France', de:'in Germany', it:'in Italy',
+       at:'in Austria', be:'in Belgium', lu:'in Luxembourg', mc:'in Monaco', li:'in Liechtenstein',
+       nl:'in the Netherlands', es:'in Spain', pt:'in Portugal', uk:'in the UK', ie:'in Ireland',
+       us:'in the USA', ca:'in Canada', mx:'in Mexico', dk:'in Denmark', se:'in Sweden',
+       no:'in Norway', fi:'in Finland', is:'in Iceland', pl:'in Poland', cz:'in Czech Republic',
+       hu:'in Hungary', ro:'in Romania', gr:'in Greece', tr:'in Turkey', jp:'in Japan',
+       sg:'in Singapore', ae:'in UAE', ma:'in Morocco', tn:'in Tunisia', au:'in Australia',
+       br:'in Brazil', ar:'in Argentina', cl:'in Chile', cn:'in China', kr:'in Korea',
+       hk:'in Hong Kong', th:'in Thailand', vn:'in Vietnam', id:'in Indonesia', my:'in Malaysia',
+       ph:'in the Philippines', in:'in India', sa:'in Saudi Arabia', il:'in Israel', qa:'in Qatar',
+       za:'in South Africa', eg:'in Egypt', ke:'in Kenya', ng:'in Nigeria', nz:'in New Zealand'},
+  fr: {ww:'du monde', ch:'en Suisse', fr:'en France', de:'en Allemagne', it:'en Italie',
+       at:'en Autriche', be:'en Belgique', lu:'au Luxembourg', mc:'à Monaco', li:'au Liechtenstein',
+       nl:'aux Pays-Bas', es:'en Espagne', pt:'au Portugal', uk:'au Royaume-Uni', ie:'en Irlande',
+       us:'aux États-Unis', ca:'au Canada', mx:'au Mexique', dk:'au Danemark', se:'en Suède',
+       no:'en Norvège', fi:'en Finlande', is:'en Islande', pl:'en Pologne', cz:'en Tchéquie',
+       hu:'en Hongrie', ro:'en Roumanie', gr:'en Grèce', tr:'en Turquie', jp:'au Japon',
+       sg:'à Singapour', ae:'aux Émirats', ma:'au Maroc', tn:'en Tunisie', au:'en Australie',
+       br:'au Brésil', ar:'en Argentine', cl:'au Chili', cn:'en Chine', kr:'en Corée',
+       hk:'à Hong Kong', th:'en Thaïlande', vn:'au Vietnam', id:'en Indonésie', my:'en Malaisie',
+       ph:'aux Philippines', in:'en Inde', sa:'en Arabie Saoudite', il:'en Israël', qa:'au Qatar',
+       za:'en Afrique du Sud', eg:'en Égypte', ke:'au Kenya', ng:'au Nigeria', nz:'en Nouvelle-Zélande'},
+  de: {ww:'weltweit', ch:'in der Schweiz', fr:'in Frankreich', de:'in Deutschland', it:'in Italien',
+       at:'in Österreich', be:'in Belgien', lu:'in Luxemburg', mc:'in Monaco', li:'in Liechtenstein',
+       nl:'in den Niederlanden', es:'in Spanien', pt:'in Portugal', uk:'im Vereinigten Königreich',
+       ie:'in Irland', us:'in den USA', ca:'in Kanada', mx:'in Mexiko'},
+  it: {ww:'nel mondo', ch:'in Svizzera', fr:'in Francia', de:'in Germania', it:'in Italia',
+       at:'in Austria', be:'in Belgio', lu:'in Lussemburgo', mc:'a Monaco', li:'in Liechtenstein',
+       nl:'nei Paesi Bassi', es:'in Spagna', pt:'in Portogallo', uk:'nel Regno Unito',
+       ie:'in Irlanda', us:'negli Stati Uniti', ca:'in Canada', mx:'in Messico'}
+};
+function renderHeroScope(){
+  const sp = document.getElementById('heroScope');
+  if(!sp) return;
+  const tr = SCOPE_TR[CUR_LANG] || SCOPE_TR.en;
+  sp.textContent = tr[CUR_COUNTRY] || tr.ww || 'worldwide';
+}
+
+function setCountry(code){
+  const c = COUNTRIES[code] || makeFallback(code);
+  if(!c) return;
+  CUR_COUNTRY = code;
+  document.getElementById('countryFlag').textContent = c.flag;
+  document.getElementById('countryName').textContent = c.name;
+  document.getElementById('countryMenu').classList.remove('open');
+  // Update stats
+  document.getElementById('stat1').textContent = c.stat1;
+  document.getElementById('stat1l').textContent = c.stat1l;
+  document.getElementById('stat2').textContent = c.stat2;
+  document.getElementById('stat2l').textContent = c.stat2l;
+  document.getElementById('stat3').textContent = c.stat3;
+  document.getElementById('stat3l').textContent = c.stat3l;
+  document.getElementById('stat4').textContent = c.stat4;
+  document.getElementById('stat4l').textContent = c.stat4l;
+  // Update hero scope multilingue
+  renderHeroScope();
+  // Update trust bar
+  document.getElementById('trust1n').textContent = c.trust1n;
+  document.getElementById('trust1l').textContent = c.trust1l;
+  document.getElementById('trust3n').textContent = c.trust3n;
+  document.getElementById('trust3l').textContent = c.trust3l;
+  // Pills langues nationales
+  renderLangPills(code);
+}
+/* Langues nationales par pays (ordre = priorité, 1re = langue principale).
+   Inclut TOUTES les langues officielles, même celles non encore traduites. */
+const SUPPORTED_LANGS = ['en','fr','de','it'];
+const COUNTRY_LANGS = {
+  ww:['en','fr','de','it'],
+  ch:['de','fr','it','rm','en'],
+  fr:['fr','en'],
+  de:['de','en'],
+  it:['it','en'],
+  at:['de','en'],
+  be:['nl','fr','de','en'],
+  lu:['lb','fr','de','en'],
+  mc:['fr','en'],
+  li:['de','en'],
+  ad:['ca','fr','es','en'],
+  sm:['it','en'],
+  va:['it','la','en'],
+  nl:['nl','en'],
+  es:['es','ca','gl','eu','en'],
+  pt:['pt','en'],
+  uk:['en'],
+  ie:['en','ga'],
+  dk:['da','en'], se:['sv','en'], no:['no','en'], fi:['fi','sv','en'], is:['is','en'],
+  pl:['pl','en'], cz:['cs','en'], sk:['sk','en'], hu:['hu','en'], ro:['ro','en'],
+  bg:['bg','en'], gr:['el','en'], hr:['hr','en'], si:['sl','en'], rs:['sr','en'],
+  ee:['et','en'], lv:['lv','en'], lt:['lt','en'], mt:['mt','en'], cy:['el','tr','en'], tr:['tr','en'],
+  us:['en','es'], ca:['en','fr'], mx:['es','en'],
+  br:['pt','en'], ar:['es','en'], cl:['es','en'], co:['es','en'], pe:['es','en'],
+  jp:['ja','en'], cn:['zh','en'], kr:['ko','en'], sg:['en','zh'], hk:['zh','en'],
+  th:['th','en'], vn:['vi','en'], id:['id','en'], my:['ms','en'], ph:['en','tl'],
+  in:['hi','en'], ae:['ar','en'], sa:['ar','en'], il:['he','en','ar'], qa:['ar','en'],
+  za:['en'], ma:['ar','fr','en'], eg:['ar','en'], tn:['ar','fr','en'], ke:['en','sw'], ng:['en'],
+  au:['en'], nz:['en']
+};
+function renderLangPills(countryCode){
+  const langs = COUNTRY_LANGS[countryCode] || ['en','fr','de','it'];
+  const wrap = document.getElementById('langPills');
+  if(!wrap) return;
+  // 1re langue supportée = défaut actif
+  const firstActive = langs.find(l => SUPPORTED_LANGS.includes(l)) || 'en';
+  wrap.innerHTML = langs.map(l => {
+    const isSupp = SUPPORTED_LANGS.includes(l);
+    const isActive = l === firstActive;
+    if(isSupp){
+      return `<button class="${isActive?'on':''}" onclick="setLang('${l}',this)">${l.toUpperCase()}</button>`;
+    } else {
+      return `<button class="soon" title="${l.toUpperCase()} bientôt disponible" onclick="event.stopPropagation();this.blur();">${l.toUpperCase()}</button>`;
+    }
+  }).join('');
+  // Active la première langue supportée
+  if(typeof autoLang === 'function') autoLang(firstActive);
+}
+function autoLang(code){
+  CUR_LANG = code;
+  document.documentElement.lang = code;
+  const t = TR[code] || TR.en;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if(t[k]) el.textContent = t[k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const k = el.getAttribute('data-i18n-ph');
+    if(t[k]) el.placeholder = t[k];
+  });
+  if(t.eyebrow) document.getElementById('heroEyebrow').textContent = t.eyebrow;
+  if(t.h1) document.getElementById('heroH1').innerHTML = t.h1;
+  if(t.sub) document.getElementById('heroSub').textContent = t.sub;
+  // Après setHTML du H1, le span#heroScope est recréé → on remet le bon scope
+  renderHeroScope();
+}
+
+// Close country menu on outside click
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.country')){
+    document.getElementById('countryMenu').classList.remove('open');
+  }
+});
+
+/* ──────────────────────────────────────────────────────────
+   SEARCH — redirige vers /recherche.html avec query params
+   ────────────────────────────────────────────────────────── */
+function doSearch(e){
+  e.preventDefault();
+  const nom  = (document.getElementById('searchName').value || '').trim();
+  const plat = (document.getElementById('searchDish').value || '').trim();
+  const lieu = (document.getElementById('searchLoc').value  || '').trim();
+  const params = new URLSearchParams();
+  if(nom)  params.set('nom', nom);
+  if(plat) params.set('plat', plat);
+  if(lieu) params.set('lieu', lieu);
+  if(CUR_LANG) params.set('lang', CUR_LANG);
+  // Pays seulement si aucun lieu (lieu prime)
+  if(!lieu && CUR_COUNTRY && CUR_COUNTRY !== 'ww') params.set('pays', CUR_COUNTRY);
+  if(!nom && !plat && !lieu){
+    window.location.href = '/recherche.html';
+    return false;
+  }
+  window.location.href = '/recherche.html?' + params.toString();
+  return false;
+}
+
+/* =========================================================
+   LANGUAGE SWITCHER (basique, prototype)
+   ========================================================= */
+const TR = {
+  en: {
+    'search.what':'What dish or restaurant?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Where?',
+    'search.where.ph':'Lausanne, Geneva, Zurich, Paris…',
+    'search.cta':'Search',
+    eyebrow:'The international gourmet guide',
+    h1:'Discover the <span class="navy">best</span><br>restaurants <span id="heroScope">worldwide</span>.',
+    sub:'The directory that highlights independent restaurateurs. Book online directly, without hidden commission, supporting the establishment.',
+  },
+  fr: {
+    'search.what':'Quel plat ou restaurant ?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Où ?',
+    'search.where.ph':'Lausanne, Genève, Zürich, Paris…',
+    'search.cta':'Chercher',
+    eyebrow:'Le guide gourmand international',
+    h1:'Découvrez les <span class="navy">meilleurs</span><br>restaurants <span id="heroScope">du monde</span>.',
+    sub:'L\'annuaire qui met en avant les restaurateurs indépendants. Réservez en ligne directement, sans commission cachée.',
+  },
+  de: {
+    'search.what':'Welches Gericht oder Restaurant?',
+    'search.what.ph':'Pizza, Sushi, Le Petit Boeuf…',
+    'search.where':'Wo?',
+    'search.where.ph':'Lausanne, Genf, Zürich, Berlin…',
+    'search.cta':'Suchen',
+    eyebrow:'Der internationale Gourmet-Guide',
+    h1:'Entdecken Sie die <span class="navy">besten</span><br>Restaurants <span id="heroScope">weltweit</span>.',
+    sub:'Das Verzeichnis, das unabhängige Gastronomen ins Rampenlicht stellt. Direkt online reservieren, ohne versteckte Provisionen.',
+  },
+  it: {
+    'search.what':'Quale piatto o ristorante?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Dove?',
+    'search.where.ph':'Lugano, Milano, Roma, Lausanne…',
+    'search.cta':'Cerca',
+    eyebrow:'La guida gourmet internazionale',
+    h1:'Scopri i <span class="navy">migliori</span><br>ristoranti <span id="heroScope">del mondo</span>.',
+    sub:'L\'elenco che mette in luce i ristoratori indipendenti. Prenota online direttamente, senza commissioni nascoste.',
+  }
+};
+
+// LANG SWITCHER (pills FR/DE/IT/EN — indépendant du country)
+function setLang(code, btn){
+  document.querySelectorAll('.lang button').forEach(b => b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  autoLang(code);
+}
+
+// =========================================================
+// GÉOLOCALISATION — "Restaurants près de vous"
+// =========================================================
+// Coordonnées approximatives des restos affichés (CH lat/lng)
+const RESTO_COORDS = {
+  'chez-bunnys':       { lat: 46.5660, lng: 6.6390, name: "Chez Bunny's", city: "Lausanne" },
+  'la-pinte-crissier': { lat: 46.5500, lng: 6.5780, name: "La Pinte",     city: "Crissier" },
+  'le-petit-boeuf':    { lat: 46.5215, lng: 6.6325, name: "Le Petit Boeuf", city: "Flon, Lausanne" },
+  'alt-505':           { lat: 46.2330, lng: 7.3590, name: "Alt. 505",     city: "Sion" },
+  'osteria-del-mare':  { lat: 46.2050, lng: 6.1620, name: "Osteria del Mare", city: "Genève" },
+  'pizza-napoli':      { lat: 46.9480, lng: 7.4510, name: "Pizza Napoli", city: "Berne" },
+  'sakura':            { lat: 47.3770, lng: 8.5400, name: "Sakura",       city: "Zürich" }
+};
+
+// Haversine distance (km)
+function haversine(lat1, lng1, lat2, lng2){
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLng/2)**2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 10) / 10;
+}
+
+// Mini-base de restos pour suggestions contextuelles (ville/géoloc)
+const RESTO_DB = [
+  { slug:'hotel-de-ville-crissier', name:"Hôtel de Ville",  city:'Crissier',   tier:'or',     mich:3, gm:19, r3:9.7 },
+  { slug:'denis-martin',            name:'Denis Martin',     city:'Vevey',      tier:'or',     mich:2, gm:18, r3:9.4 },
+  { slug:'anne-sophie-pic-beau-rivage', name:'Anne-Sophie Pic', city:'Lausanne', tier:'or',  mich:2, gm:18, r3:9.3 },
+  { slug:'ecco-ascona',             name:'Ecco Ascona',      city:'Ascona',     tier:'silver', mich:2, gm:18, r3:9.2 },
+  { slug:'le-pont-de-brent',        name:'Le Pont de Brent', city:'Brent',      tier:'silver', mich:1, gm:17, r3:9.0 },
+  { slug:'chez-bunnys',             name:"Chez Bunny's",     city:'Lausanne',   tier:'bronze', mich:0, gm:15, r3:8.8 },
+  { slug:'le-populaire',            name:'Le Populaire',     city:'Lausanne',   tier:'bronze', mich:0, gm:14, r3:8.4 },
+  { slug:'le-petit-boeuf',          name:'Le Petit Bœuf',    city:'Lausanne',   tier:'bronze', mich:0, gm:14, r3:8.6 },
+  { slug:'sakura',                  name:'Sakura',           city:'Zürich',     tier:'silver', mich:1, gm:17, r3:9.0 },
+  { slug:'osteria-del-mare',        name:'Osteria del Mare', city:'Genève',     tier:'bronze', mich:0, gm:15, r3:8.7 },
+  { slug:'pizza-napoli',            name:'Pizza Napoli',     city:'Berne',      tier:null,     mich:0, gm:0,  r3:8.5 },
+  { slug:'alt-505',                 name:'Alt. 505',         city:'Sion',       tier:null,     mich:0, gm:0,  r3:8.2 }
+];
+
+function renderSuggestions(label, list){
+  const row = document.getElementById('suggestRow');
+  const lab = document.getElementById('suggestLabel');
+  const pills = document.getElementById('suggestPills');
+  if(!row || !pills) return;
+  if(!list || !list.length){ row.hidden = true; return; }
+  lab.textContent = label;
+  pills.innerHTML = list.slice(0,5).map(r => {
+    const tier = r.tier ? `tier-${r.tier}` : '';
+    const diam = r.tier ? `<span class="sp-diam">◆</span>` : '';
+    const distTxt = r.dist != null ? ` · ${r.dist} km` : '';
+    return `<a class="suggest-pill ${tier}" href="/fiche.html?slug=${r.slug}">${diam}${r.name}<em>· ${r.city}${distTxt}</em></a>`;
+  }).join('') + (list.length > 5
+    ? `<a class="suggest-pill see-more" href="/recherche.html?lieu=${encodeURIComponent(list[0].city)}">Voir tout (${list.length}) →</a>`
+    : '');
+  row.hidden = false;
+}
+
+function getNearbyRestos(){
+  const btn = document.getElementById('geolocBtn');
+  const span = btn ? btn.querySelector('span') : null;
+  if(!navigator.geolocation || !btn){ return; }
+  btn.dataset.state = 'loading';
+  if(span) span.textContent = 'Localisation en cours…';
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const { latitude: uLat, longitude: uLng } = pos.coords;
+      // Trie les restos par distance via RESTO_COORDS
+      const ranked = RESTO_DB.map(r => {
+        const c = RESTO_COORDS[r.slug];
+        const dist = c ? haversine(uLat, uLng, c.lat, c.lng) : 9999;
+        return Object.assign({}, r, { dist });
+      }).filter(r => r.dist < 9999).sort((a,b) => a.dist - b.dist);
+
+      btn.dataset.state = 'ok';
+      if(span) span.textContent = '✓ Triés par proximité';
+      renderSuggestions('Restaurants près de vous :', ranked);
+    },
+    err => {
+      btn.dataset.state = '';
+      if(span) span.textContent = 'Localisation refusée — réessayer';
+    },
+    { enableHighAccuracy:false, timeout:8000, maximumAge:300000 }
+  );
+}
+
+// =========================================================
+// SLOGAN MULTILINGUE (Guide gourmand)
+// =========================================================
+const SLOGAN_TR = {
+  fr: 'Guide gourmand',
+  en: 'Gourmet guide',
+  de: 'Gourmet-Führer',
+  it: 'Guida gourmet'
+};
+const PROX_TR = {
+  fr: { badge:'📍 Près de vous', title:'Les meilleurs restaurants <span class="gold">près de vous</span>', sub:'Activez la géolocalisation pour découvrir les bonnes tables à quelques minutes seulement.', btn:'Voir les restaurants près de moi', or:'ou', link:'parcourir toutes les villes →' },
+  en: { badge:'📍 Near you',    title:'The best restaurants <span class="gold">near you</span>',           sub:'Enable geolocation to find great tables just minutes away.',                          btn:'Show restaurants near me',         or:'or', link:'browse all cities →' },
+  de: { badge:'📍 In Ihrer Nähe', title:'Die besten Restaurants <span class="gold">in Ihrer Nähe</span>',  sub:'Aktivieren Sie die Standortbestimmung, um Tische ganz in der Nähe zu entdecken.',     btn:'Restaurants in der Nähe anzeigen', or:'oder', link:'alle Städte durchsuchen →' },
+  it: { badge:'📍 Vicino a te',   title:'I migliori ristoranti <span class="gold">vicino a te</span>',     sub:'Attiva la geolocalizzazione per scoprire ottimi locali a pochi minuti.',              btn:'Mostra i ristoranti vicini',       or:'o',  link:'sfoglia tutte le città →' }
+};
+const CARAT_TR = {
+  fr: { badge:'◆ Sélection Carat',  title:'Les <span style="color:#c89752">tables d\'exception</span> sélectionnées par R3STO', sub:'Étoilés Michelin, points Gault&amp;Millau, coups de cœur R3STO. Une sélection rigoureuse mise à jour chaque saison.' },
+  en: { badge:'◆ Carat selection',  title:'<span style="color:#c89752">Exceptional tables</span> handpicked by R3STO',         sub:'Michelin-starred, Gault&amp;Millau points, R3STO favorites. A rigorous selection updated every season.' },
+  de: { badge:'◆ Carat-Auswahl',    title:'<span style="color:#c89752">Aussergewöhnliche Tische</span>, von R3STO ausgewählt',   sub:'Michelin-Sterne, Gault&amp;Millau-Punkte, R3STO-Favoriten. Eine strenge, jede Saison aktualisierte Auswahl.' },
+  it: { badge:'◆ Selezione Carat',  title:'<span style="color:#c89752">Tavoli d\'eccezione</span> selezionati da R3STO',         sub:'Stellati Michelin, punti Gault&amp;Millau, preferiti R3STO. Una selezione rigorosa aggiornata ogni stagione.' }
+};
+
+function updateLocalizedExtras(lang){
+  const L = (lang || 'fr').toLowerCase();
+  const ls = document.getElementById('logoSlogan');
+  if(ls) ls.innerHTML = (SLOGAN_TR[L] || SLOGAN_TR.fr).replace(' ','&nbsp;');
+  const P = PROX_TR[L] || PROX_TR.fr;
+  const pb = document.getElementById('proxBadge');  if(pb) pb.textContent = P.badge;
+  const pt = document.getElementById('proxTitle');  if(pt) pt.innerHTML = P.title;
+  const ps = document.getElementById('proxSub');    if(ps && !document.getElementById('proxBtn')?.dataset.state) ps.textContent = P.sub;
+  const pBtn = document.getElementById('proxBtn');
+  if(pBtn && !pBtn.dataset.state){
+    pBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + P.btn;
+  }
+  const pOr = document.querySelector('.prox-or');   if(pOr) pOr.textContent = P.or;
+  const pLink = document.querySelector('.prox-link'); if(pLink) pLink.textContent = P.link;
+  const C = CARAT_TR[L] || CARAT_TR.fr;
+  const cb = document.getElementById('caratBadge'); if(cb) cb.textContent = C.badge;
+  const ct = document.getElementById('caratTitle'); if(ct) ct.innerHTML = C.title;
+  const cs = document.getElementById('caratSub');   if(cs) cs.innerHTML = C.sub;
+}
+
+// Hook : on appelle après chaque changement de langue
+const _autoLangOrig = typeof autoLang === 'function' ? autoLang : null;
+if(_autoLangOrig){
+  window.autoLang = function(code){
+    _autoLangOrig(code);
+    updateLocalizedExtras(code);
+  };
+}
+// Init au chargement
+document.addEventListener('DOMContentLoaded', () => {
+  updateLocalizedExtras('fr');
+  // Si déjà connecté (démo localStorage), bascule "Connexion" → "Mon compte"
+  const email = localStorage.getItem('r3sto_email');
+  const mode  = localStorage.getItem('r3sto_mode') || 'client';
+  const nl = document.getElementById('navLogin');
+  if(email && nl){
+    nl.classList.add('connected');
+    nl.textContent = mode === 'pro' ? 'Mon resto →' : 'Mon compte →';
+    nl.href = mode === 'pro' ? '/pro-dashboard.html' : '/compte.html';
+  }
+  // Suggestions contextuelles selon ville/région tapée
+  const lieuInput = document.getElementById('searchLoc');
+  if(lieuInput){
+    let debounceT;
+    lieuInput.addEventListener('input', () => {
+      clearTimeout(debounceT);
+      debounceT = setTimeout(() => {
+        const v = lieuInput.value.trim().toLowerCase();
+        if(v.length < 2){ document.getElementById('suggestRow').hidden = true; return; }
+        const matches = RESTO_DB.filter(r => r.city.toLowerCase().includes(v));
+        // Tri : Or > Silver > Bronze > Sans label, puis score r3 desc
+        const tierWeight = { or:3, silver:2, bronze:1, null:0 };
+        matches.sort((a,b) => (tierWeight[b.tier] || 0) - (tierWeight[a.tier] || 0) || b.r3 - a.r3);
+        renderSuggestions(`Restaurants à ${lieuInput.value.trim()} :`, matches);
+      }, 220);
+    });
+    lieuInput.addEventListener('blur', () => {
+      // Garde affiché si valeur saisie ; cache si vide
+      if(!lieuInput.value.trim()) document.getElementById('suggestRow').hidden = true;
+    });
+  }
+});
+</script>
 </body>
 </html>

@@ -30,7 +30,7 @@
 <link rel="alternate" hreflang="x-default" href="https://r3sto.com/pro">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"R3STO","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://r3sto.com/pro","description":"Plateforme SaaS de gestion pour restaurants suisses. 0% commission.","offers":[{"@type":"Offer","name":"Essentiel","price":"39","priceCurrency":"CHF","billingIncrement":"P1M"},{"@type":"Offer","name":"Premium","price":"59","priceCurrency":"CHF","billingIncrement":"P1M"},{"@type":"Offer","name":"Signature","price":"79","priceCurrency":"CHF","billingIncrement":"P1M"}],"author":{"@type":"Organization","name":"R3STO","address":{"@type":"PostalAddress","addressLocality":"Lausanne","addressCountry":"CH"}}}
 </script>
@@ -42,25 +42,29 @@
    ========================================================= */
 :root {
   /* Fonds */
-  --bg:#0f1620;
-  --bg-2:#131c2a;
-  --surf:#1a2435;
-  --surf-2:#212d42;
+  --bg:#eef3fa;
+  --bg-2:#e3ebf5;
+  --surf:#ffffff;
+  --surf-2:#fafcff;
 
-  /* Texte */
-  --text:#e8eef5;
-  --t-2:#aab5cc;
-  --t-3:#5a657a;
+  /* Texte — Navy Bright */
+  --text:#0c1730;
+  --t-1:#0c1730;
+  --t-2:#4a5878;
+  --t-3:#7b88a8;
 
   /* Borders */
-  --border:rgba(74,107,140,.30);
-  --border-2:rgba(74,107,140,.18);
+  --border:#d6dfee;
+  --border-2:#e3ebf5;
 
   /* Brand */
   --navy:#1c2e58;
+  --navy-2:#13224a;
   --gold:#a07e2a;
   --gold-bright:#c89752;
-  --gold-soft:rgba(160,126,42,.12);
+  --gold-soft:rgba(160,126,42,.10);
+  --gold-bg:#fff8e8;
+  --gold-border:#e6d090;
 
   /* Semantic */
   --danger:#dc2626;
@@ -75,6 +79,11 @@
   --rad:14px;
   --rad-card:16px;
   --section-pad:120px 24px;
+  --t-1:#0c1730;
+  --t-2:#4a5878;
+  --t-3:#7b88a8;
+  --border:#d6dfee;
+  --navy-2:#13224a;
 }
 html {scroll-behavior:smooth}
 body {
@@ -96,7 +105,7 @@ section {padding:var(--section-pad);position:relative}
    ========================================================= */
 .nav {
   position:fixed;top:0;left:0;right:0;z-index:100;
-  background:rgba(15,22,32,.88);
+  background:rgba(244,247,251,.92);
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
   border-bottom:1px solid var(--border);
@@ -111,34 +120,33 @@ section {padding:var(--section-pad);position:relative}
   text-decoration:none;
 }
 .logo-mark {
-  width:44px;height:44px;border-radius:8px;
-  background:var(--navy);
-  color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--ff);font-weight:800;font-size:11px;
-  letter-spacing:1.2px;
+  width:44px;height:44px;border-radius:0;
+  background:transparent;
+  object-fit:contain;display:block;
   flex-shrink:0;
 }
-.logo-text {
-  font-family:var(--ff);font-weight:800;font-size:18px;
-  color:var(--text);letter-spacing:-.3px;
+.logo-text,.logo-wordmark {display:none !important}
+.logo-mast {
+  display:flex;flex-direction:column;line-height:1;margin-left:4px;
+  border-left:1px solid var(--border);padding-left:12px;
 }
-.logo-text span {color:var(--gold);font-weight:600}
-.logo-wordmark {
-  font-family:var(--ff);
-  font-weight:700;font-size:14px;
-  color:var(--navy);background:#fff;
-  padding:5px 12px;border-radius:6px;
-  letter-spacing:.02em;line-height:1;
-  display:inline-block;text-transform:uppercase;
+.logo-title {
+  font-family:var(--ff);font-size:15px;font-weight:700;
+  color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px;
 }
+.logo-slogan {
+  font-family:var(--ff);font-size:11px;font-weight:600;
+  color:var(--gold);letter-spacing:.12em;
+  white-space:nowrap;text-transform:uppercase;font-style:italic;
+}
+@media(max-width:680px){.logo-mast{display:none}}
 
 /* COUNTRY SWITCHER */
 .country {position:relative}
 .country-btn {
   display:inline-flex;align-items:center;gap:8px;
   padding:8px 14px;background:var(--surf);border:1px solid var(--border);
-  border-radius:8px;cursor:pointer;
+  border-radius:0;cursor:pointer;
   font-family:var(--ff);font-size:13px;font-weight:600;color:var(--text);
   transition:.15s;
 }
@@ -147,14 +155,14 @@ section {padding:var(--section-pad);position:relative}
 .country-menu {
   display:none;position:absolute;top:calc(100% + 8px);right:0;
   background:var(--surf);border:1px solid var(--border);
-  border-radius:12px;padding:8px;min-width:340px;max-height:520px;overflow-y:auto;
-  box-shadow:0 16px 40px rgba(0,0,0,.40);z-index:11;
+  border-radius:0;padding:8px;min-width:340px;max-height:520px;overflow-y:auto;
+  box-shadow:0 16px 40px rgba(28,46,88,.18);z-index:11;
 }
 .country-menu.open {display:block}
 .cm-search-wrap {position:sticky;top:0;background:var(--surf);padding:6px 4px;margin-bottom:4px;border-bottom:1px solid var(--border);z-index:1}
 .cm-search {
   width:100%;padding:9px 12px;border:1px solid var(--border);
-  border-radius:7px;background:var(--bg-2);
+  border-radius:0;background:var(--bg-2);
   font-family:var(--ff);font-size:13px;color:var(--text);outline:none;transition:.15s;
 }
 .cm-search:focus {border-color:var(--gold);background:var(--bg)}
@@ -169,7 +177,7 @@ section {padding:var(--section-pad);position:relative}
   width:100%;text-align:left;
   padding:9px 12px;border:0;background:transparent;
   font-family:var(--ff);font-size:13px;font-weight:500;
-  color:var(--text);cursor:pointer;border-radius:7px;
+  color:var(--text);cursor:pointer;border-radius:0;
   transition:.12s;display:flex;align-items:center;gap:10px;justify-content:space-between;
 }
 .country-menu button:hover {background:var(--bg-2);color:var(--gold-bright)}
@@ -188,7 +196,7 @@ section {padding:var(--section-pad);position:relative}
   background:transparent;color:var(--t-3);
   font-family:var(--ff);font-size:10px;font-weight:600;
   letter-spacing:.10em;text-transform:uppercase;cursor:pointer;
-  border-radius:5px;transition:.15s;
+  border-radius:0;transition:.15s;
 }
 .lang button.on {background:var(--gold);color:var(--bg);border-color:var(--gold)}
 .lang button:hover:not(.on) {color:var(--text);border-color:var(--gold)}
@@ -200,7 +208,7 @@ section {padding:var(--section-pad);position:relative}
 .nav-cta {
   display:inline-flex;align-items:center;gap:8px;
   padding:11px 22px;background:var(--gold);
-  color:var(--bg);border-radius:8px;
+  color:var(--bg);border-radius:0;
   font-family:var(--ff);font-size:13px;font-weight:700;
   letter-spacing:.02em;transition:.18s;border:0;cursor:pointer;
   box-shadow:0 4px 14px rgba(160,126,42,.28);
@@ -211,22 +219,25 @@ section {padding:var(--section-pad);position:relative}
   box-shadow:0 6px 20px rgba(200,151,82,.40);
 }
 .mob-menu {display:none;background:0;border:0;color:var(--text);font-size:22px;cursor:pointer}
-@media(max-width:900px){
-  .nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:var(--surf);flex-direction:column;padding:24px;gap:18px;border-bottom:1px solid var(--border)}
+@media(max-width:1100px){.country-name{display:none}.nav-login{display:none}}
+@media(max-width:1380px){
+  .nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:var(--surf);flex-direction:column;padding:24px;gap:18px;border-bottom:1px solid var(--border);z-index:60}
   .nav-links.open{display:flex}
   .mob-menu{display:block}
-  .lang{display:none}
 }
+@media(max-width:980px){.lang{display:none}}
+@media(max-width:760px){.logo-slogan{display:none}}
 
 /* =========================================================
    HERO
    ========================================================= */
 .hero {
-  padding:180px 24px 120px;
+  padding:110px 24px 70px;
   text-align:center;
   position:relative;overflow:hidden;
   background:var(--bg);
 }
+@media(max-width:760px){.hero{padding:96px 16px 50px}}
 .hero::before {
   content:'';position:absolute;top:0;left:50%;
   transform:translateX(-50%);
@@ -240,12 +251,12 @@ section {padding:var(--section-pad);position:relative}
   background:radial-gradient(circle,rgba(160,126,42,.10) 0%,transparent 60%);
   pointer-events:none;
 }
-.hero-in {position:relative;z-index:2;max-width:920px;margin:0 auto}
+.hero-in {position:relative;z-index:2;max-width:880px;margin:0 auto}
 .hero-eyebrow {
   display:inline-flex;align-items:center;gap:12px;
   font-family:var(--fm);font-size:11px;font-weight:600;
-  color:var(--gold-bright);text-transform:uppercase;
-  letter-spacing:.16em;margin-bottom:32px;
+  color:var(--gold);text-transform:uppercase;
+  letter-spacing:.16em;margin-bottom:18px;
 }
 .hero-eyebrow::before,.hero-eyebrow::after {
   content:'';width:24px;height:1px;background:var(--gold);opacity:.50;
@@ -254,16 +265,17 @@ section {padding:var(--section-pad);position:relative}
   font-family:var(--ff);
   font-size:clamp(40px,6.5vw,76px);
   font-weight:800;
-  line-height:1.04;
-  letter-spacing:-2.5px;
-  margin:0 auto 28px;
-  max-width:920px;
-  color:var(--text);
+  line-height:1.05;
+  letter-spacing:-2px;
+  margin:0 auto 22px;
+  max-width:880px;
+  color:var(--navy);
 }
-.hero h1 .gold {color:var(--gold);font-weight:700}
+.hero h1 .navy {color:var(--navy)}
+.hero h1 .gold {color:var(--gold);font-weight:800}
 .hero-sub {
-  font-size:clamp(16px,1.7vw,19px);font-weight:400;
-  color:var(--t-2);max-width:680px;margin:0 auto 40px;
+  font-size:17px;
+  color:var(--t-2);max-width:640px;margin:0 auto 36px;
   line-height:1.65;
 }
 .hero-btns {
@@ -272,7 +284,7 @@ section {padding:var(--section-pad);position:relative}
 }
 .btn {
   display:inline-flex;align-items:center;gap:8px;
-  padding:15px 30px;border-radius:10px;
+  padding:15px 30px;border-radius:0;
   font-family:var(--ff);font-size:14px;font-weight:700;
   letter-spacing:.02em;cursor:pointer;border:0;
   transition:.18s;text-decoration:none;
@@ -314,29 +326,44 @@ section {padding:var(--section-pad);position:relative}
    STATS STRIP (subtle navy bandeau)
    ========================================================= */
 .stats {
-  background:var(--bg-2);
-  border-top:1px solid var(--border-2);
-  border-bottom:1px solid var(--border-2);
+  background:var(--navy);
   padding:64px 24px;
 }
 .stats-grid {
   max-width:var(--max);margin:0 auto;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
-  text-align:center;
+  display:grid;grid-template-columns:repeat(4,1fr);
 }
+.stats-grid > div {
+  padding:8px 32px;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+  border-left:1px solid rgba(255,255,255,.12);
+  text-align:left;
+}
+.stats-grid > div:first-child {border-left:0;padding-left:0}
 .stat-n {
   font-family:var(--ff);
-  font-size:clamp(34px,5vw,56px);
-  font-weight:800;letter-spacing:-1.5px;
-  line-height:1;color:var(--gold);
+  font-size:clamp(34px,4.5vw,54px);
+  font-weight:800;letter-spacing:-1.8px;
+  line-height:1;color:#fff;
 }
-.stat-n.danger {color:var(--danger)}
+.stat-n .gold {color:var(--gold-bright)}
+.stat-n.danger {color:#ff8484}
 .stat-l {
-  font-family:var(--ff);font-size:13px;
-  color:var(--t-2);margin-top:10px;
-  font-weight:500;letter-spacing:.02em;
+  font-family:var(--fm);font-size:11px;
+  color:rgba(255,255,255,.55);
+  margin-top:16px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
 }
-@media(max-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr);gap:28px}}
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:32px 0}
+  .stats-grid > div:nth-child(3){border-left:0;padding-left:0}
+  .stats-grid > div{padding:8px 24px}
+  .stats-grid > div:first-child{padding-left:0}
+}
+@media(max-width:540px){
+  .stats-grid{grid-template-columns:1fr;gap:0}
+  .stats-grid > div{border-left:0;border-top:1px solid rgba(255,255,255,.12);padding:24px 0 0}
+  .stats-grid > div:first-child{border-top:0;padding-top:0}
+}
 
 /* =========================================================
    SECTION HEADERS (uniformes)
@@ -368,7 +395,7 @@ section {padding:var(--section-pad);position:relative}
 .card {
   background:var(--surf);
   border:1px solid var(--border);
-  border-radius:var(--rad-card);
+  border-radius:0;
   padding:32px;
   transition:.25s;
   position:relative;overflow:hidden;
@@ -376,10 +403,10 @@ section {padding:var(--section-pad);position:relative}
 .card:hover {
   border-color:var(--gold);
   transform:translateY(-3px);
-  box-shadow:0 16px 40px rgba(0,0,0,.30);
+  box-shadow:0 16px 40px rgba(28,46,88,.15);
 }
 .card-icon {
-  width:48px;height:48px;border-radius:12px;
+  width:48px;height:48px;border-radius:0;
   background:var(--gold-soft);
   display:flex;align-items:center;justify-content:center;
   margin-bottom:20px;color:var(--gold);
@@ -390,7 +417,7 @@ section {padding:var(--section-pad);position:relative}
   font-family:var(--fm);font-size:10px;font-weight:600;
   letter-spacing:.10em;text-transform:uppercase;
   color:var(--danger);background:rgba(220,38,38,.10);
-  padding:4px 10px;border-radius:5px;
+  padding:4px 10px;border-radius:0;
   margin-bottom:10px;
 }
 .card h3 {
@@ -402,7 +429,7 @@ section {padding:var(--section-pad);position:relative}
   margin-top:16px;padding:12px 14px;
   background:var(--gold-soft);
   border:1px solid rgba(160,126,42,.25);
-  border-radius:8px;
+  border-radius:0;
   font-size:12.5px;color:var(--gold-bright);
   font-weight:500;line-height:1.5;
   display:flex;align-items:flex-start;gap:8px;
@@ -421,6 +448,60 @@ section {padding:var(--section-pad);position:relative}
 /* =========================================================
    NO-SHOW SECTION
    ========================================================= */
+/* =========================================================
+   DARK SECTIONS — rythme navy/or, rappel du logo
+   ========================================================= */
+.dark-sec,
+.noshow-sec.dark-sec,
+.intl-sec.dark-sec,
+.manifesto.dark-sec {
+  background:linear-gradient(135deg,var(--navy) 0%,#0a0a0a 100%) !important;
+  color:#fff;position:relative;overflow:hidden;
+}
+.dark-sec::before {
+  content:'';position:absolute;top:-200px;right:-100px;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(200,151,82,.18) 0%,transparent 60%);
+  filter:blur(40px);pointer-events:none;
+}
+.dark-sec .inner {position:relative;z-index:1}
+.dark-sec h1,.dark-sec h2,.dark-sec h3,.dark-sec h4,
+.dark-sec .s-title,.dark-sec .resto-h1 {color:#fff}
+.dark-sec .s-title .gold {color:var(--gold-bright)}
+.dark-sec .s-sub,
+.dark-sec p:not(.note) {color:rgba(255,255,255,.78)}
+.dark-sec .s-badge {
+  background:rgba(255,255,255,.06);
+  border-color:rgba(200,151,82,.35);
+  color:var(--gold-bright);
+}
+.dark-sec strong,
+.dark-sec p strong,
+.dark-sec .noshow-list li strong,
+.dark-sec ul li strong {color:#fff !important;font-weight:700}
+.dark-sec ul li,
+.dark-sec .noshow-list li {color:rgba(255,255,255,.85) !important}
+.dark-sec li svg {color:var(--gold-bright) !important}
+.dark-sec p {color:rgba(255,255,255,.85) !important}
+/* Cards à l'intérieur d'une dark-sec */
+.dark-sec .noshow-visual,
+.dark-sec .card {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.14);
+}
+.dark-sec .card h3 {color:#fff}
+.dark-sec .card p {color:rgba(255,255,255,.7)}
+.dark-sec .card-fix {
+  background:rgba(200,151,82,.10);
+  border-color:rgba(200,151,82,.30);
+  color:var(--gold-bright);
+}
+.dark-sec .nsl-n {color:#fff}
+.dark-sec .nsl-l {color:rgba(255,255,255,.55)}
+.dark-sec .noshow-list li {color:rgba(255,255,255,.85)}
+.dark-sec .noshow-stat-line {border-top-color:rgba(255,255,255,.12)}
+.dark-sec .noshow-big-l {color:rgba(255,255,255,.75)}
+
 .noshow-sec {background:var(--bg-2)}
 .noshow-grid {
   display:grid;grid-template-columns:1fr 1fr;gap:64px;
@@ -441,7 +522,7 @@ section {padding:var(--section-pad);position:relative}
 .noshow-visual {
   background:var(--surf);
   border:1px solid var(--border);
-  border-radius:var(--rad-card);
+  border-radius:0;
   padding:48px 40px;text-align:center;
   position:relative;overflow:hidden;
 }
@@ -485,9 +566,9 @@ section {padding:var(--section-pad);position:relative}
   max-width:1080px;margin:0 auto;
   background:var(--surf);
   border:1px solid var(--border);
-  border-radius:14px;overflow:hidden;
+  border-radius:0;overflow:hidden;
   display:grid;grid-template-columns:220px 1fr;
-  box-shadow:0 24px 64px rgba(0,0,0,.30);
+  box-shadow:0 24px 64px rgba(28,46,88,.15);
 }
 .dash-sidebar {
   background:var(--surf-2);
@@ -500,7 +581,7 @@ section {padding:var(--section-pad);position:relative}
 }
 .dash-nav-item {
   display:flex;align-items:center;gap:10px;
-  padding:9px 12px;border-radius:7px;
+  padding:9px 12px;border-radius:0;
   font-family:var(--ff);font-size:12px;font-weight:500;
   color:var(--t-2);margin-bottom:4px;
 }
@@ -516,7 +597,7 @@ section {padding:var(--section-pad);position:relative}
 .dash-topbar h3 {font-family:var(--ff);font-size:18px;font-weight:700;color:var(--text)}
 .dash-date {
   font-family:var(--fm);font-size:11px;color:var(--t-3);
-  background:var(--surf-2);padding:5px 12px;border-radius:6px;
+  background:var(--surf-2);padding:5px 12px;border-radius:0;
   border:1px solid var(--border);letter-spacing:.04em;
 }
 .dash-cards {
@@ -524,7 +605,7 @@ section {padding:var(--section-pad);position:relative}
 }
 .dash-card {
   background:var(--surf-2);border:1px solid var(--border);
-  border-radius:10px;padding:14px;
+  border-radius:0;padding:14px;
 }
 .dc-n {
   font-family:var(--ff);font-size:24px;font-weight:800;
@@ -536,7 +617,7 @@ section {padding:var(--section-pad);position:relative}
 }
 .dash-chart {
   background:var(--surf-2);border:1px solid var(--border);
-  border-radius:10px;padding:18px;
+  border-radius:0;padding:18px;
 }
 .dash-chart-l {
   font-family:var(--fm);font-size:10px;color:var(--t-3);
@@ -546,7 +627,7 @@ section {padding:var(--section-pad);position:relative}
 .dash-bar-col {flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%}
 .dash-bar-col span {font-family:var(--fm);font-size:9px;color:var(--t-3)}
 .dash-bar {
-  width:100%;border-radius:4px 4px 0 0;
+  width:100%;border-radius:0;
   background:var(--navy);opacity:.6;margin-top:auto;
 }
 .dash-bar.gold {background:var(--gold);opacity:.9}
@@ -563,7 +644,7 @@ section {padding:var(--section-pad);position:relative}
   display:inline-block;margin-top:16px;
   font-family:var(--fm);font-size:9px;font-weight:600;
   text-transform:uppercase;letter-spacing:.10em;
-  padding:4px 10px;border-radius:5px;
+  padding:4px 10px;border-radius:0;
   background:var(--gold-soft);color:var(--gold-bright);
   border:1px solid rgba(160,126,42,.25);
 }
@@ -582,7 +663,7 @@ section {padding:var(--section-pad);position:relative}
 }
 .intl-card {
   background:var(--surf);border:1px solid var(--border);
-  border-radius:14px;padding:24px;text-align:center;transition:.25s;
+  border-radius:0;padding:24px;text-align:center;transition:.25s;
 }
 .intl-card:hover {border-color:var(--gold);transform:translateY(-3px)}
 .intl-flag {font-size:42px;line-height:1;margin-bottom:12px}
@@ -629,7 +710,7 @@ section {padding:var(--section-pad);position:relative}
 .plan {
   background:var(--surf);
   border:1px solid var(--border);
-  border-radius:var(--rad-card);
+  border-radius:0;
   padding:40px 32px;
   position:relative;transition:.25s;
   display:flex;flex-direction:column;
@@ -637,7 +718,7 @@ section {padding:var(--section-pad);position:relative}
 .plan:hover {
   border-color:var(--gold);
   transform:translateY(-4px);
-  box-shadow:0 20px 48px rgba(0,0,0,.30);
+  box-shadow:0 20px 48px rgba(28,46,88,.15);
 }
 .plan.pop {
   border-color:transparent;
@@ -705,7 +786,7 @@ section {padding:var(--section-pad);position:relative}
 }
 .plan-feats li strong {color:var(--gold-bright);font-weight:600}
 .plan-btn {
-  display:block;width:100%;padding:14px;border-radius:10px;
+  display:block;width:100%;padding:14px;border-radius:0;
   font-family:var(--ff);font-size:14px;font-weight:700;
   text-align:center;transition:.18s;text-decoration:none;
   border:0;cursor:pointer;letter-spacing:.02em;
@@ -752,7 +833,7 @@ section {padding:var(--section-pad);position:relative}
   display:inline-block;
   background:var(--gold-soft);color:var(--gold-bright);
   font-family:var(--fm);font-size:10px;font-weight:700;
-  padding:2px 7px;border-radius:4px;
+  padding:2px 7px;border-radius:0;
   letter-spacing:.04em;
 }
 .dtab.on .dtab-save {background:rgba(15,22,32,.20);color:var(--bg)}
@@ -786,7 +867,7 @@ section {padding:var(--section-pad);position:relative}
   font-family:var(--fm);font-size:10px;font-weight:700;
   color:var(--danger);background:rgba(220,38,38,.12);
   border:1px solid rgba(220,38,38,.30);
-  padding:5px 10px;border-radius:5px;
+  padding:5px 10px;border-radius:0;
   letter-spacing:.10em;text-transform:uppercase;
   margin-bottom:18px;
 }
@@ -831,7 +912,7 @@ section {padding:var(--section-pad);position:relative}
 .mini-cta {
   display:inline-flex;align-items:center;gap:10px;
   padding:13px 26px;background:var(--gold);color:var(--bg);
-  border-radius:8px;font-family:var(--ff);font-size:14px;
+  border-radius:0;font-family:var(--ff);font-size:14px;
   font-weight:700;letter-spacing:.02em;text-decoration:none;transition:.18s;
   box-shadow:0 6px 18px rgba(160,126,42,.30);
 }
@@ -846,7 +927,7 @@ section {padding:var(--section-pad);position:relative}
 .mini-tier {
   background:rgba(255,255,255,.03);
   border:1px solid var(--border);
-  border-radius:12px;padding:18px 16px;
+  border-radius:0;padding:18px 16px;
 }
 .mini-tier.featured {
   background:var(--gold-soft);
@@ -919,7 +1000,7 @@ section {padding:var(--section-pad);position:relative}
 }
 .testi-avatar {
   width:42px;height:42px;border-radius:50%;
-  background:var(--navy);color:#fff;
+  background:var(--navy);color:var(--t-1);
   display:flex;align-items:center;justify-content:center;
   font-family:var(--ff);font-size:14px;font-weight:700;
   flex-shrink:0;
@@ -950,7 +1031,7 @@ section {padding:var(--section-pad);position:relative}
   max-width:900px;margin:0 auto;
   background:var(--surf);
   border:1px solid var(--border);
-  border-radius:var(--rad-card);
+  border-radius:0;
   padding:64px 32px;
   display:flex;align-items:center;gap:48px;
   position:relative;overflow:hidden;
@@ -1031,43 +1112,99 @@ section {padding:var(--section-pad);position:relative}
   padding:72px 24px 36px;
 }
 .footer-grid {
-  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr;gap:40px;
   max-width:var(--max);margin:0 auto;
 }
 .footer-brand .logo {margin-bottom:16px}
 .footer-brand p {
-  font-size:13px;color:var(--t-3);line-height:1.65;max-width:300px;
+  font-size:13px;color:var(--t-3);line-height:1.65;max-width:300px;margin-top:14px;
 }
 .footer-col h4 {
   font-family:var(--fm);font-size:10px;font-weight:600;
   text-transform:uppercase;letter-spacing:.16em;
-  color:var(--gold-bright);margin-bottom:18px;
+  color:var(--gold);margin-bottom:18px;
 }
+.footer-col.admin h4 {color:var(--t-2)}
+.footer-col.admin a {color:var(--t-3);font-size:12.5px}
+.footer-col.admin a:hover {color:var(--t-1)}
 .footer-col a {
   display:block;font-family:var(--ff);font-size:13px;
-  color:var(--t-2);margin-bottom:10px;transition:.15s;
+  color:var(--t-2);margin-bottom:10px;transition:.15s;text-decoration:none;
 }
-.footer-col a:hover {color:var(--gold)}
-.footer-social {display:flex;gap:10px;margin-top:20px}
-.footer-social a {
-  display:flex;align-items:center;justify-content:center;
-  width:38px;height:38px;border-radius:8px;
-  background:var(--surf);border:1px solid var(--border);
-  color:var(--t-2);transition:.2s;
-}
-.footer-social a:hover {color:var(--gold);border-color:var(--gold)}
+.footer-col a:hover {color:var(--navy)}
 .footer-bot {
-  max-width:var(--max);margin:48px auto 0;
-  padding-top:28px;border-top:1px solid var(--border-2);
-  display:flex;justify-content:space-between;align-items:center;
-  flex-wrap:wrap;gap:12px;
-  font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.04em;
+  max-width:var(--max);margin:40px auto 0;
+  padding-top:24px;border-top:1px solid var(--border);
+  display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;
+  font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em;line-height:1.7;
 }
+.footer-bot .corp {display:flex;flex-direction:column;gap:4px}
+.footer-bot .corp b {color:var(--t-2);font-weight:600;letter-spacing:.04em}
+.footer-bot .corp a {color:var(--t-3);text-decoration:none;border-bottom:1px dotted var(--t-3)}
+.footer-bot .corp a:hover {color:var(--navy);border-color:var(--navy)}
+.footer-bot .made {text-align:right;color:var(--t-3);white-space:nowrap}
+@media(max-width:1100px){.footer-grid{grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}.footer-grid > div:nth-child(5){grid-column:span 2}}
 @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:32px}}
-@media(max-width:640px){.footer-grid{grid-template-columns:1fr;gap:32px}.footer-bot{flex-direction:column;text-align:center}}
+@media(max-width:640px){.footer-grid{grid-template-columns:1fr;gap:32px}.footer-bot{grid-template-columns:1fr;text-align:left}.footer-bot .made{text-align:left;white-space:normal}}
 
 /* OVERRIDE for real PNG logo (replaces CSS-text version) */
 img.logo-mark { object-fit:cover; display:block; }
+
+/* Lang pills */
+.lang{display:flex;gap:2px;align-items:center}
+.lang button{
+  padding:5px 10px;border:1px solid var(--border);
+  background:transparent;color:var(--t-3);
+  font-family:var(--ff);font-size:10px;font-weight:700;
+  letter-spacing:.10em;text-transform:uppercase;
+  cursor:pointer;border-radius:0;transition:.15s;
+}
+.lang button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.lang button:hover:not(.on):not(.soon){color:var(--text);border-color:var(--navy)}
+.lang button.soon{opacity:.35;cursor:not-allowed;color:var(--t-3);border-style:dashed;position:relative}
+.lang button.soon::after{content:'·';position:absolute;top:-3px;right:3px;color:var(--gold);font-size:14px;font-weight:900}
+
+/* Country switcher */
+.country{position:relative}
+.country-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 12px;border:1px solid var(--border);
+  background:#fff;color:var(--t-1);border-radius:0;
+  font-family:var(--ff);font-size:13px;font-weight:600;
+  cursor:pointer;transition:.15s;
+}
+.country-btn:hover{border-color:var(--navy)}
+.country-flag{font-size:14px}
+.country-name{letter-spacing:.01em}
+@media(max-width:1280px){.country-name{display:none}}
+.country-menu{
+  display:none;position:absolute;top:calc(100% + 6px);right:0;
+  background:#fff;border:1px solid var(--border);
+  min-width:340px;max-height:560px;overflow-y:auto;
+  padding:8px;z-index:200;
+  box-shadow:0 18px 50px -10px rgba(28,46,88,.30);
+}
+.country-menu.open{display:block}
+.cm-search-wrap{padding:6px 6px 10px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.cm-search{
+  width:100%;padding:9px 12px;border:1px solid var(--border);
+  background:#fff;font-family:var(--ff);font-size:13px;outline:none;border-radius:0;
+}
+.cm-search:focus{border-color:var(--navy)}
+.country-section{
+  font-family:var(--fm);font-size:9.5px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--t-3);padding:10px 10px 4px;
+}
+.country-menu button{
+  display:flex;justify-content:space-between;align-items:center;width:100%;
+  padding:8px 10px;background:transparent;border:0;
+  font-family:var(--ff);font-size:13px;color:var(--t-1);
+  text-align:left;cursor:pointer;transition:.12s;
+}
+.country-menu button:hover{background:var(--bg-2)}
+.cm-lang{font-family:var(--fm);font-size:10px;color:var(--t-3);letter-spacing:.04em}
+
 </style>
 </head>
 <body>
@@ -1078,78 +1215,119 @@ img.logo-mark { object-fit:cover; display:block; }
 <nav class="nav" id="nav">
   <div class="nav-in">
     <a href="/" class="logo" aria-label="R3STO accueil">
-      <img class="logo-mark" src="logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
-      <span class="logo-wordmark">Pro</span>
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Espace Pro</span>
+        <span class="logo-slogan">restaurateurs&nbsp;indépendants</span>
+      </span>
     </a>
     <div class="nav-links" id="navLinks">
-      <a href="#fonctionnalites">Fonctionnalités</a>
-      <a href="#international">International</a>
+      <a href="/">Annuaire</a>
       <a href="#tarifs">Tarifs</a>
       <a href="#faq">FAQ</a>
-      <a href="https://app.r3sto.com" class="nav-login">Mon restaurant</a>
     </div>
     <div class="nav-right">
-      <div class="lang">
-        <button class="on" id="lang-en" onclick="setLang('en',this)">EN</button>
-        <button id="lang-fr" onclick="setLang('fr',this)">FR</button>
-        <button id="lang-de" onclick="setLang('de',this)">DE</button>
-        <button id="lang-it" onclick="setLang('it',this)">IT</button>
+      <div class="lang" id="langPills">
+        <button class="on" onclick="setLang('en',this)">EN</button>
+        <button onclick="setLang('fr',this)">FR</button>
+        <button onclick="setLang('de',this)">DE</button>
+        <button onclick="setLang('it',this)">IT</button>
       </div>
       <div class="country" id="countrySwitch">
-        <button class="country-btn" onclick="toggleCountry()">
+        <button class="country-btn" onclick="toggleCountry()" id="countryBtn">
           <span class="country-flag" id="countryFlag">🌍</span>
           <span class="country-name" id="countryName">Worldwide</span>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="country-menu" id="countryMenu">
-          <div class="cm-search-wrap"><input type="text" class="cm-search" placeholder="Search country..." oninput="filterCountries(this.value)"></div>
+          <div class="cm-search-wrap"><input type="text" class="cm-search" id="cmSearch" placeholder="Search country..." oninput="filterCountries(this.value)"></div>
           <div class="country-section">🌐 Global</div>
-          <button onclick="setCountry('ww',['en'])">🌍 Worldwide <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('ww')">🌍 Worldwide <span class="cm-lang">EN</span></button>
+
           <div class="country-section">🇪🇺 Europe</div>
-          <button onclick="setCountry('ch',['de','fr','it'])">🇨🇭 Switzerland <span class="cm-lang">DE · FR · IT · RM</span></button>
-          <button onclick="setCountry('fr',['fr'])">🇫🇷 France <span class="cm-lang">FR</span></button>
-          <button onclick="setCountry('de',['de'])">🇩🇪 Germany <span class="cm-lang">DE</span></button>
-          <button onclick="setCountry('it',['it'])">🇮🇹 Italy <span class="cm-lang">IT</span></button>
-          <button onclick="setCountry('at',['de'])">🇦🇹 Austria <span class="cm-lang">DE</span></button>
-          <button onclick="setCountry('be',['fr','de'])">🇧🇪 Belgium <span class="cm-lang">NL · FR · DE</span></button>
-          <button onclick="setCountry('lu',['fr','de'])">🇱🇺 Luxembourg <span class="cm-lang">LB · FR · DE</span></button>
-          <button onclick="setCountry('mc',['fr'])">🇲🇨 Monaco <span class="cm-lang">FR</span></button>
-          <button onclick="setCountry('li',['de'])">🇱🇮 Liechtenstein <span class="cm-lang">DE</span></button>
-          <button onclick="setCountry('nl',['en'])">🇳🇱 Netherlands <span class="cm-lang">NL · EN</span></button>
-          <button onclick="setCountry('es',['en'])">🇪🇸 Spain <span class="cm-lang">ES · EN</span></button>
-          <button onclick="setCountry('pt',['en'])">🇵🇹 Portugal <span class="cm-lang">PT · EN</span></button>
-          <button onclick="setCountry('uk',['en'])">🇬🇧 United Kingdom <span class="cm-lang">EN</span></button>
-          <button onclick="setCountry('ie',['en'])">🇮🇪 Ireland <span class="cm-lang">EN</span></button>
-          <button onclick="setCountry('dk',['en'])">🇩🇰 Denmark <span class="cm-lang">DA · EN</span></button>
-          <button onclick="setCountry('se',['en'])">🇸🇪 Sweden <span class="cm-lang">SV · EN</span></button>
-          <button onclick="setCountry('no',['en'])">🇳🇴 Norway <span class="cm-lang">NO · EN</span></button>
-          <button onclick="setCountry('fi',['en'])">🇫🇮 Finland <span class="cm-lang">FI · EN</span></button>
-          <button onclick="setCountry('pl',['en'])">🇵🇱 Poland <span class="cm-lang">PL · EN</span></button>
-          <button onclick="setCountry('cz',['en'])">🇨🇿 Czech Republic <span class="cm-lang">CS · EN</span></button>
-          <button onclick="setCountry('hu',['en'])">🇭🇺 Hungary <span class="cm-lang">HU · EN</span></button>
-          <button onclick="setCountry('ro',['en'])">🇷🇴 Romania <span class="cm-lang">RO · EN</span></button>
-          <button onclick="setCountry('gr',['en'])">🇬🇷 Greece <span class="cm-lang">EL · EN</span></button>
-          <button onclick="setCountry('tr',['en'])">🇹🇷 Turkey <span class="cm-lang">TR · EN</span></button>
+          <button onclick="setCountry('ch')">🇨🇭 Switzerland <span class="cm-lang">DE · FR · IT · RM</span></button>
+          <button onclick="setCountry('fr')">🇫🇷 France <span class="cm-lang">FR</span></button>
+          <button onclick="setCountry('de')">🇩🇪 Germany <span class="cm-lang">DE</span></button>
+          <button onclick="setCountry('it')">🇮🇹 Italy <span class="cm-lang">IT</span></button>
+          <button onclick="setCountry('at')">🇦🇹 Austria <span class="cm-lang">DE</span></button>
+          <button onclick="setCountry('be')">🇧🇪 Belgium <span class="cm-lang">NL · FR · DE</span></button>
+          <button onclick="setCountry('lu')">🇱🇺 Luxembourg <span class="cm-lang">LB · FR · DE</span></button>
+          <button onclick="setCountry('mc')">🇲🇨 Monaco <span class="cm-lang">FR</span></button>
+          <button onclick="setCountry('li')">🇱🇮 Liechtenstein <span class="cm-lang">DE</span></button>
+          <button onclick="setCountry('ad')">🇦🇩 Andorra <span class="cm-lang">CA · ES · FR</span></button>
+          <button onclick="setCountry('sm')">🇸🇲 San Marino <span class="cm-lang">IT</span></button>
+          <button onclick="setCountry('va')">🇻🇦 Vatican City <span class="cm-lang">IT · LA</span></button>
+          <button onclick="setCountry('nl')">🇳🇱 Netherlands <span class="cm-lang">NL · EN</span></button>
+          <button onclick="setCountry('es')">🇪🇸 Spain <span class="cm-lang">ES · CA · GL · EU</span></button>
+          <button onclick="setCountry('pt')">🇵🇹 Portugal <span class="cm-lang">PT</span></button>
+          <button onclick="setCountry('uk')">🇬🇧 United Kingdom <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('ie')">🇮🇪 Ireland <span class="cm-lang">EN · GA</span></button>
+          <button onclick="setCountry('dk')">🇩🇰 Denmark <span class="cm-lang">DA · EN</span></button>
+          <button onclick="setCountry('se')">🇸🇪 Sweden <span class="cm-lang">SV · EN</span></button>
+          <button onclick="setCountry('no')">🇳🇴 Norway <span class="cm-lang">NO · EN</span></button>
+          <button onclick="setCountry('fi')">🇫🇮 Finland <span class="cm-lang">FI · SV · EN</span></button>
+          <button onclick="setCountry('is')">🇮🇸 Iceland <span class="cm-lang">IS · EN</span></button>
+          <button onclick="setCountry('pl')">🇵🇱 Poland <span class="cm-lang">PL · EN</span></button>
+          <button onclick="setCountry('cz')">🇨🇿 Czech Republic <span class="cm-lang">CS · EN</span></button>
+          <button onclick="setCountry('sk')">🇸🇰 Slovakia <span class="cm-lang">SK · EN</span></button>
+          <button onclick="setCountry('hu')">🇭🇺 Hungary <span class="cm-lang">HU · EN</span></button>
+          <button onclick="setCountry('ro')">🇷🇴 Romania <span class="cm-lang">RO · EN</span></button>
+          <button onclick="setCountry('bg')">🇧🇬 Bulgaria <span class="cm-lang">BG · EN</span></button>
+          <button onclick="setCountry('gr')">🇬🇷 Greece <span class="cm-lang">EL · EN</span></button>
+          <button onclick="setCountry('hr')">🇭🇷 Croatia <span class="cm-lang">HR · EN</span></button>
+          <button onclick="setCountry('si')">🇸🇮 Slovenia <span class="cm-lang">SL · EN</span></button>
+          <button onclick="setCountry('rs')">🇷🇸 Serbia <span class="cm-lang">SR · EN</span></button>
+          <button onclick="setCountry('ee')">🇪🇪 Estonia <span class="cm-lang">ET · EN</span></button>
+          <button onclick="setCountry('lv')">🇱🇻 Latvia <span class="cm-lang">LV · EN</span></button>
+          <button onclick="setCountry('lt')">🇱🇹 Lithuania <span class="cm-lang">LT · EN</span></button>
+          <button onclick="setCountry('mt')">🇲🇹 Malta <span class="cm-lang">MT · EN</span></button>
+          <button onclick="setCountry('cy')">🇨🇾 Cyprus <span class="cm-lang">EL · EN</span></button>
+          <button onclick="setCountry('tr')">🇹🇷 Turkey <span class="cm-lang">TR · EN</span></button>
+
           <div class="country-section">🌎 North America</div>
-          <button onclick="setCountry('us',['en'])">🇺🇸 United States <span class="cm-lang">EN · ES</span></button>
-          <button onclick="setCountry('ca',['en','fr'])">🇨🇦 Canada <span class="cm-lang">EN · FR</span></button>
-          <button onclick="setCountry('mx',['en'])">🇲🇽 Mexico <span class="cm-lang">ES · EN</span></button>
+          <button onclick="setCountry('us')">🇺🇸 United States <span class="cm-lang">EN · ES</span></button>
+          <button onclick="setCountry('ca')">🇨🇦 Canada <span class="cm-lang">EN · FR</span></button>
+          <button onclick="setCountry('mx')">🇲🇽 Mexico <span class="cm-lang">ES · EN</span></button>
+
           <div class="country-section">🌎 South America</div>
-          <button onclick="setCountry('br',['en'])">🇧🇷 Brazil <span class="cm-lang">PT · EN</span></button>
-          <button onclick="setCountry('ar',['en'])">🇦🇷 Argentina <span class="cm-lang">ES · EN</span></button>
-          <div class="country-section">🌏 Asia &amp; ME</div>
-          <button onclick="setCountry('jp',['en'])">🇯🇵 Japan <span class="cm-lang">JA · EN</span></button>
-          <button onclick="setCountry('sg',['en'])">🇸🇬 Singapore <span class="cm-lang">EN</span></button>
-          <button onclick="setCountry('ae',['en'])">🇦🇪 UAE <span class="cm-lang">AR · EN</span></button>
+          <button onclick="setCountry('br')">🇧🇷 Brazil <span class="cm-lang">PT · EN</span></button>
+          <button onclick="setCountry('ar')">🇦🇷 Argentina <span class="cm-lang">ES · EN</span></button>
+          <button onclick="setCountry('cl')">🇨🇱 Chile <span class="cm-lang">ES · EN</span></button>
+          <button onclick="setCountry('co')">🇨🇴 Colombia <span class="cm-lang">ES · EN</span></button>
+          <button onclick="setCountry('pe')">🇵🇪 Peru <span class="cm-lang">ES · EN</span></button>
+
+          <div class="country-section">🌏 Asia &amp; Middle East</div>
+          <button onclick="setCountry('jp')">🇯🇵 Japan <span class="cm-lang">JA · EN</span></button>
+          <button onclick="setCountry('cn')">🇨🇳 China <span class="cm-lang">ZH · EN</span></button>
+          <button onclick="setCountry('kr')">🇰🇷 South Korea <span class="cm-lang">KO · EN</span></button>
+          <button onclick="setCountry('sg')">🇸🇬 Singapore <span class="cm-lang">EN · ZH · MS</span></button>
+          <button onclick="setCountry('hk')">🇭🇰 Hong Kong <span class="cm-lang">ZH · EN</span></button>
+          <button onclick="setCountry('th')">🇹🇭 Thailand <span class="cm-lang">TH · EN</span></button>
+          <button onclick="setCountry('vn')">🇻🇳 Vietnam <span class="cm-lang">VI · EN</span></button>
+          <button onclick="setCountry('id')">🇮🇩 Indonesia <span class="cm-lang">ID · EN</span></button>
+          <button onclick="setCountry('my')">🇲🇾 Malaysia <span class="cm-lang">MS · EN</span></button>
+          <button onclick="setCountry('ph')">🇵🇭 Philippines <span class="cm-lang">FIL · EN</span></button>
+          <button onclick="setCountry('in')">🇮🇳 India <span class="cm-lang">HI · EN</span></button>
+          <button onclick="setCountry('ae')">🇦🇪 UAE <span class="cm-lang">AR · EN</span></button>
+          <button onclick="setCountry('sa')">🇸🇦 Saudi Arabia <span class="cm-lang">AR · EN</span></button>
+          <button onclick="setCountry('il')">🇮🇱 Israel <span class="cm-lang">HE · EN</span></button>
+          <button onclick="setCountry('qa')">🇶🇦 Qatar <span class="cm-lang">AR · EN</span></button>
+
           <div class="country-section">🌍 Africa</div>
-          <button onclick="setCountry('ma',['fr'])">🇲🇦 Morocco <span class="cm-lang">AR · FR</span></button>
-          <button onclick="setCountry('tn',['fr'])">🇹🇳 Tunisia <span class="cm-lang">AR · FR</span></button>
+          <button onclick="setCountry('za')">🇿🇦 South Africa <span class="cm-lang">EN · ZU · AF</span></button>
+          <button onclick="setCountry('ma')">🇲🇦 Morocco <span class="cm-lang">AR · FR</span></button>
+          <button onclick="setCountry('eg')">🇪🇬 Egypt <span class="cm-lang">AR · EN</span></button>
+          <button onclick="setCountry('tn')">🇹🇳 Tunisia <span class="cm-lang">AR · FR</span></button>
+          <button onclick="setCountry('ke')">🇰🇪 Kenya <span class="cm-lang">EN · SW</span></button>
+          <button onclick="setCountry('ng')">🇳🇬 Nigeria <span class="cm-lang">EN</span></button>
+
           <div class="country-section">🌏 Oceania</div>
-          <button onclick="setCountry('au',['en'])">🇦🇺 Australia <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('au')">🇦🇺 Australia <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('nz')">🇳🇿 New Zealand <span class="cm-lang">EN · MI</span></button>
         </div>
       </div>
-      <a href="https://auth.r3sto.com/signup" class="nav-cta">Commencer</a>
-      <button class="mob-menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+      <a href="/login.html" class="nav-login">Connexion</a>
+      <a href="/pro-claim.html" class="nav-cta">Essayer 14j</a>
     </div>
   </div>
 </nav>
@@ -1273,7 +1451,7 @@ img.logo-mark { object-fit:cover; display:block; }
 <!-- =========================================================
      NO-SHOW DEDICATED SECTION
      ========================================================= -->
-<section class="noshow-sec">
+<section class="noshow-sec dark-sec">
   <div class="inner">
     <div class="noshow-grid">
       <div>
@@ -1481,12 +1659,12 @@ img.logo-mark { object-fit:cover; display:block; }
 <!-- =========================================================
      INTERNATIONAL (digitaliser les restaurants du monde)
      ========================================================= -->
-<section class="intl-sec" id="international">
+<section class="intl-sec dark-sec" id="international">
   <div class="inner">
     <div class="s-head">
       <div class="s-badge">🌍 Déployée dans 55+ pays</div>
-      <h2 class="s-title">Pensée en Suisse. <span class="gold">Pour les restaurateurs du monde.</span></h2>
-      <p class="s-sub" style="margin:0 auto">Notre mission : digitaliser les restaurants indépendants, partout. Notre plateforme parle 4 langues, gère plusieurs devises, et respecte les spécificités réglementaires de chaque pays.</p>
+      <h2 class="s-title">Une plateforme. <span class="gold">Tous les continents.</span></h2>
+      <p class="s-sub" style="margin:0 auto">Notre mission : digitaliser les restaurants indépendants, partout. La plateforme gère plusieurs devises, plusieurs langues, et s'adapte aux règles fiscales locales — du bistrot lyonnais à la trattoria milanaise, du sushiya tokyoïte à l'ostería madrilène.</p>
     </div>
     <div class="intl-grid">
       <article class="intl-card">
@@ -1523,32 +1701,32 @@ img.logo-mark { object-fit:cover; display:block; }
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
         <h3>4 langues d'interface</h3>
-        <p>Restaurateur et personnel utilisent l'app en FR, DE, IT ou EN. Réglage par utilisateur, support des langues nationales suisses (allemand, français, italien, romanche).</p>
+        <p>Restaurateur et personnel utilisent l'app en EN, FR, DE ou IT. Réglage par utilisateur. Autres langues régionales arrivent au fil des marchés.</p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
         <h3>Multi-devises</h3>
-        <p>CHF, EUR, GBP, USD et 25+ devises. Tarifs identiques en nominal partout (19 CHF = 19 €), aucune conversion appliquée — la valeur de la franc reste favorable au restaurateur local.</p>
+        <p>EUR, CHF, GBP, USD, JPY, AUD et 25+ devises. Affichage local pour vos clients, virements dans la devise de votre pays, conversion automatique transparente.</p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-        <h3>Conformité RGPD &amp; LPD</h3>
-        <p>Vos données et celles de vos clients sont hébergées en Suisse chez Infomaniak. Conformes au RGPD européen ET à la LPD suisse. Export et suppression à tout moment.</p>
+        <h3>Conformité RGPD &amp; locale</h3>
+        <p>Infrastructure européenne sécurisée, chiffrement de bout en bout. Conformité RGPD garantie + adaptation aux réglementations locales (LPD, GDPR, CCPA…). Export et suppression à tout moment.</p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-        <h3>Paiements Stripe locaux</h3>
-        <p>Acceptation Twint, cartes, Apple Pay, Google Pay, Klarna selon le pays. Frais transparents, virements directs vers votre IBAN local — pas de comptes intermédiaires.</p>
+        <h3>Paiements locaux Stripe</h3>
+        <p>Cartes, Apple Pay, Google Pay, Klarna, Twint, iDEAL, Bancontact, SEPA… selon votre pays. Frais transparents, virements directs sur votre IBAN local — aucun compte intermédiaire.</p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <h3>Conformité TVA automatique</h3>
-        <p>Taux de TVA appliqués automatiquement selon votre pays (8.1% CH, 10% FR pour la restauration, 19% DE, 10% IT). Factures conformes aux exigences fiscales locales.</p>
+        <h3>TVA automatique partout</h3>
+        <p>Taux fiscaux appliqués automatiquement selon votre pays — restauration : 10% (FR), 19% (DE), 10% (IT), 8.1% (CH), 21% (BE)… Factures conformes aux exigences locales.</p>
       </article>
       <article class="card">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-        <h3>Support 4 langues</h3>
-        <p>Équipe support en français, allemand, italien et anglais. Réponse en moins de 2h ouvrées. Documentation et tutoriels traduits dans les 4 langues.</p>
+        <h3>Support multilingue</h3>
+        <p>Équipe support en FR, DE, IT et EN. Réponse en moins de 2h ouvrées. Documentation et tutoriels disponibles dans les 4 langues principales.</p>
       </article>
     </div>
   </div>
@@ -1637,7 +1815,7 @@ img.logo-mark { object-fit:cover; display:block; }
 <!-- =========================================================
      MANIFESTO
      ========================================================= -->
-<section class="manifesto">
+<section class="manifesto dark-sec">
   <div class="inner">
     <div class="mani-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -1746,26 +1924,26 @@ img.logo-mark { object-fit:cover; display:block; }
 <section class="mini-band" id="mini">
   <div class="mini-band-in">
     <div class="mini-left">
-      <div class="mini-warn">⚠ Environnement séparé</div>
+      <div class="mini-warn" style="background:#fff8e8;color:var(--gold);border-color:#e6d090">◆ Pour les petits restaurants</div>
       <div class="mini-eyebrow">R3STO Mini · à partir de</div>
       <div class="mini-price">
         <span class="mini-amount">19</span>
         <span class="mini-unit">CHF / mois</span>
       </div>
-      <div class="mini-eng">Engagement 3 ans · app dédiée séparée</div>
+      <div class="mini-eng">Pour démarrer simple. <strong>Sans engagement long.</strong></div>
     </div>
     <div class="mini-mid">
-      <h3>Pas le même environnement que <span class="gold">Pro</span>.</h3>
-      <p><strong style="color:var(--gold-bright)">À lire avant de choisir.</strong> Mini est une <strong>app dédiée séparée</strong> de la plateforme Pro (Essentiel/Premium/Signature). Pensée pour démocratiser la digitalisation au prix le plus bas pour les petits restaurants qui n'ont besoin que du minimum.</p>
+      <h3>L'essentiel, pour <span class="gold">3× moins cher</span>.</h3>
+      <p><strong style="color:var(--gold-bright)">Mini est pensé pour les petits restaurants</strong> qui veulent l'essentiel sans payer pour des fonctions qu'ils n'utiliseront pas. Une app dédiée, plus légère, au prix le plus bas du marché.</p>
       <ul class="mini-notes">
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span><strong>Pas d'hébergement R3STO</strong> · vous gardez votre site actuel</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span><strong>Pas de site vitrine inclus</strong> · contrairement à Signature</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span><strong>Pas de plan de salle 2D</strong> · contrairement à Premium/Signature</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span><strong>Pas d'évolution gratuite vers Pro</strong> · plateformes distinctes</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <span><strong>Anti no-show Stripe</strong> à partir de Mini+</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <span><strong>Réservations directes</strong> · 0% commission, comme Pro</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <span><strong>Vue capacité temps réel</strong> · plus jamais de surbooking</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <span><strong>Multi-salles</strong> · gérez intérieur + terrasse</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <span><strong>Anti no-show Stripe</strong> dès le plan Mini+</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <span><strong>Migrez vers Pro</strong> quand vous voulez · accompagnement offert</span></li>
       </ul>
-      <a href="https://auth.r3sto.com/signup?plan=mini" class="mini-cta">
-        S'inscrire à Mini (19 CHF)
+      <a href="/pro-claim.html?plan=mini" class="mini-cta">
+        Démarrer avec Mini · 14 j gratuits
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
       </a>
     </div>
@@ -1774,10 +1952,10 @@ img.logo-mark { object-fit:cover; display:block; }
         <div class="mini-tier-n">Mini</div>
         <div class="mini-tier-p">19 <span>CHF/mois</span></div>
         <ul>
-          <li>Vue résa + capacity</li>
+          <li>Réservations directes</li>
+          <li>Capacité temps réel</li>
           <li>1 utilisateur</li>
           <li>Multi-salles</li>
-          <li>Engagement 3 ans</li>
         </ul>
       </div>
       <div class="mini-tier featured">
@@ -1972,40 +2150,48 @@ img.logo-mark { object-fit:cover; display:block; }
   <div class="footer-grid">
     <div class="footer-brand">
       <a href="/" class="logo">
-        <img class="logo-mark" src="logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
-        <span class="logo-text">R3STO <span>Pro</span></span>
+        <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
       </a>
-      <p>Plateforme SaaS suisse de gestion pour restaurants. Réservations, plan de salle, CRM, prépaiement Stripe. 0 % commission, hébergée en Suisse.</p>
-      <div class="footer-social">
-        <a href="https://www.linkedin.com/company/r3sto" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
-        <a href="https://www.instagram.com/r3sto.ch" target="_blank" rel="noopener" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
-        <a href="https://www.youtube.com/@r3sto" target="_blank" rel="noopener" aria-label="YouTube"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
-      </div>
+      <p>Plateforme SaaS suisse de gestion pour restaurants indépendants. Réservations directes, plan de salle, CRM, paiements Stripe. 0 % commission, hébergée en Suisse.</p>
     </div>
     <div class="footer-col">
-      <h4>Produit</h4>
+      <h4>Découvrir</h4>
+      <a href="/">Annuaire</a>
+      <a href="/recherche.html">Tous les restaurants</a>
+      <a href="/#carat">Label Carat ◆</a>
+      <a href="/about.html">À propos R3STO</a>
+    </div>
+    <div class="footer-col">
+      <h4>R3STO Pro</h4>
       <a href="#fonctionnalites">Fonctionnalités</a>
       <a href="#tarifs">Tarifs</a>
-      <a href="/mini">R3STO Mini</a>
-      <a href="https://demo.r3sto.com">Démo</a>
+      <a href="/pro-claim.html">Revendiquer ma fiche</a>
+      <a href="mailto:pro@r3sto.com">pro@r3sto.com</a>
     </div>
-    <div class="footer-col">
-      <h4>Accès</h4>
-      <a href="https://auth.r3sto.com/signup">Créer un compte</a>
-      <a href="https://app.r3sto.com">Mon restaurant</a>
-      <a href="https://r3sto.com">Annuaire</a>
-    </div>
-    <div class="footer-col">
+    <div class="footer-col admin">
       <h4>Légal</h4>
-      <a href="/legal/cgu.html">CGU</a>
-      <a href="/legal/confidentialite.html">Confidentialité</a>
-      <a href="/legal/mentions.html">Mentions légales</a>
+      <a href="/legal.html#cgu">Conditions générales</a>
+      <a href="/legal.html#privacy">Confidentialité &amp; RGPD</a>
+      <a href="/legal.html#cookies">Cookies</a>
+      <a href="/legal.html#mentions">Mentions légales</a>
+    </div>
+    <div class="footer-col admin">
+      <h4>Société</h4>
+      <a href="https://innoptim.ch" target="_blank" rel="noopener">Innoptim SA</a>
+      <a href="/about.html">Notre histoire</a>
+      <a href="mailto:press@r3sto.com">Presse</a>
       <a href="mailto:contact@r3sto.com">contact@r3sto.com</a>
     </div>
   </div>
   <div class="footer-bot">
-    <div>© 2026 Innoptim SA · Le Mont-sur-Lausanne · Suisse</div>
-    <div>Fait en Suisse · Hébergé par Infomaniak</div>
+    <div class="corp">
+      <span>© 2026 <a href="https://innoptim.ch" target="_blank" rel="noopener"><b>Innoptim SA</b></a> · Société éditrice de R3STO</span>
+      <span>Avenue d'Echallens 21, Lausanne (VD) — Suisse · IDE <b>CHE-430.441.925</b> · TVA non assujettie</span>
+    </div>
+    <div class="made">
+      🇨🇭 Fait en Suisse<br>
+      Hébergé par Infomaniak · 100 % énergie renouvelable
+    </div>
   </div>
 </footer>
 
@@ -2123,6 +2309,450 @@ function renderPrices(){
     if(billEl) billEl.textContent = 'Facturation annuelle · ' + tot + ' CHF / ' + durLbl;
   });
 }
+/* Langues nationales par pays (ordre = priorité, 1re = langue principale).
+   Inclut TOUTES les langues officielles, même celles non encore traduites. */
+const SUPPORTED_LANGS = ['en','fr','de','it'];
+const COUNTRY_LANGS = {
+  ww:['en','fr','de','it'],
+  ch:['de','fr','it','rm','en'],
+  fr:['fr','en'],
+  de:['de','en'],
+  it:['it','en'],
+  at:['de','en'],
+  be:['nl','fr','de','en'],
+  lu:['lb','fr','de','en'],
+  mc:['fr','en'],
+  li:['de','en'],
+  ad:['ca','fr','es','en'],
+  sm:['it','en'],
+  va:['it','la','en'],
+  nl:['nl','en'],
+  es:['es','ca','gl','eu','en'],
+  pt:['pt','en'],
+  uk:['en'],
+  ie:['en','ga'],
+  dk:['da','en'], se:['sv','en'], no:['no','en'], fi:['fi','sv','en'], is:['is','en'],
+  pl:['pl','en'], cz:['cs','en'], sk:['sk','en'], hu:['hu','en'], ro:['ro','en'],
+  bg:['bg','en'], gr:['el','en'], hr:['hr','en'], si:['sl','en'], rs:['sr','en'],
+  ee:['et','en'], lv:['lv','en'], lt:['lt','en'], mt:['mt','en'], cy:['el','tr','en'], tr:['tr','en'],
+  us:['en','es'], ca:['en','fr'], mx:['es','en'],
+  br:['pt','en'], ar:['es','en'], cl:['es','en'], co:['es','en'], pe:['es','en'],
+  jp:['ja','en'], cn:['zh','en'], kr:['ko','en'], sg:['en','zh'], hk:['zh','en'],
+  th:['th','en'], vn:['vi','en'], id:['id','en'], my:['ms','en'], ph:['en','tl'],
+  in:['hi','en'], ae:['ar','en'], sa:['ar','en'], il:['he','en','ar'], qa:['ar','en'],
+  za:['en'], ma:['ar','fr','en'], eg:['ar','en'], tn:['ar','fr','en'], ke:['en','sw'], ng:['en'],
+  au:['en'], nz:['en']
+};
+function renderLangPills(countryCode){
+  const langs = COUNTRY_LANGS[countryCode] || ['en','fr','de','it'];
+  const wrap = document.getElementById('langPills');
+  if(!wrap) return;
+  // 1re langue supportée = défaut actif
+  const firstActive = langs.find(l => SUPPORTED_LANGS.includes(l)) || 'en';
+  wrap.innerHTML = langs.map(l => {
+    const isSupp = SUPPORTED_LANGS.includes(l);
+    const isActive = l === firstActive;
+    if(isSupp){
+      return `<button class="${isActive?'on':''}" onclick="setLang('${l}',this)">${l.toUpperCase()}</button>`;
+    } else {
+      return `<button class="soon" title="${l.toUpperCase()} bientôt disponible" onclick="event.stopPropagation();this.blur();">${l.toUpperCase()}</button>`;
+    }
+  }).join('');
+  // Active la première langue supportée
+  if(typeof autoLang === 'function') autoLang(firstActive);
+}
+function autoLang(code){
+  // Stub sur /pro.html — page mono-langue (i18n complète viendra plus tard)
+  document.documentElement.lang = code;
+  document.querySelectorAll('.lang button').forEach(b => b.classList.remove('on'));
+  const t = Array.from(document.querySelectorAll('.lang button')).find(b => b.textContent.trim().toLowerCase() === code);
+  if(t) t.classList.add('on');
+  return;
+}
+
+// Close country menu on outside click
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.country')){
+    document.getElementById('countryMenu').classList.remove('open');
+  }
+});
+
+/* ──────────────────────────────────────────────────────────
+   SEARCH — redirige vers /recherche.html avec query params
+   ────────────────────────────────────────────────────────── */
+function doSearch(e){
+  e.preventDefault();
+  const nom  = (document.getElementById('searchName').value || '').trim();
+  const plat = (document.getElementById('searchDish').value || '').trim();
+  const lieu = (document.getElementById('searchLoc').value  || '').trim();
+  const params = new URLSearchParams();
+  if(nom)  params.set('nom', nom);
+  if(plat) params.set('plat', plat);
+  if(lieu) params.set('lieu', lieu);
+  if(CUR_LANG) params.set('lang', CUR_LANG);
+  // Pays seulement si aucun lieu (lieu prime)
+  if(!lieu && CUR_COUNTRY && CUR_COUNTRY !== 'ww') params.set('pays', CUR_COUNTRY);
+  if(!nom && !plat && !lieu){
+    window.location.href = '/recherche.html';
+    return false;
+  }
+  window.location.href = '/recherche.html?' + params.toString();
+  return false;
+}
+
+/* =========================================================
+   LANGUAGE SWITCHER (basique, prototype)
+   ========================================================= */
+const TR = {
+  en: {
+    'search.what':'What dish or restaurant?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Where?',
+    'search.where.ph':'Lausanne, Geneva, Zurich, Paris…',
+    'search.cta':'Search',
+    eyebrow:'The international gourmet guide',
+    h1:'Discover the <span class="navy">best</span><br>restaurants <span id="heroScope">worldwide</span>.',
+    sub:'The directory that highlights independent restaurateurs. Book online directly, without hidden commission, supporting the establishment.',
+  },
+  fr: {
+    'search.what':'Quel plat ou restaurant ?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Où ?',
+    'search.where.ph':'Lausanne, Genève, Zürich, Paris…',
+    'search.cta':'Chercher',
+    eyebrow:'Le guide gourmand international',
+    h1:'Découvrez les <span class="navy">meilleurs</span><br>restaurants <span id="heroScope">du monde</span>.',
+    sub:'L\'annuaire qui met en avant les restaurateurs indépendants. Réservez en ligne directement, sans commission cachée.',
+  },
+  de: {
+    'search.what':'Welches Gericht oder Restaurant?',
+    'search.what.ph':'Pizza, Sushi, Le Petit Boeuf…',
+    'search.where':'Wo?',
+    'search.where.ph':'Lausanne, Genf, Zürich, Berlin…',
+    'search.cta':'Suchen',
+    eyebrow:'Der internationale Gourmet-Guide',
+    h1:'Entdecken Sie die <span class="navy">besten</span><br>Restaurants <span id="heroScope">weltweit</span>.',
+    sub:'Das Verzeichnis, das unabhängige Gastronomen ins Rampenlicht stellt. Direkt online reservieren, ohne versteckte Provisionen.',
+  },
+  it: {
+    'search.what':'Quale piatto o ristorante?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Dove?',
+    'search.where.ph':'Lugano, Milano, Roma, Lausanne…',
+    'search.cta':'Cerca',
+    eyebrow:'La guida gourmet internazionale',
+    h1:'Scopri i <span class="navy">migliori</span><br>ristoranti <span id="heroScope">del mondo</span>.',
+    sub:'L\'elenco che mette in luce i ristoratori indipendenti. Prenota online direttamente, senza commissioni nascoste.',
+  }
+};
+
+
+function toggleCountry(){
+  document.getElementById('countryMenu').classList.toggle('open');
+}
+/* Map des données rapides : flag, nom, langue, stats par défaut pour pays non détaillés */
+const COUNTRY_INFO = {
+  // EU détaillés sont dans COUNTRIES déjà
+  li:{flag:'🇱🇮',name:'Liechtenstein',lang:'de',n:'180+'},
+  ad:{flag:'🇦🇩',name:'Andorra',lang:'fr',n:'220+'},
+  sm:{flag:'🇸🇲',name:'San Marino',lang:'it',n:'150+'},
+  va:{flag:'🇻🇦',name:'Vatican City',lang:'it',n:'25+'},
+  dk:{flag:'🇩🇰',name:'Denmark',lang:'en',n:'18K+'},
+  se:{flag:'🇸🇪',name:'Sweden',lang:'en',n:'28K+'},
+  no:{flag:'🇳🇴',name:'Norway',lang:'en',n:'14K+'},
+  fi:{flag:'🇫🇮',name:'Finland',lang:'en',n:'12K+'},
+  is:{flag:'🇮🇸',name:'Iceland',lang:'en',n:'1.4K+'},
+  pl:{flag:'🇵🇱',name:'Poland',lang:'en',n:'85K+'},
+  cz:{flag:'🇨🇿',name:'Czech Republic',lang:'en',n:'42K+'},
+  sk:{flag:'🇸🇰',name:'Slovakia',lang:'en',n:'18K+'},
+  hu:{flag:'🇭🇺',name:'Hungary',lang:'en',n:'24K+'},
+  ro:{flag:'🇷🇴',name:'Romania',lang:'en',n:'32K+'},
+  bg:{flag:'🇧🇬',name:'Bulgaria',lang:'en',n:'14K+'},
+  gr:{flag:'🇬🇷',name:'Greece',lang:'en',n:'46K+'},
+  hr:{flag:'🇭🇷',name:'Croatia',lang:'en',n:'12K+'},
+  si:{flag:'🇸🇮',name:'Slovenia',lang:'en',n:'6K+'},
+  rs:{flag:'🇷🇸',name:'Serbia',lang:'en',n:'10K+'},
+  ee:{flag:'🇪🇪',name:'Estonia',lang:'en',n:'2.8K+'},
+  lv:{flag:'🇱🇻',name:'Latvia',lang:'en',n:'3.2K+'},
+  lt:{flag:'🇱🇹',name:'Lithuania',lang:'en',n:'4.6K+'},
+  mt:{flag:'🇲🇹',name:'Malta',lang:'en',n:'1.8K+'},
+  cy:{flag:'🇨🇾',name:'Cyprus',lang:'en',n:'4.2K+'},
+  tr:{flag:'🇹🇷',name:'Turkey',lang:'en',n:'180K+'},
+  // North America
+  mx:{flag:'🇲🇽',name:'Mexico',lang:'en',n:'420K+'},
+  // South America
+  br:{flag:'🇧🇷',name:'Brazil',lang:'en',n:'380K+'},
+  ar:{flag:'🇦🇷',name:'Argentina',lang:'en',n:'120K+'},
+  cl:{flag:'🇨🇱',name:'Chile',lang:'en',n:'42K+'},
+  co:{flag:'🇨🇴',name:'Colombia',lang:'en',n:'62K+'},
+  pe:{flag:'🇵🇪',name:'Peru',lang:'en',n:'38K+'},
+  // Asia/ME
+  jp:{flag:'🇯🇵',name:'Japan',lang:'en',n:'620K+'},
+  cn:{flag:'🇨🇳',name:'China',lang:'en',n:'4.5M+'},
+  kr:{flag:'🇰🇷',name:'South Korea',lang:'en',n:'320K+'},
+  sg:{flag:'🇸🇬',name:'Singapore',lang:'en',n:'14K+'},
+  hk:{flag:'🇭🇰',name:'Hong Kong',lang:'en',n:'18K+'},
+  th:{flag:'🇹🇭',name:'Thailand',lang:'en',n:'180K+'},
+  vn:{flag:'🇻🇳',name:'Vietnam',lang:'en',n:'95K+'},
+  id:{flag:'🇮🇩',name:'Indonesia',lang:'en',n:'140K+'},
+  my:{flag:'🇲🇾',name:'Malaysia',lang:'en',n:'52K+'},
+  ph:{flag:'🇵🇭',name:'Philippines',lang:'en',n:'72K+'},
+  in:{flag:'🇮🇳',name:'India',lang:'en',n:'480K+'},
+  ae:{flag:'🇦🇪',name:'UAE',lang:'en',n:'18K+'},
+  sa:{flag:'🇸🇦',name:'Saudi Arabia',lang:'en',n:'32K+'},
+  il:{flag:'🇮🇱',name:'Israel',lang:'en',n:'14K+'},
+  qa:{flag:'🇶🇦',name:'Qatar',lang:'en',n:'4.8K+'},
+  // Africa
+  za:{flag:'🇿🇦',name:'South Africa',lang:'en',n:'48K+'},
+  ma:{flag:'🇲🇦',name:'Morocco',lang:'en',n:'32K+'},
+  eg:{flag:'🇪🇬',name:'Egypt',lang:'en',n:'62K+'},
+  tn:{flag:'🇹🇳',name:'Tunisia',lang:'en',n:'14K+'},
+  ke:{flag:'🇰🇪',name:'Kenya',lang:'en',n:'18K+'},
+  ng:{flag:'🇳🇬',name:'Nigeria',lang:'en',n:'42K+'},
+  // Oceania
+  au:{flag:'🇦🇺',name:'Australia',lang:'en',n:'95K+'},
+  nz:{flag:'🇳🇿',name:'New Zealand',lang:'en',n:'18K+'}
+};
+function makeFallback(code){
+  const info = COUNTRY_INFO[code];
+  if(!info) return null;
+  return {
+    flag:info.flag, name:info.name, scope:'in '+info.name, lang:info.lang,
+    stat1:info.n, stat1l:'Restaurants in '+info.name,
+    stat2:'—',  stat2l:'Cities',
+    stat3:'—',  stat3l:'Regions',
+    stat4:'100%', stat4l:'Independent',
+    trust1n:'+'+Math.max(50,Math.round(parseInt(info.n)/30))+(info.n.includes('M')?'K':''),
+    trust1l:'bookings / day',
+    trust3n:info.n, trust3l:'restaurants'
+  };
+}
+
+/* Filter countries by name */
+function filterCountries(q){
+  const query = q.toLowerCase().trim();
+  document.querySelectorAll('.country-menu button').forEach(btn => {
+    if(btn.classList.contains('country-section')) return;
+    const text = btn.textContent.toLowerCase();
+    btn.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
+  document.querySelectorAll('.country-section').forEach(s => {
+    // Find next sibling buttons until next section, show section if any button visible
+    let next = s.nextElementSibling;
+    let anyVisible = false;
+    while(next && !next.classList.contains('country-section')){
+      if(next.tagName === 'BUTTON' && next.style.display !== 'none') anyVisible = true;
+      next = next.nextElementSibling;
+    }
+    s.style.display = (!query || anyVisible) ? '' : 'none';
+  });
+}
+
+let CUR_COUNTRY = 'ww';
+let CUR_LANG = 'en';
+/* Scope multilingue par pays */
+const SCOPE_TR = {
+  en: {ww:'worldwide', ch:'in Switzerland', fr:'in France', de:'in Germany', it:'in Italy',
+       at:'in Austria', be:'in Belgium', lu:'in Luxembourg', mc:'in Monaco', li:'in Liechtenstein',
+       nl:'in the Netherlands', es:'in Spain', pt:'in Portugal', uk:'in the UK', ie:'in Ireland',
+       us:'in the USA', ca:'in Canada', mx:'in Mexico', dk:'in Denmark', se:'in Sweden',
+       no:'in Norway', fi:'in Finland', is:'in Iceland', pl:'in Poland', cz:'in Czech Republic',
+       hu:'in Hungary', ro:'in Romania', gr:'in Greece', tr:'in Turkey', jp:'in Japan',
+       sg:'in Singapore', ae:'in UAE', ma:'in Morocco', tn:'in Tunisia', au:'in Australia',
+       br:'in Brazil', ar:'in Argentina', cl:'in Chile', cn:'in China', kr:'in Korea',
+       hk:'in Hong Kong', th:'in Thailand', vn:'in Vietnam', id:'in Indonesia', my:'in Malaysia',
+       ph:'in the Philippines', in:'in India', sa:'in Saudi Arabia', il:'in Israel', qa:'in Qatar',
+       za:'in South Africa', eg:'in Egypt', ke:'in Kenya', ng:'in Nigeria', nz:'in New Zealand'},
+  fr: {ww:'du monde', ch:'en Suisse', fr:'en France', de:'en Allemagne', it:'en Italie',
+       at:'en Autriche', be:'en Belgique', lu:'au Luxembourg', mc:'à Monaco', li:'au Liechtenstein',
+       nl:'aux Pays-Bas', es:'en Espagne', pt:'au Portugal', uk:'au Royaume-Uni', ie:'en Irlande',
+       us:'aux États-Unis', ca:'au Canada', mx:'au Mexique', dk:'au Danemark', se:'en Suède',
+       no:'en Norvège', fi:'en Finlande', is:'en Islande', pl:'en Pologne', cz:'en Tchéquie',
+       hu:'en Hongrie', ro:'en Roumanie', gr:'en Grèce', tr:'en Turquie', jp:'au Japon',
+       sg:'à Singapour', ae:'aux Émirats', ma:'au Maroc', tn:'en Tunisie', au:'en Australie',
+       br:'au Brésil', ar:'en Argentine', cl:'au Chili', cn:'en Chine', kr:'en Corée',
+       hk:'à Hong Kong', th:'en Thaïlande', vn:'au Vietnam', id:'en Indonésie', my:'en Malaisie',
+       ph:'aux Philippines', in:'en Inde', sa:'en Arabie Saoudite', il:'en Israël', qa:'au Qatar',
+       za:'en Afrique du Sud', eg:'en Égypte', ke:'au Kenya', ng:'au Nigeria', nz:'en Nouvelle-Zélande'},
+  de: {ww:'weltweit', ch:'in der Schweiz', fr:'in Frankreich', de:'in Deutschland', it:'in Italien',
+       at:'in Österreich', be:'in Belgien', lu:'in Luxemburg', mc:'in Monaco', li:'in Liechtenstein',
+       nl:'in den Niederlanden', es:'in Spanien', pt:'in Portugal', uk:'im Vereinigten Königreich',
+       ie:'in Irland', us:'in den USA', ca:'in Kanada', mx:'in Mexiko'},
+  it: {ww:'nel mondo', ch:'in Svizzera', fr:'in Francia', de:'in Germania', it:'in Italia',
+       at:'in Austria', be:'in Belgio', lu:'in Lussemburgo', mc:'a Monaco', li:'in Liechtenstein',
+       nl:'nei Paesi Bassi', es:'in Spagna', pt:'in Portogallo', uk:'nel Regno Unito',
+       ie:'in Irlanda', us:'negli Stati Uniti', ca:'in Canada', mx:'in Messico'}
+};
+function renderHeroScope(){
+  const sp = document.getElementById('heroScope');
+  if(!sp) return;
+  const tr = SCOPE_TR[CUR_LANG] || SCOPE_TR.en;
+  sp.textContent = tr[CUR_COUNTRY] || tr.ww || 'worldwide';
+}
+
+function setCountry(code){
+  const c = COUNTRIES[code] || makeFallback(code);
+  if(!c) return;
+  CUR_COUNTRY = code;
+  document.getElementById('countryFlag').textContent = c.flag;
+  document.getElementById('countryName').textContent = c.name;
+  document.getElementById('countryMenu').classList.remove('open');
+  // Update stats
+  document.getElementById('stat1').textContent = c.stat1;
+  document.getElementById('stat1l').textContent = c.stat1l;
+  document.getElementById('stat2').textContent = c.stat2;
+  document.getElementById('stat2l').textContent = c.stat2l;
+  document.getElementById('stat3').textContent = c.stat3;
+  document.getElementById('stat3l').textContent = c.stat3l;
+  document.getElementById('stat4').textContent = c.stat4;
+  document.getElementById('stat4l').textContent = c.stat4l;
+  // Update hero scope multilingue
+  renderHeroScope();
+  // Update trust bar
+  document.getElementById('trust1n').textContent = c.trust1n;
+  document.getElementById('trust1l').textContent = c.trust1l;
+  document.getElementById('trust3n').textContent = c.trust3n;
+  document.getElementById('trust3l').textContent = c.trust3l;
+  // Pills langues nationales
+  renderLangPills(code);
+}
+/* Langues nationales par pays (ordre = priorité, 1re = langue principale).
+   Inclut TOUTES les langues officielles, même celles non encore traduites. */
+const SUPPORTED_LANGS = ['en','fr','de','it'];
+const COUNTRY_LANGS = {
+  ww:['en','fr','de','it'],
+  ch:['de','fr','it','rm','en'],
+  fr:['fr','en'],
+  de:['de','en'],
+  it:['it','en'],
+  at:['de','en'],
+  be:['nl','fr','de','en'],
+  lu:['lb','fr','de','en'],
+  mc:['fr','en'],
+  li:['de','en'],
+  ad:['ca','fr','es','en'],
+  sm:['it','en'],
+  va:['it','la','en'],
+  nl:['nl','en'],
+  es:['es','ca','gl','eu','en'],
+  pt:['pt','en'],
+  uk:['en'],
+  ie:['en','ga'],
+  dk:['da','en'], se:['sv','en'], no:['no','en'], fi:['fi','sv','en'], is:['is','en'],
+  pl:['pl','en'], cz:['cs','en'], sk:['sk','en'], hu:['hu','en'], ro:['ro','en'],
+  bg:['bg','en'], gr:['el','en'], hr:['hr','en'], si:['sl','en'], rs:['sr','en'],
+  ee:['et','en'], lv:['lv','en'], lt:['lt','en'], mt:['mt','en'], cy:['el','tr','en'], tr:['tr','en'],
+  us:['en','es'], ca:['en','fr'], mx:['es','en'],
+  br:['pt','en'], ar:['es','en'], cl:['es','en'], co:['es','en'], pe:['es','en'],
+  jp:['ja','en'], cn:['zh','en'], kr:['ko','en'], sg:['en','zh'], hk:['zh','en'],
+  th:['th','en'], vn:['vi','en'], id:['id','en'], my:['ms','en'], ph:['en','tl'],
+  in:['hi','en'], ae:['ar','en'], sa:['ar','en'], il:['he','en','ar'], qa:['ar','en'],
+  za:['en'], ma:['ar','fr','en'], eg:['ar','en'], tn:['ar','fr','en'], ke:['en','sw'], ng:['en'],
+  au:['en'], nz:['en']
+};
+function renderLangPills(countryCode){
+  const langs = COUNTRY_LANGS[countryCode] || ['en','fr','de','it'];
+  const wrap = document.getElementById('langPills');
+  if(!wrap) return;
+  // 1re langue supportée = défaut actif
+  const firstActive = langs.find(l => SUPPORTED_LANGS.includes(l)) || 'en';
+  wrap.innerHTML = langs.map(l => {
+    const isSupp = SUPPORTED_LANGS.includes(l);
+    const isActive = l === firstActive;
+    if(isSupp){
+      return `<button class="${isActive?'on':''}" onclick="setLang('${l}',this)">${l.toUpperCase()}</button>`;
+    } else {
+      return `<button class="soon" title="${l.toUpperCase()} bientôt disponible" onclick="event.stopPropagation();this.blur();">${l.toUpperCase()}</button>`;
+    }
+  }).join('');
+  // Active la première langue supportée
+  if(typeof autoLang === 'function') autoLang(firstActive);
+}
+function autoLang(code){
+  // Stub sur /pro.html — page mono-langue (i18n complète viendra plus tard)
+  document.documentElement.lang = code;
+  document.querySelectorAll('.lang button').forEach(b => b.classList.remove('on'));
+  const t = Array.from(document.querySelectorAll('.lang button')).find(b => b.textContent.trim().toLowerCase() === code);
+  if(t) t.classList.add('on');
+  return;
+}
+
+// Close country menu on outside click
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.country')){
+    document.getElementById('countryMenu').classList.remove('open');
+  }
+});
+
+/* ──────────────────────────────────────────────────────────
+   SEARCH — redirige vers /recherche.html avec query params
+   ────────────────────────────────────────────────────────── */
+function doSearch(e){
+  e.preventDefault();
+  const nom  = (document.getElementById('searchName').value || '').trim();
+  const plat = (document.getElementById('searchDish').value || '').trim();
+  const lieu = (document.getElementById('searchLoc').value  || '').trim();
+  const params = new URLSearchParams();
+  if(nom)  params.set('nom', nom);
+  if(plat) params.set('plat', plat);
+  if(lieu) params.set('lieu', lieu);
+  if(CUR_LANG) params.set('lang', CUR_LANG);
+  // Pays seulement si aucun lieu (lieu prime)
+  if(!lieu && CUR_COUNTRY && CUR_COUNTRY !== 'ww') params.set('pays', CUR_COUNTRY);
+  if(!nom && !plat && !lieu){
+    window.location.href = '/recherche.html';
+    return false;
+  }
+  window.location.href = '/recherche.html?' + params.toString();
+  return false;
+}
+
+/* =========================================================
+   LANGUAGE SWITCHER (basique, prototype)
+   ========================================================= */
+const TR = {
+  en: {
+    'search.what':'What dish or restaurant?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Where?',
+    'search.where.ph':'Lausanne, Geneva, Zurich, Paris…',
+    'search.cta':'Search',
+    eyebrow:'The international gourmet guide',
+    h1:'Discover the <span class="navy">best</span><br>restaurants <span id="heroScope">worldwide</span>.',
+    sub:'The directory that highlights independent restaurateurs. Book online directly, without hidden commission, supporting the establishment.',
+  },
+  fr: {
+    'search.what':'Quel plat ou restaurant ?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Où ?',
+    'search.where.ph':'Lausanne, Genève, Zürich, Paris…',
+    'search.cta':'Chercher',
+    eyebrow:'Le guide gourmand international',
+    h1:'Découvrez les <span class="navy">meilleurs</span><br>restaurants <span id="heroScope">du monde</span>.',
+    sub:'L\'annuaire qui met en avant les restaurateurs indépendants. Réservez en ligne directement, sans commission cachée.',
+  },
+  de: {
+    'search.what':'Welches Gericht oder Restaurant?',
+    'search.what.ph':'Pizza, Sushi, Le Petit Boeuf…',
+    'search.where':'Wo?',
+    'search.where.ph':'Lausanne, Genf, Zürich, Berlin…',
+    'search.cta':'Suchen',
+    eyebrow:'Der internationale Gourmet-Guide',
+    h1:'Entdecken Sie die <span class="navy">besten</span><br>Restaurants <span id="heroScope">weltweit</span>.',
+    sub:'Das Verzeichnis, das unabhängige Gastronomen ins Rampenlicht stellt. Direkt online reservieren, ohne versteckte Provisionen.',
+  },
+  it: {
+    'search.what':'Quale piatto o ristorante?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Dove?',
+    'search.where.ph':'Lugano, Milano, Roma, Lausanne…',
+    'search.cta':'Cerca',
+    eyebrow:'La guida gourmet internazionale',
+    h1:'Scopri i <span class="navy">migliori</span><br>ristoranti <span id="heroScope">del mondo</span>.',
+    sub:'L\'elenco che mette in luce i ristoratori indipendenti. Prenota online direttamente, senza commissioni nascoste.',
+  }
+};
+
 </script>
 </body>
 </html>

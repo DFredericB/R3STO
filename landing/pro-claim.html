@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Revendiquer mon restaurant — R3STO Pro</title>
+<meta name="theme-color" content="#1c2e58">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--bg-2:#e3ebf5;--surf:#ffffff;
+  --navy:#1c2e58;--navy-2:#13224a;
+  --gold:#a07e2a;--gold-soft:#c89752;
+  --t-1:#0c1730;--t-2:#4a5878;--t-3:#7b88a8;
+  --border:#d6dfee;--max:920px;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+
+.nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+.nav-out{font-size:13px;color:var(--t-2);text-decoration:none;font-weight:500}
+
+/* WIZARD */
+.wrap{max-width:var(--max);margin:0 auto;padding:28px 20px 60px}
+@media(min-width:760px){.wrap{padding:40px 28px 80px}}
+.steps{display:flex;gap:8px;margin-bottom:28px}
+.step{flex:1;padding:8px 0;border-top:3px solid var(--border);font-family:var(--fm);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t-3)}
+.step.on{border-top-color:var(--gold);color:var(--navy)}
+.step.done{border-top-color:#1b3a2e;color:#1b3a2e}
+
+.card{background:var(--surf);border:1px solid var(--border);padding:28px 24px;margin-bottom:14px}
+@media(min-width:560px){.card{padding:32px 32px}}
+.eyebrow{font-family:var(--fm);font-size:10.5px;font-weight:700;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px;display:block}
+.h1{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--navy);margin:0 0 10px;line-height:1.15}
+.sub{font-size:14.5px;color:var(--t-2);margin:0 0 22px;line-height:1.55}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11.5px;font-weight:600;color:var(--t-3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+.field input,.field textarea,.field select{
+  width:100%;padding:12px 14px;border:1px solid var(--border);
+  background:#fff;font-family:var(--ff);font-size:14.5px;color:var(--t-1);
+  border-radius:0;outline:none;transition:.15s;
+}
+.field textarea{resize:vertical;min-height:80px}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--navy)}
+.row{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:560px){.row{grid-template-columns:1fr 1fr}}
+.btn-row{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+.btn{padding:14px 26px;border-radius:0;font-size:13.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;border:1px solid;font-family:var(--ff);transition:.18s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-primary:hover{background:var(--gold);border-color:var(--gold)}
+.btn-ghost{background:transparent;color:var(--t-2);border-color:var(--border)}
+.btn-ghost:hover{color:var(--navy);border-color:var(--navy)}
+
+/* SEARCH résultats Google */
+.results{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.result{
+  display:flex;align-items:center;gap:14px;padding:12px 14px;
+  background:#fff;border:1px solid var(--border);cursor:pointer;transition:.15s;
+}
+.result:hover{border-color:var(--navy);background:#fcfdff}
+.result.on{border-color:var(--gold);background:#fff8e8}
+.result-thumb{width:48px;height:48px;background-size:cover;background-position:center;flex-shrink:0}
+.result-body{flex:1;min-width:0}
+.result-name{font-size:14.5px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.result-addr{font-size:12.5px;color:var(--t-3);font-family:var(--fm)}
+.result-meta{font-size:11px;color:var(--t-2);margin-top:3px}
+.result-meta b{color:var(--gold);font-weight:700}
+.result-pick{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:right}
+.result.on .result-pick::before{content:'✓ '}
+
+/* AUTOFILL preview */
+.autofill-card{
+  background:linear-gradient(135deg,var(--navy) 0%,#0a0a0a 100%);
+  color:#fff;padding:24px 24px 20px;margin-bottom:14px;
+}
+.autofill-card .title{
+  font-family:var(--fm);font-size:11px;font-weight:700;
+  color:var(--gold-soft);letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px;
+}
+.autofill-card h3{font-size:20px;font-weight:800;margin:0 0 4px;color:#fff;letter-spacing:-.01em}
+.autofill-card .addr{font-family:var(--fm);font-size:12.5px;color:rgba(255,255,255,.7);margin-bottom:18px}
+.autofill-items{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:560px){.autofill-items{grid-template-columns:1fr 1fr}}
+.autofill-item{
+  display:flex;align-items:flex-start;gap:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  padding:12px 14px;
+}
+.autofill-item .ok{color:var(--gold-soft);font-weight:700;flex-shrink:0;width:14px;font-size:15px;line-height:1.2}
+.autofill-item .k{font-size:10.5px;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;font-family:var(--fm);margin-bottom:2px;font-weight:600}
+.autofill-item .v{font-size:13.5px;color:#fff;font-weight:500}
+
+/* CHECKLIST validation */
+.checklist{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.check-item{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;
+  background:#fff;border:1px solid var(--border);cursor:pointer;
+}
+.check-item:hover{border-color:var(--navy)}
+.check-item input{width:20px;height:20px;cursor:pointer;accent-color:var(--navy);flex-shrink:0}
+.check-item .lbl{flex:1;font-size:14px;font-weight:600;color:var(--navy)}
+.check-item .meta{font-size:12px;color:var(--t-3);font-family:var(--fm)}
+
+/* VERIF */
+.verif-card{background:#fff8e8;border:1px solid #e6d090;padding:20px 22px;margin-top:14px;display:flex;gap:14px;align-items:flex-start}
+.verif-card .ic{font-size:22px;color:var(--gold)}
+.verif-card .body{flex:1}
+.verif-card h4{font-size:14px;font-weight:700;color:var(--navy);margin:0 0 4px}
+.verif-card p{font-size:13px;color:var(--t-2);margin:0;line-height:1.5}
+
+/* SUCCESS */
+.success-card{
+  background:linear-gradient(135deg,#1b3a2e 0%,#0a2820 100%);
+  color:#fff;padding:48px 32px;text-align:center;
+}
+.success-card .ic{
+  width:60px;height:60px;background:var(--gold-soft);color:#0a2820;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:30px;font-weight:800;margin:0 auto 18px;
+}
+.success-card h2{font-size:28px;margin:0 0 8px;color:#fff;letter-spacing:-.02em}
+.success-card p{font-size:15px;color:rgba(255,255,255,.85);margin:0 0 22px;line-height:1.55}
+.success-card .btn-primary{background:var(--gold);border-color:var(--gold)}
+.success-card .btn-primary:hover{background:var(--gold-soft);border-color:var(--gold-soft)}
+
+[hidden]{display:none !important}
+
+footer{background:var(--bg-2);border-top:1px solid var(--border);padding:24px 28px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em;margin-top:40px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">R3STO Pro</span>
+        <span class="logo-slogan">claim&nbsp;your&nbsp;restaurant</span>
+      </span>
+    </a>
+    <a href="/" class="nav-out">← Retour annuaire</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- Wizard progress -->
+  <div class="steps">
+    <div class="step on" id="s1">1 · Trouver</div>
+    <div class="step" id="s2">2 · Auto-remplir</div>
+    <div class="step" id="s3">3 · Valider</div>
+    <div class="step" id="s4">4 · Vérifier</div>
+  </div>
+
+  <!-- ============ STEP 1 : Search ============ -->
+  <div class="card" id="step1">
+    <span class="eyebrow">Étape 1 · 30 sec</span>
+    <h1 class="h1">Trouvez votre restaurant</h1>
+    <p class="sub">Tapez le nom et la ville de votre établissement. Nous le reconnaîtrons sur Google Places, OpenStreetMap et notre annuaire R3STO.</p>
+
+    <div class="field">
+      <label>Nom du restaurant</label>
+      <input type="text" id="qName" placeholder="ex: Chez Bunny's" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Ville</label>
+      <input type="text" id="qCity" placeholder="ex: Lausanne" autocomplete="off">
+    </div>
+
+    <div class="btn-row">
+      <a href="/" class="btn btn-ghost">← Annuler</a>
+      <button class="btn btn-primary" onclick="searchResto()">Rechercher →</button>
+    </div>
+
+    <div class="results" id="searchResults" hidden></div>
+  </div>
+
+  <!-- ============ STEP 2 : Auto-fill preview ============ -->
+  <div class="card" id="step2" hidden>
+    <span class="eyebrow">Étape 2 · 0 sec</span>
+    <h1 class="h1">On a tout pré-rempli pour vous</h1>
+    <p class="sub">Voici ce que nous avons importé depuis Google Places. Vérifiez et passez à l'étape suivante — vous pourrez tout éditer ensuite.</p>
+
+    <div class="autofill-card">
+      <div class="title">⚡ Importé · Google Places API</div>
+      <h3 id="afName">Chez Bunny's</h3>
+      <div class="addr" id="afAddr">Avenue d'Echallens 21, Lausanne</div>
+
+      <div class="autofill-items">
+        <div class="autofill-item">
+          <span class="ok">✓</span>
+          <div><div class="k">Téléphone</div><div class="v" id="afPhone">+41 21 654 12 12</div></div>
+        </div>
+        <div class="autofill-item">
+          <span class="ok">✓</span>
+          <div><div class="k">Site web</div><div class="v" id="afWeb">www.chez-bunnys.ch</div></div>
+        </div>
+        <div class="autofill-item">
+          <span class="ok">✓</span>
+          <div><div class="k">Horaires d'ouverture</div><div class="v">7 jours, mardi–dimanche 11h30–22h30</div></div>
+        </div>
+        <div class="autofill-item">
+          <span class="ok">✓</span>
+          <div><div class="k">Type de cuisine</div><div class="v">Bistro · française moderne</div></div>
+        </div>
+        <div class="autofill-item">
+          <span class="ok">✓</span>
+          <div><div class="k">Photos</div><div class="v">8 photos importées</div></div>
+        </div>
+        <div class="autofill-item">
+          <span class="ok">✓</span>
+          <div><div class="k">Note Google</div><div class="v">4.6 / 5 · 87 avis</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="back(1)">← Changer de resto</button>
+      <button class="btn btn-primary" onclick="next(3)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- ============ STEP 3 : Validation checklist ============ -->
+  <div class="card" id="step3" hidden>
+    <span class="eyebrow">Étape 3 · 2 min</span>
+    <h1 class="h1">Validez les 5 informations clés</h1>
+    <p class="sub">Cochez chaque case après vérification. Vous pourrez tout enrichir plus tard depuis votre tableau de bord Pro.</p>
+
+    <div class="checklist">
+      <label class="check-item"><input type="checkbox" required> <div class="lbl">Adresse correcte</div><div class="meta">Route de Lausanne 12</div></label>
+      <label class="check-item"><input type="checkbox" required> <div class="lbl">Téléphone à jour</div><div class="meta">+41 21 654 12 12</div></label>
+      <label class="check-item"><input type="checkbox" required> <div class="lbl">Horaires d'ouverture exacts</div><div class="meta">Modifiable plus tard</div></label>
+      <label class="check-item"><input type="checkbox" required> <div class="lbl">Photos OK à afficher</div><div class="meta">8 photos Google</div></label>
+      <label class="check-item"><input type="checkbox" required> <div class="lbl">Je suis propriétaire ou gérant autorisé</div><div class="meta">Engagement R3STO Pro</div></label>
+    </div>
+
+    <div class="field" style="margin-top:22px">
+      <label>IBAN pour recevoir les paiements (optionnel maintenant)</label>
+      <input type="text" placeholder="CH00 0000 0000 0000 0000 0">
+    </div>
+
+    <div class="field">
+      <label>Plan choisi</label>
+      <select>
+        <option>Mini · 19 CHF / mois — essai 14j gratuit</option>
+        <option>Mini+ · 29 CHF / mois</option>
+        <option selected>Essentiel · 39 CHF / mois (recommandé)</option>
+        <option>Premium · 59 CHF / mois</option>
+        <option>Signature · 79 CHF / mois (site web inclus)</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="back(2)">← Retour</button>
+      <button class="btn btn-primary" onclick="next(4)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- ============ STEP 4 : Verification ============ -->
+  <div class="card" id="step4" hidden>
+    <span class="eyebrow">Étape 4 · Vérification</span>
+    <h1 class="h1">Confirmons que c'est bien vous</h1>
+    <p class="sub">Pour protéger les restaurateurs, nous vérifions chaque revendication. Choisissez votre méthode :</p>
+
+    <div class="checklist">
+      <label class="check-item" style="border-color:var(--gold);background:#fff8e8">
+        <input type="radio" name="verif" checked style="width:20px;height:20px">
+        <div class="lbl">📞 Appel automatique sur le téléphone du restaurant<br><span style="font-weight:400;color:var(--t-2);font-size:12.5px">+41 21 654 12 12 — vous recevez un code à 4 chiffres en 30 sec</span></div>
+        <div class="meta">Recommandé</div>
+      </label>
+      <label class="check-item">
+        <input type="radio" name="verif" style="width:20px;height:20px">
+        <div class="lbl">✉ Code envoyé sur l'email professionnel<br><span style="font-weight:400;color:var(--t-2);font-size:12.5px">contact@chez-bunnys.ch (récupéré depuis Google)</span></div>
+        <div class="meta">2 min</div>
+      </label>
+      <label class="check-item">
+        <input type="radio" name="verif" style="width:20px;height:20px">
+        <div class="lbl">📬 Courrier postal avec code<br><span style="font-weight:400;color:var(--t-2);font-size:12.5px">Envoyé à l'adresse du restaurant</span></div>
+        <div class="meta">3–5 j ouvrés</div>
+      </label>
+    </div>
+
+    <div class="verif-card">
+      <div class="ic">🔒</div>
+      <div class="body">
+        <h4>Pourquoi cette étape ?</h4>
+        <p>R3STO Pro ne laisse personne d'autre que vous toucher à votre fiche. Cette vérification permet d'éviter qu'un concurrent (ou un mauvais plaisantin) ne revendique votre établissement à votre place.</p>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="back(3)">← Retour</button>
+      <button class="btn btn-primary" onclick="finish()">Lancer la vérification →</button>
+    </div>
+  </div>
+
+  <!-- ============ SUCCESS ============ -->
+  <div class="success-card" id="successCard" hidden>
+    <div class="ic">✓</div>
+    <h2>Vérification lancée</h2>
+    <p>Vous allez recevoir un appel automatique d'ici 30 secondes au <b style="color:var(--gold-soft)">+41 21 654 12 12</b>.<br>Saisissez le code à 4 chiffres pour activer votre fiche R3STO Pro.</p>
+    <a href="/pro-dashboard.html" class="btn btn-primary">Accéder à mon tableau de bord →</a>
+  </div>
+
+</div>
+
+<footer>© 2026 Innoptim SA · R3STO Pro · Sans commission, jamais</footer>
+
+<script>
+// Démo : 3 résultats mockés selon la recherche
+const MOCK_RESULTS = [
+  { slug:'chez-bunnys', name:"Chez Bunny's", addr:'Avenue d'Echallens 21, Lausanne', rating:'4.6 / 87 avis', img:'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=200&q=80',
+    phone:'+41 21 654 12 12', web:'www.chez-bunnys.ch' },
+  { slug:'chez-bunnys-2', name:"Chez Bunny's Take-away", addr:'Av. de la Gare 5, 1003 Lausanne', rating:'4.3 / 32 avis', img:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&q=80',
+    phone:'+41 21 312 00 11', web:'—' },
+  { slug:'bunny-bistro', name:'Bunny Bistro Genève', addr:'Rue du Mont-Blanc 18, 1201 Genève', rating:'4.4 / 56 avis', img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=80',
+    phone:'+41 22 311 22 33', web:'www.bunny-geneva.ch' }
+];
+
+let selected = null;
+
+function searchResto(){
+  const name = document.getElementById('qName').value.trim();
+  if(!name){ alert('Saisissez au moins le nom.'); return; }
+  const box = document.getElementById('searchResults');
+  box.innerHTML = MOCK_RESULTS.map((r,i) => `
+    <div class="result" onclick="pickResto(${i},this)">
+      <div class="result-thumb" style="background-image:url('${r.img}')"></div>
+      <div class="result-body">
+        <div class="result-name">${r.name}</div>
+        <div class="result-addr">${r.addr}</div>
+        <div class="result-meta">⭐ <b>${r.rating}</b></div>
+      </div>
+      <div class="result-pick">Sélectionner</div>
+    </div>
+  `).join('') + `
+    <div style="text-align:center;padding:12px;font-size:12.5px;color:var(--t-3)">
+      Mon resto n'apparaît pas ? <a href="javascript:void(0)" onclick="addManual()" style="color:var(--gold);font-weight:600">Ajouter manuellement →</a>
+    </div>`;
+  box.hidden = false;
+}
+
+function pickResto(i, el){
+  document.querySelectorAll('.result').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  selected = MOCK_RESULTS[i];
+  // Pré-remplit l'auto-fill card avec les données du resto choisi
+  document.getElementById('afName').textContent = selected.name;
+  document.getElementById('afAddr').textContent = selected.addr;
+  document.getElementById('afPhone').textContent = selected.phone;
+  document.getElementById('afWeb').textContent = selected.web;
+  setTimeout(() => next(2), 600);
+}
+
+function addManual(){
+  selected = { name:document.getElementById('qName').value, addr:'À compléter', phone:'—', web:'—' };
+  document.getElementById('afName').textContent = selected.name;
+  document.getElementById('afAddr').textContent = 'À compléter manuellement';
+  document.getElementById('afPhone').textContent = '—';
+  document.getElementById('afWeb').textContent = '—';
+  next(2);
+}
+
+function next(n){
+  for(let i=1;i<=4;i++){
+    document.getElementById('step'+i).hidden = i !== n;
+    const s = document.getElementById('s'+i);
+    s.classList.toggle('on', i === n);
+    s.classList.toggle('done', i < n);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function back(n){ next(n); }
+
+function finish(){
+  // Sur step 4 → success
+  ['step1','step2','step3','step4'].forEach(id => document.getElementById(id).hidden = true);
+  document.querySelectorAll('.step').forEach(s => { s.classList.remove('on'); s.classList.add('done'); });
+  document.getElementById('successCard').hidden = false;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

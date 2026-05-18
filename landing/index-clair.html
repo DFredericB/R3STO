@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R3STO — L'annuaire des restaurants suisses · réservez en ligne</title>
+<meta name="description" content="Découvrez les meilleurs restaurants de Suisse. Réservez en ligne sans commission. R3STO, le guide gourmand qui valorise les restaurateurs.">
+<meta property="og:title" content="R3STO — L'annuaire gourmand suisse">
+<meta property="og:description" content="Découvrez et réservez les meilleurs restaurants suisses sur R3STO. Sans commission cachée.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://r3sto.com">
+<meta property="og:locale" content="fr_CH">
+<link rel="canonical" href="https://r3sto.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* {margin:0;padding:0;box-sizing:border-box}
+
+/* =========================================================
+   R3STO CLAIR · annuaire B2C
+   Palette navy clair (off-white bleuté + navy bleu nuit + or)
+   ========================================================= */
+:root {
+  --bg:#eef3fa;            /* off-white plus saturé navy-tint */
+  --bg-2:#e1e9f4;
+  --surf:#ffffff;
+  --surf-2:#f6f9fc;
+
+  --text:#0f1a30;          /* navy très foncé pour body */
+  --t-2:#475a78;
+  --t-3:#7a8aa3;
+
+  --border:#dde4ee;
+  --border-2:#c4ceda;
+
+  --navy:#1c2e58;          /* logo bleu nuit · seul thème où il apparaît */
+  --navy-dark:#142447;
+  --navy-soft:#e4eaf4;
+
+  --gold:#a07e2a;
+  --gold-bright:#7d6220;
+  --gold-soft:#fdf5e0;
+
+  --danger:#dc2626;
+  --dot:#10b981;
+
+  --ff:'DM Sans',-apple-system,system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+
+  --max:1200px;
+  --rad:14px;
+  --rad-card:16px;
+}
+html {scroll-behavior:smooth}
+body {
+  font-family:var(--ff);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  font-weight:400;
+}
+a {color:var(--navy);text-decoration:none;transition:.15s}
+a:hover {color:var(--navy-dark)}
+img {max-width:100%;display:block}
+section {padding:96px 24px;position:relative}
+.inner {max-width:var(--max);margin:0 auto}
+
+/* =========================================================
+   NAV
+   ========================================================= */
+.nav {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(244,247,251,.86);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-in {
+  max-width:var(--max);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:72px;padding:0 28px;
+}
+.logo {display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-mark {
+  width:44px;height:44px;border-radius:8px;
+  background:var(--navy);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff);font-weight:800;font-size:11px;letter-spacing:1.2px;
+  flex-shrink:0;
+}
+.logo-text {
+  font-family:var(--ff);font-weight:800;font-size:18px;
+  color:var(--text);letter-spacing:-.3px;
+}
+.logo-text span {color:var(--gold);font-weight:600}
+.nav-links {display:flex;gap:30px;align-items:center}
+.nav-links a {
+  color:var(--t-2);font-size:13px;font-weight:500;
+  letter-spacing:.01em;
+}
+.nav-links a:hover {color:var(--navy)}
+.nav-right {display:flex;align-items:center;gap:14px}
+.nav-pro {
+  font-family:var(--fm);font-size:11px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;letter-spacing:.14em;
+  border:1px solid var(--gold);padding:9px 14px;border-radius:6px;
+  transition:.18s;
+}
+.nav-pro:hover {background:var(--gold-soft);color:var(--gold-bright)}
+.nav-cta {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 22px;background:var(--gold);color:#fff;
+  border-radius:8px;font-family:var(--ff);font-size:13px;font-weight:700;
+  letter-spacing:.02em;transition:.18s;border:0;cursor:pointer;
+  box-shadow:0 6px 16px rgba(160,126,42,.26);
+}
+.nav-cta:hover {
+  background:var(--gold-bright);color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(125,98,32,.36);
+}
+.mob-menu {display:none;background:0;border:0;color:var(--text);font-size:22px;cursor:pointer}
+
+/* COUNTRY SWITCHER */
+.country {position:relative}
+.country-btn {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 14px;background:var(--surf);border:1px solid var(--border);
+  border-radius:8px;cursor:pointer;
+  font-family:var(--ff);font-size:13px;font-weight:600;color:var(--text);
+  transition:.15s;
+}
+.country-btn:hover {border-color:var(--navy);color:var(--navy)}
+.country-flag {font-size:16px;line-height:1}
+.country-name {letter-spacing:.01em}
+.country-menu {
+  display:none;position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:12px;padding:8px;min-width:280px;max-height:480px;overflow-y:auto;
+  box-shadow:0 16px 40px rgba(28,46,88,.16);z-index:10;
+}
+.country-menu.open {display:block}
+.country-section {
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;letter-spacing:.14em;
+  padding:10px 12px 6px;border-top:1px solid var(--border);
+  margin-top:4px;
+}
+.country-section:first-child {border-top:0;margin-top:0;padding-top:6px}
+.country-menu button {
+  width:100%;text-align:left;
+  padding:9px 12px;border:0;background:transparent;
+  font-family:var(--ff);font-size:13px;font-weight:500;
+  color:var(--text);cursor:pointer;border-radius:7px;
+  transition:.12s;display:flex;align-items:center;gap:10px;
+  justify-content:space-between;
+}
+.country-menu button:hover {background:var(--bg-2);color:var(--navy)}
+.cm-lang {
+  font-family:var(--fm);font-size:10px;font-weight:500;
+  color:var(--t-3);letter-spacing:.06em;
+}
+@media(max-width:1100px){.country-name{display:none}}
+@media(max-width:900px){
+  .nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:var(--surf);flex-direction:column;padding:24px;gap:18px;border-bottom:1px solid var(--border)}
+  .nav-links.open{display:flex}
+  .mob-menu{display:block}
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero {
+  padding:180px 24px 100px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.hero::before {
+  content:'';position:absolute;top:0;left:50%;
+  transform:translateX(-50%);width:1200px;height:600px;
+  background:radial-gradient(ellipse,rgba(28,46,88,.08) 0%,transparent 60%);
+  pointer-events:none;
+}
+.hero::after {
+  content:'';position:absolute;bottom:-200px;right:-100px;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(160,126,42,.10) 0%,transparent 60%);
+  pointer-events:none;
+}
+.hero-in {position:relative;z-index:2;max-width:880px;margin:0 auto}
+.hero-eyebrow {
+  display:inline-flex;align-items:center;gap:12px;
+  font-family:var(--fm);font-size:11px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;
+  letter-spacing:.16em;margin-bottom:30px;
+}
+.hero-eyebrow::before,.hero-eyebrow::after {
+  content:'';width:24px;height:1px;background:var(--gold);opacity:.5;
+}
+.hero h1 {
+  font-family:var(--ff);
+  font-size:clamp(40px,6.5vw,76px);
+  font-weight:800;
+  line-height:1.05;
+  letter-spacing:-2.4px;
+  margin:0 auto 26px;max-width:840px;
+  color:var(--text);
+}
+.hero h1 .navy {color:var(--navy)}
+.hero-sub {
+  font-size:clamp(16px,1.7vw,19px);font-weight:400;
+  color:var(--t-2);max-width:680px;margin:0 auto 40px;
+  line-height:1.65;
+}
+
+/* SEARCH BAR */
+.search {
+  max-width:920px;margin:0 auto 48px;
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:8px;
+  display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;
+  align-items:center;
+  box-shadow:0 16px 40px rgba(28,46,88,.12);
+}
+.search-field {
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;border-radius:10px;
+  transition:.15s;
+}
+.search-field:hover {background:var(--bg-2)}
+.search-field svg {width:18px;height:18px;color:var(--gold);flex-shrink:0;stroke-width:2}
+.search-field-label {
+  font-family:var(--fm);font-size:9px;font-weight:600;
+  color:var(--gold);text-transform:uppercase;letter-spacing:.14em;
+  display:block;margin-bottom:2px;
+}
+.search-field input {
+  border:0;background:transparent;font-family:var(--ff);
+  font-size:14px;color:var(--text);width:100%;font-weight:500;outline:none;
+}
+.search-field input::placeholder {color:var(--t-3);font-weight:400}
+.search-cta {
+  background:var(--gold);color:#fff;border:0;cursor:pointer;
+  padding:14px 24px;border-radius:10px;
+  font-family:var(--ff);font-size:14px;font-weight:700;
+  display:flex;align-items:center;gap:8px;transition:.18s;
+  box-shadow:0 4px 14px rgba(160,126,42,.26);
+}
+.search-cta:hover {
+  background:var(--gold-bright);transform:translateY(-1px);
+  box-shadow:0 8px 20px rgba(125,98,32,.36);
+}
+@media(max-width:980px){
+  .search{grid-template-columns:1fr 1fr;gap:8px}
+  .search-cta{grid-column:1/-1;width:100%;justify-content:center}
+}
+@media(max-width:580px){
+  .search{grid-template-columns:1fr}
+  .search-cta{grid-column:auto;width:100%;justify-content:center}
+}
+
+.hero-trust {
+  display:flex;gap:30px;justify-content:center;flex-wrap:wrap;
+  font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.04em;
+}
+.hero-trust span {display:inline-flex;align-items:center;gap:8px}
+.hero-trust b {color:var(--navy);font-weight:600}
+.hero-trust .dot-online {
+  width:7px;height:7px;border-radius:50%;background:var(--dot);
+  animation:pulse 2s infinite;
+  box-shadow:0 0 0 3px rgba(16,185,129,.20);
+}
+@keyframes pulse {0%,100%{opacity:1}50%{opacity:.4}}
+
+/* =========================================================
+   STATS STRIP
+   ========================================================= */
+.stats {
+  background:var(--surf);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:56px 24px;
+}
+.stats-grid {
+  max-width:var(--max);margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+  text-align:center;
+}
+.stat-n {
+  font-family:var(--ff);font-size:clamp(32px,4.5vw,48px);
+  font-weight:800;letter-spacing:-1.5px;line-height:1;
+  color:var(--navy);
+}
+.stat-n .gold {color:var(--gold)}
+.stat-l {
+  font-family:var(--ff);font-size:13px;color:var(--t-2);
+  margin-top:10px;font-weight:500;letter-spacing:.02em;
+}
+@media(max-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr);gap:28px}}
+
+/* =========================================================
+   SECTION HEADERS
+   ========================================================= */
+.s-badge {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:100px;
+  background:var(--navy-soft);border:1px solid rgba(28,46,88,.18);
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.14em;
+  color:var(--navy);margin-bottom:20px;
+}
+.s-title {
+  font-family:var(--ff);font-size:clamp(30px,4vw,46px);
+  font-weight:800;line-height:1.1;letter-spacing:-1.5px;
+  margin-bottom:16px;color:var(--text);
+}
+.s-title .navy {color:var(--navy)}
+.s-title .gold {color:var(--gold)}
+.s-sub {
+  font-size:17px;color:var(--t-2);
+  max-width:640px;line-height:1.65;
+}
+.s-head {text-align:center;margin-bottom:56px}
+.s-head .s-sub {margin:0 auto}
+
+/* =========================================================
+   FEATURED RESTOS GRID
+   ========================================================= */
+.resto-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+}
+@media(max-width:1100px){.resto-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.resto-grid{grid-template-columns:1fr}}
+
+.resto {
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  transition:.25s;
+  cursor:pointer;
+  display:flex;flex-direction:column;
+}
+.resto:hover {
+  transform:translateY(-6px);
+  box-shadow:0 24px 56px rgba(28,46,88,.18);
+  border-color:var(--navy);
+}
+.resto-img {
+  width:100%;aspect-ratio:16/10;
+  background-size:cover;background-position:center;
+  position:relative;overflow:hidden;
+}
+.resto-img::after {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.30) 100%);
+  pointer-events:none;
+}
+.resto-badge {
+  position:absolute;top:12px;left:12px;z-index:2;
+  background:rgba(28,46,88,.92);color:#fff;
+  font-family:var(--fm);font-size:9px;font-weight:700;
+  padding:5px 10px;border-radius:5px;
+  letter-spacing:.10em;text-transform:uppercase;
+  backdrop-filter:blur(8px);
+}
+.resto-badge.gold {background:var(--gold)}
+.resto-fav {
+  position:absolute;top:12px;right:12px;z-index:2;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.94);color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;
+  backdrop-filter:blur(8px);transition:.15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.18);
+}
+.resto-fav:hover {color:var(--gold);transform:scale(1.1)}
+.resto-body {padding:20px;display:flex;flex-direction:column;flex:1;gap:14px}
+.resto-head {display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.resto-name {
+  font-family:var(--ff);font-size:19px;font-weight:800;
+  color:var(--text);letter-spacing:-.4px;margin-bottom:4px;
+  line-height:1.2;
+}
+.resto-cuisine {
+  font-family:var(--ff);font-size:12.5px;color:var(--t-2);
+  line-height:1.4;
+}
+.resto-rating {text-align:right;flex-shrink:0}
+.resto-stars {color:var(--gold);font-size:13px;letter-spacing:1.5px;line-height:1}
+.resto-count {
+  font-family:var(--fm);font-size:10px;color:var(--t-3);
+  margin-top:4px;letter-spacing:.04em;
+}
+.resto-meta {
+  display:flex;gap:14px;flex-wrap:wrap;
+  padding-bottom:10px;border-bottom:1px solid var(--border);
+  font-family:var(--fm);font-size:11.5px;color:var(--t-2);letter-spacing:.02em;
+}
+.rm {display:inline-flex;align-items:center;gap:6px}
+.rm svg {width:13px;height:13px;color:var(--navy);stroke-width:2}
+.rm.price {color:var(--gold);font-weight:700}
+.resto-tags {display:flex;gap:5px;flex-wrap:wrap}
+.resto-tags span {
+  font-family:var(--ff);font-size:10.5px;font-weight:600;
+  background:var(--navy-soft);color:var(--navy);
+  padding:4px 9px;border-radius:5px;letter-spacing:.02em;
+}
+.resto-cta-row {
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:10px;margin-top:auto;
+}
+.resto-status {
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  letter-spacing:.06em;
+}
+.resto-status.open {color:#0a9c6e}
+.resto-status.closed {color:var(--t-3)}
+.resto-book {
+  font-family:var(--ff);font-size:13px;font-weight:700;
+  color:var(--gold);text-decoration:none;letter-spacing:.01em;
+}
+.resto-book:hover {color:var(--gold-bright)}
+
+.btn-show-more {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 32px;border-radius:10px;
+  background:var(--gold);color:#fff;
+  font-family:var(--ff);font-size:14px;font-weight:700;
+  letter-spacing:.02em;text-decoration:none;transition:.18s;
+  box-shadow:0 6px 18px rgba(160,126,42,.28);
+}
+.btn-show-more:hover {
+  background:var(--gold-bright);color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 10px 26px rgba(125,98,32,.36);
+}
+.btn-show-more svg {transition:transform .2s}
+.btn-show-more:hover svg {transform:translateX(4px)}
+
+/* =========================================================
+   CITIES STRIP
+   ========================================================= */
+.cities {background:var(--bg-2)}
+.cities-grid {
+  display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:48px;
+}
+.city {
+  background:var(--surf);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px 16px;text-align:center;
+  cursor:pointer;transition:.2s;text-decoration:none;display:block;
+}
+.city:hover {
+  border-color:var(--navy);transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(28,46,88,.10);
+}
+.city-name {
+  font-family:var(--ff);font-size:15px;font-weight:700;
+  color:var(--text);margin-bottom:4px;letter-spacing:-.2px;
+}
+.city-count {
+  font-family:var(--fm);font-size:10px;color:var(--gold);
+  font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+}
+@media(max-width:900px){.cities-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.cities-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* =========================================================
+   PRO CROSS-LINK
+   ========================================================= */
+.pro-band {
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 100%);
+  color:#fff;
+  position:relative;overflow:hidden;
+}
+.pro-band::before {
+  content:'';position:absolute;top:-200px;right:-100px;
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(160,126,42,.20) 0%,transparent 60%);
+  filter:blur(40px);pointer-events:none;
+}
+.pro-band-in {
+  max-width:var(--max);margin:0 auto;
+  padding:72px 32px;
+  display:grid;grid-template-columns:1.2fr 1fr;gap:48px;
+  align-items:center;position:relative;z-index:1;
+}
+.pro-band h2 {
+  font-family:var(--ff);font-size:clamp(28px,3.4vw,40px);
+  font-weight:800;line-height:1.1;letter-spacing:-1.2px;
+  margin-bottom:16px;color:#fff;
+}
+.pro-band h2 .gold {color:var(--gold-soft)}
+.pro-band p {
+  font-size:15px;color:rgba(255,255,255,.78);line-height:1.65;
+  margin-bottom:24px;max-width:500px;
+}
+.pro-band-cta {
+  display:inline-flex;align-items:center;gap:10px;
+  padding:14px 28px;background:var(--gold);color:var(--navy);
+  border-radius:8px;font-family:var(--ff);font-size:14px;font-weight:700;
+  letter-spacing:.02em;transition:.18s;text-decoration:none;
+  box-shadow:0 6px 18px rgba(160,126,42,.30);
+}
+.pro-band-cta:hover {
+  background:#c89752;color:var(--navy);transform:translateY(-1px);
+  box-shadow:0 10px 26px rgba(200,151,82,.42);
+}
+.pro-band-stats {
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;
+}
+.pro-band-stat {
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;padding:20px;
+}
+.pro-band-stat-n {
+  font-family:var(--ff);font-size:34px;font-weight:800;
+  color:#fff;letter-spacing:-1px;line-height:1;margin-bottom:6px;
+}
+.pro-band-stat-n.gold {color:var(--gold-soft)}
+.pro-band-stat-l {
+  font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.65);
+  text-transform:uppercase;letter-spacing:.10em;
+}
+@media(max-width:880px){.pro-band-in{grid-template-columns:1fr;gap:32px}}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.footer {
+  background:var(--bg-2);
+  border-top:1px solid var(--border);
+  padding:64px 24px 32px;
+}
+.footer-grid {
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;
+  max-width:var(--max);margin:0 auto;
+}
+.footer-brand p {
+  font-size:13px;color:var(--t-3);line-height:1.65;
+  margin-top:14px;max-width:300px;
+}
+.footer-col h4 {
+  font-family:var(--fm);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.16em;
+  color:var(--gold);margin-bottom:18px;
+}
+.footer-col a {
+  display:block;font-family:var(--ff);font-size:13px;
+  color:var(--t-2);margin-bottom:10px;transition:.15s;
+}
+.footer-col a:hover {color:var(--navy)}
+.footer-bot {
+  max-width:var(--max);margin:48px auto 0;
+  padding-top:24px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:12px;
+  font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.04em;
+}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:32px}}
+@media(max-width:640px){.footer-grid{grid-template-columns:1fr;gap:32px}.footer-bot{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     NAV
+     ========================================================= -->
+<nav class="nav" id="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <span class="logo-mark">R3STO</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="/restaurants">Restaurants</a>
+      <a href="/cuisines">Cuisines</a>
+      <a href="/villes">Villes</a>
+      <a href="/guides">Guides gourmands</a>
+    </div>
+    <div class="nav-right">
+      <div class="country" id="countrySwitch">
+        <button class="country-btn" onclick="toggleCountry()" id="countryBtn">
+          <span class="country-flag" id="countryFlag">🌍</span>
+          <span class="country-name" id="countryName">Worldwide</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="country-menu" id="countryMenu">
+          <div class="country-section">Global</div>
+          <button onclick="setCountry('ww')">🌍 Worldwide <span class="cm-lang">EN</span></button>
+          <div class="country-section">Europe</div>
+          <button onclick="setCountry('ch')">🇨🇭 Switzerland <span class="cm-lang">FR · DE · IT</span></button>
+          <button onclick="setCountry('fr')">🇫🇷 France <span class="cm-lang">FR</span></button>
+          <button onclick="setCountry('de')">🇩🇪 Germany <span class="cm-lang">DE</span></button>
+          <button onclick="setCountry('it')">🇮🇹 Italy <span class="cm-lang">IT</span></button>
+          <button onclick="setCountry('at')">🇦🇹 Austria <span class="cm-lang">DE</span></button>
+          <button onclick="setCountry('be')">🇧🇪 Belgium <span class="cm-lang">FR · NL</span></button>
+          <button onclick="setCountry('lu')">🇱🇺 Luxembourg <span class="cm-lang">FR · DE</span></button>
+          <button onclick="setCountry('mc')">🇲🇨 Monaco <span class="cm-lang">FR</span></button>
+          <button onclick="setCountry('nl')">🇳🇱 Netherlands <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('es')">🇪🇸 Spain <span class="cm-lang">ES · EN</span></button>
+          <button onclick="setCountry('pt')">🇵🇹 Portugal <span class="cm-lang">PT · EN</span></button>
+          <button onclick="setCountry('uk')">🇬🇧 United Kingdom <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('ie')">🇮🇪 Ireland <span class="cm-lang">EN</span></button>
+          <div class="country-section">North America</div>
+          <button onclick="setCountry('us')">🇺🇸 United States <span class="cm-lang">EN</span></button>
+          <button onclick="setCountry('ca')">🇨🇦 Canada <span class="cm-lang">EN · FR</span></button>
+        </div>
+      </div>
+      <a href="/pro" class="nav-pro">Restaurant owner?</a>
+      <button class="mob-menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+    </div>
+  </div>
+</nav>
+
+<!-- =========================================================
+     HERO + SEARCH
+     ========================================================= -->
+<section class="hero" id="search">
+  <div class="hero-in">
+    <span class="hero-eyebrow" id="heroEyebrow">The international gourmet guide</span>
+    <h1 id="heroH1">Discover the <span class="navy">best</span><br>restaurants <span id="heroScope">worldwide</span>.</h1>
+    <p class="hero-sub" id="heroSub">The directory that highlights independent restaurateurs. Book online directly, without hidden commission, supporting the establishment.</p>
+
+    <div class="search">
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+        <div style="flex:1">
+          <span class="search-field-label" data-i18n="search.name">Nom du restaurant</span>
+          <input type="text" data-i18n-ph="search.name.ph" placeholder="Le Petit Boeuf, La Pinte…">
+        </div>
+      </div>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        <div style="flex:1">
+          <span class="search-field-label" data-i18n="search.dish">Plat / cuisine</span>
+          <input type="text" data-i18n-ph="search.dish.ph" placeholder="Pizza, sushi, fondue, gastro…">
+        </div>
+      </div>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div style="flex:1">
+          <span class="search-field-label" data-i18n="search.where">Lieu / région</span>
+          <input type="text" data-i18n-ph="search.where.ph" placeholder="Lausanne, Vaud, Genève…">
+        </div>
+      </div>
+      <button class="search-cta" data-i18n="search.cta">
+        Chercher
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
+
+    <div class="hero-trust">
+      <span><span class="dot-online"></span><b id="trust1n">+12K</b> <span id="trust1l">bookings / day</span></span>
+      <span><b id="trust2n">No</b> <span id="trust2l">hidden commission</span></span>
+      <span><b id="trust3n">1.2M+</b> <span id="trust3l">restaurants</span></span>
+      <span><b id="trust4n">Instant</b> <span id="trust4l">confirmation</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     STATS — dynamiques selon pays sélectionné
+     ========================================================= -->
+<div class="stats">
+  <div class="stats-grid" id="statsGrid">
+    <div><div class="stat-n" id="stat1">1.2M+</div><div class="stat-l" id="stat1l">Restaurants worldwide</div></div>
+    <div><div class="stat-n"><span class="gold" id="stat2">120+</span></div><div class="stat-l" id="stat2l">Cities covered</div></div>
+    <div><div class="stat-n" id="stat3">42</div><div class="stat-l" id="stat3l">Countries available</div></div>
+    <div><div class="stat-n" id="stat4">24/7</div><div class="stat-l" id="stat4l">Instant booking</div></div>
+  </div>
+</div>
+
+<!-- =========================================================
+     FEATURED RESTAURANTS
+     ========================================================= -->
+<section>
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-badge">À la une cette semaine</div>
+      <h2 class="s-title">Les <span class="gold">coups de cœur</span> de la rédaction</h2>
+      <p class="s-sub">Des établissements sélectionnés à la main par notre équipe gourmande, du bistro de quartier à l'étoilé.</p>
+    </div>
+
+    <div class="resto-grid">
+      <article class="resto">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80')">
+          <div class="resto-badge gold">★★ Michelin</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">La Pinte</div>
+              <div class="resto-cuisine">Cuisine du terroir · vins suisses</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">328 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Crissier · 7 km</span>
+            <span class="rm price">CHF 90–160</span>
+          </div>
+          <div class="resto-tags">
+            <span>Gastronomique</span>
+            <span>Terrasse</span>
+            <span>Cave à vin</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="#" class="resto-book">Réserver →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="resto">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80')">
+          <div class="resto-badge">Coup de cœur</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Le Petit Boeuf</div>
+              <div class="resto-cuisine">Grill suisse · cuisine du marché</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">142 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Flon, Lausanne</span>
+            <span class="rm price">CHF 45–80</span>
+          </div>
+          <div class="resto-tags">
+            <span>Bistro</span>
+            <span>Grill</span>
+            <span>Tendance</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="#" class="resto-book">Réserver →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="resto">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80')">
+          <div class="resto-badge">Tendance</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Alt. 505</div>
+              <div class="resto-cuisine">Bar à vins · tapas valaisannes</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">87 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Centre, Sion</span>
+            <span class="rm price">CHF 30–55</span>
+          </div>
+          <div class="resto-tags">
+            <span>Bar à vin</span>
+            <span>Tapas</span>
+            <span>Late night</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="#" class="resto-book">Réserver →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="resto">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80')">
+          <div class="resto-badge gold">Nouveau</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Osteria del Mare</div>
+              <div class="resto-cuisine">Italien · poisson frais</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★½</div>
+              <div class="resto-count">64 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Eaux-Vives, Genève</span>
+            <span class="rm price">CHF 60–110</span>
+          </div>
+          <div class="resto-tags">
+            <span>Italien</span>
+            <span>Poisson</span>
+            <span>Lac</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="#" class="resto-book">Réserver →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="resto">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80')">
+          <div class="resto-badge">Recommandé</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Pizza Napoli</div>
+              <div class="resto-cuisine">Pizzeria napolitaine · four à bois</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">412 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Vieille-Ville, Berne</span>
+            <span class="rm price">CHF 18–32</span>
+          </div>
+          <div class="resto-tags">
+            <span>Pizza</span>
+            <span>Famille</span>
+            <span>Take-away</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status open">● Ouvert</div>
+            <a href="#" class="resto-book">Réserver →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="resto">
+        <div class="resto-img" style="background-image:url('https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=800&q=80')">
+          <div class="resto-badge gold">★ Michelin</div>
+          <div class="resto-fav">♡</div>
+        </div>
+        <div class="resto-body">
+          <div class="resto-head">
+            <div>
+              <div class="resto-name">Sakura</div>
+              <div class="resto-cuisine">Japonais · omakase · sushi premium</div>
+            </div>
+            <div class="resto-rating">
+              <div class="resto-stars">★★★★★</div>
+              <div class="resto-count">198 avis</div>
+            </div>
+          </div>
+          <div class="resto-meta">
+            <span class="rm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Centre, Zürich</span>
+            <span class="rm price">CHF 120–250</span>
+          </div>
+          <div class="resto-tags">
+            <span>Japonais</span>
+            <span>Sushi</span>
+            <span>Premium</span>
+          </div>
+          <div class="resto-cta-row">
+            <div class="resto-status closed">● Fermé · ouvre 19h</div>
+            <a href="#" class="resto-book">Réserver →</a>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div style="text-align:center;margin-top:48px">
+      <a href="/restaurants" class="btn-show-more">
+        Voir les 1200+ restaurants
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     CITIES
+     ========================================================= -->
+<section class="cities">
+  <div class="inner">
+    <div class="s-head">
+      <div class="s-badge">Explorer par ville</div>
+      <h2 class="s-title">Où voulez-vous <span class="navy">manger</span> ce soir ?</h2>
+    </div>
+    <div class="cities-grid">
+      <a href="/villes/lausanne" class="city"><div class="city-name">Lausanne</div><div class="city-count">312 restos</div></a>
+      <a href="/villes/geneve" class="city"><div class="city-name">Genève</div><div class="city-count">428 restos</div></a>
+      <a href="/villes/zurich" class="city"><div class="city-name">Zürich</div><div class="city-count">186 restos</div></a>
+      <a href="/villes/berne" class="city"><div class="city-name">Berne</div><div class="city-count">94 restos</div></a>
+      <a href="/villes/sion" class="city"><div class="city-name">Sion</div><div class="city-count">62 restos</div></a>
+      <a href="/villes/fribourg" class="city"><div class="city-name">Fribourg</div><div class="city-count">58 restos</div></a>
+      <a href="/villes/neuchatel" class="city"><div class="city-name">Neuchâtel</div><div class="city-count">47 restos</div></a>
+      <a href="/villes/montreux" class="city"><div class="city-name">Montreux</div><div class="city-count">39 restos</div></a>
+      <a href="/villes/vevey" class="city"><div class="city-name">Vevey</div><div class="city-count">33 restos</div></a>
+      <a href="/villes/lugano" class="city"><div class="city-name">Lugano</div><div class="city-count">71 restos</div></a>
+      <a href="/villes/bale" class="city"><div class="city-name">Bâle</div><div class="city-count">112 restos</div></a>
+      <a href="/villes" class="city" style="background:var(--navy);color:#fff;border-color:var(--navy)"><div class="city-name" style="color:#fff">Toutes</div><div class="city-count" style="color:var(--gold-soft)">26 villes</div></a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     PRO CROSS-LINK
+     ========================================================= -->
+<section class="pro-band">
+  <div class="pro-band-in">
+    <div>
+      <h2>Vous êtes restaurateur ? <span class="gold">Rejoignez R3STO Pro.</span></h2>
+      <p>Bénéficiez de la mise en avant sur l'annuaire R3STO + recevez vos réservations directement, sans commission. Hébergement de votre site web inclus dès le plan Signature.</p>
+      <a href="/pro" class="pro-band-cta">
+        Découvrir R3STO Pro
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="pro-band-stats">
+      <div class="pro-band-stat">
+        <div class="pro-band-stat-n gold">0%</div>
+        <div class="pro-band-stat-l">Commission</div>
+      </div>
+      <div class="pro-band-stat">
+        <div class="pro-band-stat-n">19 CHF</div>
+        <div class="pro-band-stat-l">Dès / mois</div>
+      </div>
+      <div class="pro-band-stat">
+        <div class="pro-band-stat-n">14j</div>
+        <div class="pro-band-stat-l">Essai gratuit</div>
+      </div>
+      <div class="pro-band-stat">
+        <div class="pro-band-stat-n">10 min</div>
+        <div class="pro-band-stat-l">Setup</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="logo">
+        <span class="logo-mark">R3STO</span>
+        <span class="logo-text">R3STO</span>
+      </a>
+      <p>L'annuaire gourmand suisse. Découvrez et réservez en ligne dans les meilleurs restaurants indépendants de Suisse.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Découvrir</h4>
+      <a href="/restaurants">Tous les restaurants</a>
+      <a href="/cuisines">Par cuisine</a>
+      <a href="/villes">Par ville</a>
+      <a href="/guides">Guides gourmands</a>
+    </div>
+    <div class="footer-col">
+      <h4>Restaurateurs</h4>
+      <a href="/pro">R3STO Pro</a>
+      <a href="/mini">R3STO Mini</a>
+      <a href="https://auth.r3sto.com/signup">Créer un compte</a>
+      <a href="https://app.r3sto.com">Mon restaurant</a>
+    </div>
+    <div class="footer-col">
+      <h4>Légal</h4>
+      <a href="/legal/cgu.html">CGU</a>
+      <a href="/legal/confidentialite.html">Confidentialité</a>
+      <a href="/legal/mentions.html">Mentions légales</a>
+      <a href="mailto:contact@r3sto.com">contact@r3sto.com</a>
+    </div>
+  </div>
+  <div class="footer-bot">
+    <div>© 2026 Innoptim SA · Le Mont-sur-Lausanne · Suisse</div>
+    <div>Fait en Suisse · Hébergé par Infomaniak</div>
+  </div>
+</footer>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll', function(){
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* =========================================================
+   COUNTRY SWITCHER — change stats + scope
+   ========================================================= */
+const COUNTRIES = {
+  ww: {flag:'🌍',name:'Worldwide',scope:'worldwide',lang:'en',
+       stat1:'1.2M+',stat1l:'Restaurants worldwide',stat2:'120+',stat2l:'Cities covered',stat3:'42',stat3l:'Countries available',stat4:'24/7',stat4l:'Instant booking',
+       trust1n:'+12K',trust1l:'bookings / day',trust3n:'1.2M+',trust3l:'restaurants'},
+  ch: {flag:'🇨🇭',name:'Switzerland',scope:'in Switzerland',lang:'fr',
+       stat1:'19K+',stat1l:'Restaurants in Switzerland',stat2:'26',stat2l:'Swiss cities',stat3:'14',stat3l:'Cuisines',stat4:'100%',stat4l:'Independent',
+       trust1n:'+800',trust1l:'bookings / day',trust3n:'19K+',trust3l:'Swiss restaurants'},
+  fr: {flag:'🇫🇷',name:'France',scope:'in France',lang:'fr',
+       stat1:'180K+',stat1l:'Restaurants in France',stat2:'350+',stat2l:'Cities covered',stat3:'22',stat3l:'Régions',stat4:'100%',stat4l:'Indépendants',
+       trust1n:'+5K',trust1l:'bookings / day',trust3n:'180K+',trust3l:'restaurants'},
+  de: {flag:'🇩🇪',name:'Germany',scope:'in Germany',lang:'de',
+       stat1:'220K+',stat1l:'Restaurants in Germany',stat2:'410+',stat2l:'Cities covered',stat3:'16',stat3l:'Bundesländer',stat4:'100%',stat4l:'Independent',
+       trust1n:'+6K',trust1l:'bookings / day',trust3n:'220K+',trust3l:'restaurants'},
+  it: {flag:'🇮🇹',name:'Italy',scope:'in Italy',lang:'it',
+       stat1:'170K+',stat1l:'Restaurants in Italy',stat2:'290+',stat2l:'Cities covered',stat3:'20',stat3l:'Regioni',stat4:'100%',stat4l:'Indipendenti',
+       trust1n:'+4K',trust1l:'bookings / day',trust3n:'170K+',trust3l:'restaurants'},
+  at: {flag:'🇦🇹',name:'Austria',scope:'in Austria',lang:'de',
+       stat1:'48K+',stat1l:'Restaurants in Austria',stat2:'62',stat2l:'Cities covered',stat3:'9',stat3l:'Bundesländer',stat4:'100%',stat4l:'Unabhängig',
+       trust1n:'+1.5K',trust1l:'bookings / day',trust3n:'48K+',trust3l:'restaurants'},
+  be: {flag:'🇧🇪',name:'Belgium',scope:'in Belgium',lang:'fr',
+       stat1:'52K+',stat1l:'Restaurants in Belgium',stat2:'70',stat2l:'Cities covered',stat3:'10',stat3l:'Provinces',stat4:'100%',stat4l:'Indépendants',
+       trust1n:'+1.7K',trust1l:'bookings / day',trust3n:'52K+',trust3l:'restaurants'},
+  lu: {flag:'🇱🇺',name:'Luxembourg',scope:'in Luxembourg',lang:'fr',
+       stat1:'2.8K+',stat1l:'Restaurants in Luxembourg',stat2:'12',stat2l:'Localités',stat3:'4',stat3l:'Langues officielles',stat4:'100%',stat4l:'Indépendants',
+       trust1n:'+95',trust1l:'bookings / day',trust3n:'2.8K+',trust3l:'restaurants'},
+  mc: {flag:'🇲🇨',name:'Monaco',scope:'in Monaco',lang:'fr',
+       stat1:'320+',stat1l:'Restaurants in Monaco',stat2:'1',stat2l:'Principauté',stat3:'8',stat3l:'Étoilés Michelin',stat4:'100%',stat4l:'Premium',
+       trust1n:'+45',trust1l:'bookings / day',trust3n:'320+',trust3l:'restaurants'},
+  nl: {flag:'🇳🇱',name:'Netherlands',scope:'in the Netherlands',lang:'en',
+       stat1:'78K+',stat1l:'Restaurants in Netherlands',stat2:'120+',stat2l:'Cities covered',stat3:'12',stat3l:'Provinces',stat4:'100%',stat4l:'Independent',
+       trust1n:'+2.4K',trust1l:'bookings / day',trust3n:'78K+',trust3l:'restaurants'},
+  es: {flag:'🇪🇸',name:'Spain',scope:'in Spain',lang:'en',
+       stat1:'265K+',stat1l:'Restaurants in Spain',stat2:'380+',stat2l:'Cities covered',stat3:'17',stat3l:'Comunidades',stat4:'100%',stat4l:'Independientes',
+       trust1n:'+7K',trust1l:'bookings / day',trust3n:'265K+',trust3l:'restaurants'},
+  pt: {flag:'🇵🇹',name:'Portugal',scope:'in Portugal',lang:'en',
+       stat1:'85K+',stat1l:'Restaurants in Portugal',stat2:'140+',stat2l:'Cities covered',stat3:'18',stat3l:'Distritos',stat4:'100%',stat4l:'Independent',
+       trust1n:'+2.1K',trust1l:'bookings / day',trust3n:'85K+',trust3l:'restaurants'},
+  uk: {flag:'🇬🇧',name:'United Kingdom',scope:'in the UK',lang:'en',
+       stat1:'195K+',stat1l:'Restaurants in the UK',stat2:'320+',stat2l:'Cities covered',stat3:'4',stat3l:'Nations',stat4:'100%',stat4l:'Independent',
+       trust1n:'+5.5K',trust1l:'bookings / day',trust3n:'195K+',trust3l:'restaurants'},
+  ie: {flag:'🇮🇪',name:'Ireland',scope:'in Ireland',lang:'en',
+       stat1:'22K+',stat1l:'Restaurants in Ireland',stat2:'48',stat2l:'Cities covered',stat3:'32',stat3l:'Counties',stat4:'100%',stat4l:'Independent',
+       trust1n:'+780',trust1l:'bookings / day',trust3n:'22K+',trust3l:'restaurants'},
+  us: {flag:'🇺🇸',name:'United States',scope:'in the USA',lang:'en',
+       stat1:'1.0M+',stat1l:'Restaurants in the USA',stat2:'2.5K+',stat2l:'Cities covered',stat3:'50',stat3l:'States',stat4:'100%',stat4l:'Independent',
+       trust1n:'+25K',trust1l:'bookings / day',trust3n:'1.0M+',trust3l:'restaurants'},
+  ca: {flag:'🇨🇦',name:'Canada',scope:'in Canada',lang:'en',
+       stat1:'95K+',stat1l:'Restaurants in Canada',stat2:'180+',stat2l:'Cities covered',stat3:'13',stat3l:'Provinces',stat4:'100%',stat4l:'Independent',
+       trust1n:'+2.8K',trust1l:'bookings / day',trust3n:'95K+',trust3l:'restaurants'}
+};
+
+function toggleCountry(){
+  document.getElementById('countryMenu').classList.toggle('open');
+}
+function setCountry(code){
+  const c = COUNTRIES[code];
+  if(!c) return;
+  document.getElementById('countryFlag').textContent = c.flag;
+  document.getElementById('countryName').textContent = c.name;
+  document.getElementById('countryMenu').classList.remove('open');
+  // Update stats
+  document.getElementById('stat1').textContent = c.stat1;
+  document.getElementById('stat1l').textContent = c.stat1l;
+  document.getElementById('stat2').textContent = c.stat2;
+  document.getElementById('stat2l').textContent = c.stat2l;
+  document.getElementById('stat3').textContent = c.stat3;
+  document.getElementById('stat3l').textContent = c.stat3l;
+  document.getElementById('stat4').textContent = c.stat4;
+  document.getElementById('stat4l').textContent = c.stat4l;
+  // Update hero scope
+  document.getElementById('heroScope').textContent = c.scope;
+  // Update trust bar
+  document.getElementById('trust1n').textContent = c.trust1n;
+  document.getElementById('trust1l').textContent = c.trust1l;
+  document.getElementById('trust3n').textContent = c.trust3n;
+  document.getElementById('trust3l').textContent = c.trust3l;
+  // Auto-set language based on country
+  if(c.lang){
+    autoLang(c.lang);
+  }
+}
+function autoLang(code){
+  document.documentElement.lang = code;
+  const t = TR[code] || TR.en;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if(t[k]) el.textContent = t[k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const k = el.getAttribute('data-i18n-ph');
+    if(t[k]) el.placeholder = t[k];
+  });
+  if(t.eyebrow) document.getElementById('heroEyebrow').textContent = t.eyebrow;
+  if(t.h1) document.getElementById('heroH1').innerHTML = t.h1;
+  if(t.sub) document.getElementById('heroSub').textContent = t.sub;
+}
+
+// Close country menu on outside click
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.country')){
+    document.getElementById('countryMenu').classList.remove('open');
+  }
+});
+
+/* =========================================================
+   LANGUAGE SWITCHER (basique, prototype)
+   ========================================================= */
+const TR = {
+  en: {
+    'search.what':'What dish or restaurant?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Where?',
+    'search.where.ph':'Lausanne, Geneva, Zurich, Paris…',
+    'search.cta':'Search',
+    eyebrow:'The international gourmet guide',
+    h1:'Discover the <span class="navy">best</span><br>restaurants <span id="heroScope">worldwide</span>.',
+    sub:'The directory that highlights independent restaurateurs. Book online directly, without hidden commission, supporting the establishment.',
+  },
+  fr: {
+    'search.what':'Quel plat ou restaurant ?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Où ?',
+    'search.where.ph':'Lausanne, Genève, Zürich, Paris…',
+    'search.cta':'Chercher',
+    eyebrow:'Le guide gourmand international',
+    h1:'Découvrez les <span class="navy">meilleurs</span><br>restaurants <span id="heroScope">du monde</span>.',
+    sub:'L\'annuaire qui met en avant les restaurateurs indépendants. Réservez en ligne directement, sans commission cachée.',
+  },
+  de: {
+    'search.what':'Welches Gericht oder Restaurant?',
+    'search.what.ph':'Pizza, Sushi, Le Petit Boeuf…',
+    'search.where':'Wo?',
+    'search.where.ph':'Lausanne, Genf, Zürich, Berlin…',
+    'search.cta':'Suchen',
+    eyebrow:'Der internationale Gourmet-Guide',
+    h1:'Entdecken Sie die <span class="navy">besten</span><br>Restaurants <span id="heroScope">weltweit</span>.',
+    sub:'Das Verzeichnis, das unabhängige Gastronomen ins Rampenlicht stellt. Direkt online reservieren, ohne versteckte Provisionen.',
+  },
+  it: {
+    'search.what':'Quale piatto o ristorante?',
+    'search.what.ph':'Pizza, sushi, Le Petit Boeuf…',
+    'search.where':'Dove?',
+    'search.where.ph':'Lugano, Milano, Roma, Lausanne…',
+    'search.cta':'Cerca',
+    eyebrow:'La guida gourmet internazionale',
+    h1:'Scopri i <span class="navy">migliori</span><br>ristoranti <span id="heroScope">del mondo</span>.',
+    sub:'L\'elenco che mette in luce i ristoratori indipendenti. Prenota online direttamente, senza commissioni nascoste.',
+  }
+};
+
+// Language is now auto-derived from country selection (autoLang function above)
+</script>
+</body>
+</html>

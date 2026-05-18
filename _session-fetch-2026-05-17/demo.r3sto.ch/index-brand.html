@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/logo-r3sto.jpg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1c2e58" />
+    <meta name="description" content="Découvrez R3STO en mode démo avant inscription. Sans engagement." />
+    <title>R3STO Demo — Tester la plateforme</title>
+    <meta property="og:title" content="R3STO Demo — Tester la plateforme" />
+    <meta property="og:description" content="Découvrez R3STO en mode démo avant inscription. Sans engagement." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://demo.r3sto.ch" />
+    <meta property="og:locale" content="fr_CH" />
+    <!--
+      Cache nuke 26/04/2026 : purge SW + Cache Storage des devices qui auraient
+      garde un vieux bundle malgre "Effacer donnees". Tourne UNE fois par device
+      (flag r3sto-cache-nuke-v1 dans localStorage). Force au boot avant le bundle
+      pour que iOS/Safari ne puisse pas l'eviter.
+    -->
+    <script>
+      (function () {
+        try {
+          var FLAG = 'r3sto-cache-nuke-v1';
+          if (localStorage.getItem(FLAG) === 'done') return;
+          var jobs = [];
+          if ('serviceWorker' in navigator) {
+            jobs.push(navigator.serviceWorker.getRegistrations().then(function (regs) {
+              return Promise.all(regs.map(function (r) { return r.unregister().catch(function(){}); }));
+            }).catch(function(){}));
+          }
+          if (typeof caches !== 'undefined' && caches.keys) {
+            jobs.push(caches.keys().then(function (keys) {
+              return Promise.all(keys.map(function (k) { return caches.delete(k).catch(function(){}); }));
+            }).catch(function(){}));
+          }
+          Promise.all(jobs).then(function () {
+            try { localStorage.setItem(FLAG, 'done'); } catch (e) {}
+            if (!sessionStorage.getItem('r3sto-nuke-reloaded')) {
+              try { sessionStorage.setItem('r3sto-nuke-reloaded', '1'); } catch (e) {}
+              setTimeout(function () { location.reload(); }, 50);
+            }
+          });
+        } catch (e) { /* noop */ }
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-iKVYUE7G.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-Dw2cE7zH.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-data-Bt0ol8Jg.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-misc-jhXgSMrc.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-stripe-CaKiCUeC.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-GK4rl6AS.js">
+    <link rel="modulepreload" crossorigin href="/assets/useAppStore-vp8rT2s2.js">
+    <link rel="modulepreload" crossorigin href="/assets/ConfirmDialog-5Bve7lY4.js">
+    <link rel="modulepreload" crossorigin href="/assets/DateInput-B6-d2FhE.js">
+    <link rel="modulepreload" crossorigin href="/assets/EmptyState-CKcV-eg4.js">
+    <link rel="modulepreload" crossorigin href="/assets/PhoneInput-BNCQfQfe.js">
+    <link rel="modulepreload" crossorigin href="/assets/Toast-vxpKw8DQ.js">
+    <link rel="modulepreload" crossorigin href="/assets/ViewToolbar-CJIy4SCK.js">
+    <link rel="modulepreload" crossorigin href="/assets/useTranslation-DyM0GLRM.js">
+    <link rel="modulepreload" crossorigin href="/assets/date-x5A1IAQB.js">
+    <link rel="modulepreload" crossorigin href="/assets/design-CYDxDQs6.js">
+    <link rel="modulepreload" crossorigin href="/assets/placementRules-p3EBkjzh.js">
+    <link rel="modulepreload" crossorigin href="/assets/resaLifecycle-DoMQM5yf.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-D22WJHEL.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

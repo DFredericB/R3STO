@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — Mockup final validation · /pro + /mini</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+  :root {
+    --navy: #1d4f91;
+    --navy-deep: #14253f;
+    --bg: #ffffff;
+    --bg2: #f6f8fb;
+    --bg3: #eef1f7;
+    --text: #0f1620;
+    --t2: #4a5e7a;
+    --muted: #8e9baa;
+    --border: #e1e5ec;
+    --or-chaud: #c89752;
+    --or-antique: #a07e2a;
+    --or-bright: #d4af37;
+    --gn: #10b981;
+    --rd: #ef4444;
+    --am: #f59e0b;
+    --ff: 'Inter', system-ui, sans-serif;
+    --fm: 'JetBrains Mono', monospace;
+    --serif: 'Fraunces', Georgia, serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--ff); background:#eceef2; padding:24px; color:var(--text); line-height:1.5; }
+  .doc { max-width:1280px; margin:0 auto; }
+  h1.doc-h { font-family:var(--serif); font-size:32px; font-weight:700; margin-bottom:6px; }
+  .doc-s { color:var(--muted); font-size:13px; margin-bottom:24px; }
+
+  /* PAGE FRAMES */
+  .page-frame { background:var(--bg); border-radius:16px; overflow:hidden; box-shadow:0 12px 48px rgba(15,30,55,.10); margin-bottom:32px; border:1px solid var(--border); }
+  .url-bar { padding:12px 20px; background:var(--bg2); font-family:var(--fm); font-size:11px; color:var(--navy); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; }
+  .url-bar .tag { color:var(--or-antique); font-weight:700; letter-spacing:0.5px; }
+
+  /* HEADER */
+  .top-nav { padding:18px 48px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); }
+  .top-nav .lockup { display:flex; align-items:center; gap:10px; }
+  .top-nav .l-sq { width:42px; height:42px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:5px; }
+  .top-nav .word { font-family:'Alethia Next', sans-serif; font-size:24px; color:var(--navy); line-height:1; }
+  .top-nav nav { display:flex; gap:28px; }
+  .top-nav nav a { color:var(--t2); font-size:13px; font-weight:500; text-decoration:none; }
+  .top-nav .cta-top { padding:9px 20px; background:var(--navy); color:#fff; border-radius:7px; font-size:13px; font-weight:600; }
+
+  /* HERO */
+  .hero { padding:80px 48px 56px; text-align:center; background:linear-gradient(180deg, #fff 0%, var(--bg2) 100%); }
+  .hero .kicker { display:inline-block; padding:6px 16px; border-radius:20px; background:#1d4f9110; color:var(--navy); font-size:11px; font-weight:700; letter-spacing:1px; margin-bottom:24px; }
+  .hero h1 { font-family:var(--serif); font-size:64px; line-height:1.05; font-weight:700; color:var(--text); margin-bottom:20px; letter-spacing:-1.5px; }
+  .hero h1 .it { font-style:italic; font-weight:400; color:var(--navy); }
+  .hero p.sub { font-size:18px; color:var(--t2); max-width:680px; margin:0 auto 32px; line-height:1.5; }
+  .hero .pills { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+  .pill { padding:6px 14px; border-radius:20px; font-size:11px; font-weight:600; background:#fff; border:1px solid var(--border); color:var(--t2); }
+  .pill.gold { color:var(--or-antique); border-color:var(--or-antique); }
+
+  /* TIERS */
+  .tiers { padding:60px 48px; }
+  .tiers-h { text-align:center; margin-bottom:42px; }
+  .tiers-h h2 { font-family:var(--serif); font-size:36px; font-weight:700; color:var(--text); margin-bottom:8px; letter-spacing:-0.5px; }
+  .tiers-h p { color:var(--t2); font-size:14px; max-width:560px; margin:0 auto; }
+  .tiers-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; max-width:1100px; margin:0 auto; }
+  .tier { background:#fff; border:1px solid var(--border); border-radius:16px; padding:32px 28px; position:relative; transition:.2s; }
+  .tier.featured { border:2px solid var(--navy); box-shadow:0 6px 28px rgba(29,79,145,0.12); transform:scale(1.02); }
+  .tier .badge { position:absolute; top:-12px; right:24px; background:var(--navy); color:#fff; font-size:10px; font-weight:700; padding:5px 12px; border-radius:10px; letter-spacing:0.5px; text-transform:uppercase; }
+  .tier .tier-name { font-family:'Alethia Next', sans-serif; font-size:30px; color:var(--navy); margin-bottom:4px; line-height:1; }
+  .tier .tagline { font-size:13px; color:var(--t2); margin-bottom:24px; min-height:38px; line-height:1.45; }
+  .tier .price { font-family:var(--serif); font-size:54px; font-weight:700; color:var(--text); line-height:1; letter-spacing:-1.5px; margin-bottom:4px; }
+  .tier .price .currency { font-size:18px; color:var(--t2); margin-left:4px; font-weight:400; }
+  .tier .price-meta { font-size:11px; color:var(--or-antique); font-weight:600; margin-bottom:24px; letter-spacing:0.3px; }
+  .tier .features { list-style:none; margin-bottom:28px; min-height:280px; }
+  .tier .features li { padding:7px 0; font-size:13px; color:var(--text); display:flex; gap:10px; align-items:flex-start; line-height:1.45; }
+  .tier .features li::before { content:"✓"; color:var(--gn); font-weight:700; flex-shrink:0; }
+  .tier .features li.muted { color:var(--muted); }
+  .tier .features li.muted::before { content:"—"; color:var(--muted); }
+  .tier .features li.star::before { content:"⭐"; }
+  .tier .features li.star { color:var(--or-antique); font-weight:600; }
+  .tier .cta { display:block; width:100%; padding:14px; border-radius:8px; font-weight:700; font-size:14px; text-align:center; cursor:pointer; border:0; }
+  .tier .cta.primary { background:var(--navy); color:#fff; }
+  .tier .cta.secondary { background:transparent; border:1px solid var(--border); color:var(--navy); }
+
+  /* STORY SECTIONS */
+  .story { padding:60px 48px; background:var(--bg2); }
+  .story h2 { font-family:var(--serif); font-size:32px; font-weight:700; text-align:center; margin-bottom:42px; letter-spacing:-0.5px; }
+  .story-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; max-width:1100px; margin:0 auto; }
+  .story-card { background:#fff; padding:28px 24px; border-radius:14px; border:1px solid var(--border); }
+  .story-card .ic { font-size:32px; margin-bottom:14px; }
+  .story-card h3 { font-family:var(--serif); font-size:18px; font-weight:700; margin-bottom:8px; }
+  .story-card p { font-size:13px; color:var(--t2); line-height:1.55; }
+
+  /* ADDONS */
+  .addons { padding:50px 48px; }
+  .addons h2 { font-family:var(--serif); font-size:26px; font-weight:700; text-align:center; margin-bottom:6px; }
+  .addons .sect-sub { text-align:center; color:var(--muted); font-size:13px; margin-bottom:32px; }
+  .addons-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; max-width:1100px; margin:0 auto; }
+  .addon { padding:18px 20px; background:var(--bg2); border:1px solid var(--border); border-radius:10px; }
+  .addon .ad-name { font-weight:700; font-size:14px; color:var(--text); margin-bottom:4px; }
+  .addon .ad-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+  .addon .ad-status { font-size:10px; color:var(--or-antique); font-weight:600; letter-spacing:1px; margin-top:8px; }
+  .addon.soon { opacity:0.5; }
+  .addons-cta { text-align:center; margin-top:32px; }
+  .addons-cta a { color:var(--navy); font-weight:600; font-size:14px; }
+
+  /* CROSS-LINK BANDEAU */
+  .crosslink { margin:0 48px; padding:32px 36px; background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%); border-radius:14px; color:#fff; display:flex; justify-content:space-between; align-items:center; gap:32px; margin-bottom:50px; }
+  .crosslink .ct-l h3 { font-family:var(--serif); font-size:22px; font-weight:700; margin-bottom:6px; }
+  .crosslink .ct-l p { color:#aab5cc; font-size:13px; line-height:1.5; max-width:520px; }
+  .crosslink .ct-btn { padding:14px 26px; background:var(--or-chaud); color:var(--navy-deep); border-radius:8px; font-weight:700; font-size:13px; white-space:nowrap; }
+
+  /* FOOTER FAQ */
+  .faq { padding:60px 48px; border-top:1px solid var(--border); }
+  .faq h2 { font-family:var(--serif); font-size:26px; text-align:center; margin-bottom:32px; }
+  .faq-grid { max-width:780px; margin:0 auto; }
+  .faq-item { padding:18px 22px; background:var(--bg2); border-radius:10px; margin-bottom:8px; }
+  .faq-item h4 { font-size:14px; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .faq-item p { font-size:13px; color:var(--t2); line-height:1.55; }
+
+  /* ============ /MINI PAGE ============ */
+  .hero-mini { background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%); color:#fff; padding:80px 48px 56px; text-align:center; }
+  .hero-mini .kicker { background:var(--or-chaud); color:var(--navy-deep); padding:6px 16px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:1px; display:inline-block; margin-bottom:24px; }
+  .hero-mini h1 { font-family:var(--serif); font-size:64px; line-height:1.05; font-weight:700; margin-bottom:20px; letter-spacing:-1.5px; }
+  .hero-mini h1 .it { font-style:italic; font-weight:400; color:var(--or-chaud); }
+  .hero-mini p { font-size:18px; color:#aab5cc; max-width:680px; margin:0 auto 32px; line-height:1.5; }
+  .hero-mini .price-big { font-family:var(--serif); font-size:80px; font-weight:700; color:var(--or-chaud); line-height:1; }
+  .hero-mini .price-big .unit { font-size:20px; color:#aab5cc; margin-left:6px; }
+  .hero-mini .price-meta { color:#aab5cc; font-size:12px; margin-top:8px; }
+
+  .duo-mini { padding:60px 48px; }
+  .duo-mini h2 { font-family:var(--serif); font-size:32px; font-weight:700; text-align:center; margin-bottom:8px; letter-spacing:-0.5px; }
+  .duo-mini .sect-sub { text-align:center; color:var(--t2); font-size:14px; margin-bottom:36px; max-width:560px; margin-left:auto; margin-right:auto; }
+  .duo-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; max-width:880px; margin:0 auto; }
+
+  .roi { padding:36px 48px; background:var(--bg2); }
+  .roi-box { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--or-antique); border-radius:14px; padding:32px; display:flex; align-items:center; gap:28px; }
+  .roi-box .ic { font-size:48px; }
+  .roi-box .roi-content { flex:1; }
+  .roi-box h3 { font-family:var(--serif); font-size:22px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .roi-box p { font-size:14px; color:var(--t2); line-height:1.55; }
+  .roi-box b { color:var(--or-antique); }
+
+  /* APP CAPTURE PREVIEW */
+  .preview-app { padding:60px 48px; }
+  .preview-app h2 { font-family:var(--serif); font-size:28px; text-align:center; margin-bottom:8px; }
+  .preview-app .sect-sub { text-align:center; color:var(--muted); font-size:13px; margin-bottom:36px; }
+  .app-frame { max-width:880px; margin:0 auto; background:#0f1620; border-radius:14px; padding:16px 20px; color:#e8eef5; box-shadow:0 16px 48px rgba(0,0,0,0.2); }
+  .app-frame .app-topbar { display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid #25304a; margin-bottom:14px; }
+  .app-frame .app-lockup { display:flex; align-items:center; gap:8px; }
+  .app-frame .app-lockup .l-sq { width:30px; height:30px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:3px; }
+  .app-frame .app-lockup .word { font-family:'Alethia Next', sans-serif; font-size:16px; color:#c89752; line-height:1; }
+  .app-frame .app-resto { font-family:var(--serif); font-weight:700; font-size:14px; }
+  .app-frame .resa-row { display:grid; grid-template-columns:38px 38px 48px 1fr; gap:12px; padding:8px 12px; background:#1a2435; border-radius:6px; margin-bottom:3px; font-size:11px; align-items:center; }
+  .app-frame .table { background:#1d4f91; color:#fff; padding:3px 0; text-align:center; border-radius:3px; font-weight:700; }
+  .app-frame .time { color:#10b981; font-family:var(--fm); font-weight:700; }
+  .app-frame .cap { font-family:var(--fm); }
+  .app-frame .footer-note { text-align:center; color:#aab5cc; font-size:10px; margin-top:14px; padding-top:10px; border-top:1px solid #25304a; }
+
+  /* VALIDATION CHECKLIST */
+  .validation { background:#fff; border-radius:14px; padding:28px 32px; margin-top:24px; }
+  .validation h2 { font-family:var(--serif); font-size:22px; margin-bottom:18px; color:var(--text); }
+  .checklist { list-style:none; }
+  .checklist li { padding:8px 0; font-size:13px; display:flex; gap:10px; align-items:flex-start; line-height:1.5; }
+  .checklist li::before { content:"☐"; font-size:18px; color:var(--navy); flex-shrink:0; line-height:1; }
+  .checklist li b { color:var(--text); }
+</style>
+</head>
+<body>
+<div class="doc">
+  <h1 class="doc-h">R3STO — Mockup final pour validation</h1>
+  <p class="doc-s">Pages /pro et /mini complètes en thème CLAIR pour le marketing. Logo officiel, palette navy + or chaud, Fraunces serif, Alethia wordmarks. À valider ensemble avant code.</p>
+
+  <!-- ====================== r3sto.com/pro ====================== -->
+  <div class="page-frame">
+    <div class="url-bar"><span>🌐 r3sto.com/pro</span><span class="tag">Cheval de bataille · 3 packages B2B</span></div>
+
+    <div class="top-nav">
+      <div class="lockup">
+        <span class="l-sq"></span>
+        <span class="word">Pro</span>
+      </div>
+      <nav>
+        <a>Fonctionnalités</a><a>Tarifs</a><a>Modules</a><a>Démo</a><a>Connexion</a>
+      </nav>
+      <a class="cta-top">Essai 14 jours →</a>
+    </div>
+
+    <div class="hero">
+      <span class="kicker">⚡ Plateforme tout-en-un · 0% commission</span>
+      <h1>Gérer. Remplir. <span class="it">Fidéliser.</span></h1>
+      <p class="sub">La plateforme de gestion R3STO Pro digitalise votre restaurant de A à Z. Conçu en Suisse, hébergement inclus, anti no-show natif Stripe.</p>
+      <div class="pills">
+        <span class="pill">Conçu en Suisse 🇨🇭</span>
+        <span class="pill gold">0% commission à vie</span>
+        <span class="pill">Essai 14 jours sans CB</span>
+        <span class="pill">Hébergement inclus</span>
+      </div>
+    </div>
+
+    <div class="tiers">
+      <div class="tiers-h">
+        <h2>Trois packages, une seule plateforme.</h2>
+        <p>Du resto qui s'équipe à la gastronomie multi-sites. Conçu pour grandir avec vous.</p>
+      </div>
+      <div class="tiers-grid">
+
+        <div class="tier">
+          <div class="tier-name">Essentiel</div>
+          <p class="tagline">Le pack solide pour votre présence digitale R3STO.</p>
+          <div class="price"><span>39</span><span class="currency">CHF/mois</span></div>
+          <div class="price-meta">Sans engagement · Essai 14 jours</div>
+          <ul class="features">
+            <li>Hébergement page resto sur r3sto.com</li>
+            <li>Widget réservation intégrable</li>
+            <li>Tables & Combos illimités</li>
+            <li>Menu QR digital multilingue</li>
+            <li>CRM clients + historique</li>
+            <li>Équipe : 5 utilisateurs</li>
+            <li class="star">Anti no-show Stripe natif</li>
+            <li class="muted">Plan 2D éditeur</li>
+            <li class="muted">Waitlist / Groupes</li>
+          </ul>
+          <button class="cta secondary">Démarrer Essentiel →</button>
+        </div>
+
+        <div class="tier featured">
+          <div class="badge">⭐ Le plus pris</div>
+          <div class="tier-name">Premium</div>
+          <p class="tagline">Pour le resto établi avec tous ses outils de pilotage.</p>
+          <div class="price"><span>59</span><span class="currency">CHF/mois</span></div>
+          <div class="price-meta">Sans engagement · Essai 14 jours</div>
+          <ul class="features">
+            <li>Tout Essentiel +</li>
+            <li class="star">Plan 2D éditeur de salle</li>
+            <li>Waitlist + Groupes + Blacklist</li>
+            <li>CRM avancé + préférences</li>
+            <li>Statistiques + rapports auto</li>
+            <li>Équipe illimitée</li>
+            <li>Support mail + chat</li>
+            <li class="muted">Multi-sites</li>
+            <li class="muted">IA prédictions</li>
+          </ul>
+          <button class="cta primary">Démarrer Premium →</button>
+        </div>
+
+        <div class="tier">
+          <div class="tier-name">Signature</div>
+          <p class="tagline">La Rolls Royce pour gastronomie ou chaîne. Moins de 1'000 CHF/an.</p>
+          <div class="price"><span>79</span><span class="currency">CHF/mois</span></div>
+          <div class="price-meta">Sans engagement · 948 CHF/an</div>
+          <ul class="features">
+            <li>Tout Premium +</li>
+            <li class="star">Multi-sites (chaînes)</li>
+            <li class="star">IA prédictions d'affluence</li>
+            <li>API REST sur demande</li>
+            <li>Onboarding accompagné</li>
+            <li>Support prioritaire 24h</li>
+            <li>Candidature CARAT incluse</li>
+          </ul>
+          <button class="cta secondary">Demander une démo →</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="story">
+      <h2>Ce que vivent les restaurateurs au quotidien.</h2>
+      <div class="story-grid">
+        <div class="story-card">
+          <div class="ic">⚡</div>
+          <h3>Luttez contre les no-shows</h3>
+          <p>Caution Stripe pour les groupes, score de fiabilité client, rappels SMS. ROI immédiat : 2 no-shows évités/mois = 240 CHF récupérés.</p>
+        </div>
+        <div class="story-card">
+          <div class="ic">🚫</div>
+          <h3>0% commission — pour toujours</h3>
+          <p>Pas de prélèvement par couvert comme TheFork (3-4 CHF/couvert). Prix fixe mensuel, vous gardez 100% du chiffre.</p>
+        </div>
+        <div class="story-card">
+          <div class="ic">🌙</div>
+          <h3>Réservations 24/7 sans téléphone</h3>
+          <p>Votre client réserve à 2h du matin, vous arrivez le lendemain et voyez tout. Plus de tickets papier ni de double-booking.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="addons">
+      <h2>Modules complémentaires</h2>
+      <p class="sect-sub">Activez à la carte ce qui vous intéresse. Tarifs sur demande lors de l'activation.</p>
+      <div class="addons-grid">
+        <div class="addon"><div class="ad-name">R3STO Order</div><div class="ad-desc">Commandes en salle tablette + KDS cuisine</div><div class="ad-status">DISPONIBLE</div></div>
+        <div class="addon"><div class="ad-name">R3STO Delivery</div><div class="ad-desc">Livraison & take-away · 0% commission</div><div class="ad-status">DISPONIBLE</div></div>
+        <div class="addon"><div class="ad-name">R3STO Cash</div><div class="ad-desc">Caisse + paiement tablette · Twint/Stripe</div><div class="ad-status">DISPONIBLE</div></div>
+        <div class="addon soon"><div class="ad-name">R3STO Stock</div><div class="ad-desc">Inventaire + food cost + alertes</div><div class="ad-status">BIENTÔT</div></div>
+        <div class="addon soon"><div class="ad-name">R3STO Team</div><div class="ad-desc">Planning + pointage + CCNT</div><div class="ad-status">BIENTÔT</div></div>
+        <div class="addon soon"><div class="ad-name">R3STO Insights</div><div class="ad-desc">Analytics IA + benchmarks anonymes</div><div class="ad-status">BIENTÔT</div></div>
+      </div>
+      <div class="addons-cta"><a>Voir tous les modules · Demander un devis →</a></div>
+    </div>
+
+    <!-- BANDEAU MINI -->
+    <div class="crosslink">
+      <div class="ct-l">
+        <h3>Petit bistro · café · bar à vin ?</h3>
+        <p>R3STO Pro Mini à 19 CHF/mois (contrat 3 ans), sans hébergement R3STO ni Plan 2D mais avec l'essentiel propre pour digitaliser votre carnet de réservations.</p>
+      </div>
+      <a class="ct-btn">Découvrir R3STO Pro Mini →</a>
+    </div>
+
+    <div class="faq">
+      <h2>Questions fréquentes</h2>
+      <div class="faq-grid">
+        <div class="faq-item"><h4>Y a-t-il un engagement ?</h4><p>Essentiel, Premium et Signature sont en mensuel sans engagement. Vous résiliez quand vous voulez avec 1 mois de préavis. Mini et Mini+ sont en contrat 3 ans (offre coup de poing).</p></div>
+        <div class="faq-item"><h4>Que se passe-t-il après les 14 jours d'essai ?</h4><p>Vous choisissez votre tier ou vous arrêtez. Aucune carte bancaire n'est requise pour l'essai.</p></div>
+        <div class="faq-item"><h4>Le paiement par les clients est-il inclus ?</h4><p>R3STO Pro inclut l'intégration Stripe pour les prépaiements (caution anti no-show). Frais Stripe à votre charge (2.9% + 0.30€). Vos clients payent normalement leur addition au resto comme avant.</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====================== r3sto.com/mini ====================== -->
+  <div class="page-frame">
+    <div class="url-bar"><span>🌐 r3sto.com/mini</span><span class="tag">Arme de pénétration · duo Mini</span></div>
+
+    <div class="top-nav">
+      <div class="lockup">
+        <span class="l-sq"></span>
+        <span class="word">Pro Mini</span>
+      </div>
+      <nav>
+        <a>Fonctionnalités</a><a>FAQ</a><a>Voir R3STO Pro →</a>
+      </nav>
+      <a class="cta-top">Souscrire Mini →</a>
+    </div>
+
+    <div class="hero-mini">
+      <span class="kicker">⚡ Offre coup de poing</span>
+      <h1>Votre carnet de réservations.<br><span class="it">Digital. 19 CHF.</span></h1>
+      <p>L'offre la plus simple et la plus efficace pour les bistros, cafés et petits restaurants qui veulent leur outil digital propre. Pas d'hébergement R3STO, pas de Plan 2D, juste l'essentiel qui marche.</p>
+      <div class="price-big">19<span class="unit">CHF/mois</span></div>
+      <div class="price-meta">Contrat 3 ans · 684 CHF total · 0% commission</div>
+    </div>
+
+    <div class="duo-mini">
+      <h2>Mini & Mini+ — choisissez votre niveau d'attaque</h2>
+      <p class="sect-sub">Les 2 tiers de l'offre coup de poing. Le seul écart est l'anti no-show Stripe sur Mini+.</p>
+      <div class="duo-grid">
+
+        <div class="tier">
+          <div class="tier-name">Mini</div>
+          <p class="tagline">Le strict minimum. Votre carnet de résa en mieux.</p>
+          <div class="price"><span>19</span><span class="currency">CHF/mois</span></div>
+          <div class="price-meta">Contrat 3 ans · 684 CHF total · Résiliation 3 mois avant fin</div>
+          <ul class="features">
+            <li>Vue résa par service (Midi · Soir · Tous)</li>
+            <li>Capacity check anti-double booking</li>
+            <li>Email auto-confirmation</li>
+            <li>Calendrier mois + filtres salles</li>
+            <li>Multi-salles (Terrasse · Principale · Privé)</li>
+            <li>Export CSV des réservations</li>
+            <li>1 utilisateur</li>
+            <li class="muted">Anti no-show Stripe</li>
+            <li class="muted">Widget intégrable</li>
+            <li class="muted">CRM + historique</li>
+            <li class="muted">Hébergement r3sto.com</li>
+          </ul>
+          <button class="cta secondary">Souscrire Mini →</button>
+        </div>
+
+        <div class="tier featured">
+          <div class="badge">🔥 Anti no-show</div>
+          <div class="tier-name">Mini+</div>
+          <p class="tagline">Mini + l'arme qui rembourse votre abo en un weekend.</p>
+          <div class="price"><span>29</span><span class="currency">CHF/mois</span></div>
+          <div class="price-meta">Contrat 3 ans · 1'044 CHF total · ROI no-show immédiat</div>
+          <ul class="features">
+            <li>Tout Mini +</li>
+            <li class="star">Prépaiement Stripe (caution anti no-show)</li>
+            <li>Widget intégrable sur votre site</li>
+            <li>CRM basique (historique + score fiabilité)</li>
+            <li>Équipe : 2-3 utilisateurs</li>
+            <li>50 SMS rappels inclus/mois</li>
+            <li class="muted">Tables & Combos avancés</li>
+            <li class="muted">Plan 2D éditeur</li>
+            <li class="muted">Hébergement r3sto.com</li>
+          </ul>
+          <button class="cta primary">Souscrire Mini+ →</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ROI BOX -->
+    <div class="roi">
+      <div class="roi-box">
+        <div class="ic">💰</div>
+        <div class="roi-content">
+          <h3>L'argument économique massue</h3>
+          <p>Vous évitez juste <b>2 no-shows × 4 personnes × 30 CHF/personne</b> avec Mini+ → <b>240 CHF récupérés</b>. Votre abonnement Mini+ se rembourse en un seul weekend. Aux 2-3 weekends suivants, vous êtes positif. Avec Piktable à 49 CHF/mois sans prépaiement, les no-shows continuent.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP CAPTURE -->
+    <div class="preview-app">
+      <h2>L'app Mini en action</h2>
+      <p class="sect-sub">Interface dédiée Mini · disponible sur mini.r3sto.com (ex-light.r3sto.ch) · même app que vos confrères équipés</p>
+      <div class="app-frame">
+        <div class="app-topbar">
+          <div class="app-lockup"><span class="l-sq"></span><span class="word">Pro Mini</span></div>
+          <div class="app-resto">Chez Bunny's</div>
+          <div style="color:#aab5cc;font-size:14px;">🌙 ⛶ ⏻</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:0 6px; font-size:11px; color:#aab5cc;">
+          <span style="font-family:var(--serif); color:#fff; font-size:13px; font-weight:700;">Soir <span style="color:#aab5cc; font-family:var(--fm); font-weight:400; font-size:10px;">(19:00 - 22:30)</span></span>
+          <span style="font-family:var(--fm);">13/19 · 55/85 couverts</span>
+        </div>
+        <div class="resa-row"><span class="table">T1</span><span class="cap">2/2</span><span class="time">19h00</span><span>Leroy Alice</span></div>
+        <div class="resa-row"><span class="table">T2</span><span class="cap">2/2</span><span class="time">19h00</span><span>Girard Paul</span></div>
+        <div class="resa-row"><span class="table">T3</span><span class="cap">3/3</span><span class="time">19h30</span><span>Morel Sandrine</span></div>
+        <div class="resa-row"><span class="table">T10</span><span class="cap">2/4</span><span class="time">20h15</span><span>Fischer Julie</span></div>
+        <div class="footer-note">Dashboard · Résas · Config — propulsé par R3STO Pro Mini</div>
+      </div>
+    </div>
+
+    <!-- CROSSLINK retour Pro -->
+    <div class="crosslink" style="margin-top:30px; background:linear-gradient(135deg, #fdf4ec 0%, #fff 100%); color:var(--text); border:1px solid var(--or-antique);">
+      <div class="ct-l">
+        <h3 style="color:var(--text);">Vous voulez l'écosystème complet R3STO Pro ?</h3>
+        <p style="color:var(--t2);">Hébergement page resto sur r3sto.com, Plan 2D éditeur, Tables & Combos, Menu QR, CRM avancé, Multi-sites, IA prédictions. Essentiel dès 39 CHF/mois sans engagement.</p>
+      </div>
+      <a class="ct-btn" style="background:var(--navy); color:#fff;">Découvrir R3STO Pro →</a>
+    </div>
+
+    <div class="faq">
+      <h2>FAQ Mini</h2>
+      <div class="faq-grid">
+        <div class="faq-item"><h4>Pourquoi un contrat 3 ans obligatoire pour Mini ?</h4><p>C'est ce qui nous permet de proposer 19 CHF/mois — ~30% sous le prix de notre concurrent Piktable à 29 CHF lifetime. L'engagement vous garantit le tarif, et nous garantit la viabilité économique du tier.</p></div>
+        <div class="faq-item"><h4>Et si je veux upgrade vers Essentiel/Premium ?</h4><p>Possible à tout moment sans pénalité. Votre engagement initial (3 ans minimum sur Mini ou supérieur) se transforme automatiquement à votre nouveau tier choisi.</p></div>
+        <div class="faq-item"><h4>Comment résilier ?</h4><p>3 mois avant la fin de votre contrat 3 ans, par mail à support@r3sto.com. Sans préavis, reconduction tacite pour 1 an supplémentaire au même tarif.</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- VALIDATION CHECKLIST -->
+  <div class="validation">
+    <h2>📋 Cocher ce qui est OK · pointer ce qui doit changer</h2>
+    <ul class="checklist">
+      <li><b>Hero /pro</b> "Gérer. Remplir. Fidéliser." en Fraunces italique + lockup R3STO Pro</li>
+      <li><b>3 tiers /pro</b> Essentiel 39 / Premium 59 (featured) / Signature 79 — sans toggle, prix mensuel fixe</li>
+      <li><b>Sections storytelling</b> sur /pro (no-shows · 0% commission · 24/7)</li>
+      <li><b>Add-ons sans tarif</b> avec badges DISPONIBLE / BIENTÔT + lead capture devis</li>
+      <li><b>Bandeau cross-link Mini</b> avec dégradé navy + CTA or chaud</li>
+      <li><b>Hero /mini</b> dark navy + prix big "19 CHF" en or chaud (effet "bombe")</li>
+      <li><b>Duo /mini</b> 2 cards Mini 19 / Mini+ 29 + features distinctes (Mini+ a anti no-show)</li>
+      <li><b>ROI box</b> argument économique anti no-show (240 CHF récupérés)</li>
+      <li><b>Preview app</b> dark navy + tokens auth.r3sto.ch + lockup R3STO Pro Mini en or</li>
+      <li><b>Cross-link retour /pro</b> bandeau crème/or pour cohérence visuelle</li>
+      <li><b>FAQ</b> par page avec questions spécifiques au contexte</li>
+      <li><b>Logo officiel</b> uniquement (logo-r3sto-blue.svg, pas d'invention)</li>
+      <li><b>Typo</b> Fraunces (titres) + Inter (corps) + JetBrains Mono (prix/data) + Alethia (wordmarks)</li>
+      <li><b>Palette</b> navy `#1d4f91` + or chaud `#c89752` + crème en /mini cross-link</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

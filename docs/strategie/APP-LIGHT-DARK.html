@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO App — Light + Dark soignés</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:#eceef2; padding:24px; color:#1f2937; line-height:1.5; }
+  .wrap { max-width:1600px; margin:0 auto; }
+
+  h1.top { font-family:'Playfair Display', serif; font-weight:700; font-size:30px; margin-bottom:6px; color:#0f1620; }
+  .sub { color:#6b7280; font-size:13px; margin-bottom:20px; }
+  .intro { background:#fff; border-left:4px solid #1d4f91; padding:18px 22px; border-radius:6px; font-size:14px; line-height:1.55; margin-bottom:24px; }
+  .intro b { color:#0f1620; }
+  .intro code { background:#eef3fc; color:#1d4f91; padding:1px 5px; border-radius:3px; font-family:monospace; font-size:12px; }
+
+  .apps-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .app-frame { border-radius:14px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.10); }
+  .frame-head { padding:12px 18px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+
+  /* ============================ LIGHT THEME ============================ */
+  .light .frame-head { background:#fafafc; color:#1d4f91; border-bottom:1px solid #e5e7eb; }
+  .light .app-body { display:grid; grid-template-columns:88px 1fr; min-height:760px; background:#fafafc; color:#0f1620; }
+  .light .sidebar { background:#f5f6f8; border-right:1px solid #e5e7eb; padding:16px 8px; display:flex; flex-direction:column; gap:6px; align-items:center; }
+  .light .nav-item { width:62px; padding:11px 0; border-radius:8px; text-align:center; font-size:9px; font-weight:600; color:#6b7280; transition:.15s; cursor:pointer; }
+  .light .nav-item:hover { background:#e5e7eb; color:#1d4f91; }
+  .light .nav-item.active { background:#1d4f91; color:#fff; }
+  .light .topbar { padding:18px 26px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb; background:#fff; }
+  .light .topbar .title { font-family:'Playfair Display', serif; font-size:22px; font-weight:700; color:#0f1620; }
+  .light .topbar .date { font-size:12px; color:#6b7280; margin-top:2px; }
+  .light .topbar .lockup .word { color:#1d4f91; }
+  .light .kpi { background:#fff; border:1px solid #e5e7eb; }
+  .light .kpi .lbl { color:#6b7280; }
+  .light .kpi .val { color:#1d4f91; }
+  .light .kpi.k-info .val { color:#3b82f6; }
+  .light .kpi.k-warm .val { color:#b8632b; }
+  .light .kpi.k-success .val { color:#10b981; }
+  .light .delta-up { color:#10b981; }
+  .light .delta-dn { color:#ef4444; }
+  .light .section-title { color:#0f1620; }
+  .light .resa-row { background:#fff; border:1px solid #e5e7eb; }
+  .light .resa-row:hover { background:#f5f6f8; }
+  .light .resa-row .h { color:#1d4f91; }
+  .light .resa-row .table-lbl { color:#6b7280; }
+  .light .btn-primary { background:#1d4f91; color:#fff; }
+  .light .btn-primary:hover { background:#14253f; }
+  .light .btn-ghost { background:transparent; border:1px solid #e5e7eb; color:#0f1620; }
+  .light .btn-ghost:hover { background:#f5f6f8; }
+  .light .alert-info { background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; }
+  .light .alert-warm { background:#fdf4ec; border:1px solid #e8d4b8; color:#7a3e15; }
+  .light .form-section { background:#fff; border:1px solid #e5e7eb; }
+  .light .form-section h4 { color:#0f1620; }
+  .light .input { background:#fff; border:1px solid #d4d4d8; color:#0f1620; }
+  .light .input:focus { border-color:#1d4f91; outline:3px solid #eff6ff; }
+  .light .input-label { color:#6b7280; }
+  .light .pill-vip { background:#fdf4ec; color:#b8632b; border:1px solid #e8d4b8; }
+  .light .pill-conf { background:#eff6ff; color:#1d4f91; border:1px solid #bfdbfe; }
+  .light .pill-pending { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+  .light .pill-success { background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; }
+  .light .chart-bar { background:linear-gradient(to top, #1d4f91, #3b82f6); }
+
+  /* ============================ DARK THEME ============================ */
+  .dark .frame-head { background:#0f1620; color:#c89752; border-bottom:1px solid #25304a; }
+  .dark .app-body { display:grid; grid-template-columns:88px 1fr; min-height:760px; background:#0f1620; color:#e8eef5; }
+  .dark .sidebar { background:#141d2c; border-right:1px solid #25304a; padding:16px 8px; display:flex; flex-direction:column; gap:6px; align-items:center; }
+  .dark .nav-item { width:62px; padding:11px 0; border-radius:8px; text-align:center; font-size:9px; font-weight:600; color:#aab5cc; transition:.15s; cursor:pointer; }
+  .dark .nav-item:hover { background:#25304a; color:#c89752; }
+  .dark .nav-item.active { background:#1d4f91; color:#fff; }
+  .dark .topbar { padding:18px 26px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #25304a; background:#141d2c; }
+  .dark .topbar .title { font-family:'Playfair Display', serif; font-size:22px; font-weight:700; color:#e8eef5; }
+  .dark .topbar .date { font-size:12px; color:#aab5cc; margin-top:2px; }
+  .dark .topbar .lockup .word { color:#c89752; }
+  .dark .kpi { background:#1a2435; border:1px solid #25304a; }
+  .dark .kpi .lbl { color:#aab5cc; }
+  .dark .kpi .val { color:#3b82f6; }
+  .dark .kpi.k-info .val { color:#60a5fa; }
+  .dark .kpi.k-warm .val { color:#c89752; }
+  .dark .kpi.k-success .val { color:#34d399; }
+  .dark .delta-up { color:#34d399; }
+  .dark .delta-dn { color:#f87171; }
+  .dark .section-title { color:#e8eef5; }
+  .dark .resa-row { background:#1a2435; border:1px solid #25304a; }
+  .dark .resa-row:hover { background:#25304a; }
+  .dark .resa-row .h { color:#60a5fa; }
+  .dark .resa-row .table-lbl { color:#aab5cc; }
+  .dark .btn-primary { background:#c89752; color:#0f1620; font-weight:700; }
+  .dark .btn-primary:hover { background:#b8632b; color:#fff; }
+  .dark .btn-ghost { background:transparent; border:1px solid #25304a; color:#e8eef5; }
+  .dark .btn-ghost:hover { background:#25304a; }
+  .dark .alert-info { background:#1e3a8a30; border:1px solid #1e40af; color:#93c5fd; }
+  .dark .alert-warm { background:#7a3e1530; border:1px solid #b8632b; color:#fbbf24; }
+  .dark .form-section { background:#1a2435; border:1px solid #25304a; }
+  .dark .form-section h4 { color:#e8eef5; }
+  .dark .input { background:#25304a; border:1px solid #2a3a5a; color:#e8eef5; }
+  .dark .input:focus { border-color:#c89752; outline:3px solid #c8975230; }
+  .dark .input-label { color:#aab5cc; }
+  .dark .pill-vip { background:#7a3e1530; color:#fbbf24; border:1px solid #b8632b; }
+  .dark .pill-conf { background:#1e3a8a30; color:#93c5fd; border:1px solid #1e40af; }
+  .dark .pill-pending { background:#45190430; color:#fbbf24; border:1px solid #92400e; }
+  .dark .pill-success { background:#064e3b30; color:#34d399; border:1px solid #047857; }
+  .dark .chart-bar { background:linear-gradient(to top, #c89752, #fbbf24); }
+
+  /* ============================ Shared structure ============================ */
+  .sidebar .logo { width:50px; height:50px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:5px; margin-bottom:16px; }
+  .nav-item .ic { display:block; font-size:18px; margin-bottom:3px; }
+
+  .topbar .lockup { display:flex; align-items:center; gap:10px; }
+  .topbar .lockup .l-sq { width:36px; height:36px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:4px; }
+  .topbar .lockup .word { font-family:'Alethia Next', sans-serif; font-size:26px; line-height:1; }
+
+  .main { padding:24px 26px; display:flex; flex-direction:column; gap:18px; }
+
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .kpi { padding:16px 18px; border-radius:10px; }
+  .kpi .lbl { font-size:10px; letter-spacing:1.2px; text-transform:uppercase; font-weight:600; margin-bottom:6px; }
+  .kpi .val { font-family:'Playfair Display', serif; font-size:32px; font-weight:700; line-height:1; }
+  .kpi .delta { font-size:10px; font-weight:600; margin-top:6px; display:inline-block; }
+  .kpi .spark { margin-top:8px; display:flex; gap:2px; align-items:flex-end; height:24px; }
+  .chart-bar { width:6px; border-radius:2px 2px 0 0; opacity:0.5; }
+  .chart-bar.active { opacity:1; }
+
+  .section-title { font-family:'Playfair Display', serif; font-size:16px; font-weight:700; margin-top:4px; }
+
+  .table-h { display:flex; justify-content:space-between; align-items:center; }
+  .actions { display:flex; gap:8px; }
+  .btn { padding:8px 16px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; border:0; transition:.15s; }
+
+  .resa-row { display:grid; grid-template-columns:62px 1fr 90px 70px 90px; gap:14px; padding:13px 18px; border-radius:8px; font-size:13px; align-items:center; transition:.15s; cursor:pointer; }
+  .resa-row .h { font-family:'Playfair Display', serif; font-size:17px; font-weight:700; }
+  .resa-row .nm { font-weight:600; }
+  .resa-row .table-lbl { font-size:11px; }
+  .resa-row .px { padding:3px 9px; border-radius:5px; font-size:10px; font-weight:700; text-align:center; }
+  .px-navy { background:#1d4f91; color:#fff; }
+  .px-cuivre { background:#b8632b; color:#fff; }
+  .px-bleu { background:#3b82f6; color:#fff; }
+  .pill { padding:3px 9px; border-radius:5px; font-size:10px; font-weight:700; text-align:center; letter-spacing:0.5px; }
+
+  .alert { padding:14px 18px; border-radius:8px; font-size:12px; line-height:1.5; display:flex; gap:10px; align-items:flex-start; }
+  .alert .ic { font-size:16px; flex-shrink:0; }
+
+  .form-section { padding:18px 22px; border-radius:10px; }
+  .form-section h4 { font-size:13px; font-weight:700; margin-bottom:14px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:12px; }
+  .field { display:flex; flex-direction:column; gap:5px; }
+  .input-label { font-size:10px; letter-spacing:1px; text-transform:uppercase; font-weight:600; }
+  .input { padding:9px 12px; border-radius:6px; font-size:13px; font-family:inherit; }
+
+  .footer-note { background:#fff; border-radius:10px; padding:18px 22px; margin-top:18px; font-size:13px; line-height:1.6; color:#1f2937; }
+  .footer-note b { color:#0f1620; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="top">R3STO App — Light + Dark soignés</h1>
+  <p class="sub">App.r3sto.ch en deux thèmes parfaitement équivalents · navy/cuivre · même structure, deux ambiances · v2 patient et soigné</p>
+
+  <div class="intro">
+    Cette fois, plus de composants pour vraiment juger : <b>sidebar, topbar, KPI avec sparkline, table résa avec statuts colorés, alerts, formulaire, boutons</b>.<br>
+    <b>Light mode (app)</b> : fond <code>#fafafc</code> neutre — différent du <code>#fdf6ec</code> crème de r3sto.com B2C (qui reste réservé au grand public).<br>
+    <b>Dark mode (app)</b> : fond <code>#0f1620</code> navy profond — comme votre auth.r3sto.ch live.<br>
+    Dans les 2 modes, le bleu R3STO <code>#1d4f91</code> et le cuivre <code>#b8632b</code> apportent l'ADN. Le contraste se règle par les neutres.
+  </div>
+
+  <div class="apps-grid">
+
+    <!-- LIGHT -->
+    <div class="app-frame light">
+      <div class="frame-head"><span>☀ LIGHT MODE — service journée</span><span style="color:#1d4f91; font-family:'Alethia Next';">app.r3sto.ch</span></div>
+      <div class="app-body">
+        <div class="sidebar">
+          <span class="logo"></span>
+          <div class="nav-item active"><span class="ic">📅</span>Résa</div>
+          <div class="nav-item"><span class="ic">🍽</span>Order</div>
+          <div class="nav-item"><span class="ic">🛵</span>Liv.</div>
+          <div class="nav-item"><span class="ic">💳</span>Cash</div>
+          <div class="nav-item"><span class="ic">👥</span>CRM</div>
+          <div class="nav-item"><span class="ic">📊</span>Stats</div>
+          <div class="nav-item"><span class="ic">⚙️</span>Conf</div>
+        </div>
+        <div>
+          <div class="topbar">
+            <div>
+              <div class="title">Tableau de bord</div>
+              <div class="date">Vendredi 15 mai 2026 · 13:42</div>
+            </div>
+            <div class="lockup"><span class="l-sq"></span><span class="word">Pro</span></div>
+          </div>
+          <div class="main">
+            <div class="kpis">
+              <div class="kpi">
+                <div class="lbl">Couverts</div>
+                <div class="val">87</div>
+                <div class="delta delta-up">↑ +12% vs hier</div>
+                <div class="spark"><div class="chart-bar" style="height:30%"></div><div class="chart-bar" style="height:50%"></div><div class="chart-bar" style="height:40%"></div><div class="chart-bar" style="height:60%"></div><div class="chart-bar" style="height:70%"></div><div class="chart-bar" style="height:55%"></div><div class="chart-bar active" style="height:95%"></div></div>
+              </div>
+              <div class="kpi k-info">
+                <div class="lbl">Réservations</div>
+                <div class="val">34</div>
+                <div class="delta delta-up">↑ +4 résa</div>
+                <div class="spark"><div class="chart-bar" style="height:50%"></div><div class="chart-bar" style="height:45%"></div><div class="chart-bar" style="height:65%"></div><div class="chart-bar" style="height:60%"></div><div class="chart-bar" style="height:75%"></div><div class="chart-bar" style="height:80%"></div><div class="chart-bar active" style="height:90%"></div></div>
+              </div>
+              <div class="kpi k-warm">
+                <div class="lbl">CA prévu</div>
+                <div class="val">3'480</div>
+                <div class="delta delta-up">↑ +8% objectif</div>
+                <div class="spark"><div class="chart-bar" style="height:55%"></div><div class="chart-bar" style="height:60%"></div><div class="chart-bar" style="height:65%"></div><div class="chart-bar" style="height:75%"></div><div class="chart-bar" style="height:70%"></div><div class="chart-bar" style="height:85%"></div><div class="chart-bar active" style="height:88%"></div></div>
+              </div>
+              <div class="kpi k-success">
+                <div class="lbl">Taux occup.</div>
+                <div class="val">94%</div>
+                <div class="delta delta-up">↑ excellent</div>
+                <div class="spark"><div class="chart-bar" style="height:80%"></div><div class="chart-bar" style="height:75%"></div><div class="chart-bar" style="height:85%"></div><div class="chart-bar" style="height:80%"></div><div class="chart-bar" style="height:90%"></div><div class="chart-bar" style="height:88%"></div><div class="chart-bar active" style="height:94%"></div></div>
+              </div>
+            </div>
+
+            <div class="alert alert-warm"><span class="ic">⚡</span><div><b>Service du soir chargé :</b> 6 tables encore libres sur 12. 3 demandes en attente — vérifiez vos disponibilités avant 18h.</div></div>
+
+            <div class="table-h">
+              <span class="section-title">Prochaines réservations</span>
+              <div class="actions">
+                <button class="btn btn-ghost">Filtrer</button>
+                <button class="btn btn-primary">+ Nouvelle résa</button>
+              </div>
+            </div>
+
+            <div class="resa-row"><span class="h">19:30</span><span class="nm">Marc Dupont</span><span class="table-lbl">Table 7</span><span class="px px-navy">4 pers.</span><span class="pill pill-conf">CONFIRMÉ</span></div>
+            <div class="resa-row"><span class="h">20:00</span><span class="nm">Famille Schmid</span><span class="table-lbl">Table 12 · terrasse</span><span class="px px-cuivre">6 pers.</span><span class="pill pill-vip">⭐ VIP</span></div>
+            <div class="resa-row"><span class="h">20:15</span><span class="nm">Sophie Vannier</span><span class="table-lbl">Table 3</span><span class="px px-bleu">2 pers.</span><span class="pill pill-pending">EN ATTENTE</span></div>
+            <div class="resa-row"><span class="h">20:45</span><span class="nm">Jean Mottet</span><span class="table-lbl">Table 9</span><span class="px px-navy">4 pers.</span><span class="pill pill-success">PRÉPAYÉ</span></div>
+
+            <div class="form-section">
+              <h4>Note rapide pour le service</h4>
+              <div class="form-row">
+                <div class="field"><span class="input-label">Titre</span><input class="input" placeholder="Allergie M. Dupont"></div>
+                <div class="field"><span class="input-label">Importance</span><input class="input" placeholder="Critique"></div>
+              </div>
+              <div class="field" style="margin-bottom:12px;"><span class="input-label">Message équipe</span><input class="input" placeholder="Allergie aux fruits de mer signalée à la réservation 19:30"></div>
+              <button class="btn btn-primary">Publier la note</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="app-frame dark">
+      <div class="frame-head"><span>🌙 DARK MODE — service soir</span><span style="color:#c89752; font-family:'Alethia Next';">app.r3sto.ch</span></div>
+      <div class="app-body">
+        <div class="sidebar">
+          <span class="logo"></span>
+          <div class="nav-item active"><span class="ic">📅</span>Résa</div>
+          <div class="nav-item"><span class="ic">🍽</span>Order</div>
+          <div class="nav-item"><span class="ic">🛵</span>Liv.</div>
+          <div class="nav-item"><span class="ic">💳</span>Cash</div>
+          <div class="nav-item"><span class="ic">👥</span>CRM</div>
+          <div class="nav-item"><span class="ic">📊</span>Stats</div>
+          <div class="nav-item"><span class="ic">⚙️</span>Conf</div>
+        </div>
+        <div>
+          <div class="topbar">
+            <div>
+              <div class="title">Tableau de bord</div>
+              <div class="date">Vendredi 15 mai 2026 · 19:42</div>
+            </div>
+            <div class="lockup"><span class="l-sq"></span><span class="word">Pro</span></div>
+          </div>
+          <div class="main">
+            <div class="kpis">
+              <div class="kpi">
+                <div class="lbl">Couverts</div>
+                <div class="val">87</div>
+                <div class="delta delta-up">↑ +12% vs hier</div>
+                <div class="spark"><div class="chart-bar" style="height:30%"></div><div class="chart-bar" style="height:50%"></div><div class="chart-bar" style="height:40%"></div><div class="chart-bar" style="height:60%"></div><div class="chart-bar" style="height:70%"></div><div class="chart-bar" style="height:55%"></div><div class="chart-bar active" style="height:95%"></div></div>
+              </div>
+              <div class="kpi k-info">
+                <div class="lbl">Réservations</div>
+                <div class="val">34</div>
+                <div class="delta delta-up">↑ +4 résa</div>
+                <div class="spark"><div class="chart-bar" style="height:50%"></div><div class="chart-bar" style="height:45%"></div><div class="chart-bar" style="height:65%"></div><div class="chart-bar" style="height:60%"></div><div class="chart-bar" style="height:75%"></div><div class="chart-bar" style="height:80%"></div><div class="chart-bar active" style="height:90%"></div></div>
+              </div>
+              <div class="kpi k-warm">
+                <div class="lbl">CA prévu</div>
+                <div class="val">3'480</div>
+                <div class="delta delta-up">↑ +8% objectif</div>
+                <div class="spark"><div class="chart-bar" style="height:55%"></div><div class="chart-bar" style="height:60%"></div><div class="chart-bar" style="height:65%"></div><div class="chart-bar" style="height:75%"></div><div class="chart-bar" style="height:70%"></div><div class="chart-bar" style="height:85%"></div><div class="chart-bar active" style="height:88%"></div></div>
+              </div>
+              <div class="kpi k-success">
+                <div class="lbl">Taux occup.</div>
+                <div class="val">94%</div>
+                <div class="delta delta-up">↑ excellent</div>
+                <div class="spark"><div class="chart-bar" style="height:80%"></div><div class="chart-bar" style="height:75%"></div><div class="chart-bar" style="height:85%"></div><div class="chart-bar" style="height:80%"></div><div class="chart-bar" style="height:90%"></div><div class="chart-bar" style="height:88%"></div><div class="chart-bar active" style="height:94%"></div></div>
+              </div>
+            </div>
+
+            <div class="alert alert-warm"><span class="ic">⚡</span><div><b>Service du soir chargé :</b> 6 tables encore libres sur 12. 3 demandes en attente — vérifiez vos disponibilités avant 18h.</div></div>
+
+            <div class="table-h">
+              <span class="section-title">Prochaines réservations</span>
+              <div class="actions">
+                <button class="btn btn-ghost">Filtrer</button>
+                <button class="btn btn-primary">+ Nouvelle résa</button>
+              </div>
+            </div>
+
+            <div class="resa-row"><span class="h">19:30</span><span class="nm">Marc Dupont</span><span class="table-lbl">Table 7</span><span class="px px-navy">4 pers.</span><span class="pill pill-conf">CONFIRMÉ</span></div>
+            <div class="resa-row"><span class="h">20:00</span><span class="nm">Famille Schmid</span><span class="table-lbl">Table 12 · terrasse</span><span class="px px-cuivre">6 pers.</span><span class="pill pill-vip">⭐ VIP</span></div>
+            <div class="resa-row"><span class="h">20:15</span><span class="nm">Sophie Vannier</span><span class="table-lbl">Table 3</span><span class="px px-bleu">2 pers.</span><span class="pill pill-pending">EN ATTENTE</span></div>
+            <div class="resa-row"><span class="h">20:45</span><span class="nm">Jean Mottet</span><span class="table-lbl">Table 9</span><span class="px px-navy">4 pers.</span><span class="pill pill-success">PRÉPAYÉ</span></div>
+
+            <div class="form-section">
+              <h4>Note rapide pour le service</h4>
+              <div class="form-row">
+                <div class="field"><span class="input-label">Titre</span><input class="input" placeholder="Allergie M. Dupont"></div>
+                <div class="field"><span class="input-label">Importance</span><input class="input" placeholder="Critique"></div>
+              </div>
+              <div class="field" style="margin-bottom:12px;"><span class="input-label">Message équipe</span><input class="input" placeholder="Allergie aux fruits de mer signalée à la réservation 19:30"></div>
+              <button class="btn btn-primary">Publier la note</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">
+    <b>Différences clés entre les 2 modes</b> (au-delà du fond) :<br>
+    • <b>CTA primaire</b> : navy <code style="background:#eef3fc;color:#1d4f91;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px">#1d4f91</code> en light → cuivre <code style="background:#fdf4ec;color:#b8632b;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px">#b8632b</code> en dark (mieux visible sur fond foncé)<br>
+    • <b>Lockup Pro</b> : navy en light → cuivre en dark<br>
+    • <b>KPI nombres</b> : tonalités plus saturées en dark (bleu plus vif, vert plus lumineux) pour contraste<br>
+    • <b>Sparklines</b> : dégradé navy→bleu en light · dégradé cuivre→ambre en dark<br>
+    • <b>Hover résa</b> : surface gris pâle en light · surface élevée en dark<br><br>
+    <b>Distinction importante</b> : ce light mode app (fond <code>#fafafc</code> neutre) est <i>différent</i> du B2C r3sto.com qui utilise crème <code>#fdf6ec</code> + cuivre dominant. Le restaurateur reconnaît instantanément s'il est dans son outil ou sur le site grand public.<br><br>
+    <b>Toggle utilisateur</b> : icône ☀/🌙 dans le menu profil + option auto par horaire dans Réglages.
+  </div>
+
+</div>
+</body>
+</html>

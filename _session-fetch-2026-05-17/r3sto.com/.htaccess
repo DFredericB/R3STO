@@ -1,0 +1,43 @@
+# r3sto.com — landing R3STO sur Cloud Server (pivot 03/05/2026 : GUEST en racine, PRO sur /pro/)
+DirectoryIndex index.html index.php
+
+# Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>
+
+# Cache
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 5 minutes"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+</IfModule>
+
+# Sécurité
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# Redirect anciens liens (avant pivot)
+RewriteEngine On
+# Si quelqu'un avait /annuaire/ → maintenant c'est la racine /
+RewriteRule ^annuaire/?$ / [R=301,L]
+RewriteRule ^annuaire/(.*)$ /$1 [R=301,L]
+# Anciennes URLs WordPress (filet de sécurité)
+RewriteRule ^(wp-admin|wp-includes|wp-content|wp-login\.php) - [L]
+RewriteRule ^(inscription|connexion|tarifs|presse|digitalisation|optimisation)/?$ /pro/ [R=301,L]
+
+# Pretty URL fiches /restaurants/SLUG (FIX 04/05/2026 — pattern aligné r3sto.ch)
+# Strip trailing slash → canonical /restaurants/SLUG (sans /)
+RewriteRule ^restaurants/([a-z0-9-]+)/$ /restaurants/$1 [R=301,L]
+# Si fiche statique existe → sert (SEO pré-généré)
+RewriteCond %{DOCUMENT_ROOT}/restaurants/$1.html -f
+RewriteRule ^restaurants/([a-z0-9-]+)$ /restaurants/$1.html [L]
+# Sinon fallback fiche dynamique (fetch API)
+RewriteCond %{DOCUMENT_ROOT}/restaurants/$1.html !-f
+RewriteRule ^restaurants/([a-z0-9-]+)$ /fiche.html?slug=$1 [L,QSA]

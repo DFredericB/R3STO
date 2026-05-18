@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — App design system (light + dark)</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Alethia Next';
+    src: url('./fonts/AlethiaNext-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', system-ui, sans-serif; background:#eceef2; padding:24px; color:#1f2937; line-height:1.5; }
+  .wrap { max-width:1500px; margin:0 auto; }
+
+  h1.top { font-family:'Playfair Display', serif; font-weight:700; font-size:30px; margin-bottom:6px; color:#0f1620; }
+  .sub { color:#6b7280; font-size:13px; margin-bottom:20px; }
+  .intro { background:#fff; border-left:4px solid #1d4f91; padding:18px 22px; border-radius:6px; font-size:14px; line-height:1.55; margin-bottom:24px; }
+  .intro b { color:#0f1620; }
+  .intro code { background:#eef3fc; color:#1d4f91; padding:1px 5px; border-radius:3px; font-family:monospace; font-size:12px; }
+
+  /* ===== TOKENS ===== */
+  .tokens-section { background:#fff; padding:24px 28px; border-radius:14px; margin-bottom:18px; box-shadow:0 4px 16px rgba(0,0,0,0.05); }
+  .tokens-section h2 { font-family:'Playfair Display', serif; font-size:20px; color:#0f1620; margin-bottom:14px; }
+  .tokens-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:24px; }
+  .tok-group h3 { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700; color:#1d4f91; margin-bottom:10px; }
+  .tok { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .tok .sw { width:32px; height:32px; border-radius:5px; border:1px solid rgba(0,0,0,.08); flex-shrink:0; }
+  .tok .info { flex:1; min-width:0; }
+  .tok .nm { font-size:11px; font-weight:600; color:#0f1620; }
+  .tok .hx { font-size:10px; font-family:monospace; color:#6b7280; }
+
+  /* ===== APP MOCKUPS ===== */
+  .apps-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px; }
+  .app-frame { border-radius:14px; overflow:hidden; box-shadow:0 6px 24px rgba(0,0,0,0.10); }
+  .app-frame .top-bar { padding:10px 16px; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; }
+
+  .light .top-bar { background:#fff; color:#1d4f91; border-bottom:1px solid #e5e7eb; }
+  .dark .top-bar { background:#0f1620; color:#3b82f6; border-bottom:1px solid #25304a; }
+
+  /* ===== APP BODY (shared structure) ===== */
+  .app-body { display:grid; grid-template-columns:80px 1fr; min-height:560px; }
+
+  .light .app-body { background:#ffffff; color:#0f1620; }
+  .light .sidebar { background:#f6f6f8; border-right:1px solid #e5e7eb; }
+  .light .surface { background:#f6f6f8; }
+  .light .surface-alt { background:#ffffff; border:1px solid #e5e7eb; }
+  .light .text-muted { color:#6b7280; }
+  .light .border { border-color:#e5e7eb; }
+
+  .dark .app-body { background:#0f1620; color:#e8eef5; }
+  .dark .sidebar { background:#141d2c; border-right:1px solid #25304a; }
+  .dark .surface { background:#1a2435; }
+  .dark .surface-alt { background:#1a2435; border:1px solid #25304a; }
+  .dark .text-muted { color:#aab5cc; }
+  .dark .border { border-color:#25304a; }
+
+  .sidebar { padding:14px 8px; display:flex; flex-direction:column; gap:6px; align-items:center; }
+  .sidebar .logo { width:50px; height:50px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:5px; margin-bottom:14px; }
+  .sidebar .nav-item { width:56px; padding:10px 0; border-radius:7px; text-align:center; font-size:9px; font-weight:600; transition:all .15s; }
+  .light .nav-item { color:#6b7280; }
+  .dark .nav-item { color:#aab5cc; }
+  .light .nav-item:hover { background:#e5e7eb; color:#1d4f91; }
+  .dark .nav-item:hover { background:#25304a; color:#3b82f6; }
+  .nav-item.active { background:#1d4f91 !important; color:#fff !important; }
+  .nav-item .ic { font-size:16px; margin-bottom:3px; display:block; }
+
+  .main { padding:18px 24px; display:flex; flex-direction:column; gap:14px; }
+
+  .topbar { display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid; }
+  .topbar .title { font-family:'Playfair Display', serif; font-size:20px; font-weight:700; }
+  .topbar .lockup { display:flex; align-items:center; gap:10px; }
+  .topbar .lockup .l-sq { width:32px; height:32px; background:url('./logo-r3sto-blue.svg'); background-size:cover; border-radius:3px; }
+  .topbar .lockup .word { font-family:'Alethia Next', sans-serif; font-size:22px; color:#3b82f6; line-height:1; }
+  .dark .topbar .lockup .word { color:#3b82f6; }
+
+  /* KPIs */
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .kpi { padding:14px 16px; border-radius:10px; }
+  .kpi .lbl { font-size:9px; letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-bottom:6px; }
+  .kpi .val { font-family:'Playfair Display', serif; font-size:26px; font-weight:700; line-height:1; }
+  .kpi .delta { font-size:10px; font-weight:600; margin-top:4px; display:inline-block; }
+  .delta-up { color:#10b981; }
+  .delta-dn { color:#ef4444; }
+  .kpi.k-primary .val { color:#1d4f91; }
+  .dark .kpi.k-primary .val { color:#3b82f6; }
+  .kpi.k-accent .val { color:#b8632b; }
+  .kpi.k-success .val { color:#10b981; }
+  .kpi.k-info .val { color:#3b82f6; }
+
+  /* Table */
+  .table-h { display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+  .table-h .ttl { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700; }
+  .table-h .actions { display:flex; gap:8px; }
+  .btn { padding:6px 12px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer; }
+  .btn-primary { background:#1d4f91; color:#fff; }
+  .btn-ghost { background:transparent; border:1px solid; }
+  .light .btn-ghost { border-color:#e5e7eb; color:#0f1620; }
+  .dark .btn-ghost { border-color:#25304a; color:#e8eef5; }
+
+  .resa { display:grid; grid-template-columns:56px 1fr 90px 60px 70px; gap:12px; padding:10px 14px; border-radius:8px; font-size:12px; align-items:center; }
+  .resa .h { font-family:'Playfair Display', serif; font-size:15px; font-weight:700; }
+  .resa .nm { font-weight:600; }
+  .resa .table { font-size:11px; font-weight:600; }
+  .light .resa .table { color:#6b7280; }
+  .dark .resa .table { color:#aab5cc; }
+  .resa .px { padding:3px 8px; border-radius:5px; font-size:10px; font-weight:700; text-align:center; }
+  .resa .status { padding:3px 8px; border-radius:5px; font-size:9px; font-weight:700; text-align:center; }
+  .px-blue { background:#1d4f91; color:#fff; }
+  .px-light { background:#3b82f6; color:#fff; }
+  .px-copper { background:#b8632b; color:#fff; }
+  .st-ok { background:#dcfce7; color:#15803d; }
+  .dark .st-ok { background:#064e3b; color:#34d399; }
+  .st-pending { background:#fef3c7; color:#92400e; }
+  .dark .st-pending { background:#451a03; color:#fbbf24; }
+  .st-conf { background:#dbeafe; color:#1e40af; }
+  .dark .st-conf { background:#1e3a8a; color:#93c5fd; }
+
+  /* Note */
+  .note { padding:14px 18px; border-radius:8px; font-size:12px; line-height:1.5; }
+  .light .note.info { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
+  .dark .note.info { background:#1e3a8a40; color:#93c5fd; border:1px solid #1e40af; }
+  .light .note.warn { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+  .dark .note.warn { background:#45190440; color:#fbbf24; border:1px solid #92400e; }
+
+  .footer-note { background:#fff; border-radius:10px; padding:18px 22px; margin-top:18px; font-size:13px; line-height:1.6; color:#1f2937; }
+  .footer-note b { color:#0f1620; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="top">R3STO — App design system · Light + Dark mode</h1>
+  <p class="sub">Système unifié pour app.r3sto.ch · primary bleu duo · accent cuivre · sémantique success/warn/error/info · neutres light/dark</p>
+
+  <div class="intro">
+    Un seul système, deux thèmes. <b>Light</b> par défaut (jour, lumière du resto). <b>Dark</b> pour le service du soir (écrans en faible lumière, moins fatigant pour le staff). Le bleu R3STO <code>#1d4f91</code> reste signature, le bleu clair <code>#3b82f6</code> devient l'accent vif en dark mode. Le cuivre <code>#b8632b</code> apporte la chaleur gourmand. Les couleurs sémantiques (vert/ambre/rouge/bleu) restent constantes pour la cohérence des alertes.
+  </div>
+
+  <!-- ============ DESIGN TOKENS ============ -->
+  <div class="tokens-section">
+    <h2>Design tokens — couleurs</h2>
+    <div class="tokens-grid">
+
+      <div class="tok-group">
+        <h3>★ Primary (R3STO)</h3>
+        <div class="tok"><div class="sw" style="background:#1d4f91"></div><div class="info"><div class="nm">Bleu officiel</div><div class="hx">#1d4f91</div></div></div>
+        <div class="tok"><div class="sw" style="background:#3b82f6"></div><div class="info"><div class="nm">Bleu clair</div><div class="hx">#3b82f6</div></div></div>
+        <div class="tok"><div class="sw" style="background:#eff6ff;border:1px solid #ddd"></div><div class="info"><div class="nm">Bleu surface</div><div class="hx">#eff6ff</div></div></div>
+      </div>
+
+      <div class="tok-group">
+        <h3>★ Accent</h3>
+        <div class="tok"><div class="sw" style="background:#b8632b"></div><div class="info"><div class="nm">Cuivre</div><div class="hx">#b8632b</div></div></div>
+        <div class="tok"><div class="sw" style="background:#c89752"></div><div class="info"><div class="nm">Or chaud</div><div class="hx">#c89752</div></div></div>
+        <div class="tok"><div class="sw" style="background:#fdf4ec;border:1px solid #ddd"></div><div class="info"><div class="nm">Cuivre surface</div><div class="hx">#fdf4ec</div></div></div>
+      </div>
+
+      <div class="tok-group">
+        <h3>★ Sémantique</h3>
+        <div class="tok"><div class="sw" style="background:#10b981"></div><div class="info"><div class="nm">Success</div><div class="hx">#10b981</div></div></div>
+        <div class="tok"><div class="sw" style="background:#f59e0b"></div><div class="info"><div class="nm">Warning</div><div class="hx">#f59e0b</div></div></div>
+        <div class="tok"><div class="sw" style="background:#ef4444"></div><div class="info"><div class="nm">Error</div><div class="hx">#ef4444</div></div></div>
+        <div class="tok"><div class="sw" style="background:#3b82f6"></div><div class="info"><div class="nm">Info</div><div class="hx">#3b82f6</div></div></div>
+      </div>
+
+      <div class="tok-group">
+        <h3>Neutrals LIGHT</h3>
+        <div class="tok"><div class="sw" style="background:#ffffff;border:1px solid #ddd"></div><div class="info"><div class="nm">Surface</div><div class="hx">#ffffff</div></div></div>
+        <div class="tok"><div class="sw" style="background:#f6f6f8"></div><div class="info"><div class="nm">Surface 2</div><div class="hx">#f6f6f8</div></div></div>
+        <div class="tok"><div class="sw" style="background:#e5e7eb"></div><div class="info"><div class="nm">Border</div><div class="hx">#e5e7eb</div></div></div>
+        <div class="tok"><div class="sw" style="background:#0f1620"></div><div class="info"><div class="nm">Text</div><div class="hx">#0f1620</div></div></div>
+        <div class="tok"><div class="sw" style="background:#6b7280"></div><div class="info"><div class="nm">Muted</div><div class="hx">#6b7280</div></div></div>
+      </div>
+
+      <div class="tok-group">
+        <h3>Neutrals DARK</h3>
+        <div class="tok"><div class="sw" style="background:#0f1620"></div><div class="info"><div class="nm">Surface</div><div class="hx">#0f1620</div></div></div>
+        <div class="tok"><div class="sw" style="background:#141d2c"></div><div class="info"><div class="nm">Surface 2</div><div class="hx">#141d2c</div></div></div>
+        <div class="tok"><div class="sw" style="background:#1a2435"></div><div class="info"><div class="nm">Surface 3</div><div class="hx">#1a2435</div></div></div>
+        <div class="tok"><div class="sw" style="background:#25304a"></div><div class="info"><div class="nm">Border</div><div class="hx">#25304a</div></div></div>
+        <div class="tok"><div class="sw" style="background:#e8eef5"></div><div class="info"><div class="nm">Text</div><div class="hx">#e8eef5</div></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ APP MOCKUPS ============ -->
+  <div class="apps-grid">
+
+    <!-- LIGHT -->
+    <div class="app-frame light">
+      <div class="top-bar">☀ Light mode — service journée</div>
+      <div class="app-body">
+        <div class="sidebar">
+          <span class="logo"></span>
+          <div class="nav-item active"><span class="ic">📅</span>Résa</div>
+          <div class="nav-item"><span class="ic">🍽</span>Order</div>
+          <div class="nav-item"><span class="ic">🛵</span>Liv.</div>
+          <div class="nav-item"><span class="ic">💳</span>Cash</div>
+          <div class="nav-item"><span class="ic">👥</span>CRM</div>
+          <div class="nav-item"><span class="ic">⚙️</span>Conf</div>
+        </div>
+        <div class="main">
+          <div class="topbar border">
+            <span class="title">Aujourd'hui · vendredi 15 mai</span>
+            <div class="lockup"><span class="l-sq"></span><span class="word" style="color:#1d4f91">Pro</span></div>
+          </div>
+          <div class="kpis">
+            <div class="kpi surface k-primary"><div class="lbl text-muted">Couverts</div><div class="val">87</div><span class="delta delta-up">↑ +12% vs hier</span></div>
+            <div class="kpi surface k-info"><div class="lbl text-muted">Réservations</div><div class="val">34</div><span class="delta delta-up">↑ +4</span></div>
+            <div class="kpi surface k-accent"><div class="lbl text-muted">CA prévu</div><div class="val">3'480</div><span class="delta delta-up">↑ +8%</span></div>
+            <div class="kpi surface k-success"><div class="lbl text-muted">Taux occup.</div><div class="val">94%</div><span class="delta delta-up">↑ excellent</span></div>
+          </div>
+          <div class="table-h">
+            <span class="ttl">Prochaines réservations</span>
+            <div class="actions"><button class="btn btn-ghost">Filtrer</button><button class="btn btn-primary">+ Nouvelle résa</button></div>
+          </div>
+          <div class="resa surface"><div class="h">19:30</div><div class="nm">Marc Dupont</div><div class="table">Table 7</div><div class="px px-blue">4 pers.</div><div class="status st-conf">CONFIRMÉ</div></div>
+          <div class="resa surface"><div class="h">20:00</div><div class="nm">Famille Schmid</div><div class="table">Table 12</div><div class="px px-copper">6 pers.</div><div class="status st-ok">VIP</div></div>
+          <div class="resa surface"><div class="h">20:15</div><div class="nm">Sophie Vannier</div><div class="table">Table 3</div><div class="px px-light">2 pers.</div><div class="status st-pending">EN ATTENTE</div></div>
+          <div class="note info">💡 3 tables disponibles ce soir, 2 demandes en attente de confirmation.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="app-frame dark">
+      <div class="top-bar">🌙 Dark mode — service soir</div>
+      <div class="app-body">
+        <div class="sidebar">
+          <span class="logo"></span>
+          <div class="nav-item active"><span class="ic">📅</span>Résa</div>
+          <div class="nav-item"><span class="ic">🍽</span>Order</div>
+          <div class="nav-item"><span class="ic">🛵</span>Liv.</div>
+          <div class="nav-item"><span class="ic">💳</span>Cash</div>
+          <div class="nav-item"><span class="ic">👥</span>CRM</div>
+          <div class="nav-item"><span class="ic">⚙️</span>Conf</div>
+        </div>
+        <div class="main">
+          <div class="topbar border">
+            <span class="title">Aujourd'hui · vendredi 15 mai</span>
+            <div class="lockup"><span class="l-sq"></span><span class="word">Pro</span></div>
+          </div>
+          <div class="kpis">
+            <div class="kpi surface k-primary"><div class="lbl text-muted">Couverts</div><div class="val">87</div><span class="delta delta-up">↑ +12% vs hier</span></div>
+            <div class="kpi surface k-info"><div class="lbl text-muted">Réservations</div><div class="val">34</div><span class="delta delta-up">↑ +4</span></div>
+            <div class="kpi surface k-accent"><div class="lbl text-muted">CA prévu</div><div class="val">3'480</div><span class="delta delta-up">↑ +8%</span></div>
+            <div class="kpi surface k-success"><div class="lbl text-muted">Taux occup.</div><div class="val">94%</div><span class="delta delta-up">↑ excellent</span></div>
+          </div>
+          <div class="table-h">
+            <span class="ttl">Prochaines réservations</span>
+            <div class="actions"><button class="btn btn-ghost">Filtrer</button><button class="btn btn-primary">+ Nouvelle résa</button></div>
+          </div>
+          <div class="resa surface"><div class="h">19:30</div><div class="nm">Marc Dupont</div><div class="table">Table 7</div><div class="px px-blue">4 pers.</div><div class="status st-conf">CONFIRMÉ</div></div>
+          <div class="resa surface"><div class="h">20:00</div><div class="nm">Famille Schmid</div><div class="table">Table 12</div><div class="px px-copper">6 pers.</div><div class="status st-ok">VIP</div></div>
+          <div class="resa surface"><div class="h">20:15</div><div class="nm">Sophie Vannier</div><div class="table">Table 3</div><div class="px px-light">2 pers.</div><div class="status st-pending">EN ATTENTE</div></div>
+          <div class="note info">💡 3 tables disponibles ce soir, 2 demandes en attente de confirmation.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">
+    <b>Light mode</b> : couleurs vives sur fond clair, idéal pour utilisation tablette en journée, vue rapide sur transats/comptoir.<br>
+    <b>Dark mode</b> : surfaces très foncées, texte beige clair, accent bleu clair plus visible — réduit la fatigue oculaire pendant le service du soir.<br><br>
+    <b>Toggle automatique</b> possible : déclenchement par horaire (ex: dark après 18h) OU par luminosité ambiante (capteur tablette) OU manuel utilisateur.<br><br>
+    <b>Couleurs sémantiques constantes</b> entre les 2 modes : vert success, ambre warning, rouge error, bleu info. Les niveaux de saturation sont légèrement ajustés pour la lisibilité.<br><br>
+    <b>Le système s'applique aussi à</b> : admin.r3sto.ch, bill.r3sto.ch, demo.r3sto.ch (mêmes tokens, même structure).
+  </div>
+
+</div>
+</body>
+</html>

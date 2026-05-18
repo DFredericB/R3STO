@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="google-site-verification" content="uYVfE2eWgE67ya8-qV7uRIopRU36Rr9bVwbHCq1aenc">
+<title>R3STO — Réservations & gestion pour restaurants suisses</title>
+<meta name="description" content="R3STO : gestion des réservations, plan de salle IA, CRM clients, widget de réservation, prépaiement, bons cadeaux, fidélité, commandes en ligne. 0% commission. Hébergé en Suisse.">
+<meta property="og:title" content="R3STO — Réservations, commandes & gestion pour restaurants suisses">
+<meta property="og:description" content="Plateforme SaaS complete : réservations, plan de salle IA, CRM, widget, prépaiement, delivery. 0% commission. Hébergé en Suisse.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pro.r3sto.ch">
+<meta property="og:image" content="https://pro.r3sto.ch/logo-r3sto.jpg">
+<meta property="og:locale" content="fr_CH">
+<meta property="og:site_name" content="R3STO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="R3STO — Réservations & gestion pour restaurants suisses">
+<meta name="twitter:description" content="Plateforme SaaS : réservations, plan de salle IA, CRM, widget, prépaiement. 0% commission. Hébergé en Suisse.">
+<meta name="twitter:image" content="https://pro.r3sto.ch/logo-r3sto.jpg">
+<link rel="icon" type="image/jpeg" href="logo-r3sto.jpg">
+<link rel="canonical" href="https://pro.r3sto.ch">
+<link rel="alternate" hreflang="fr" href="https://pro.r3sto.ch">
+<link rel="alternate" hreflang="x-default" href="https://pro.r3sto.ch">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"R3STO","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://r3sto.com/pro","description":"Plateforme SaaS de gestion pour restaurants suisses. 0% commission.","offers":[{"@type":"Offer","name":"Essentiel","price":"39","priceCurrency":"CHF","billingIncrement":"P1M"},{"@type":"Offer","name":"Premium","price":"59","priceCurrency":"CHF","billingIncrement":"P1M"},{"@type":"Offer","name":"Signature","price":"79","priceCurrency":"CHF","billingIncrement":"P1M"}],"author":{"@type":"Organization","name":"R3STO","address":{"@type":"PostalAddress","addressLocality":"Lausanne","addressCountry":"CH"}}}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  /* DISCIPLINE PALETTE 2026-05-16 — navy + or seulement. Pas de vert/orange/violet décoratifs. */
+  --bg:#ffffff;--bg2:#f1f5f9;--surf:#ffffff;--surf2:#f8fafc;--surf3:#e2e8f0;
+  --grey:#f4f6f9;--grey-warm:#eef2f7;
+  --text:#0a1628;--t2:#2d3852;--t3:#5b6478;--muted:#8b95a8;
+  /* PRIMARY = navy EXACT logo R3STO #1d4f91 */
+  --ac:#1d4f91;--ac2:#2563eb;--ac-dark:#163d70;--ac-soft:#eaf0fa;
+  /* ACCENT = or */
+  --gold:#b08a18;--gold-bright:#e6a92e;--gold-soft:#fcecbf;--gold-deep:#8b6b0f;
+  /* SEMANTIC ONLY — vraie urgence/danger seulement (formulaires erreur, stat no-show) */
+  --rd:#dc2626;
+  /* ALIASES: les anciens tokens décoratifs pointent maintenant vers navy/gold pour éviter cassure */
+  --gn:var(--ac);--gn2:var(--ac2);
+  --am:var(--gold);--am2:var(--gold-bright);
+  --pu:var(--gold-deep);
+  /* DOT pulse "online" — un seul vrai vert très subtil, réservé au point pulsant */
+  --dot:#10b981;
+  --border:#d8dee9;--border2:#bfc8d6;
+  --ff:'Inter',system-ui,-apple-system,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+  --serif:'Fraunces',Georgia,serif;
+  --max:1200px;--rad:14px;
+  --glow:0 24px 64px rgba(15,58,115,.14);
+  --grad-navy:linear-gradient(135deg,#0f3a73 0%,#0a2c5c 100%);
+  --grad-gold:linear-gradient(135deg,#b08a18 0%,#e6a92e 100%);
+  --grad-signature:linear-gradient(90deg,#0f3a73 0%,#1d4f91 30%,#b08a18 70%,#e6a92e 100%);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.65;-webkit-font-smoothing:antialiased;font-weight:400}
+a{color:var(--gold);text-decoration:none}
+a:hover{color:var(--ac)}
+img{max-width:100%;display:block}
+section{padding:120px 24px;position:relative}
+h1,h2,h3,h4{font-family:var(--serif);font-variation-settings:'opsz' 60;letter-spacing:-.5px;font-weight:500}
+.inner{max-width:var(--max);margin:0 auto}
+
+/* ── SECTION SEPARATORS — filets décoratifs subtils ── */
+section{box-shadow:inset 0 1px 0 var(--border)}
+.hero,.stats,.mini-band{box-shadow:none}
+.section-mark{display:flex;justify-content:center;margin-bottom:-12px;padding-top:32px}
+.section-mark::before{content:'';width:60px;height:3px;background:var(--grad-gold);border-radius:0 0 3px 3px;opacity:.85;display:block}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;transition:background .3s,box-shadow .3s;background:rgba(251,250,245,.78);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px)}
+.nav.scrolled{background:rgba(251,250,245,.92);box-shadow:0 1px 0 var(--border)}
+.nav-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:14px;text-decoration:none}
+.logo img{height:44px;width:44px;border-radius:4px;object-fit:cover;box-shadow:0 1px 3px rgba(26,29,46,.08)}
+.logo span{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--text);letter-spacing:-.3px;font-variation-settings:'opsz' 22}
+.logo b{font-style:italic;color:var(--gold);font-weight:600}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{color:var(--t2);font-size:13px;font-weight:500;transition:.2s;white-space:nowrap;letter-spacing:.01em}
+.nav-links a:hover{color:var(--ac)}
+.nav-login{font-size:13px;font-weight:600;transition:.2s;padding:9px 20px;border:1px solid var(--border-strong,#d4cdb8);border-radius:8px;background:transparent;color:var(--t2);line-height:1.4;font-family:var(--ff)}
+.nav-login:hover{border-color:var(--ac);color:var(--ac);background:rgba(29,79,145,.04)}
+.nav-cta{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:var(--ac);color:#fff;-webkit-text-fill-color:#fff;border-radius:8px;font-size:13px;font-weight:600;letter-spacing:.02em;transition:.2s;border:none;box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 4px 16px rgba(29,79,145,.18);line-height:1.4;text-decoration:none}
+.nav-cta:hover{background:var(--ac-dark);color:#fff;-webkit-text-fill-color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 8px 24px rgba(29,79,145,.28);transform:translateY(-1px)}
+.mob-menu{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer}
+.lang-pills{display:flex;align-items:center;gap:3px}
+.lbtn{padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--t3);font-size:10px;font-weight:600;font-family:var(--ff);cursor:pointer;transition:.15s;letter-spacing:.08em;text-transform:uppercase}
+.lbtn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.lbtn:hover:not(.on){border-color:var(--ac);color:var(--text)}
+@media(max-width:1080px){
+  .nav-links{gap:14px}
+  .nav-links a{font-size:12px}
+  .nav-login{padding:8px 14px;font-size:12px}
+  .nav-cta{padding:8px 14px;font-size:12px}
+  .lang-pills{gap:3px}
+  .lbtn{padding:2px 6px;font-size:9px}
+}
+@media(max-width:880px){
+  .nav-links{display:none;position:absolute;top:64px;left:0;right:0;background:var(--bg2);flex-direction:column;padding:20px;gap:16px;border-bottom:1px solid var(--border)}
+  .nav-links.open{display:flex}
+  .mob-menu{display:block}
+}
+
+/* ── HERO ── */
+.hero{padding:160px 24px 120px;text-align:center;position:relative;overflow:hidden;background:#fff;border-bottom:1px solid var(--border);background-image:radial-gradient(circle at 1px 1px,rgba(15,58,115,.05) 1px,transparent 0);background-size:32px 32px;background-position:0 0}
+.hero::after{content:'';position:absolute;bottom:-300px;left:50%;transform:translateX(-50%);width:1200px;height:600px;background:radial-gradient(ellipse,rgba(15,58,115,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+.hero > *{position:relative;z-index:2}
+.hero-pill{display:inline-flex;align-items:center;gap:10px;padding:7px 18px 7px 10px;background:#fff;border:1px solid var(--border);border-radius:100px;font-family:var(--fm);font-size:11px;font-weight:600;color:var(--ac);margin-bottom:36px;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 2px 8px rgba(29,79,145,.06)}
+.hero-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--dot);flex-shrink:0;animation:pulse 2s infinite;box-shadow:0 0 0 4px rgba(16,185,129,.18)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.9)}}
+.hero h1{font-family:var(--serif);font-size:clamp(44px,6.8vw,88px);font-weight:600;line-height:1.02;letter-spacing:-2.4px;max-width:1080px;margin:0 auto 30px;color:var(--ac);font-variation-settings:'opsz' 144}
+.hero h1 em{font-style:italic;font-weight:500;color:var(--ac)}
+.hero-sub{font-family:var(--ff);font-size:clamp(16px,1.7vw,20px);font-weight:400;color:var(--t2);max-width:720px;margin:0 auto 32px;line-height:1.65}
+
+/* HERO DIVIDER — séparateur typographique pep */
+.hero-divider{display:flex;align-items:center;justify-content:center;gap:16px;margin:0 auto 32px;max-width:540px}
+.hero-divider::before,.hero-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+.hero-divider span{font-family:var(--fm);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);font-weight:600;white-space:nowrap}
+
+/* HERO PROOF — chiffre d'autorité */
+.hero-proof{margin-top:40px;padding-top:24px;border-top:1px solid var(--border);display:inline-flex;align-items:baseline;gap:14px;color:var(--t2)}
+.hero-proof-stat{font-family:var(--serif);font-style:italic;font-size:48px;font-weight:600;color:var(--ac);line-height:1;letter-spacing:-1.5px;font-variation-settings:'opsz' 56}
+.hero-proof-text{font-family:var(--ff);font-size:14px;color:var(--t2);max-width:260px;line-height:1.4;text-align:left}
+.hero-proof-text em{font-style:italic;color:var(--ac);font-weight:600}
+
+/* BTN-P arrow icon (la flèche après le label) */
+.btn-p svg{transition:transform .2s}
+.btn-p:hover svg{transform:translateX(3px)}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:52px}
+.btn-p{display:inline-flex;align-items:center;gap:10px;padding:16px 34px;background:var(--ac);color:#fff;border-radius:8px;font-family:var(--ff);font-size:14px;font-weight:600;transition:.2s;border:none;cursor:pointer;text-decoration:none;letter-spacing:.02em;box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 8px 24px rgba(29,79,145,.18)}
+.btn-p:hover{background:var(--ac-dark);color:#fff;transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 12px 32px rgba(29,79,145,.28)}
+.btn-o{display:inline-flex;align-items:center;gap:8px;padding:16px 28px;background:transparent;color:var(--text);border:1px solid var(--border2);border-radius:8px;font-family:var(--ff);font-size:14px;font-weight:500;transition:.2s;cursor:pointer;text-decoration:none}
+.btn-o:hover{border-color:var(--gold);color:var(--gold);background:rgba(184,134,11,.04)}
+
+/* ── TRUST BAR ── */
+.trust-bar{display:flex;gap:48px;justify-content:center;flex-wrap:wrap;align-items:center;font-family:var(--fm)}
+.trust-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--t2);font-weight:500;letter-spacing:.04em}
+.trust-item svg{width:18px;height:18px;color:var(--ac);flex-shrink:0;stroke-width:1.8}
+.trust-item .ch{width:18px;height:14px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;background:var(--rd)}
+
+/* ── STATS STRIP ── */
+.stats{background:var(--grad-navy);padding:72px 24px;color:#fff;position:relative;overflow:hidden}
+.stats::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(212,160,23,.20) 0%,transparent 60%);pointer-events:none}
+.stats::after{content:'';position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(37,99,235,.20) 0%,transparent 60%);pointer-events:none}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;max-width:var(--max);margin:0 auto;text-align:center;position:relative;z-index:1}
+.stat-n{font-family:var(--serif);font-size:clamp(38px,5.8vw,72px);font-weight:600;letter-spacing:-2px;line-height:1;white-space:nowrap;font-variation-settings:'opsz' 72;color:#fff}
+.stat-n.blue{color:#93b5e8}.stat-n.green{color:#34d399}.stat-n.red{color:#fca5a5}.stat-n.amber{color:var(--gold-bright)}
+.stat-l{font-family:var(--ff);font-size:13px;color:rgba(255,255,255,.75);margin-top:12px;font-weight:500;letter-spacing:.02em}
+@media(max-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr);gap:28px}}
+
+/* ── SEASON BANNER ── */
+.season{padding:64px 24px;text-align:center;background:linear-gradient(135deg,rgba(184,134,11,.05),rgba(29,79,145,.04))}
+.season-inner{max-width:var(--max);margin:0 auto}
+.season-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:100px;font-family:var(--fm);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;margin-bottom:20px;background:#fff;color:var(--gold);border:1px solid var(--border)}
+.season h2{font-family:var(--serif);font-size:clamp(26px,3.4vw,40px);font-weight:500;line-height:1.15;letter-spacing:-.8px;margin-bottom:16px;color:var(--text)}
+.season h2 em{font-style:italic;color:var(--gold);font-weight:500}
+.season p{font-size:16px;color:var(--t2);max-width:580px;margin:0 auto 32px;line-height:1.7}
+.season-features{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;max-width:840px;margin:0 auto}
+.season-feat{display:flex;align-items:center;gap:8px;padding:10px 18px;background:#fff;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;color:var(--text)}
+.season-feat svg{width:18px;height:18px;color:var(--ac);flex-shrink:0}
+
+/* ── SECTION HEADERS ── */
+.s-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;font-family:var(--fm);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;margin-bottom:22px;background:var(--surf2);border:1px solid var(--border);color:var(--ac)}
+.s-badge svg{width:14px;height:14px;stroke-width:2}
+.s-title{font-family:var(--serif);font-size:clamp(32px,4.2vw,52px);font-weight:600;line-height:1.05;letter-spacing:-1.5px;margin-bottom:18px;color:var(--text);font-variation-settings:'opsz' 60}
+.s-title em,.s-title i{font-style:italic;font-weight:500;background:linear-gradient(135deg,var(--ac) 0%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.s-title .grad{background:linear-gradient(135deg,var(--ac) 0%,var(--ac2) 50%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-style:italic;font-weight:500}
+.s-title .hl{color:var(--ac);font-weight:600}
+.s-sub{font-family:var(--ff);font-size:16px;font-weight:400;color:var(--t2);max-width:620px;line-height:1.65}
+.section-label{font-family:var(--fm);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ac);font-weight:600;margin-bottom:14px}
+.section-title-main{font-family:var(--serif);font-size:clamp(32px,4.2vw,52px);font-weight:600;letter-spacing:-1.5px;margin-bottom:14px;color:var(--text)}
+.section-sub{font-family:var(--ff);font-size:16px;font-weight:400;color:var(--t2);max-width:620px;margin:0 auto;line-height:1.65}
+
+/* ── PROBLEMS ── */
+.problems{background:var(--bg2)}
+.prob-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-top:64px}
+.prob{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:32px;transition:.25s;position:relative;overflow:hidden}
+.prob::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac);opacity:0;transition:.25s}
+.prob:hover{border-color:var(--ac);transform:translateY(-4px);box-shadow:0 16px 40px rgba(15,58,115,.10)}
+.prob:hover::before{opacity:1}
+.prob-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 4px 12px rgba(15,58,115,.06)}
+.prob-icon svg{width:24px;height:24px;stroke-width:2}
+.prob-pain{font-family:var(--fm);font-size:10px;font-weight:600;color:var(--rd);display:flex;align-items:center;gap:6px;margin-bottom:10px;letter-spacing:.12em;text-transform:uppercase;background:rgba(220,38,38,.06);padding:5px 10px;border-radius:5px;align-self:flex-start;width:fit-content;border:1px solid rgba(220,38,38,.14)}
+.prob-pain svg{width:13px;height:13px}
+.prob h3{font-family:var(--serif);font-size:22px;font-weight:600;margin-bottom:12px;color:var(--text);letter-spacing:-.4px;line-height:1.2}
+.prob p{font-family:var(--ff);font-size:14px;color:var(--t2);line-height:1.65}
+.prob-fix{margin-top:20px;padding:14px 16px;background:rgba(5,150,105,.05);border:1px solid rgba(5,150,105,.18);border-radius:8px;font-size:12.5px;color:var(--gn);font-weight:500;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.prob-fix svg{width:15px;height:15px;flex-shrink:0;margin-top:2px;stroke-width:2.2}
+
+/* ── FEATURES ── */
+.feat-section{margin-top:64px;position:relative;overflow:hidden}
+.feat-section.alt-layout-1{background:linear-gradient(135deg,rgba(184,134,11,.04),rgba(29,79,145,.04));padding:56px 32px;border-radius:18px;border:1px solid var(--border)}
+.feat-section.alt-layout-2{background:linear-gradient(135deg,rgba(15,157,110,.04),rgba(29,79,145,.04));padding:56px 32px;border-radius:18px;border:1px solid var(--border)}
+.feat-section-title{font-family:var(--serif);font-size:clamp(26px,3.4vw,36px);font-weight:500;color:var(--text);margin-bottom:32px;line-height:1.15;letter-spacing:-.5px}
+.feat-section-title .stat{font-family:var(--serif);font-style:italic;font-size:clamp(36px,4.6vw,56px);color:var(--gold);display:block;line-height:1;font-weight:500;margin-top:8px;font-variation-settings:'opsz' 56}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:56px}
+.feat{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:30px;transition:.2s}
+.feat:hover{border-color:var(--gold);transform:translateY(-2px)}
+.feat-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.feat-ic{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.feat-ic svg{width:20px;height:20px;stroke-width:1.8}
+.feat-ic.bl{background:rgba(29,79,145,.08);color:var(--ac)}
+.feat-ic.gn{background:rgba(15,157,110,.08);color:var(--gn)}
+.feat-ic.am{background:rgba(184,134,11,.1);color:var(--gold)}
+.feat-ic.rd{background:rgba(220,38,38,.08);color:var(--rd)}
+.feat-ic.pu{background:rgba(184,134,11,.08);color:var(--gold)}
+.feat h3{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--text);letter-spacing:-.2px;line-height:1.25}
+.feat p{font-family:var(--ff);font-size:14px;color:var(--t2);line-height:1.65;margin-top:8px;margin-bottom:14px}
+.feat-tags{display:flex;gap:6px;flex-wrap:wrap}
+.feat-tags span{padding:3px 10px;border-radius:6px;font-family:var(--fm);font-size:10px;font-weight:500;border:1px solid var(--border);background:#fff;color:var(--t2);letter-spacing:.02em}
+.feat-tags.bl span{border-color:rgba(29,79,145,.15);color:var(--ac)}
+.feat-tags.gn span{border-color:rgba(15,157,110,.15);color:var(--gn)}
+.feat-tags.am span{border-color:rgba(184,134,11,.18);color:var(--gold)}
+.feat-tags.rd span{border-color:rgba(220,38,38,.15);color:var(--rd)}
+.feat-tags.pu span{border-color:rgba(184,134,11,.18);color:var(--gold)}
+
+/* ── FEATURES DETAIL (list layout) ── */
+.ftd-list{display:flex;flex-direction:column;gap:0;margin-top:56px}
+.ftd-row{display:grid;grid-template-columns:48px 56px 1fr auto;gap:16px;align-items:center;padding:24px 0;border-bottom:1px solid var(--border);transition:.2s}
+.ftd-row:first-child{border-top:1px solid var(--border)}
+.ftd-row:hover{background:rgba(184,134,11,.03);padding-left:12px;padding-right:12px;border-radius:12px}
+.ftd-num{font-family:var(--serif);font-style:italic;font-size:28px;font-weight:500;color:var(--gold);opacity:.7;font-variant-numeric:tabular-nums}
+.ftd-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ftd-icon svg{width:24px;height:24px}
+.ftd-body h3{font-family:var(--serif);font-size:17px;font-weight:500;margin-bottom:4px;color:var(--text)}
+.ftd-body p{font-size:13px;color:var(--t2);line-height:1.55;margin:0}
+.ftd-tags{display:flex;gap:5px;flex-wrap:wrap}
+.ftd-tags span{padding:3px 10px;border-radius:6px;font-family:var(--fm);font-size:10px;font-weight:500;background:#fff;color:var(--t2);border:1px solid var(--border)}
+@media(max-width:768px){.ftd-row{grid-template-columns:1fr;gap:10px}.ftd-num{display:none}.ftd-tags{margin-top:4px}}
+
+/* ── NO-SHOW SECTION ── */
+.noshow{background:var(--bg)}
+.noshow-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;max-width:var(--max);margin:0 auto}
+.noshow-content .s-badge{margin-bottom:16px}
+.noshow-stat{font-family:var(--serif);font-style:italic;font-size:clamp(56px,7vw,88px);font-weight:500;color:var(--gold);line-height:1;margin:28px 0 16px;font-variation-settings:'opsz' 88}
+.noshow-stat-label{font-size:16px;color:var(--t2);margin-bottom:32px;max-width:480px;line-height:1.7}
+.noshow-checklist{display:flex;flex-direction:column;gap:16px;margin-top:24px}
+.noshow-item{display:flex;align-items:flex-start;gap:14px}
+.noshow-item-icon{width:32px;height:32px;border-radius:50%;background:rgba(15,157,110,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.noshow-item-icon svg{width:16px;height:16px;color:var(--gn);stroke-width:2.2}
+.noshow-item-text{flex:1;font-size:14px;color:var(--t2);line-height:1.65}
+.noshow-item-text strong{color:var(--text);font-weight:600}
+.noshow-visual{background:linear-gradient(135deg,rgba(184,134,11,.06),rgba(15,157,110,.04));border:1px solid var(--border);border-radius:18px;padding:48px;text-align:center}
+.noshow-visual-icon{width:84px;height:84px;border-radius:16px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.noshow-visual-icon svg{width:40px;height:40px;color:var(--gold)}
+.noshow-visual h4{font-family:var(--serif);font-size:22px;font-weight:500;color:var(--text);margin-bottom:14px;letter-spacing:-.3px}
+.noshow-visual p{font-size:14px;color:var(--t2);line-height:1.65}
+@media(max-width:900px){.noshow-layout{grid-template-columns:1fr;gap:40px}.noshow-visual{padding:36px}}
+
+/* ── MANIFESTO ── */
+.manifesto{background:var(--bg);position:relative;overflow:hidden;text-align:center}
+.manifesto::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(184,134,11,.05) 0%,transparent 70%);pointer-events:none}
+.manifesto .inner{position:relative;z-index:1}
+.mani-icon{width:64px;height:64px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 32px}
+.mani-icon svg{width:30px;height:30px;color:var(--gold);stroke-width:1.5}
+.mani-title{font-family:var(--serif);font-size:clamp(30px,4vw,52px);font-weight:500;line-height:1.15;letter-spacing:-1.2px;max-width:880px;margin:0 auto 24px;color:var(--text)}
+.mani-title .hl{font-style:italic;color:var(--gold);font-weight:500}
+.mani-lead{font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.8vw,20px);font-weight:300;color:var(--t2);max-width:720px;margin:0 auto 48px;line-height:1.6}
+.mani-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:920px;margin:0 auto 56px}
+.mani-pillar{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:28px 24px;text-align:left;transition:.2s}
+.mani-pillar:hover{border-color:var(--gold);transform:translateY(-2px)}
+.mani-pillar-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.mani-pillar-icon svg{width:20px;height:20px;stroke-width:1.8}
+.mani-pillar h4{font-family:var(--serif);font-size:17px;font-weight:500;margin-bottom:8px;color:var(--text);letter-spacing:-.2px}
+.mani-pillar p{font-family:var(--ff);font-size:13px;color:var(--t2);line-height:1.65}
+.mani-quote{font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.4vw,28px);font-weight:400;color:var(--text);max-width:760px;margin:0 auto;line-height:1.45;position:relative;padding:0 48px;font-variation-settings:'opsz' 28}
+.mani-quote::before,.mani-quote::after{content:'';position:absolute;width:28px;height:1px;background:var(--gold);top:50%}
+.mani-quote::before{left:0}
+.mani-quote::after{right:0}
+@media(max-width:640px){.mani-pillars{grid-template-columns:1fr}.mani-quote::before,.mani-quote::after{display:none}.mani-quote{padding:0}}
+
+/* ── APP PREVIEW ── */
+.preview{background:var(--bg2);overflow:hidden}
+.preview-layout{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.preview-text .s-badge{margin-bottom:18px}
+.preview-checks{margin-top:24px;display:flex;flex-direction:column;gap:12px}
+.preview-check{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--t2);line-height:1.6}
+.preview-check svg{width:20px;height:20px;color:var(--gn);flex-shrink:0;margin-top:2px;stroke-width:2.2}
+.preview-check strong{color:var(--text);font-weight:600}
+.preview-visual{background:var(--surf);border:1px solid var(--border);border-radius:18px;padding:6px;box-shadow:0 24px 64px rgba(26,29,46,.08)}
+.preview-visual .scréén{border-radius:14px;overflow:hidden;background:#fafafa;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;position:relative}
+.mock-ui{width:100%;height:100%;display:grid;grid-template-columns:220px 1fr;background:#fff}
+.mock-sidebar{background:#fafafa;padding:18px;border-right:1px solid var(--border)}
+.mock-logo{height:28px;display:flex;align-items:center;gap:8px;margin-bottom:22px}
+.mock-logo .dot{width:24px;height:24px;border-radius:5px;background:var(--ac)}
+.mock-logo span{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--text)}
+.mock-nav-item{padding:8px 12px;border-radius:7px;font-size:11px;font-weight:500;color:var(--t3);margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.mock-nav-item.active{background:rgba(29,79,145,.08);color:var(--ac);font-weight:600}
+.mock-nav-item svg{width:14px;height:14px;stroke-width:1.8}
+.mock-main{padding:18px;overflow:hidden;background:#fff}
+.mock-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.mock-topbar h3{font-family:var(--serif);font-size:14px;font-weight:500;color:var(--text)}
+.mock-topbar .mock-date{font-family:var(--fm);font-size:10px;color:var(--t2);background:#f6f3ea;padding:4px 10px;border-radius:5px;border:1px solid var(--border)}
+.mock-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.mock-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px}
+.mock-card .mc-n{font-family:var(--serif);font-style:italic;font-size:22px;font-weight:500;color:var(--ac);line-height:1}
+.mock-card .mc-l{font-size:9px;color:var(--t2);margin-top:3px;font-weight:500}
+.mock-charts{display:flex;flex-direction:column;gap:8px}
+.mock-chart-box{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px}
+.mock-chart-label{font-family:var(--fm);font-size:8px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.mock-bars{display:flex;gap:4px;align-items:flex-end;height:50px}
+.mock-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%}
+.mock-bar-col span{font-family:var(--fm);font-size:7px;color:var(--t3);font-weight:500}
+.mock-bar{width:100%;border-radius:3px 3px 0 0;background:var(--ac);opacity:.5;transition:.2s;margin-top:auto}
+.mock-bar.hi{background:var(--gold);opacity:.9}
+.mock-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mock-donut-box{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.mock-donut{width:50px;height:50px;margin:4px auto 6px}
+.mock-donut svg{width:100%;height:100%}
+.mock-donut-legend{font-family:var(--fm);font-size:7px;color:var(--t2);display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:wrap}
+.mock-donut-legend .dot-gn,.mock-donut-legend .dot-am,.mock-donut-legend .dot-rd{width:5px;height:5px;border-radius:50%;display:inline-block}
+.mock-donut-legend .dot-gn{background:var(--gn)}.mock-donut-legend .dot-am{background:var(--gold)}.mock-donut-legend .dot-rd{background:var(--rd)}
+.mock-line-box{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px}
+.mock-line-svg{width:100%;height:32px;display:block}
+.mock-line-label{font-family:var(--fm);font-size:8px;color:var(--t2);margin-top:4px}
+@media(max-width:860px){.preview-layout{grid-template-columns:1fr}.mock-ui{grid-template-columns:1fr}.mock-sidebar{display:none}}
+
+/* ── MODULES ── */
+.modules-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:56px}
+.mod{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:30px 24px;text-align:left;transition:.3s;cursor:default;position:relative;overflow:hidden}
+.mod.active{border-color:var(--gold);background:linear-gradient(180deg,rgba(184,134,11,.04),var(--surf));box-shadow:0 12px 32px rgba(184,134,11,.06)}
+.mod:hover{border-color:var(--gold);transform:translateY(-2px)}
+.mod-icon{width:52px;height:52px;border-radius:12px;margin-bottom:18px;display:flex;align-items:center;justify-content:center}
+.mod-icon svg{width:24px;height:24px;stroke-width:1.8}
+.mod h4{font-family:var(--serif);font-size:18px;font-weight:500;margin-bottom:8px;color:var(--text);letter-spacing:-.2px}
+.mod p{font-size:13px;color:var(--t2);line-height:1.6}
+.mod .mod-tag{display:inline-block;margin-top:14px;font-family:var(--fm);font-size:9px;font-weight:500;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.1em;background:#fff;border:1px solid var(--border)}
+@media(max-width:900px){.modules-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.modules-grid{grid-template-columns:1fr}}
+
+/* ── PRICING ── */
+.pricing{background:var(--bg2);position:relative}
+.pricing::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:1px;background:var(--grad-gold);opacity:.7}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:64px;align-items:stretch}
+.plan{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:40px 32px;position:relative;transition:.25s;display:flex;flex-direction:column}
+.plan:hover{border-color:var(--ac);transform:translateY(-4px);box-shadow:0 16px 40px rgba(15,58,115,.08)}
+.plan.pop{border-color:transparent;background:#fff;box-shadow:0 0 0 2px var(--ac),0 24px 56px rgba(15,58,115,.16);z-index:1}
+.plan.pop:hover{transform:translateY(-4px);box-shadow:0 0 0 2px var(--ac),0 32px 68px rgba(15,58,115,.22)}
+.plan.pop::after{content:'';position:absolute;top:-1px;left:-1px;right:-1px;height:6px;background:var(--grad-signature);border-radius:16px 16px 0 0}
+.plan.pop::before{content:'Le plus populaire';position:absolute;top:-15px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--ac) 0%,var(--ac-dark) 100%);color:#fff;font-family:var(--fm);font-size:10px;font-weight:600;padding:6px 18px;border-radius:100px;white-space:nowrap;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 8px 20px rgba(15,58,115,.30);z-index:2}
+.plan-header{padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid var(--border);position:relative}
+.plan-name{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px}
+.plan.pop .plan-name{color:var(--ac)}
+.plan-price{font-family:var(--serif);font-size:64px;font-weight:600;letter-spacing:-3px;line-height:1;color:var(--text);font-variation-settings:'opsz' 72}
+.plan-price small{font-family:var(--fm);font-size:13px;font-weight:500;color:var(--t2);letter-spacing:.04em;display:block;margin-top:6px}
+.plan-billing{font-family:var(--fm);font-size:11px;color:var(--t2);margin-top:14px;letter-spacing:.04em}
+.plan-tagline{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--t2);margin-top:12px;line-height:1.5}
+.plan-feats{list-style:none;margin-bottom:28px;flex:1}
+.plan-feats li{font-size:13px;color:var(--t2);padding:8px 0;display:flex;align-items:flex-start;gap:10px;line-height:1.55}
+.plan-feats li svg{width:16px;height:16px;color:var(--gn);flex-shrink:0;margin-top:2px;stroke-width:2.5}
+.plan-feats li.highlight{color:var(--text);font-weight:600;padding-top:0;padding-bottom:14px;margin-bottom:8px;border-bottom:1px solid var(--border)}
+.plan-feats li.highlight svg{color:var(--ac)}
+.plan-feats-more{font-family:var(--fm);font-size:11px;color:var(--ac);font-weight:500;padding:6px 0;letter-spacing:.04em;cursor:pointer;display:inline-block;margin-bottom:20px}
+.plan-feats-more:hover{color:var(--ac-dark);text-decoration:underline}
+.plan-btn{display:block;width:100%;padding:14px;border-radius:10px;font-family:var(--ff);font-size:14px;font-weight:600;text-align:center;transition:.15s;text-decoration:none;border:none;cursor:pointer;letter-spacing:.01em;margin-top:auto}
+.plan-btn.primary{background:linear-gradient(135deg,var(--ac) 0%,var(--ac-dark) 100%);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 6px 20px rgba(15,58,115,.22)}
+.plan-btn.primary:hover{transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 10px 28px rgba(15,58,115,.32);color:#fff}
+.plan-btn.outline{background:transparent;border:1.5px solid var(--border2);color:var(--text)}
+.plan-btn.outline:hover{border-color:var(--ac);color:var(--ac);background:var(--ac-soft)}
+.price-note{text-align:center;font-family:var(--fm);font-size:11px;color:var(--t2);margin-top:24px;letter-spacing:.02em}
+.dur-tabs{display:flex;justify-content:center;gap:6px;margin-top:36px;margin-bottom:-16px}
+.dur-tabs .dtab{padding:9px 22px;border-radius:100px;border:1px solid var(--border2);background:#fff;color:var(--t2);font-family:var(--ff);font-size:13px;font-weight:500;cursor:pointer;transition:.15s}
+.dur-tabs .dtab:hover{border-color:var(--ac);color:var(--ac)}
+.dur-tabs .dtab.on{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:600}
+.dur-tabs .save-badge{display:inline-block;font-family:var(--fm);background:rgba(184,134,11,.1);color:var(--gold);font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:6px;letter-spacing:.04em}
+.dur-tabs .dtab.on .save-badge{background:rgba(255,255,255,.2);color:#fff}
+.addon{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 20px;margin-top:18px;font-size:13px;color:var(--t2)}
+.addon strong{color:var(--text);font-weight:600}
+.addon svg{width:16px;height:16px;color:var(--gold)}
+@media(max-width:768px){.price-grid{grid-template-columns:1fr}}
+
+/* ── MINI BAND (cross-link to /mini) — ligne graphique dashboard ── */
+.mini-band{padding:0;background:var(--bg2);color:var(--text);position:relative;overflow:hidden;box-shadow:inset 0 1px 0 var(--border),inset 0 -1px 0 var(--border)}
+.mini-band-inner{max-width:var(--max);margin:0 auto;padding:96px 32px;display:grid;grid-template-columns:1fr 1.3fr;gap:64px;align-items:center;position:relative}
+.mini-band-left{display:flex;flex-direction:column;gap:20px}
+.mini-band-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;font-family:var(--fm);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;background:var(--surf);border:1px solid var(--border);color:var(--ac);align-self:flex-start}
+.mini-band-mid h3{font-family:var(--serif);font-size:clamp(32px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-1.4px;margin-bottom:20px;color:var(--ac);font-variation-settings:'opsz' 60}
+.mini-band-mid h3 em{font-style:italic;font-weight:500;color:var(--ac)}
+.mini-band-mid p{font-family:var(--ff);font-size:15px;color:var(--t2);line-height:1.7;margin-bottom:28px;max-width:480px}
+.mini-band-cta{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:var(--ac);color:#fff;border-radius:8px;font-family:var(--ff);font-size:14px;font-weight:600;letter-spacing:.02em;text-decoration:none;transition:.2s;box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 6px 20px rgba(15,58,115,.20)}
+.mini-band-cta:hover{transform:translateY(-1px);background:var(--ac-dark);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 10px 28px rgba(15,58,115,.30)}
+.mini-band-cta svg{transition:transform .2s}
+.mini-band-cta:hover svg{transform:translateX(3px)}
+.mini-band-tiers{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mini-band-tier{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:24px 22px;display:flex;flex-direction:column;transition:.2s;position:relative}
+.mini-band-tier:hover{border-color:var(--ac);transform:translateY(-2px);box-shadow:0 12px 32px rgba(15,58,115,.08)}
+.mini-band-tier.featured{border-color:var(--gold);background:linear-gradient(180deg,rgba(176,138,24,.04) 0%,var(--surf) 50%)}
+.mini-band-tier.featured::before{content:'';position:absolute;top:-1px;left:-1px;right:-1px;height:3px;background:var(--grad-gold);border-radius:14px 14px 0 0}
+.mini-band-tier-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.mini-band-tier-name{font-family:var(--fm);font-size:10px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.16em}
+.mini-band-tier.featured .mini-band-tier-name{color:var(--gold-deep)}
+.mini-band-tier-price{font-family:var(--serif);font-style:italic;font-size:42px;font-weight:600;color:var(--ac);line-height:1;letter-spacing:-1.5px;margin:6px 0 4px;font-variation-settings:'opsz' 56}
+.mini-band-tier-unit{font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.06em;margin-bottom:16px}
+.mini-band-tier ul{list-style:none;padding:0;margin:0;font-family:var(--ff);font-size:12.5px;color:var(--t2);line-height:1.55}
+.mini-band-tier li{padding:5px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--border)}
+.mini-band-tier li:last-child{border:none}
+.mini-band-tier li svg{width:14px;height:14px;color:var(--ac);flex-shrink:0;margin-top:2px;stroke-width:2.4}
+.mini-band-tier.featured li svg{color:var(--gold)}
+.mini-band-tier li strong{color:var(--text);font-weight:600}
+.mini-band-tier li.tier-highlight{color:var(--text);font-weight:600;font-family:var(--serif);font-style:italic;font-size:13px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:4px}
+@media(max-width:1080px){.mini-band-inner{grid-template-columns:1fr;gap:48px}.mini-band-tiers{max-width:580px;margin:0 auto}}
+@media(max-width:640px){.mini-band-tiers{grid-template-columns:1fr}.mini-band-inner{padding:72px 22px}.mini-band-mid h3{font-size:30px}}
+
+/* ── TESTIMONIALS ── */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
+.testi{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:32px;transition:.2s}
+.testi:hover{border-color:var(--gold);transform:translateY(-2px)}
+.testi-stars{color:var(--gold);font-size:14px;margin-bottom:14px;letter-spacing:2px}
+.testi-q{font-family:var(--serif);font-size:16px;color:var(--text);line-height:1.6;margin-bottom:22px;font-style:italic;font-weight:400}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;font-weight:600;flex-shrink:0}
+.testi-name{font-family:var(--serif);font-size:14px;font-weight:500;color:var(--text)}
+.testi-role{font-family:var(--fm);font-size:10px;color:var(--t2);margin-top:2px;letter-spacing:.04em}
+@media(max-width:768px){.testi-grid{grid-template-columns:1fr}}
+
+/* ── DISCOVER SECTION ── */
+.demo{background:var(--bg2)}
+.discover-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+.disc-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:28px;transition:border-color .2s,transform .2s}
+.disc-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.disc-card .disc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.disc-card .disc-icon svg{width:24px;height:24px;stroke-width:1.8}
+.disc-card h4{font-family:var(--serif);font-size:18px;font-weight:500;margin-bottom:8px;color:var(--text);letter-spacing:-.2px}
+.disc-card p{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px}
+.disc-link{font-family:var(--ff);font-size:13px;font-weight:600;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:4px;letter-spacing:.01em}
+.disc-link:hover{color:var(--ac)}
+.faq-list{margin-top:32px}
+.faq-item{border-bottom:1px solid var(--border);padding:18px 0}
+.faq-q{display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:var(--serif);font-size:17px;font-weight:500;color:var(--text)}
+.faq-q svg{width:18px;height:18px;color:var(--gold);transition:transform .2s;flex-shrink:0}
+.faq-item.open .faq-q svg{transform:rotate(180deg)}
+.faq-a{display:none;padding-top:12px;font-size:14px;color:var(--t2);line-height:1.7}
+.faq-item.open .faq-a{display:block}
+@media(max-width:768px){.discover-grid{grid-template-columns:1fr}}
+.df-field{margin-bottom:14px}
+.df-field label{display:block;font-family:var(--fm);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:6px}
+.df-input{width:100%;padding:11px 14px;border:1px solid var(--border2);border-radius:8px;background:#fff;color:var(--text);font-family:var(--ff);font-size:14px;transition:.15s}
+.df-input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(29,79,145,.08);outline:none}
+.df-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.df-btn{width:100%;padding:13px;border-radius:8px;background:var(--ac);color:#fff;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:.15s;font-family:var(--ff);letter-spacing:.01em}
+.df-btn:hover{background:var(--ac-dark)}
+.df-msg{padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.df-msg.err{background:rgba(220,38,38,.06);color:var(--rd);border:1px solid rgba(220,38,38,.18);display:block}
+.df-msg.ok{background:rgba(15,157,110,.06);color:var(--gn);border:1px solid rgba(15,157,110,.18);display:block}
+@media(max-width:768px){.demo-layout{grid-template-columns:1fr}}
+
+/* ── CTA FINAL ── */
+.final-cta{text-align:center;position:relative;overflow:hidden;background:var(--bg)}
+.final-cta::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:680px;height:480px;background:radial-gradient(ellipse,rgba(184,134,11,.08) 0%,transparent 65%);pointer-events:none}
+.final-cta .s-title{font-size:clamp(36px,4.5vw,60px);margin-bottom:18px}
+
+/* ── PARTNERS SECTION ── */
+.partners{background:var(--bg);text-align:center}
+.partners-logos{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-top:48px}
+.partner-logo{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:32px 40px;min-width:200px;transition:.2s}
+.partner-logo:hover{border-color:var(--gold);transform:translateY(-2px)}
+.partner-logo span{font-family:var(--serif);display:block;font-size:20px;font-weight:500;margin-bottom:4px;color:var(--text)}
+.partner-logo small{font-family:var(--fm);font-size:10px;color:var(--t2);font-weight:500;letter-spacing:.06em}
+
+/* ── PRESS SECTION ── */
+.press{background:var(--bg2);text-align:center}
+.press-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:48px;max-width:var(--max);margin-left:auto;margin-right:auto}
+.press-card{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:32px;text-align:left;transition:.2s}
+.press-card:hover{border-color:var(--gold)}
+.press-source{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px}
+.press-card p{font-family:var(--serif);font-size:15px;color:var(--text);line-height:1.6;font-style:italic;margin-bottom:14px}
+.press-date{font-family:var(--fm);font-size:10px;color:var(--t2);letter-spacing:.04em}
+
+/* ── FOOTER ── */
+.footer{background:var(--bg2);border-top:1px solid var(--border);padding:72px 24px 36px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:var(--max);margin:0 auto}
+.footer-brand .logo img{height:36px;width:36px}
+.footer-brand p{font-family:var(--ff);font-size:13px;color:var(--t2);margin-top:14px;line-height:1.65;max-width:300px}
+.footer-col h4{font-family:var(--fm);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.16em;color:var(--gold);margin-bottom:18px}
+.footer-col a{display:block;font-family:var(--ff);font-size:13px;color:var(--t2);margin-bottom:10px;transition:.15s}
+.footer-col a:hover{color:var(--ac)}
+.footer-social{display:flex;gap:10px;margin-top:20px}
+.footer-social a{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:8px;background:#fff;border:1px solid var(--border);color:var(--t2);transition:.2s}
+.footer-social a:hover{background:var(--ac);border-color:var(--ac);color:#fff}
+.footer-bottom{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding-top:28px;margin-top:48px;border-top:1px solid var(--border);font-family:var(--fm);font-size:11px;color:var(--t2);flex-wrap:wrap;gap:12px;letter-spacing:.04em}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr;gap:32px}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr;gap:32px}}
+
+/* ── FADE ANIMATIONS ── */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+.fade-in.visible{opacity:1;transform:none}
+
+/* ── SVG INLINE ── */
+svg{display:inline-block;vertical-align:middle}
+
+/* ── TABLET RESPONSIVE (768-1024px) ── */
+@media(max-width:1024px){
+  section{padding:72px 20px}
+  .hero{padding:120px 20px 80px}
+  .prob-grid{grid-template-columns:repeat(2,1fr)}
+  .feat-grid{grid-template-columns:repeat(2,1fr)}
+  .modules-grid{grid-template-columns:repeat(2,1fr)}
+  .price-grid{grid-template-columns:repeat(3,1fr);gap:12px}
+  .plan{padding:24px 20px}
+  .discover-grid{grid-template-columns:1fr 1fr}
+  .addon-grid{grid-template-columns:1fr!important}
+}
+
+/* ── MOBILE RESPONSIVE (<=640px) ── */
+@media(max-width:640px){
+  section{padding:72px 18px}
+  .hero{padding:140px 18px 80px}
+  .hero h1{font-size:38px;letter-spacing:-1.2px;line-height:1.1}
+  .hero-sub{font-size:16px;line-height:1.6}
+  .hero-pill{font-size:10px;padding:6px 14px 6px 8px}
+  .hero-btns{flex-direction:column;align-items:center;gap:10px}
+  .hero-btns .btn-p,.hero-btns .btn-o{width:100%;max-width:340px;justify-content:center;padding:15px 24px}
+  .trust-bar{gap:18px;flex-direction:column;align-items:center}
+  .trust-item{font-size:12px}
+  .prob-grid{grid-template-columns:1fr;gap:14px}
+  .prob{padding:24px}
+  .feat-grid{grid-template-columns:1fr;gap:14px}
+  .feat{padding:24px}
+  .price-grid{grid-template-columns:1fr;gap:32px}
+  .plan{padding:32px 24px}
+  .plan.pop{transform:none}
+  .plan-price{font-size:52px;letter-spacing:-2px}
+  .testi-grid{grid-template-columns:1fr;gap:14px}
+  .testi{padding:24px}
+  .discover-grid{grid-template-columns:1fr;gap:14px}
+  .footer-grid{grid-template-columns:1fr;gap:32px;text-align:left}
+  .footer-bottom{flex-direction:column;text-align:center;gap:8px}
+  .s-title{font-size:30px;letter-spacing:-1px}
+  .section-title-main{font-size:30px}
+  .dur-tabs{flex-wrap:wrap;gap:4px}
+  .dur-tabs .dtab{padding:7px 14px;font-size:12px}
+  .season-features{flex-direction:column;align-items:center;gap:10px}
+  .season-feat{width:100%;max-width:300px;justify-content:center}
+  .noshow-layout{grid-template-columns:1fr;gap:36px}
+  .noshow-stat{font-size:64px}
+  .noshow-visual{padding:32px 24px}
+  .mani-pillars{grid-template-columns:1fr}
+  .mani-quote{font-size:18px;padding:0 12px}
+  .preview-layout{grid-template-columns:1fr;gap:32px}
+  .mock-ui{grid-template-columns:1fr}
+  .mock-sidebar{display:none}
+  .addon-grid{grid-template-columns:1fr!important}
+  /* mini-band mobile */
+  .mini-band-inner{grid-template-columns:1fr;gap:32px;padding:56px 22px}
+  .mini-band-left{border-right:none;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:24px;padding-right:0;text-align:center}
+  .mini-band-price{justify-content:center}
+  .mini-band-amount{font-size:72px}
+  .mini-band-mid{text-align:center}
+  .mini-band-mid h3{font-size:26px}
+  .mini-band-mid p{margin-left:auto;margin-right:auto}
+  .mini-band-right{grid-template-columns:1fr;gap:12px;max-width:340px;margin:0 auto}
+  /* nav mobile : montrer CTA en gros */
+  .nav-in{padding:0 18px;height:64px}
+  .nav-cta{padding:9px 18px;font-size:12px}
+  .logo img{width:38px;height:38px}
+  /* press / partners */
+  .press-grid{grid-template-columns:1fr;gap:14px}
+  .press-card{padding:24px}
+  .partners-logos{gap:16px}
+  .partner-logo{padding:24px 28px;min-width:0;flex:1 1 140px}
+}
+
+/* ── PETITS MOBILES (<=420px) ── */
+@media(max-width:420px){
+  .hero h1{font-size:32px}
+  .plan-price{font-size:44px}
+  .mini-band-amount{font-size:56px}
+  .s-title{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-in">
+    <a href="/" class="logo"><img alt="R3STO" src="logo-r3sto.jpg"></a>
+    <div class="nav-links" id="navLinks">
+      <a href="/restaurants" data-i18n="nav.restaurants" style="color:var(--gn2);font-weight:700">Réserver</a>
+      <a href="#manifeste" data-i18n="nav.mission">Notre mission</a>
+      <a href="#fonctionnalités" data-i18n="nav.features">Fonctionnalités</a>
+      <a href="#tarifs" data-i18n="nav.pricing">Tarifs</a>
+      <a href="#videos" data-i18n="nav.demo">Vidéos</a>
+      <a href="#footer-contact" data-i18n="nav.contact" style="color:var(--t2)">Contact</a>
+      <div class="lang-pills" id="langPills">
+        <button class="lbtn on" id="lb-fr" onclick="setLang('fr')">FR</button>
+        <button class="lbtn" id="lb-de" onclick="setLang('de')">DE</button>
+        <button class="lbtn" id="lb-it" onclick="setLang('it')">IT</button>
+        <button class="lbtn" id="lb-en" onclick="setLang('en')">EN</button>
+      </div>
+      <a href="https://app.r3sto.ch" class="nav-login" data-i18n="nav.login">Mon restaurant</a>
+      <a href="https://auth.r3sto.ch" class="nav-cta" data-i18n="nav.cta">Commencer</a>
+    </div>
+    <button class="mob-menu" onclick="document.getElementById('navLinks').classList.toggle('open')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1 class="fade-in" data-i18n-html="hero.title">Hébergement, gestion complète<br>et <em>annuaire</em> restaurants.</h1>
+  <p class="hero-sub fade-in" data-i18n="hero.sub">Une plateforme unique pour héberger votre site, gérer vos réservations et apparaître dans l'annuaire R3STO consulté par des milliers de gourmets — sans commission, jamais.</p>
+  <div class="hero-divider fade-in" aria-hidden="true"><span>Essai 14 jours · Sans carte · Hébergé en Suisse</span></div>
+  <div class="hero-btns fade-in">
+    <a href="https://auth.r3sto.ch" class="btn-p" data-i18n="hero.cta1">Créer mon compte
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+    <a href="#tarifs" class="btn-o" data-i18n="hero.cta2">Voir les tarifs</a>
+  </div>
+  <div class="hero-proof fade-in">
+    <span class="hero-proof-stat">+800</span>
+    <span class="hero-proof-text">réservations traitées chaque jour <em>sans accroc</em></span>
+  </div>
+  <div class="trust-bar fade-in">
+    <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Hébergé en Suisse</span>
+    <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 0% commission</span>
+    <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Paiement Stripe</span>
+    <span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Données 100% vôtres</span>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-grid">
+    <div><div class="stat-n red">📉 -87%</div><div class="stat-l">No-shows avec prépaiement</div></div>
+    <div><div class="stat-n blue">🎯 0%</div><div class="stat-l">Commission sur les réservations</div></div>
+    <div><div class="stat-n green">⏱ +2h</div><div class="stat-l">Gagnées par jour en moyenne</div></div>
+    <div><div class="stat-n amber">🚀 10 min</div><div class="stat-l">Pour être opérationnel</div></div>
+  </div>
+</div>
+
+<!-- PROBLEMS -->
+<section class="problems" id="problèmes">
+  <div class="inner">
+    <div class="s-badge fade-in" style="background:rgba(239,68,68,.08);color:var(--rd)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      Les vrais problèmes
+    </div>
+    <div class="s-title fade-in">Ce que vivent les restaurateurs<br>au quotidien</div>
+    <p class="s-sub fade-in">Chaque problème a une solution concrète. R3STO a été conçu par et pour les restaurateurs suisses.</p>
+
+    <div class="prob-grid">
+      <div class="prob fade-in">
+        <div class="prob-icon" style="background:rgba(239,68,68,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+        <div class="prob-pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> No-shows : tables vides, chiffre perdu</div>
+        <h3>Luttez contre les no-shows</h3>
+        <p>Les clients réservent et ne viennent pas. Chaque table vide, c'est du chiffre d'affaires perdu et de la nourriture gaspillée.</p>
+        <div class="prob-fix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Rappels auto, scoring no-show, prépaiement et caution Stripe</div>
+      </div>
+      <div class="prob fade-in">
+        <div class="prob-icon" style="background:rgba(176,138,24,.10)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="prob-pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Surbooking : plus de clients que de places</div>
+        <h3>Surbooking impossible</h3>
+        <p>Le plan de salle interactif contrôle la capacité en temps réel. Alerte à 90%, blocage à 100%. Fini les mauvaises surprises le samedi soir.</p>
+        <div class="prob-fix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Capacité temps réel, attribution IA, liste d'attente auto</div>
+      </div>
+      <div class="prob fade-in">
+        <div class="prob-icon" style="background:rgba(15,58,115,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ac2)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+        <div class="prob-pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Appels pendant le service : impossible de répondre</div>
+        <h3>Réservations 24h/24 sans téléphone</h3>
+        <p>Le widget de réservation s'intègre à votre site. Vos clients réservent à 23h depuis leur canapé. Zéro appel, zéro interruption.</p>
+        <div class="prob-fix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Widget responsive, confirmation auto, rappels SMS/email</div>
+      </div>
+      <div class="prob fade-in">
+        <div class="prob-icon" style="background:rgba(139,107,15,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-deep)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="prob-pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Cahier papier : zéro visibilité, zéro données</div>
+        <h3>Digitalisez votre carnet</h3>
+        <p>CRM clients complet avec historique, préférences, allergies, score VIP. Vous connaissez chaque client comme un habitué.</p>
+        <div class="prob-fix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> CRM intelligent, fiches clients, statistiques automatiques</div>
+      </div>
+      <div class="prob fade-in">
+        <div class="prob-icon" style="background:rgba(15,58,115,.06)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <div class="prob-pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Commissions : 2-5 CHF par couvert chez les plateformes</div>
+        <h3>0% commission — pour toujours</h3>
+        <p>Pas de commission par réservation, pas de frais cachés. Un abonnement fixe, transparent, prévisible. Vous gardez 100% de vos marges.</p>
+        <div class="prob-fix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Abonnement fixe dès 39 CHF/mois, zéro surprise</div>
+      </div>
+      <div class="prob fade-in">
+        <div class="prob-icon" style="background:rgba(15,58,115,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ac2)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="prob-pain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Gestion manuelle : du temps perdu chaque jour</div>
+        <h3>Gagnez 2h par jour</h3>
+        <p>L'IA attribue les tables, les confirmations sont automatiques, le plan de salle s'ajuste en temps réel. Concentrez-vous sur vos clients.</p>
+        <div class="prob-fix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Attribution IA, confirmations auto, plan interactif</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NO-SHOWS SECTION -->
+<section class="noshow">
+  <div class="noshow-layout">
+    <div class="noshow-content fade-in">
+      <div class="s-badge fade-in" style="background:rgba(176,138,24,.10);color:var(--am)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Les no-shows : Le problème silencieux
+      </div>
+      <h2 class="s-title fade-in">Combattez les no-shows avant qu'ils ne vous coûtent des milliers</h2>
+      <div class="noshow-stat fade-in">15-20%</div>
+      <p class="noshow-stat-label fade-in">Les no-shows coûtent jusqu'à 15-20% du chiffre d'affaires annuel aux restaurateurs. Une table vide le samedi soir, ce n'est pas un inconvénient — c'est une perte sèche.</p>
+
+      <div class="noshow-checklist fade-in">
+        <div class="noshow-item">
+          <div class="noshow-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="noshow-item-text"><strong>Email de confirmation</strong> — Envoyé immédiatement après la réservation</div>
+        </div>
+        <div class="noshow-item">
+          <div class="noshow-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="noshow-item-text"><strong>Rappel 24h avant</strong> — SMS + email 24h avant la réservation pour les clients à risque</div>
+        </div>
+        <div class="noshow-item">
+          <div class="noshow-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="noshow-item-text"><strong>Prépaiement optionnel</strong> — Réservations avec garantie : -87% de no-shows selon nos données</div>
+        </div>
+        <div class="noshow-item">
+          <div class="noshow-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="noshow-item-text"><strong>Scoring automatique</strong> — R3STO identifie les clients à risque et ajuste les tactiques</div>
+        </div>
+        <div class="noshow-item">
+          <div class="noshow-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="noshow-item-text"><strong>Blacklist automatique</strong> — Les clients qui no-show 2x sont automatiquement signalés pour actions futures</div>
+        </div>
+        <div class="noshow-item">
+          <div class="noshow-item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="noshow-item-text"><strong>Statistiques détaillées</strong> — Suivi du taux de no-shows, ROI du prépaiement, évolution par jour/heure</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="noshow-visual fade-in">
+      <div class="noshow-visual-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+      <h4>Zéro attente</h4>
+      <p>Récupérez le contrôle de vos réservations. Plus de tables vides, plus de frustration. Avec R3STO, vous optimisez chaque table et chaque créneau.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTE -->
+<section class="manifesto" id="manifeste">
+  <div class="inner">
+    <div class="mani-icon fade-in">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="12" y1="2" x2="12" y2="5" stroke-dasharray="1 2"/></svg>
+    </div>
+    <h2 class="mani-title fade-in" data-i18n-html="mani.title">Les restaurateurs méritent <span class="hl">mieux</span> que des plateformes qui les <span class="hl">rançonnent</span>.</h2>
+    <p class="mani-lead fade-in" data-i18n="mani.lead">Pendant des années, les plateformes de réservation en ligne ont imposé leurs règles : commissions par couvert, clients captifs, données inaccessibles. R3STO est né d'une conviction simple — cet argent, ces clients, ces données vous appartiennent. Pas à une plateforme.</p>
+
+    <div class="mani-pillars">
+      <div class="mani-pillar fade-in">
+        <div class="mani-pillar-icon" style="background:rgba(15,58,115,.06)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gn)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <h4 data-i18n="mani.p1.title">0% commission — pour toujours</h4>
+        <p data-i18n="mani.p1.text">Un abonnement fixe, transparent. Chaque franc que vos clients dépensent reste dans votre caisse, pas dans celle d'une plateforme étrangère.</p>
+      </div>
+      <div class="mani-pillar fade-in">
+        <div class="mani-pillar-icon" style="background:rgba(15,58,115,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ac2)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h4 data-i18n="mani.p2.title">Vos données, votre propriété</h4>
+        <p data-i18n="mani.p2.text">Fiches clients, historiques, préférences — tout est à vous, exportable, hébergé en Suisse. Aucun lock-in, aucune dépendance.</p>
+      </div>
+      <div class="mani-pillar fade-in">
+        <div class="mani-pillar-icon" style="background:rgba(176,138,24,.10)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h4 data-i18n="mani.p3.title">Conçu par des restaurateurs</h4>
+        <p data-i18n="mani.p3.text">Pas par des investisseurs de la Silicon Valley. R3STO est pensé depuis la cuisine, pas depuis un bureau open-space à San Francisco.</p>
+      </div>
+    </div>
+
+    <p class="mani-quote fade-in" data-i18n="mani.quote">« Nous voulons que chaque restaurateur suisse reprenne le contrôle de sa digitalisation — simplement, sans commission, sans intermédiaire. »</p>
+  </div>
+</section>
+
+<!-- APP PREVIEW -->
+<section class="preview">
+  <div class="inner">
+    <div class="preview-layout">
+      <div class="preview-text">
+        <div class="s-badge fade-in" style="background:rgba(15,58,115,.08);color:var(--ac2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          Tableau de bord
+        </div>
+        <div class="s-title fade-in">Tout votre restaurant.<br>Un seul écran.</div>
+        <p class="s-sub fade-in">Dashboard en temps réel avec réservations, taux d'occupation, chiffre d'affaires, alertes et commandes. Accessible sur desktop, tablette et mobile.</p>
+        <div class="preview-checks fade-in">
+          <div class="preview-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span><strong>Plan de salle IA</strong> — drag & drop, multi-salles, rotation intelligente</span></div>
+          <div class="preview-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span><strong>CRM complet</strong> — historique, allergies, préférences, score VIP</span></div>
+          <div class="preview-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span><strong>Widget de réservation</strong> — integrable en 2 min sur votre site</span></div>
+          <div class="preview-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span><strong>Alertes en temps réel</strong> — no-shows, annulations, surbooking</span></div>
+        </div>
+      </div>
+      <div class="preview-visual fade-in">
+        <div class="scréén">
+          <div class="mock-ui">
+            <div class="mock-sidebar">
+              <div class="mock-logo"><div class="dot"></div><span>R3STO</span></div>
+              <div class="mock-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> Dashboard</div>
+              <div class="mock-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Réservations</div>
+              <div class="mock-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg> Plan de salle</div>
+              <div class="mock-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Clients</div>
+              <div class="mock-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg> Commandes</div>
+              <div class="mock-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg> Analytics</div>
+            </div>
+            <div class="mock-main">
+              <div class="mock-topbar"><h3>Dashboard</h3><div class="mock-date">Vendredi 4 avril 2026</div></div>
+              <div class="mock-cards">
+                <div class="mock-card"><div class="mc-n">47</div><div class="mc-l">Réservations</div></div>
+                <div class="mock-card"><div class="mc-n" style="color:var(--gn2)">92%</div><div class="mc-l">Taux occupation</div></div>
+                <div class="mock-card"><div class="mc-n" style="color:var(--am)">3</div><div class="mc-l">Commandes</div></div>
+              </div>
+              <div class="mock-charts">
+                <div class="mock-chart-box">
+                  <div class="mock-chart-label">Taux d'occupation</div>
+                  <div class="mock-bars">
+                    <div class="mock-bar-col"><div class="mock-bar" style="height:55%"></div><span>Lun</span></div>
+                    <div class="mock-bar-col"><div class="mock-bar" style="height:70%"></div><span>Mar</span></div>
+                    <div class="mock-bar-col"><div class="mock-bar" style="height:65%"></div><span>Mer</span></div>
+                    <div class="mock-bar-col"><div class="mock-bar hi" style="height:85%"></div><span>Jeu</span></div>
+                    <div class="mock-bar-col"><div class="mock-bar hi" style="height:95%"></div><span>Ven</span></div>
+                    <div class="mock-bar-col"><div class="mock-bar hi" style="height:100%"></div><span>Sam</span></div>
+                    <div class="mock-bar-col"><div class="mock-bar" style="height:60%"></div><span>Dim</span></div>
+                  </div>
+                </div>
+                <div class="mock-chart-row">
+                  <div class="mock-donut-box">
+                    <div class="mock-chart-label">Réservations</div>
+                    <div class="mock-donut"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.91" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="3"/><circle cx="18" cy="18" r="15.91" fill="none" stroke="var(--gn)" stroke-width="3" stroke-dasharray="72 28" stroke-dashoffset="25" stroke-linecap="round"/><circle cx="18" cy="18" r="15.91" fill="none" stroke="var(--am)" stroke-width="3" stroke-dasharray="15 85" stroke-dashoffset="53" stroke-linecap="round"/><circle cx="18" cy="18" r="15.91" fill="none" stroke="var(--rd)" stroke-width="3" stroke-dasharray="5 95" stroke-dashoffset="38" stroke-linecap="round"/><text x="18" y="19" text-anchor="middle" fill="var(--text)" font-size="6" font-weight="800">87</text></svg></div>
+                    <div class="mock-donut-legend"><span class="dot-gn"></span>Confirmées <span class="dot-am"></span>Attente <span class="dot-rd"></span>No-show</div>
+                  </div>
+                  <div class="mock-line-box">
+                    <div class="mock-chart-label">Couverts / semaine</div>
+                    <svg class="mock-line-svg" viewBox="0 0 120 40" preserveAspectRatio="none"><polyline fill="none" stroke="var(--ac2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" points="5,30 20,25 35,28 50,18 65,20 80,12 95,8 110,10"/><polyline fill="rgba(96,165,250,.08)" stroke="none" points="5,40 5,30 20,25 35,28 50,18 65,20 80,12 95,8 110,10 110,40"/></svg>
+                    <div class="mock-line-label"><span style="color:var(--gn)">▲ +12%</span> vs sem. précédente</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="fonctionnalités">
+  <div class="inner">
+    <div style="text-align:center">
+      <div class="s-badge fade-in" style="background:rgba(15,58,115,.06);color:var(--gn)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
+        Modules
+      </div>
+      <div class="s-title fade-in">4 modules. Une seule plateforme.</div>
+      <p class="s-sub fade-in" style="margin:0 auto">Chaque module répond a un besoin précis. Activez ceux dont vous avez besoin.</p>
+    </div>
+    <div class="modules-grid fade-in">
+      <div class="mod active">
+        <div class="mod-icon" style="background:rgba(59,130,246,.12)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--ac2)" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <h4>R3STO Resa</h4>
+        <p>Réservations, plan de salle, widget, CRM clients, anti no-show, prépaiement, site web, rappels, liste d'attente, bons cadeaux, fidélité</p>
+        <span class="mod-tag" style="background:rgba(16,185,129,.15);color:var(--gn2)">Inclus dans tous les plans</span>
+      </div>
+      <div class="mod">
+        <div class="mod-icon" style="background:rgba(176,138,24,.10)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+        <h4>R3STO Order</h4>
+        <p>Prise de commande en salle incluse. Version complète : KDS cuisine & bar, gestion service, tickets, encaissement</p>
+        <span class="mod-tag" style="background:rgba(59,130,246,.1);color:var(--ac2)">Essentiel inclus</span>
+        <span class="mod-tag" style="background:rgba(245,158,11,.1);color:var(--am);margin-left:4px">Complet bientôt</span>
+      </div>
+      <div class="mod">
+        <div class="mod-icon" style="background:rgba(139,107,15,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="2"><circle cx="19" cy="17" r="2"/><circle cx="9" cy="17" r="2"/><path d="M13 17H7V5h6l4 6h3l1 4h-4"/></svg></div>
+        <h4>R3STO Delivery</h4>
+        <p>Commandes en ligne & take-away inclus. Version complète : livraison, suivi temps réel, zones, coursiers</p>
+        <span class="mod-tag" style="background:rgba(59,130,246,.1);color:var(--ac2)">Essentiel inclus</span>
+        <span class="mod-tag" style="background:rgba(139,92,246,.1);color:var(--pu);margin-left:4px">Complet bientôt</span>
+      </div>
+      <div class="mod">
+        <div class="mod-icon" style="background:rgba(15,58,115,.06)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gn2)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <h4>R3STO Cash</h4>
+        <p>Caisse enregistreuse, facturation, bons cadeaux, fidélité par points, export comptable</p>
+        <span class="mod-tag" style="background:rgba(245,158,11,.1);color:var(--am)">Bientôt</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES DETAIL -->
+<section style="background:var(--bg2)">
+  <div class="inner">
+    <div style="text-align:center">
+      <div class="s-badge fade-in" style="background:rgba(15,58,115,.08);color:var(--ac2)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Fonctionnalités
+      </div>
+      <div class="s-title fade-in">Tout ce dont un restaurateur a besoin</div>
+      <p class="s-sub fade-in" style="margin:0 auto">Chaque fonctionnalité a été pensée pour résoudre un vrai problème du quotidien.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic bl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><h3>Gestion des réservations</h3></div>
+        <p>Calendrier temps réel, multi-services (midi/soir), statuts auto, filtres avancés, export CSV, historique complet.</p>
+        <div class="feat-tags bl"><span>Calendrier</span><span>Multi-services</span><span>Filtres</span><span>Export</span></div>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic gn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div><h3>Plan de salle IA</h3></div>
+        <p>Drag & drop, multi-salles + terrasse, attribution intelligente, rotation, jauge de capacité temps réel.</p>
+        <div class="feat-tags gn"><span>Drag & drop</span><span>Multi-salles</span><span>IA</span><span>Rotation</span></div>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic am"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><h3>CRM Clients</h3></div>
+        <p>Fiches détaillées, allergies, préférences, score VIP, anniversaires, tags personnalisés, historique complet, segmentation auto.</p>
+        <div class="feat-tags am"><span>Allergies</span><span>VIP</span><span>Anniversaires</span><span>Tags</span></div>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic bl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><h3>Widget de réservation</h3></div>
+        <p>Intégrable en 2 minutes sur votre site. Responsif, personnalisable, confirmation instantanée, compatible mobile.</p>
+        <div class="feat-tags bl"><span>24h/24</span><span>Responsif</span><span>Personnalisable</span><span>Auto-confirm</span></div>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Anti no-show & Prépaiement</h3></div>
+        <p>Caution ou paiement complet via Stripe. Remboursement automatique, scoring clients, rappels SMS et email.</p>
+        <div class="feat-tags rd"><span>Stripe</span><span>Caution</span><span>Rappels auto</span><span>Remboursement</span></div>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic gn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><h3>Bons cadeaux & Fidélité</h3></div>
+        <p>Vendez des bons cadeaux en ligne. Programme de fidélité par points. Revenu additionnel et rétention client.</p>
+        <div class="feat-tags gn"><span>Bons cadeaux</span><span>Points</span><span>Récompenses</span><span>Revenu +</span></div>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic pu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h3>Équipe & Rôles</h3></div>
+        <p>Invitez votre équipe avec des rôles différenciés : propriétaire, gérant, serveur. Chaque membre voit ce dont il a besoin, rien de plus.</p>
+        <div class="feat-tags pu"><span>Rôles</span><span>Permissions</span><span>Équipe</span><span>Multi-accès</span></div>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic am"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><h3>Rappels & Confirmations</h3></div>
+        <p>Email de confirmation instantané, rappel automatique 24h avant par SMS et email. Réduisez les no-shows sans lever le petit doigt.</p>
+        <div class="feat-tags am"><span>Email auto</span><span>SMS</span><span>Rappels 24h</span><span>Personnalisable</span></div>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div><h3>Flux multi-salles</h3></div>
+        <p>Coordination entre salles en temps réel, statuts d'occupation par zone, rapatriement terrasse automatique. Un seul écran pour tout piloter.</p>
+        <div class="feat-tags rd"><span>Multi-salles</span><span>Terrasse</span><span>Statuts live</span><span>Coordination</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RAPATRIEMENT TERRASSE -->
+<section class="feat-section alt-layout-1">
+  <div class="inner">
+    <h2 class="feat-section-title fade-in">🌦 Rapatriement Terrasse<br><span class="stat">Automatique</span></h2>
+    <p class="feat-section-sub fade-in" style="text-align:center;color:var(--t2);max-width:680px;margin:0 auto 40px;font-size:17px;line-height:1.7">Il pleut ? R3STO détecte le changement météo et <strong style="color:var(--text)">rapatrie automatiquement</strong> vos réservations terrasse vers les meilleures tables intérieures disponibles. Vos clients sont prévenus par SMS. Zéro stress, zéro intervention.</p>
+    <div class="feat-grid">
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg></div><h3>Météo connectée</h3></div>
+        <p>Intégration météo temps réel. Dès que la pluie ou le vent est détecté, le rapatriement se déclenche automatiquement pour toutes les réservations terrasse du service.</p>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic gn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h3>Réassignation intelligente</h3></div>
+        <p>L'IA choisit la table intérieure optimale : même capacité, meilleur emplacement. Si aucune table identique n'est libre, elle propose les meilleures alternatives.</p>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic bl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Client notifié automatiquement</h3></div>
+        <p>SMS et email envoyés au client avec sa nouvelle table. Pas de surprise à l'arrivée, pas d'appels à gérer. Tout est fluide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="tarifs">
+  <div class="inner">
+    <div style="text-align:center">
+      <div class="s-badge fade-in" style="background:rgba(139,107,15,.08);color:var(--pu)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Tarifs transparents
+      </div>
+      <div class="s-title fade-in">Un prix fixe. Pas de surprise.</div>
+      <p class="s-sub fade-in" style="margin:0 auto">Facturation annuelle. 0% commission. Hébergement suisse inclus.</p>
+      <div class="dur-tabs fade-in">
+        <button class="dtab on" id="dur-btn-0" onclick="setDur(0)">1 an</button>
+        <button class="dtab" id="dur-btn-1" onclick="setDur(1)">2 ans <span class="save-badge">−15%</span></button>
+        <button class="dtab" id="dur-btn-2" onclick="setDur(2)">3 ans <span class="save-badge">−25%</span></button>
+      </div>
+    </div>
+    <div class="price-grid fade-in">
+      <div class="plan">
+        <div class="plan-header">
+          <div class="plan-name">Essentiel</div>
+          <div class="plan-price" id="lp-price-essentiel">39<small>CHF/mois</small></div>
+          <div class="plan-billing" id="lp-bill-essentiel">468 CHF/an · Facturation annuelle</div>
+          <div class="plan-tagline">Pour démarrer la digitalisation, simple et efficace.</div>
+        </div>
+        <ul class="plan-feats">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Vues Grille, Agenda &amp; Journal</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Dashboard temps réel</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Services &amp; salles multiples</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Confirmations email automatiques</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Fermetures exceptionnelles</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 1 utilisateur · Support email</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Hébergement suisse inclus</li>
+        </ul>
+        <a href="https://auth.r3sto.ch" class="plan-btn outline">Choisir Essentiel</a>
+      </div>
+      <div class="plan pop">
+        <div class="plan-header">
+          <div class="plan-name">Premium</div>
+          <div class="plan-price" id="lp-price-premium">59<small>CHF/mois</small></div>
+          <div class="plan-billing" id="lp-bill-premium">708 CHF/an · Facturation annuelle</div>
+          <div class="plan-tagline">Le standard pour restaurants qui veulent grandir intelligemment.</div>
+        </div>
+        <ul class="plan-feats">
+          <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Tout Essentiel, plus :</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong>Plan de salle 2D interactif</strong></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Tables &amp; Combos dynamiques</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> CRM complet (allergies, VIP, fidélité)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Widget de réservation intégrable</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Liste d'attente &amp; gestion no-shows</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Bons cadeaux &amp; campagnes marketing</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Utilisateurs illimités · Support dédié</li>
+        </ul>
+        <a href="https://auth.r3sto.ch" class="plan-btn primary">Choisir Premium</a>
+      </div>
+      <div class="plan">
+        <div class="plan-header">
+          <div class="plan-name">Signature</div>
+          <div class="plan-price" id="lp-price-signature">79<small>CHF/mois</small></div>
+          <div class="plan-billing" id="lp-bill-signature">948 CHF/an · Facturation annuelle</div>
+          <div class="plan-tagline">Pour les gastronomes et groupes multi-sites, sans compromis.</div>
+        </div>
+        <ul class="plan-feats">
+          <li class="highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Tout Premium, plus :</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong>Prépaiement Stripe + caution auto</strong></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Site vitrine inclus (sous-domaine)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Multi-sites (jusqu'à 12 établissements)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> IA prédictions &amp; optimisation créneaux</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> SMS auto + rapports personnalisés</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> API REST · Support dédié + SLA</li>
+        </ul>
+        <a href="https://auth.r3sto.ch" class="plan-btn outline">Choisir Signature</a>
+      </div>
+    </div>
+    <p class="fade-in" style="text-align:center;font-size:13px;color:var(--t3);margin-top:18px">Modules complémentaires disponibles : <strong>Order</strong> (commandes & KDS) · <strong>Delivery</strong> (livraison & tracking) · <strong>Cash</strong> (facturation & comptabilité) — compatibles tous plans</p>
+    <div class="price-note fade-in">Tous les prix s'entendent hors TVA · 0% commission · Hébergement suisse Infomaniak inclus</div>
+  </div>
+</section>
+
+<!-- MINI CROSS-LINK BANNER -->
+<section class="mini-band">
+  <div class="mini-band-inner">
+    <div class="mini-band-mid">
+      <span class="mini-band-eyebrow">R3STO Mini · démocratiser la réservation</span>
+      <h3>Petit restaurant ?<br><em>Mini</em> est fait pour vous.</h3>
+      <p>Vous gardez votre site actuel, vous voulez juste un outil de réservation simple, fiable, à prix accessible. Sans hébergement R3STO. Engagement 3 ans en contrepartie du prix bas.</p>
+      <a href="/mini" class="mini-band-cta">
+        Découvrir Mini &amp; Mini+
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="mini-band-tiers">
+      <div class="mini-band-tier">
+        <div class="mini-band-tier-head"><span class="mini-band-tier-name">Mini</span></div>
+        <div class="mini-band-tier-price">19</div>
+        <div class="mini-band-tier-unit">CHF/mois · 3 ans</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Vue résa + plan capacity</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 1 utilisateur</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Multi-salles</li>
+        </ul>
+      </div>
+      <div class="mini-band-tier featured">
+        <div class="mini-band-tier-head"><span class="mini-band-tier-name">Mini+</span></div>
+        <div class="mini-band-tier-price">29</div>
+        <div class="mini-band-tier-unit">CHF/mois · 3 ans</div>
+        <ul>
+          <li class="tier-highlight">Tout Mini, plus :</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Anti no-show Stripe</strong></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Widget &amp; CRM basique</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 50 SMS/mois</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SITE VITRINE PROFESSIONNEL - MAJOR SELLING POINT -->
+<section class="feat-section alt-layout-1" style="background:linear-gradient(135deg,rgba(16,185,129,.05),rgba(59,130,246,.03))">
+  <div class="inner">
+    <div style="text-align:center;margin-bottom:48px">
+      <h2 class="feat-section-title fade-in" style="font-size:clamp(28px,4vw,48px);margin-bottom:16px">🌐 Un site web professionnel<br><span class="stat">Inclus avec Gastro.</span></h2>
+      <p class="feat-section-sub fade-in" style="font-size:17px;color:var(--t2);max-width:680px;margin:0 auto;line-height:1.7">Avec le plan Gastro, votre restaurant reçoit un site vitrine professionnel créé automatiquement et hébergé sur votre sous-domaine. <strong style="color:var(--text)">Pas de webmaster, pas de maintenance</strong>, pas de frais de design. Vous <strong style="color:var(--gn2)">économisez 2'000 à 5'000 CHF</strong> par rapport à un site traditionnel.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic gn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><polyline points="12 6 12 12 16 14"/></svg></div><h3>Créé automatiquement</h3></div>
+        <p>Votre site se génère en quelques minutes à partir de vos données : photos, menu, horaires, localisation. Design professionnel, aucune configuration compliquée.</p>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic bl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><h3>Mobile-first & responsive</h3></div>
+        <p>Parfait sur téléphone, tablette et desktop. 80% de vos clients recherchent un restaurant sur mobile — votre site est prêt pour eux dès le premier jour.</p>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><h3>SEO optimisé pour Google</h3></div>
+        <p>Apparaissez dans les recherches locales : "restaurant à [votre ville]", "réserver une table". Attirez de nouveaux clients sans publicité payante.</p>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic am"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><h3>Widget de réservation intégré</h3></div>
+        <p>Vos clients réservent directement depuis votre site. Pas de redirection, pas de plateforme tierce. Le bouton "Réserver" est déjà en place.</p>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic pu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><h3>Menu & carte en ligne</h3></div>
+        <p>Votre menu est affiché directement sur le site, toujours à jour. Modifiable depuis votre tableau de bord en quelques clics.</p>
+      </div>
+      <div class="feat fade-in">
+        <div class="feat-top"><div class="feat-ic gn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Hébergé en Suisse</h3></div>
+        <p>Votre site est hébergé chez Infomaniak, données en Suisse. Pas de frais d'hébergement ni de nom de domaine supplémentaire.</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px" class="fade-in">
+      <p style="font-size:15px;color:var(--t2);max-width:560px;margin:0 auto;line-height:1.7">Un webmaster vous coûte entre 2'000 et 5'000 CHF, plus 200 à 500 CHF/an de maintenance. Avec R3STO, c'est <strong style="color:var(--gn2)">inclus dans votre abonnement</strong> — zéro maintenance, zéro intervention technique, toujours à jour automatiquement.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- PRESS & MEDIA -->
+<section class="press">
+  <div class="inner">
+    <div class="section-label fade-in">Presse & Médias</div>
+    <h2 class="section-title-main fade-in">Ce qu'on dit de R3STO</h2>
+    <div class="press-grid fade-in">
+      <div class="press-card">
+        <div class="press-source">PME Magazine</div>
+        <p>"Futuraurant, la solution d'automatisation des réservations dans la restauration — une approche sans commission qui redéfinit la gestion des tables pour les restaurateurs suisses."</p>
+        <a href="https://www.pme.ch/actualites/futuraurant-la-solution-dautomatisation-des-reservations-dans-la-restauration/ps5k6wx" target="_blank" rel="noopener" style="font-size:12px;color:var(--ac2);display:inline-block;margin-top:8px">Lire l'article →</a>
+      </div>
+      <div class="press-card">
+        <div class="press-source">Corporate LiveWire</div>
+        <p>"Innoptim Group wins Most Innovative in Hospitality Technology — reconnaissance internationale pour l'innovation technologique au service de la restauration."</p>
+        <a href="https://www.corporatelivewire.com/blog.html?id=innoptim-group-wins-most-innovative-in-hospitality-technology" target="_blank" rel="noopener" style="font-size:12px;color:var(--ac2);display:inline-block;margin-top:8px">Lire l'article →</a>
+      </div>
+      <div class="press-card">
+        <div class="press-source">GastroJournal</div>
+        <p>"Un système de réservation révolutionnaire — la référence suisse de la presse gastronomique met en lumière une nouvelle génération d'outils pour les restaurateurs."</p>
+        <a href="https://gastrojournal.ch/fr/home/restauration/un-systeme-de-reservation-revolutionnaire" target="_blank" rel="noopener" style="font-size:12px;color:var(--ac2);display:inline-block;margin-top:8px">Lire l'article →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section>
+  <div class="inner">
+    <div style="text-align:center">
+      <div class="s-badge fade-in" style="background:rgba(176,138,24,.10);color:var(--am)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Témoignages
+      </div>
+      <div class="s-title fade-in">Ce qu'en disent les restaurateurs</div>
+    </div>
+    <div class="testi-grid">
+      <div class="testi fade-in">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-q">« On a réduit nos no-shows de 80% depuis qu'on utilise le prépaiement. Le samedi soir, chaque table est occupée. Le ROI est immédiat. »</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:rgba(220,38,38,.06);color:var(--rd)">A</div>
+          <div><div class="testi-name">Alket</div><div class="testi-role">Le Petit Boeuf · Restaurant Grill · Lausanne</div></div>
+        </div>
+      </div>
+      <div class="testi fade-in">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-q">« Avant on passait 45 minutes chaque matin à organiser le plan de salle. Maintenant l'IA le fait en 2 secondes. Et plus aucun surbooking. »</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:rgba(16,185,129,.1);color:var(--gn)">PD</div>
+          <div><div class="testi-name">Paola D.</div><div class="testi-role">La Pinte · Restaurant traditionnel · Crissier</div></div>
+        </div>
+      </div>
+      <div class="testi fade-in">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-q">« Depuis qu'on utilise R3STO, on ne revient plus en arrière. Le plan de salle intelligent, le CRM, les rappels — tout est fluide. Et zéro commission, c'est un vrai soulagement financier. »</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:rgba(139,92,246,.1);color:var(--pu)">PS</div>
+          <div><div class="testi-name">Patrick S.</div><div class="testi-role">Alt. 505 · Bar & Restaurant · Sion</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DÉCOUVRIR -->
+<section class="demo" id="videos">
+  <div class="inner">
+    <div style="text-align:center">
+      <div class="s-badge fade-in" style="background:rgba(15,58,115,.08);color:var(--ac2)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Découvrir R3STO
+      </div>
+      <div class="s-title fade-in">Convainquez-vous par vous-même</div>
+      <p class="s-sub fade-in" style="margin:0 auto">Pas de commercial, pas d'attente. Explorez, testez, décidez — à votre rythme.</p>
+    </div>
+
+    <!-- Video embed -->
+    <div class="fade-in" style="max-width:800px;margin:40px auto 40px;border-radius:16px;overflow:hidden;border:1px solid var(--border);aspect-ratio:16/9;background:var(--surf);position:relative">
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/?listType=user_uploads&list=r3sto" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%"></iframe>
+      <!-- Fallback if no video yet -->
+      <div id="videoFallback" style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(135deg,var(--bg2) 0%,var(--surf) 100%);z-index:1">
+        <div style="width:84px;height:84px;border-radius:50%;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;color:var(--gold)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <p style="font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:500;color:var(--text);margin:0;letter-spacing:-.3px">Découvrez R3STO <em style="color:var(--gold)">en vidéo</em></p>
+        <a href="https://www.youtube.com/@r3sto" target="_blank" style="margin-top:4px;padding:11px 26px;border-radius:8px;background:var(--ac);color:#fff;font-size:13px;font-weight:600;transition:.2s;border:none;letter-spacing:.02em;text-decoration:none">Voir sur YouTube →</a>
+      </div>
+    </div>
+
+    <div class="discover-grid fade-in">
+      <!-- Chaîne YouTube -->
+      <div class="disc-card">
+        <div class="disc-icon" style="background:rgba(239,68,68,.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <h4>Toutes nos vidéos</h4>
+        <p>Découvrez R3STO en vidéo : présentation de la plateforme, plan de salle, réservations, CRM et bien plus.</p>
+        <a href="https://www.youtube.com/@r3sto" class="disc-link" target="_blank">Voir sur YouTube →</a>
+      </div>
+
+      <!-- Support réactif -->
+      <div class="disc-card">
+        <div class="disc-icon" style="background:rgba(139,107,15,.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h4>Support réactif</h4>
+        <p>Équipe dédiée, basée en Suisse. Assistance par email, chat et téléphone. Réponse garantie en moins de 2 heures ouvrées.</p>
+        <a href="https://app.r3sto.ch" class="disc-link">Accéder au tableau de bord →</a>
+      </div>
+
+      <!-- Essai gratuit -->
+      <div class="disc-card">
+        <div class="disc-icon" style="background:rgba(15,58,115,.06)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gn)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h4>Essai gratuit 30 jours</h4>
+        <p>Testez R3STO sans engagement. Créez votre compte, configurez votre restaurant et explorez toutes les fonctionnalités pendant 30 jours.</p>
+        <a href="https://auth.r3sto.ch" class="disc-link">Créer mon compte →</a>
+      </div>
+
+      <!-- Contact -->
+      <div class="disc-card">
+        <div class="disc-icon" style="background:rgba(139,107,15,.08)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <h4>Une question ?</h4>
+        <p>Notre équipe basée en Suisse répond à toutes vos questions sur R3STO, les tarifs, la migration depuis une autre plateforme.</p>
+        <a href="mailto:contact@r3sto.ch" class="disc-link">contact@r3sto.ch →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- POURQUOI R3STO -->
+<section style="background:var(--bg2)">
+  <div class="inner">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="s-badge fade-in" style="background:rgba(139,107,15,.08);color:var(--pu)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><polyline points="12 6 12 12 16 14"/></svg>
+        Pourquoi R3STO
+      </div>
+      <div class="s-title fade-in">3 raisons de nous choisir</div>
+      <p class="s-sub fade-in" style="margin:0 auto">Ce qui fait la différence au quotidien pour nos restaurateurs.</p>
+    </div>
+
+    <div class="feat-grid fade-in" style="margin-bottom:32px">
+      <div class="feat">
+        <div class="feat-top"><div class="feat-ic rd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div><h3>Fini les no-shows</h3></div>
+        <p>Prépaiement, rappels SMS automatiques, scoring clients, blacklist auto. Nos restaurateurs ont réduit leurs no-shows de 80% en moyenne. Chaque table compte.</p>
+        <div class="feat-tags"><span>No-shows</span><span>Prépaiement</span><span>ROI</span></div>
+      </div>
+
+      <div class="feat">
+        <div class="feat-top"><div class="feat-ic am"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div><h3>Opérationnel en 10 minutes</h3></div>
+        <p>Créez votre compte, configurez vos salles et services, et votre widget de réservation est en ligne. Pas besoin de webmaster, pas de formation compliquée.</p>
+        <div class="feat-tags"><span>Rapide</span><span>Simple</span><span>Autonome</span></div>
+      </div>
+
+      <div class="feat">
+        <div class="feat-top"><div class="feat-ic gn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>100% suisse, 0% commission</h3></div>
+        <p>Vos données restent en Suisse chez Infomaniak. Aucune commission par réservation. Un abonnement fixe, transparent, prévisible. Vous gardez 100% de vos marges.</p>
+        <div class="feat-tags"><span>Suisse</span><span>Transparent</span><span>Sans commission</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MARKETPLACE NOTE -->
+<div style="background:var(--surf2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:24px;text-align:center">
+  <p style="font-size:13px;color:var(--t2)">Vos clients peuvent aussi vous trouver directement sur <a href="https://r3sto.ch/" style="color:var(--ac2);font-weight:600">r3sto.ch/restaurants</a> — notre annuaire de restaurants partenaires.</p>
+</div>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="inner">
+    <div class="s-title fade-in">Prêt à digitaliser votre restaurant ?</div>
+    <p class="s-sub fade-in" style="margin:0 auto 28px">Rejoignez les restaurateurs suisses qui ont choisi R3STO. Inscription en 3 minutes.</p>
+    <div class="hero-btns fade-in">
+      <a href="https://auth.r3sto.ch" class="btn-p" style="padding:18px 38px;font-size:15px" data-i18n="cta.btn1">Créer mon compte</a>
+      <a href="#tarifs" class="btn-o" style="padding:18px 38px;font-size:15px" data-i18n="cta.btn2">Voir les tarifs</a>
+    </div>
+    <div style="margin-top:16px;font-size:13px;color:var(--t3)" class="fade-in">Dès 39 CHF/mois · 0% commission · Hébergement suisse · Sans engagement minimum</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer" id="footer-contact">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="logo"><img alt="R3STO" src="logo-r3sto.jpg" style="height:32px;width:32px;border-radius:0"></a>
+      <p>Plateforme SaaS de gestion pour restaurants suisses. Réservations, commandes, livraison, CRM, fidélité. Conçue et hébergée en Suisse.</p>
+      <div class="footer-social">
+        <a href="https://www.linkedin.com/company/r3sto" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="https://www.instagram.com/r3sto.ch" target="_blank" rel="noopener" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="https://www.facebook.com/r3sto.ch" target="_blank" rel="noopener" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="https://www.youtube.com/@r3sto" target="_blank" rel="noopener" aria-label="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        <a href="https://x.com/r3sto_ch" target="_blank" rel="noopener" aria-label="X/Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Produit</h4>
+      <a href="#fonctionnalités">Fonctionnalités</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="https://www.youtube.com/@r3sto">YouTube</a>
+      <a href="/restaurants">Nos restaurants</a>
+    </div>
+    <div class="footer-col">
+      <h4>Accès</h4>
+      <a href="https://auth.r3sto.ch">Créer un compte</a>
+      <a href="https://app.r3sto.ch">Mon restaurant</a>
+      <a href="https://admin.r3sto.ch" id="adminLink">Panel admin</a>
+      <a href="https://demo.r3sto.ch">Démo</a>
+    </div>
+    <div class="footer-col">
+      <h4>Légal & Contact</h4>
+      <a href="/legal/cgu.html">CGU</a>
+      <a href="/legal/confidentialite.html">Confidentialité</a>
+      <a href="/legal/mentions.html">Mentions légales</a>
+      <a href="mailto:contact@r3sto.ch" style="margin-top:8px">contact@r3sto.ch</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div data-i18n="footer.copy">&copy; 2026 Innoptim SA · Le Mont-sur-Lausanne, Suisse</div>
+    <div data-i18n="footer.swiss" style="display:flex;align-items:center;gap:6px">Fait en Suisse · Hébergé par Infomaniak</div>
+  </div>
+</footer>
+
+<script>
+// ── Duration tabs — pricing ──
+var BASE=[39,59,79],DISC=[0,.15,.25],YRS=[1,2,3],PLANS_K=['essentiel','premium','signature'];
+var curDur=0;
+function setDur(d){
+  curDur=d;
+  document.querySelectorAll('.dur-tabs .dtab').forEach(function(b,i){b.classList.toggle('on',i===d);});
+  renderPrices();
+}
+function renderPrices(){
+  PLANS_K.forEach(function(k,i){
+    var mo=Math.round(BASE[i]*(1-DISC[curDur]));
+    var tot=Math.round(mo*12*YRS[curDur]);
+    var durLbl=curDur===0?'1 an':curDur===1?'2 ans':'3 ans';
+    var priceEl=document.getElementById('lp-price-'+k);
+    var billEl=document.getElementById('lp-bill-'+k);
+    if(priceEl)priceEl.innerHTML=mo+'<small> CHF/mois</small>';
+    if(billEl)billEl.textContent=tot+' CHF/'+durLbl+' · Facturation annuelle';
+  });
+}
+
+// Nav scroll
+var nav=document.getElementById('nav');
+window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>40);});
+
+// Fade-in observer
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+},{threshold:.05});
+document.querySelectorAll('.fade-in').forEach(function(el){obs.observe(el);});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var t=document.querySelector(this.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
+
+// Mobile nav close
+document.querySelectorAll('.nav-links a').forEach(function(a){
+  a.addEventListener('click',function(){
+    if(window.innerWidth<=880)document.getElementById('navLinks').classList.remove('open');
+  });
+});
+
+
+// ── i18n MULTILINGUAL ──
+var I18N = {
+  fr: {
+    'nav.problems':'Problèmes','nav.mission':'Notre mission','nav.features':'Fonctionnalités','nav.pricing':'Tarifs','nav.demo':'Vidéos','nav.contact':'Contact','nav.demo2':'Démo','nav.admin':'Admin','nav.cta':'Commencer','nav.login':'Mon restaurant','nav.restaurants':'Réserver',
+    'hero.pill':'Plateforme suisse · 0% commission',
+    'hero.title':'La plateforme qui gère<br>votre restaurant. <span class="grad">Vraiment.</span>',
+    'hero.sub':'Placement automatique des tables · Zéro surréservation · Confirmation instantanée · Site web professionnel inclus',
+    'hero.cta1':'Créer mon compte','hero.cta2':'Voir les tarifs',
+    'trust.hosted':'Hébergé en Suisse','trust.commission':'0% commission','trust.stripe':'Paiement Stripe','trust.setup':'Setup en 10 min',
+    'stats.noshow':'-87%','stats.noshow.l':'No-shows avec prépaiement','stats.commission':'0%','stats.commission.l':'Commission sur les réservations','stats.time':'+2h','stats.time.l':'Gagnées par jour en moyenne','stats.setup':'10 min','stats.setup.l':'Pour être opérationnel',
+    'prob.badge':'Les vrais problèmes','prob.title':'Ce que vivent les restaurateurs<br>au quotidien','prob.sub':'Chaque problème a une solution concrète. R3STO a été conçu par et pour les restaurateurs suisses.',
+    'mani.title':'Les restaurateurs méritent <span class="hl">mieux</span> que des plateformes qui les <span class="hl">rançonnent</span>.',
+    'mani.lead':'Pendant des années, les plateformes de réservation en ligne ont imposé leurs règles : commissions par couvert, clients captifs, données inaccessibles. R3STO est né d\'une conviction simple — cet argent, ces clients, ces données vous appartiennent. Pas à une plateforme.',
+    'mani.p1.title':'0% commission — pour toujours','mani.p1.text':'Un abonnement fixe, transparent. Chaque franc que vos clients dépensent reste dans votre caisse, pas dans celle d\'une plateforme étrangère.',
+    'mani.p2.title':'Vos données, votre propriété','mani.p2.text':'Fiches clients, historiques, préférences — tout est à vous, exportable, hébergé en Suisse. Aucun lock-in, aucune dépendance.',
+    'mani.p3.title':'Conçu par des restaurateurs','mani.p3.text':'Pas par des investisseurs de la Silicon Valley. R3STO est pensé depuis la cuisine, pas depuis un bureau open-space à San Francisco.',
+    'mani.quote':'« Nous voulons que chaque restaurateur suisse reprenne le contrôle de sa digitalisation — simplement, sans commission, sans intermédiaire. »',
+    'season.badge':'Saison terrasse',
+    'season.title':'La saison des terrasses arrive.<br><em>Votre restaurant est prêt ?</em>',
+    'season.sub':'Gérez vos espaces intérieur + terrasse en un seul plan de salle. Gestion des capacités en temps réel, attribution automatique, réservation spécifique terrasse depuis le widget client.',
+    'season.f1':'Plan de salle multi-espaces',
+    'season.f2':'Préférence terrasse du client',
+    'season.f3':'Jauge capacité temps réel',
+    'season.f4':'Walk-ins & file d\'attente',
+    'preview.badge':'Tableau de bord','preview.title':'Tout votre restaurant.<br>Un seul écran.','preview.sub':'Dashboard en temps réel avec réservations, taux d\'occupation, chiffre d\'affaires, alertes et commandes. Accessible sur desktop, tablette et mobile.',
+    'mod.badge':'Modules','mod.title':'4 modules. Une seule plateforme.','mod.sub':'Chaque module répond à un besoin précis. Activez ceux dont vous avez besoin.',
+    'mod.resa':'R3STO Resa','mod.resa.d':'Réservations, plan de salle, widget, CRM, anti no-show, prépaiement, site web, rappels, bons cadeaux, fidélité',
+    'mod.order':'R3STO Order','mod.order.d':'Prise de commande en salle incluse. Version complète : KDS cuisine & bar, gestion service, encaissement',
+    'mod.delivery':'R3STO Delivery','mod.delivery.d':'Commandes en ligne & take-away inclus. Version complète : livraison, suivi temps réel, zones, coursiers',
+    'mod.cash':'R3STO Cash','mod.cash.d':'Caisse enregistreuse, facturation, bons cadeaux, fidélité par points, export comptable',
+    'mod.included':'Inclus dans tous les plans','mod.addon':'Complet bientôt',
+    'feat.badge':'Fonctionnalités','feat.title':'Tout ce dont un restaurateur a besoin','feat.sub':'Chaque fonctionnalité a été pensée pour résoudre un vrai problème du quotidien.',
+    'price.badge':'Tarifs transparents','price.title':'Un prix fixe. Pas de surprise.','price.sub':'Facturation annuelle. 0% commission. Hébergement suisse inclus.',
+    'price.popular':'Le plus populaire',
+    'price.essentiel.bill':'468 CHF/an · Facturation annuelle','price.premium.bill':'708 CHF/an · Facturation annuelle','price.signature.bill':'948 CHF/an · Facturation annuelle',
+    'price.addon':'Modules complets <strong>Order · Delivery · Cash</strong> : bientôt disponibles · Compatible tous plans',
+    'price.note':'Tous les prix s\'entendent hors TVA · 0% commission · Hébergement suisse Infomaniak inclus · Engagement 2 ans -15%, 3 ans -25%',
+    'testi.badge':'Témoignages','testi.title':'Ce qu\'en disent les restaurateurs',
+    'testi.1.q':'On a réduit nos no-shows de 80% depuis qu\'on utilise le prépaiement. Le samedi soir, chaque table est occupée. Le ROI est immédiat.',
+    'testi.1.role':'Alket · Le Petit Boeuf · Lausanne',
+    'testi.2.q':'Avant on passait 45 minutes chaque matin à organiser le plan de salle. Maintenant l\'IA le fait en 2 secondes. Et plus aucun surbooking.',
+    'testi.2.role':'Paola D. · La Pinte · Crissier',
+    'testi.3.q':'Depuis qu\'on utilise R3STO, on ne revient plus en arrière. Le plan de salle intelligent, le CRM, les rappels — tout est fluide. Et zéro commission, c\'est un vrai soulagement financier.',
+    'testi.3.role':'Patrick S. · Alt. 505 · Sion',
+    'demo.title':'Convainquez-vous par vous-même','demo.sub':'Pas de commercial, pas d\'attente. Explorez, testez, décidez — à votre rythme.',
+    'cta.title':'Prêt à digitaliser votre restaurant ?','cta.sub':'Rejoignez les restaurateurs suisses qui ont choisi R3STO. Inscription en 3 minutes.',
+    'cta.btn1':'Créer mon compte','cta.btn2':'Voir les tarifs','cta.note':'Dès 39 CHF/mois · 0% commission · Hébergement suisse · Sans engagement minimum',
+    'footer.desc':'Plateforme SaaS de gestion pour restaurants suisses. Réservations, commandes, livraison, CRM, fidélité. Conçue et hébergée en Suisse.',
+    'footer.product':'Produit','footer.access':'Accès','footer.contact':'Légal & Contact',
+    'footer.copy':'© 2026 Innoptim SA · Le Mont-sur-Lausanne, Suisse','footer.swiss':'Fait en Suisse · Hébergé par Infomaniak',
+  },
+  en: {
+    'nav.problems':'Problems','nav.mission':'Our mission','nav.features':'Features','nav.pricing':'Pricing','nav.demo':'Videos','nav.contact':'Contact','nav.demo2':'Demo','nav.admin':'Admin','nav.cta':'Get started','nav.login':'My restaurant','nav.restaurants':'Book',
+    'hero.pill':'Swiss platform · 0% commission',
+    'hero.title':'The platform that runs<br>your restaurant. <span class="grad">For real.</span>',
+    'hero.sub':'Automatic table placement · Zero overbooking · Instant confirmation · Professional website included',
+    'hero.cta1':'Create my account','hero.cta2':'View pricing',
+    'trust.hosted':'Hosted in Switzerland','trust.commission':'0% commission','trust.stripe':'Stripe payments','trust.setup':'Setup in 10 min',
+    'stats.noshow':'-87%','stats.noshow.l':'No-shows with prepayment','stats.commission':'0%','stats.commission.l':'Commission on réservations','stats.time':'+2h','stats.time.l':'Saved per day on average','stats.setup':'10 min','stats.setup.l':'To be operational',
+    'prob.badge':'Real problems','prob.title':'What restaurateurs face<br>every day','prob.sub':'Every problem has a concrete solution. R3STO was built by and for Swiss restaurateurs.',
+    'mani.title':'Restaurateurs deserve <span class="hl">better</span> than platforms that <span class="hl">hold them hostage</span>.',
+    'mani.lead':'For years, online reservation platforms have dictated their rules: per-cover commissions, captive customers, inaccessible data. R3STO was born from a simple belief — that money, those customers, that data belongs to you. Not to a platform.',
+    'mani.p1.title':'0% commission — forever','mani.p1.text':'A fixed, transparent subscription. Every franc your customers spend stays in your register, not in a foreign platform\'s pocket.',
+    'mani.p2.title':'Your data, your property','mani.p2.text':'Customer profiles, history, preferences — it\'s all yours, exportable, hosted in Switzerland. No lock-in, no dependency.',
+    'mani.p3.title':'Built by restaurateurs','mani.p3.text':'Not by Silicon Valley investors. R3STO was designed from the kitchen, not from an open-plan office in San Francisco.',
+    'mani.quote':'"We want every Swiss restaurateur to take back control of their digitalization — simply, commission-free, without intermediaries."',
+    'season.badge':'Terrace season',
+    'season.title':'Terrace season is here.<br><em>Is your restaurant ready?</em>',
+    'season.sub':'Manage indoor + terrace spaces in one floor plan. Real-time capacity, automatic seating, terrace-specific bookings from the client widget.',
+    'season.f1':'Multi-space floor plan',
+    'season.f2':'Client terrace preference',
+    'season.f3':'Real-time capacity gauge',
+    'season.f4':'Walk-ins & waiting list',
+    'preview.badge':'Dashboard','preview.title':'Your entire restaurant.<br>One screen.','preview.sub':'Real-time dashboard with reservations, occupancy rate, revenue, alerts and orders. Accessible on desktop, tablet and mobile.',
+    'mod.badge':'Modules','mod.title':'4 modules. One platform.','mod.sub':'Each module addresses a specific need. Activate those you need.',
+    'mod.resa':'R3STO Resa','mod.resa.d':'Reservations, floor plan, widget, CRM, anti no-show, prepayment, website, reminders, gift cards, loyalty',
+    'mod.order':'R3STO Order','mod.order.d':'Basic in-room ordering included. Full version: kitchen & bar KDS, service management, POS',
+    'mod.delivery':'R3STO Delivery','mod.delivery.d':'Online ordering & takeaway included. Full version: delivery, real-time tracking, zones, couriers',
+    'mod.cash':'R3STO Cash','mod.cash.d':'Cash register, billing, gift cards, loyalty points, accounting export',
+    'mod.included':'Included in all plans','mod.addon':'Full version coming soon',
+    'feat.badge':'Features','feat.title':'Everything a restaurateur needs','feat.sub':'Every feature was designed to solve a real daily problem.',
+    'price.badge':'Transparent pricing','price.title':'Fixed price. No surprises.','price.sub':'Annual billing. 0% commission. Swiss hosting included.',
+    'price.popular':'Most popular',
+    'price.essentiel.bill':'468 CHF/year · Annual billing','price.premium.bill':'708 CHF/year · Annual billing','price.signature.bill':'948 CHF/year · Annual billing',
+    'price.addon':'Full modules <strong>Order · Delivery · Cash</strong> : coming soon · All plans',
+    'price.note':'All prices excl. VAT · 0% commission · Swiss Infomaniak hosting included · 2yr -15%, 3yr -25%',
+    'testi.badge':'Testimonials','testi.title':'What restaurateurs say',
+    'testi.1.q':'We reduced no-shows by 80% since using prepayment. Saturday nights, every table is booked. The ROI is immédiate.',
+    'testi.1.role':'Alket · Le Petit Boeuf · Lausanne',
+    'testi.2.q':'We used to spend 45 minutes every morning organizing the floor plan. Now AI does it in 2 seconds. And zero overbooking.',
+    'testi.2.role':'Paola D. · La Pinte · Crissier',
+    'testi.3.q':'Since we started using R3STO, there\'s no going back. The smart floor plan, CRM, reminders — everything flows. And zero commission is a real financial relief.',
+    'testi.3.role':'Patrick S. · Alt. 505 · Sion',
+    'demo.title':'See for yourself','demo.sub':'No sales pitch, no waiting. Explore, test, decide — at your own pace.',
+    'cta.title':'Ready to digitize your restaurant?','cta.sub':'Join the Swiss restaurateurs who chose R3STO. Sign up in 3 minutes.',
+    'cta.btn1':'Create my account','cta.btn2':'View pricing','cta.note':'From 39 CHF/mo · 0% commission · Swiss hosting · No minimum commitment',
+    'footer.desc':'SaaS platform for Swiss restaurants. Reservations, orders, delivery, CRM, loyalty. Designed and hosted in Switzerland.',
+    'footer.product':'Product','footer.access':'Access','footer.contact':'Legal & Contact',
+    'footer.copy':'© 2026 Innoptim SA · Le Mont-sur-Lausanne, Switzerland','footer.swiss':'Made in Switzerland · Hosted by Infomaniak',
+  },
+  de: {
+    'nav.problems':'Probleme','nav.mission':'Unsere Mission','nav.features':'Funktionen','nav.pricing':'Preise','nav.demo':'Videos','nav.contact':'Kontakt','nav.demo2':'Demo','nav.admin':'Admin','nav.cta':'Starten','nav.login':'Mein Restaurant','nav.restaurants':'Reservieren',
+    'hero.pill':'Schweizer Plattform · 0% Kommission',
+    'hero.title':'Die Plattform, die Ihr<br>Restaurant verwaltet. <span class="grad">Wirklich.</span>',
+    'hero.sub':'Automatische Tischzuweisung · Null Überbuchungen · Sofortige Bestätigung · Professionelle Website inklusive',
+    'hero.cta1':'Konto erstellen','hero.cta2':'Preise ansehen',
+    'trust.hosted':'In der Schweiz gehostet','trust.commission':'0% Kommission','trust.stripe':'Stripe-Zahlung','trust.setup':'Setup in 10 Min.',
+    'stats.noshow':'-87%','stats.noshow.l':'No-Shows mit Vorauszahlung','stats.commission':'0%','stats.commission.l':'Kommission auf Reservierungen','stats.time':'+2h','stats.time.l':'Pro Tag eingespart','stats.setup':'10 Min.','stats.setup.l':'Bis zur Betriebsbereitschaft',
+    'prob.badge':'Echte Probleme','prob.title':'Was Gastronomen<br>täglich erleben','prob.sub':'Jedes Problem hat eine konkrete Lösung. R3STO wurde von und für Schweizer Gastronomen entwickelt.',
+    'mani.title':'Gastronomen verdienen <span class="hl">Besseres</span> als Plattformen, die sie <span class="hl">ausnutzen</span>.',
+    'mani.lead':'Jahrelang haben Online-Reservierungsplattformen ihre Regeln diktiert: Kommissionen pro Gedeck, gefangene Kunden, unzugängliche Daten. R3STO entstand aus einer einfachen Überzeugung — dieses Geld, diese Kunden, diese Daten gehoren Ihnen. Nicht einer Plattform.',
+    'mani.p1.title':'0% Kommission — für immer','mani.p1.text':'Ein festes, transparentes Abonnement. Jeder Franken, den Ihre Gaste ausgeben, bleibt in Ihrer Kasse, nicht bei einer ausländischen Plattform.',
+    'mani.p2.title':'Ihre Daten, Ihr Eigentum','mani.p2.text':'Kundenprofile, Verlauf, Präferenzen — alles gehört Ihnen, exportierbar, in der Schweiz gehostet. Kein Lock-in, keine Abhängigkeit.',
+    'mani.p3.title':'Von Gastronomen entwickelt','mani.p3.text':'Nicht von Silicon-Valley-Investoren. R3STO wurde aus der Kuche heraus gedacht, nicht aus einem Grossraumbüro in San Francisco.',
+    'mani.quote':'« Wir wollen, dass jeder Schweizer Gastronom die Kontrolle über seine Digitalisierung zurückgewinnt — einfach, ohne Kommission, ohne Zwischenhandler. »',
+    'season.badge':'Terrassensaison',
+    'season.title':'Die Terrassensaison kommt.<br><em>Ist Ihr Restaurant bereit?</em>',
+    'season.sub':'Verwalten Sie Innen- und Terrassenbereich in einem einzigen Saalplan. Echtzeit-Kapazität, automatische Platzvergabe, terrassenspezifische Buchungen über das Kundenwidget.',
+    'season.f1':'Multi-Bereich Saalplan',
+    'season.f2':'Terrassen-Präferenz des Gastes',
+    'season.f3':'Echtzeit-Kapazitätsanzeige',
+    'season.f4':'Walk-ins & Warteliste',
+    'preview.badge':'Dashboard','preview.title':'Ihr ganzes Restaurant.<br>Ein Bildschirm.','preview.sub':'Echtzeit-Dashboard mit Reservierungen, Auslastung, Umsatz, Alarmen und Bestellungen. Auf Desktop, Tablet und Mobil.',
+    'mod.badge':'Module','mod.title':'4 Module. Eine Plattform.','mod.sub':'Jedes Modul erfüllt einen bestimmten Bedarf. Aktivieren Sie, was Sie brauchen.',
+    'mod.resa':'R3STO Resa','mod.resa.d':'Reservierungen, Saalplan, Widget, CRM, Anti-No-Show, Vorauszahlung, Website, Erinnerungen, Gutscheine, Treue',
+    'mod.order':'R3STO Order','mod.order.d':'Grundbestellungen im Saal inklusive. Vollversion: Küchen- & Bar-KDS, Service, Kasse',
+    'mod.delivery':'R3STO Delivery','mod.delivery.d':'Online-Bestellung & Take-away inklusive. Vollversion: Lieferung, Echtzeit-Tracking, Zonen, Kuriere',
+    'mod.cash':'R3STO Cash','mod.cash.d':'Registrierkasse, Rechnungsstellung, Gutscheine, Treuepunkte, Buchhaltungsexport',
+    'mod.included':'In allen Plänen inklusive','mod.addon':'Vollversion bald verfügbar',
+    'feat.badge':'Funktionen','feat.title':'Alles, was ein Gastronom braucht','feat.sub':'Jede Funktion wurde entwickelt, um ein echtes tägliches Problem zu losen.',
+    'price.badge':'Transparente Preise','price.title':'Ein fester Preis. Keine Überraschungen.','price.sub':'Jährliche Abrechnung. 0% Kommission. Schweizer Hosting inklusive.',
+    'price.popular':'Am beliebtesten',
+    'price.essentiel.bill':'468 CHF/Jahr · Jährliche Abrechnung','price.premium.bill':'708 CHF/Jahr · Jährliche Abrechnung','price.signature.bill':'948 CHF/Jahr · Jährliche Abrechnung',
+    'price.addon':'Vollmodule <strong>Order · Delivery · Cash</strong> : bald verfügbar · Alle Pläne',
+    'price.note':'Alle Preise zzgl. MwSt. · 0% Kommission · Schweizer Infomaniak-Hosting inklusive · 2 Jahre -15%, 3 Jahre -25%',
+    'testi.badge':'Referenzen','testi.title':'Was Gastronomen sagen',
+    'testi.1.q':'Wir haben No-Shows um 80% reduziert seit wir Vorauszahlung nutzen. Samstagsabends ist jeder Tisch besetzt. Der ROI ist sofort.',
+    'testi.1.role':'Alket · Le Petit Boeuf · Lausanne',
+    'testi.2.q':'Früher haben wir jeden Morgen 45 Minuten für den Saalplan gebraucht. Jetzt macht die KI das in 2 Sekunden. Und null Überbuchung.',
+    'testi.2.role':'Paola D. · La Pinte · Crissier',
+    'testi.3.q':'Seit wir R3STO nutzen, gibt es kein Zurück. Intelligenter Saalplan, CRM, Erinnerungen — alles läuft. Und null Kommission ist eine echte finanzielle Erleichterung.',
+    'testi.3.role':'Patrick S. · Alt. 505 · Sion',
+    'demo.title':'Überzeugen Sie sich selbst','demo.sub':'Kein Verkaufsgespräch, kein Warten. Erkunden, testen, entscheiden — in Ihrem Tempo.',
+    'cta.title':'Bereit, Ihr Restaurant zu digitalisieren?','cta.sub':'Schliessen Sie sich den Schweizer Gastronomen an, die R3STO gewählt haben. Anmeldung in 3 Minuten.',
+    'cta.btn1':'Konto erstellen','cta.btn2':'Preise ansehen','cta.note':'Ab 39 CHF/Mt. · 0% Kommission · Schweizer Hosting · Keine Mindestlaufzeit',
+    'footer.desc':'SaaS-Plattform für Schweizer Restaurants. Reservierungen, Bestellungen, Lieferung, CRM, Treue. In der Schweiz entwickelt und gehostet.',
+    'footer.product':'Produkt','footer.access':'Zugang','footer.contact':'Rechtliches & Kontakt',
+    'footer.copy':'© 2026 Innoptim SA · Le Mont-sur-Lausanne, Schweiz','footer.swiss':'Made in Switzerland · Gehostet bei Infomaniak',
+  },
+  it: {
+    'nav.problems':'Problemi','nav.mission':'La nostra missione','nav.features':'Funzionalità','nav.pricing':'Prezzi','nav.demo':'Video','nav.contact':'Contatto','nav.demo2':'Demo','nav.admin':'Admin','nav.cta':'Inizia','nav.login':'Il mio ristorante','nav.restaurants':'Prenota',
+    'hero.pill':'Piattaforma svizzera · 0% commissione',
+    'hero.title':'La piattaforma che gestisce<br>il tuo ristorante. <span class="grad">Davvero.</span>',
+    'hero.sub':'Posizionamento automatico dei tavoli · Zero sovrapprenotazioni · Conferma istantanea · Sito web professionale incluso',
+    'hero.cta1':'Crea il mio account','hero.cta2':'Vedi i prezzi',
+    'trust.hosted':'Ospitato in Svizzera','trust.commission':'0% commissione','trust.stripe':'Pagamento Stripe','trust.setup':'Setup in 10 min',
+    'stats.noshow':'-87%','stats.noshow.l':'No-show con prepagamento','stats.commission':'0%','stats.commission.l':'Commissione sulle prenotazioni','stats.time':'+2h','stats.time.l':'Risparmiate al giorno','stats.setup':'10 min','stats.setup.l':'Per essere operativi',
+    'prob.badge':'I veri problemi','prob.title':'Cosa vivono i ristoratori<br>ogni giorno','prob.sub':'Ogni problema ha una soluzione concreta. R3STO è stato costruito da e per i ristoratori svizzeri.',
+    'mani.title':'I ristoratori meritano di <span class="hl">meglio</span> delle piattaforme che li <span class="hl">sfruttano</span>.',
+    'mani.lead':'Per anni, le piattaforme di prenotazione online hanno imposto le loro regole: commissioni per coperto, clienti prigionieri, dati inaccessibili. R3STO è nato da una convinzione semplice — quei soldi, quei clienti, quei dati appartengono a voi. Non a una piattaforma.',
+    'mani.p1.title':'0% commissione — per sempre','mani.p1.text':'Un abbonamento fisso, trasparente. Ogni franco speso dai vostri clienti resta nella vostra cassa, non in quella di una piattaforma straniera.',
+    'mani.p2.title':'I vostri dati, la vostra proprietà','mani.p2.text':'Schede clienti, storico, preferenze — tutto è vostro, esportabile, ospitato in Svizzera. Nessun lock-in, nessuna dipendenza.',
+    'mani.p3.title':'Creato da ristoratori','mani.p3.text':'Non da investitori della Silicon Valley. R3STO è stato pensato dalla cucina, non da un ufficio open-space a San Francisco.',
+    'mani.quote':'« Vogliamo che ogni ristoratore svizzero riprenda il controllo della propria digitalizzazione — semplicemente, senza commissioni, senza intermediari. »',
+    'season.badge':'Stagione terrazza',
+    'season.title':'La stagione delle terrazze arriva.<br><em>Il vostro ristorante è pronto?</em>',
+    'season.sub':'Gestite spazi interni + terrazza in un unico piano sala. Capacità in tempo reale, assegnazione automatica, prenotazioni specifiche terrazza dal widget cliente.',
+    'season.f1':'Piano sala multi-spazio',
+    'season.f2':'Preferenza terrazza del cliente',
+    'season.f3':'Indicatore capacità in tempo reale',
+    'season.f4':'Walk-in & lista d\'attesa',
+    'preview.badge':'Dashboard','preview.title':'Tutto il tuo ristorante.<br>Uno schermo.','preview.sub':'Dashboard in tempo reale con prenotazioni, tasso di occupazione, fatturato, avvisi e ordini. Accessibile su desktop, tablet e mobile.',
+    'mod.badge':'Moduli','mod.title':'4 moduli. Una piattaforma.','mod.sub':'Ogni modulo risponde a un\'esigenza précisa. Attiva quelli di cui hai bisogno.',
+    'mod.resa':'R3STO Resa','mod.resa.d':'Prenotazioni, piano sala, widget, CRM, anti no-show, prepagamento, sito web, promemoria, buoni regalo, fedeltà',
+    'mod.order':'R3STO Order','mod.order.d':'Ordini base in sala inclusi. Versione completa: KDS cucina e bar, gestione servizio, cassa',
+    'mod.delivery':'R3STO Delivery','mod.delivery.d':'Ordini online & asporto inclusi. Versione completa: consegna, tracking in tempo reale, zone, corrieri',
+    'mod.cash':'R3STO Cash','mod.cash.d':'Registratore di cassa, fatturazione, buoni regalo, punti fedeltà, export contabile',
+    'mod.included':'Incluso in tutti i piani','mod.addon':'Versione completa presto',
+    'feat.badge':'Funzionalità','feat.title':'Tutto ciò che un ristoratore ha bisogno','feat.sub':'Ogni funzionalità è stata progettata per risolvere un vero problema quotidiano.',
+    'price.badge':'Prezzi trasparenti','price.title':'Un prezzo fisso. Nessuna sorpresa.','price.sub':'Fatturazione annuale. 0% commissione. Hosting svizzero incluso.',
+    'price.popular':'Il più popolare',
+    'price.essentiel.bill':'468 CHF/anno · Fatturazione annuale','price.premium.bill':'708 CHF/anno · Fatturazione annuale','price.signature.bill':'948 CHF/anno · Fatturazione annuale',
+    'price.addon':'Moduli completi <strong>Order · Delivery · Cash</strong> : disponibili presto · Tutti i piani',
+    'price.note':'Tutti i prezzi esclusa IVA · 0% commissione · Hosting svizzero Infomaniak incluso · 2 anni -15%, 3 anni -25%',
+    'testi.badge':'Testimonianze','testi.title':'Cosa dicono i ristoratori',
+    'testi.1.q':'Abbiamo ridotto i no-show dell\'80% da quando usiamo il prepagamento. Il sabato sera, ogni tavolo è occupato. Il ROI è immediato.',
+    'testi.1.role':'Alket · Le Petit Boeuf · Losanna',
+    'testi.2.q':'Prima passavamo 45 minuti ogni mattina a organizzare il piano sala. Ora l\'IA lo fa in 2 secondi. E zero overbooking.',
+    'testi.2.role':'Paola D. · La Pinte · Crissier',
+    'testi.3.q':'Da quando usiamo R3STO, non si torna indietro. Piano sala intelligente, CRM, promemoria — tutto scorre. E zero commissioni è un vero sollievo finanziario.',
+    'testi.3.role':'Patrick S. · Alt. 505 · Sion',
+    'demo.title':'Convinciti da solo','demo.sub':'Nessun commerciale, nessuna attesa. Esplora, testa, decidi — al tuo ritmo.',
+    'cta.title':'Pronto a digitalizzare il tuo ristorante?','cta.sub':'Unisciti ai ristoratori svizzeri che hanno scelto R3STO. Iscrizione in 3 minuti.',
+    'cta.btn1':'Crea il mio account','cta.btn2':'Vedi i prezzi','cta.note':'Da 39 CHF/mese · 0% commissione · Hosting svizzero · Nessun impegno minimo',
+    'footer.desc':'Piattaforma SaaS per ristoranti svizzeri. Prenotazioni, ordini, consegna, CRM, fedeltà. Progettata e ospitata in Svizzera.',
+    'footer.product':'Prodotto','footer.access':'Accesso','footer.contact':'Legale & Contatto',
+    'footer.copy':'© 2026 Innoptim SA · Le Mont-sur-Lausanne, Svizzera','footer.swiss':'Made in Switzerland · Ospitato da Infomaniak',
+  }
+};
+
+var currentLang = localStorage.getItem('r3sto_lang') || 'fr';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('r3sto_lang', lang);
+  ['fr','de','it','en'].forEach(function(x){
+    var b=document.getElementById('lb-'+x);
+    if(b) b.className='lbtn'+(x===lang?' on':'');
+  });
+  document.documentElement.lang = lang;
+  applyLang(lang);
+  // Sync admin link with current language
+  var al = document.getElementById('adminLink');
+  if(al) al.href = 'https://admin.r3sto.ch?lang=' + lang;
+  // Sync auth/app links too
+  document.querySelectorAll('a[href*="auth.r3sto.ch"]').forEach(function(a){ a.href = 'https://auth.r3sto.ch?lang=' + lang; });
+  document.querySelectorAll('a[href*="demo.r3sto.ch"]').forEach(function(a){ if(a.href === 'https://demo.r3sto.ch' || a.href === 'https://demo.r3sto.ch/') a.href = 'https://demo.r3sto.ch?lang=' + lang; });
+  document.querySelectorAll('a[href*="app.r3sto.ch"]').forEach(function(a){ a.href = 'https://app.r3sto.ch?lang=' + lang; });
+}
+
+function t(key) {
+  return (I18N[currentLang] && I18N[currentLang][key]) || (I18N.fr[key]) || key;
+}
+
+function applyLang(lang) {
+  var d = I18N[lang] || I18N.fr;
+  // data-i18n (textContent)
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k = el.getAttribute('data-i18n');
+    if(d[k]) el.textContent = d[k];
+  });
+  // data-i18n-html (innerHTML)
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el){
+    var k = el.getAttribute('data-i18n-html');
+    if(d[k]) el.innerHTML = d[k];
+  });
+
+  // Targeted elements by position (sections in order)
+  var map = [
+    // Trust bar items
+    {sel:'.trust-item:nth-child(1)', k:'trust.hosted', after:true},
+    {sel:'.trust-item:nth-child(2)', k:'trust.commission', after:true},
+    {sel:'.trust-item:nth-child(3)', k:'trust.stripe', after:true},
+    {sel:'.trust-item:nth-child(4)', k:'trust.setup', after:true},
+    // Stats
+    {sel:'.stats-grid > div:nth-child(1) .stat-l', k:'stats.noshow.l'},
+    {sel:'.stats-grid > div:nth-child(2) .stat-l', k:'stats.commission.l'},
+    {sel:'.stats-grid > div:nth-child(3) .stat-l', k:'stats.time.l'},
+    {sel:'.stats-grid > div:nth-child(4) .stat-l', k:'stats.setup.l'},
+    {sel:'.stats-grid > div:nth-child(4) .stat-n', k:'stats.setup'},
+    // Season
+    {sel:'.season h2', k:'season.title', html:true},
+    {sel:'.season p', k:'season.sub'},
+    {sel:'.season-feat:nth-child(1) span', k:'season.f1'},
+    {sel:'.season-feat:nth-child(2) span', k:'season.f2'},
+    {sel:'.season-feat:nth-child(3) span', k:'season.f3'},
+    {sel:'.season-feat:nth-child(4) span', k:'season.f4'},
+    // Problems section
+    {sel:'#problèmes .s-title', k:'prob.title', html:true},
+    {sel:'#problèmes .s-sub', k:'prob.sub'},
+    // Manifeste
+    {sel:'.mani-title', k:'mani.title', html:true},
+    {sel:'.mani-lead', k:'mani.lead'},
+    {sel:'.mani-pillar:nth-child(1) h4', k:'mani.p1.title'},
+    {sel:'.mani-pillar:nth-child(1) p', k:'mani.p1.text'},
+    {sel:'.mani-pillar:nth-child(2) h4', k:'mani.p2.title'},
+    {sel:'.mani-pillar:nth-child(2) p', k:'mani.p2.text'},
+    {sel:'.mani-pillar:nth-child(3) h4', k:'mani.p3.title'},
+    {sel:'.mani-pillar:nth-child(3) p', k:'mani.p3.text'},
+    {sel:'.mani-quote', k:'mani.quote'},
+    // Preview
+    {sel:'.preview .s-title', k:'preview.title', html:true},
+    {sel:'.preview .s-sub', k:'preview.sub'},
+    // Modules
+    {sel:'#fonctionnalités > .inner > div > .s-title', k:'mod.title'},
+    {sel:'#fonctionnalités > .inner > div > .s-sub', k:'mod.sub'},
+    {sel:'.mod:nth-child(1) h4', k:'mod.resa'},
+    {sel:'.mod:nth-child(1) p', k:'mod.resa.d'},
+    {sel:'.mod:nth-child(2) h4', k:'mod.order'},
+    {sel:'.mod:nth-child(2) p', k:'mod.order.d'},
+    {sel:'.mod:nth-child(3) h4', k:'mod.delivery'},
+    {sel:'.mod:nth-child(3) p', k:'mod.delivery.d'},
+    {sel:'.mod:nth-child(4) h4', k:'mod.cash'},
+    {sel:'.mod:nth-child(4) p', k:'mod.cash.d'},
+    // Pricing
+    {sel:'#tarifs .s-title', k:'price.title'},
+    {sel:'#tarifs .s-sub', k:'price.sub'},
+    {sel:'.plan:nth-child(1) .plan-billing', k:'price.essentiel.bill'},
+    {sel:'.plan:nth-child(2) .plan-billing', k:'price.premium.bill'},
+    {sel:'.plan.pop::before', skip:true},
+    {sel:'.plan:nth-child(3) .plan-billing', k:'price.signature.bill'},
+    {sel:'.price-note', k:'price.note'},
+    // Testimonials
+    {sel:'.testi:nth-child(1) .testi-q', k:'testi.1.q', wrap:'« ', wrapEnd:' »'},
+    {sel:'.testi:nth-child(1) .testi-role', k:'testi.1.role'},
+    {sel:'.testi:nth-child(2) .testi-q', k:'testi.2.q', wrap:'« ', wrapEnd:' »'},
+    {sel:'.testi:nth-child(2) .testi-role', k:'testi.2.role'},
+    {sel:'.testi:nth-child(3) .testi-q', k:'testi.3.q', wrap:'« ', wrapEnd:' »'},
+    {sel:'.testi:nth-child(3) .testi-role', k:'testi.3.role'},
+    // Démo section
+    {sel:'.demo .s-title', k:'demo.title'},
+    {sel:'.demo .s-sub', k:'demo.sub'},
+    // Final CTA
+    {sel:'.final-cta .s-title', k:'cta.title'},
+    {sel:'.final-cta .s-sub', k:'cta.sub'},
+    // Footer
+    {sel:'.footer-brand p', k:'footer.desc'},
+    {sel:'.footer-col:nth-child(2) h4', k:'footer.product'},
+    {sel:'.footer-col:nth-child(3) h4', k:'footer.access'},
+    {sel:'.footer-col:nth-child(4) h4', k:'footer.contact'},
+  ];
+
+  map.forEach(function(m){
+    if(m.skip) return;
+    var el = document.querySelector(m.sel);
+    if(!el || !d[m.k]) return;
+    var txt = d[m.k];
+    if(m.wrap) txt = m.wrap + txt + (m.wrapEnd||'');
+    if(m.html) el.innerHTML = txt;
+    else if(m.after) {
+      // Keep SVG, replace text node
+      var svg = el.querySelector('svg');
+      el.textContent = ' ' + txt;
+      if(svg) el.prepend(svg, ' ');
+    }
+    else el.textContent = txt;
+  });
+
+  // Addon badge
+  var addonEl = document.querySelector('.addon');
+  if(addonEl && d['price.addon']) { var svgA = addonEl.querySelector('svg'); addonEl.innerHTML = d['price.addon']; if(svgA) addonEl.prepend(svgA, ' '); }
+
+  // CTA buttons
+  var ctaBtns = document.querySelectorAll('.final-cta .btn-p, .final-cta .btn-o');
+  if(ctaBtns[0] && d['cta.btn1']) ctaBtns[0].textContent = d['cta.btn1'];
+  if(ctaBtns[1] && d['cta.btn2']) ctaBtns[1].textContent = d['cta.btn2'];
+  var ctaNote = document.querySelector('.final-cta [style*="font-size:13px"]');
+  if(ctaNote && d['cta.note']) ctaNote.textContent = d['cta.note'];
+}
+
+// Init lang
+if(currentLang !== 'fr') setLang(currentLang);
+
+</script>
+</body>
+</html>

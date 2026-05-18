@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connexion — R3STO</title>
+<meta name="description" content="Connectez-vous à R3STO en un clic — lien magique envoyé par email, sans mot de passe.">
+<meta name="theme-color" content="#1c2e58">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--bg-2:#e3ebf5;--surf:#ffffff;
+  --navy:#1c2e58;--navy-2:#13224a;
+  --gold:#a07e2a;--gold-soft:#c89752;
+  --t-1:#0c1730;--t-2:#4a5878;--t-3:#7b88a8;
+  --border:#d6dfee;--max:1180px;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--ff);background:var(--bg);color:var(--t-1);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(244,247,251,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border)}
+.nav-in{max-width:var(--max);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--navy)}
+.logo-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+.logo-mast{display:flex;flex-direction:column;line-height:1;margin-left:4px;border-left:1px solid var(--border);padding-left:12px}
+.logo-title{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em;white-space:nowrap;margin-bottom:4px}
+.logo-slogan{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.12em;font-style:italic;text-transform:uppercase;white-space:nowrap}
+@media(max-width:680px){.logo-mast{display:none}}
+
+/* MAIN */
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.auth-box{
+  width:100%;max-width:440px;
+  background:var(--surf);border:1px solid var(--border);
+  padding:36px 32px 32px;
+}
+.auth-eyebrow{
+  font-family:var(--fm);font-size:10.5px;font-weight:700;
+  color:var(--gold);letter-spacing:.16em;text-transform:uppercase;
+  margin-bottom:14px;display:block;
+}
+.auth-h1{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0 0 8px;color:var(--navy);line-height:1.15}
+.auth-sub{font-size:14px;color:var(--t-2);margin:0 0 24px;line-height:1.5}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11.5px;font-weight:600;color:var(--t-2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.field input{
+  width:100%;padding:13px 14px;border:1px solid var(--border);
+  background:#fff;font-family:var(--ff);font-size:14.5px;color:var(--t-1);
+  border-radius:0;outline:none;transition:.15s;
+}
+.field input:focus{border-color:var(--navy)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:22px;border:1px solid var(--border)}
+.tabs button{
+  border:0;background:#fff;color:var(--t-2);
+  padding:11px 8px;font-family:var(--ff);font-size:12.5px;font-weight:600;
+  letter-spacing:.04em;cursor:pointer;transition:.18s;text-transform:uppercase;
+}
+.tabs button.on{background:var(--navy);color:#fff}
+.tabs button:not(.on):hover{background:var(--bg-2)}
+.btn-primary{
+  width:100%;background:var(--navy);color:#fff;border:0;
+  padding:15px;font-family:var(--ff);font-size:14px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;cursor:pointer;
+  transition:.18s;border-radius:0;
+}
+.btn-primary:hover{background:var(--gold)}
+.hint{
+  margin-top:18px;font-size:12px;color:var(--t-3);
+  text-align:center;line-height:1.55;
+}
+.hint a{color:var(--gold);text-decoration:none;font-weight:600}
+.hint a:hover{color:var(--navy)}
+.sent{
+  background:#fff8e8;border:1px solid #e6d090;
+  padding:18px;margin-top:18px;font-size:13px;color:var(--t-1);
+  line-height:1.55;
+}
+.sent b{color:var(--navy)}
+[hidden]{display:none !important}
+
+/* FOOTER mini */
+.foot{padding:20px 28px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.02em}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Connexion</span>
+        <span class="logo-slogan">guide&nbsp;gourmand</span>
+      </span>
+    </a>
+    <a href="/" style="font-size:13px;color:var(--t-2);text-decoration:none;font-weight:500">← Retour annuaire</a>
+  </div>
+</nav>
+
+<main>
+  <div class="auth-box">
+    <span class="auth-eyebrow" id="eyebrow">Magic Link</span>
+    <h1 class="auth-h1" id="h1">Connectez-vous en 1 clic</h1>
+    <p class="auth-sub" id="sub">Pas de mot de passe. Saisissez votre email, on vous envoie un lien sécurisé valable 24 h.</p>
+
+    <div class="tabs">
+      <button class="on" onclick="switchTab('client',this)">Client gourmand</button>
+      <button onclick="switchTab('pro',this)">Restaurateur</button>
+    </div>
+
+    <form id="formAuth" onsubmit="return sendMagic(event)">
+      <div class="field">
+        <label>Adresse email</label>
+        <input type="email" id="email" required placeholder="vous@email.com" autocomplete="email">
+      </div>
+      <button type="submit" class="btn-primary" id="submitBtn">Recevoir le lien magique →</button>
+    </form>
+
+    <div class="sent" id="sentBox" hidden>
+      <b>✉ Email envoyé.</b><br>
+      Cliquez sur le lien dans <b id="sentTo">votre boîte</b> pour ouvrir votre espace. Pensez à vérifier vos spams.
+      <div style="margin-top:12px;font-size:11.5px">
+        <a href="javascript:void(0)" onclick="reset()" style="color:var(--gold)">← Renvoyer / changer d'email</a>
+      </div>
+    </div>
+
+    <p class="hint" id="hint">
+      Pas encore client ? <a href="/">Parcourir l'annuaire</a> · Vous êtes restaurateur ? <a href="/pro.html">Découvrir R3STO Pro</a>
+    </p>
+  </div>
+</main>
+
+<div class="foot">© 2026 Innoptim SA · R3STO — guide gourmand international</div>
+
+<script>
+let mode = 'client';
+function switchTab(m, btn){
+  mode = m;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  if(m === 'pro'){
+    document.getElementById('eyebrow').textContent = 'Espace Pro · Magic Link';
+    document.getElementById('h1').textContent = 'Accédez à votre fiche resto';
+    document.getElementById('sub').textContent = 'Saisissez votre email pro. Si votre établissement est déjà sur R3STO, vous pourrez le revendiquer en 2 clics.';
+    document.getElementById('submitBtn').textContent = 'Accéder à mon restaurant →';
+  } else {
+    document.getElementById('eyebrow').textContent = 'Magic Link';
+    document.getElementById('h1').textContent = 'Connectez-vous en 1 clic';
+    document.getElementById('sub').textContent = 'Pas de mot de passe. Saisissez votre email, on vous envoie un lien sécurisé valable 24 h.';
+    document.getElementById('submitBtn').textContent = 'Recevoir le lien magique →';
+  }
+}
+
+function sendMagic(e){
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  if(!email) return false;
+  // Stocke pour la session de démo
+  localStorage.setItem('r3sto_email', email);
+  localStorage.setItem('r3sto_mode', mode);
+  document.getElementById('sentTo').textContent = email;
+  document.getElementById('formAuth').hidden = true;
+  document.getElementById('hint').hidden = true;
+  document.getElementById('sentBox').hidden = false;
+  // Demo : après 1.5 sec, redirige direct (simule clic sur le magic link)
+  setTimeout(() => {
+    window.location.href = mode === 'pro' ? '/pro-claim.html' : '/compte.html';
+  }, 1800);
+  return false;
+}
+
+function reset(){
+  document.getElementById('formAuth').hidden = false;
+  document.getElementById('hint').hidden = false;
+  document.getElementById('sentBox').hidden = true;
+}
+</script>
+</body>
+</html>
