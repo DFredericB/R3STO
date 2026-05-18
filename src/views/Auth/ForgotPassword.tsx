@@ -14,7 +14,7 @@ const TEXT = '#e8edf5'
 const MUTED = '#6b82a0'
 const DANGER = '#ef6868'
 
-const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com'
 
 export function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -145,7 +145,7 @@ export function ForgotPassword() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 14, fontSize: 11, color: 'rgba(107,130,160,.5)' }}>
-          api.r3sto.ch
+          api.r3sto.com
         </div>
       </form>
 

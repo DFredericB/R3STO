@@ -154,7 +154,7 @@ export default function App() {
       const store = localStorage
       store.setItem('r3sto-token', token)
       // Valider le token côté API
-      const api = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch/api'
+      const api = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com/api'
       fetch(`${api}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
         .then(r => r.json())
         .then(data => {

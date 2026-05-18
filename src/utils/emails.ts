@@ -10,7 +10,7 @@
  *   info@r3sto.ch     → Communications générales / marketing
  *
  * INTÉGRATION :
- *   Les templates HTML seront hébergés côté API (api.r3sto.ch).
+ *   Les templates HTML seront hébergés côté API (api.r3sto.com).
  *   L'envoi passe par le service SMTP d'Infomaniak ou un provider dédié (Resend, Postmark).
  *   Les SMS passent par un provider séparé (ex: Twilio, MessageBird).
  */

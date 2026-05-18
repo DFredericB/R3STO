@@ -66,7 +66,7 @@ const QUICK_Q_KEYS = [
 
 type SupportTab = 'chat' | 'videos' | 'faq' | 'ticket'
 
-const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com'
 
 export function Support() {
   const { t } = useT()

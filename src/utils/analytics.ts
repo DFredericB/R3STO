@@ -230,7 +230,7 @@ class AnalyticsCollector {
     try {
       const token = localStorage.getItem('r3sto-token')
       if (token) {
-        fetch('https://api.r3sto.ch/analytics/session', {
+        fetch('https://api.r3sto.com/analytics/session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(summary),

@@ -187,7 +187,7 @@ export function Profil() {
     }
     // Mode prod → proxy backend /public/places/search
     try {
-      const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+      const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com'
       const r = await fetch(`${API_BASE}/public/places/search?q=${encodeURIComponent(q)}`)
       const data = await r.json().catch(() => ({ ok: false }))
       if (!r.ok || !data.ok) {

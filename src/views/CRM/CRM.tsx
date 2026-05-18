@@ -10,7 +10,7 @@ import { getToken } from '../../auth/useAuth'
 import { RADIUS, sectionTitle, filterChip, inputStyle, labelStyle } from '../../utils/design'
 import { useToast } from '../../components/ui/Toast'
 
-const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com'
 
 // ── Types ──
 interface Contact {

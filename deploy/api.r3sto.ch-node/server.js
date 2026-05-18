@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 // ═══════════════════════════════════════════════════
-//  R3STO — API Express v1.1.0
-//  Backend Node.js complet : Auth + Restaurants + Admin + Stripe
+//  R3STO — API Express v1.2.0
+//  Backend Node.js : Auth + Restaurants + Admin + Stripe + Booking
 //  Base de données : MariaDB (Infomaniak)
+//  ⚠ Tous les secrets viennent de .env (jamais hardcodés)
 // ═══════════════════════════════════════════════════
+
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -15,36 +18,52 @@ const nodemailer = require('nodemailer');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// ── Config ────────────────────────────────────────
+// ── Validation des env vars critiques au démarrage ────
+const REQUIRED_ENV = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET'];
+const missing = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missing.length) {
+  console.error('❌ Missing required env vars:', missing.join(', '));
+  console.error('   Crée un fichier .env (voir .env.example)');
+  process.exit(1);
+}
+
+// ── Config DB ────────────────────────────────────
 const DB_CONFIG = {
-  host: 'pl7wy9.myd.infomaniak.com',
-  port: 3306,
-  user: 'pl7wy9_R3STO',
-  password: 'RueNeuve20#1081',
-  database: 'pl7wy9_R3STO',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '3306', 10),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: parseInt(process.env.DB_POOL_SIZE || '10', 10),
   charset: 'utf8mb4',
 };
 
-const JWT_SECRET = 'r3sto_jwt_secret_2026_prod';
-const JWT_EXPIRES = '30d';
-const SETUP_KEY = 'r3sto_setup_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES = process.env.JWT_EXPIRES || '30d';
+const SETUP_KEY = process.env.SETUP_KEY || '';
 
-// Stripe (à configurer avec ta vraie clé)
+// Stripe
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 
+// CORS allowed origins
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://r3sto.com,https://www.r3sto.com,https://app.r3sto.com,https://admin.r3sto.com,https://demo.r3sto.com,https://mini.r3sto.com')
+  .split(',').map(s => s.trim()).filter(Boolean);
+
 // ── SMTP (Infomaniak) ────────────────────────────
 const smtpTransport = nodemailer.createTransport({
-  host: 'mail.infomaniak.com',
-  port: 587,
-  secure: false,
+  host: process.env.SMTP_HOST || 'mail.infomaniak.com',
+  port: parseInt(process.env.SMTP_PORT || '587', 10),
+  secure: process.env.SMTP_SECURE === 'true',
   auth: {
-    user: 'noreply@r3sto.ch',
-    pass: 'RueNeuve20#1081',
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
   },
 });
+
+const FROM_EMAIL = process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@r3sto.ch';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'contact@r3sto.com';
 
 // ── OTP storage (en mémoire — suffisant pour commencer) ──
 const otpStore = new Map(); // email -> { code, expires }
@@ -92,7 +111,15 @@ try {
 
 // ── Middleware ─────────────────────────────────────
 app.use(cors({
-  origin: true,
+  origin: (origin, cb) => {
+    // Autorise les requêtes sans Origin (curl, server-to-server)
+    if (!origin) return cb(null, true);
+    // Whitelist via ALLOWED_ORIGINS (.env)
+    if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    // Permettre les sous-domaines .r3sto.com et .r3sto.ch
+    if (/^https:\/\/[a-z0-9-]+\.r3sto\.(com|ch)$/.test(origin)) return cb(null, true);
+    return cb(new Error('CORS: origin not allowed'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -1172,6 +1199,132 @@ app.post('/sync/push', authMiddleware, async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════
+//  BOOKING — réservation publique depuis r3sto.com/fiche.html
+//  POST /booking → envoie 2 emails (client + resto) via SMTP Infomaniak
+// ═══════════════════════════════════════════════════
+function genBookingRef() {
+  const ts = Date.now().toString(36).toUpperCase();
+  const rnd = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `R3-${ts}-${rnd}`;
+}
+function fmtDateFr(iso) {
+  return new Date(iso).toLocaleDateString('fr-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+}
+
+app.post('/booking', async (req, res) => {
+  try {
+    const { slug, name, email, phone, date, time, pax, notes } = req.body || {};
+    if (!slug || !name || !email || !date || !time || !pax) {
+      return res.status(400).json({ error: 'Champs requis manquants' });
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      return res.status(400).json({ error: 'Email invalide' });
+    }
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (new Date(date) < today) {
+      return res.status(400).json({ error: 'Date invalide ou passée' });
+    }
+    const paxN = parseInt(pax, 10);
+    if (!paxN || paxN < 1 || paxN > 20) {
+      return res.status(400).json({ error: 'Nombre de personnes invalide (1–20)' });
+    }
+
+    // Récupérer le resto en DB
+    let restoName = slug, restoEmail = ADMIN_EMAIL, restoCity = '';
+    try {
+      const [rows] = await pool.query('SELECT name, email, ville FROM restaurants WHERE slug = ? LIMIT 1', [slug]);
+      if (rows[0]) {
+        restoName = rows[0].name || slug;
+        restoEmail = rows[0].email || ADMIN_EMAIL;
+        restoCity = rows[0].ville || '';
+      }
+    } catch {}
+
+    const refId = genBookingRef();
+    const humanDate = fmtDateFr(date);
+
+    // Sauvegarder la résa en DB (table bookings — créer si pas existante)
+    try {
+      await pool.query(
+        `INSERT INTO bookings (ref, resto_slug, client_name, client_email, client_phone, date, time, pax, notes, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())`,
+        [refId, slug, name, email, phone || null, date, time, paxN, notes || null]
+      );
+    } catch (e) {
+      console.warn('[booking] DB insert failed (table missing?):', e.message);
+      // On continue quand même pour envoyer les emails
+    }
+
+    // Email client
+    await smtpTransport.sendMail({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `📩 Demande de réservation envoyée à ${restoName}`,
+      html: `<!DOCTYPE html><html><body style="margin:0;background:#eef3fa;font-family:Arial,sans-serif;color:#0c1730">
+<div style="max-width:560px;margin:30px auto;background:#fff;border:1px solid #d6dfee">
+<div style="background:#1c2e58;color:#fff;padding:24px 28px">
+<div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c89752;margin-bottom:8px">📩 Demande envoyée</div>
+<div style="font-size:24px;font-weight:800">${esc(restoName)}</div>
+<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px">${esc(restoCity)}</div>
+</div>
+<div style="padding:24px 28px">
+<p>Bonjour ${esc(name.split(' ')[0])},</p>
+<p>Votre demande de réservation a bien été transmise à <b>${esc(restoName)}</b>. Le restaurant va vous confirmer sous quelques heures.</p>
+<div style="background:#fff8e8;border:1px solid #e6d090;padding:18px 20px;margin:20px 0">
+<div style="font-size:10.5px;font-weight:700;color:#a07e2a;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px">Détails</div>
+<table cellpadding="6" style="width:100%;font-size:14px">
+<tr><td style="color:#7b88a8;width:120px">Date</td><td><b>${esc(humanDate)}</b></td></tr>
+<tr><td style="color:#7b88a8">Heure</td><td><b>${esc(time)}</b></td></tr>
+<tr><td style="color:#7b88a8">Personnes</td><td><b>${paxN}</b></td></tr>
+${notes ? `<tr><td style="color:#7b88a8">Notes</td><td>${esc(notes)}</td></tr>` : ''}
+<tr><td style="color:#7b88a8">Référence</td><td style="font-family:monospace">${refId}</td></tr>
+</table></div>
+<p style="font-size:13px;color:#4a5878">Pour modifier ou annuler : <a href="mailto:${ADMIN_EMAIL}?subject=Modifier%20résa%20${refId}" style="color:#a07e2a">${ADMIN_EMAIL}</a></p>
+</div></div></body></html>`,
+      text: `R3STO — Demande de réservation envoyée\n\nBonjour ${name.split(' ')[0]},\n\nVotre demande chez ${restoName} a été transmise.\n\nDate: ${humanDate}\nHeure: ${time}\nPersonnes: ${paxN}\nRéférence: ${refId}\n\nPour modifier : ${ADMIN_EMAIL} (objet: "Modifier ${refId}")\n\nR3STO — sans commission\nhttps://r3sto.com\n`
+    });
+
+    // Email resto
+    await smtpTransport.sendMail({
+      from: FROM_EMAIL,
+      to: restoEmail,
+      replyTo: email,
+      subject: `🔔 Nouvelle demande de réservation R3STO — ${humanDate} · ${paxN} pers.`,
+      html: `<!DOCTYPE html><html><body style="margin:0;background:#eef3fa;font-family:Arial,sans-serif;color:#0c1730">
+<div style="max-width:560px;margin:30px auto;background:#fff;border:1px solid #d6dfee">
+<div style="background:#1c2e58;color:#fff;padding:24px 28px">
+<div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c89752;margin-bottom:8px">🔔 Nouvelle demande à confirmer</div>
+<div style="font-size:22px;font-weight:800">${paxN} personne${paxN>1?'s':''} · ${esc(time)}</div>
+<div style="font-size:14px;color:rgba(255,255,255,.85);margin-top:4px">${esc(humanDate)}</div>
+</div>
+<div style="padding:24px 28px">
+<p>Nouvelle demande via <b>R3STO</b> pour <b>${esc(restoName)}</b>.</p>
+<div style="background:#fff8e8;border:1px solid #e6d090;padding:18px 20px;margin:18px 0">
+<div style="font-size:10.5px;font-weight:700;color:#a07e2a;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px">Client</div>
+<table cellpadding="6" style="width:100%;font-size:14px">
+<tr><td style="color:#7b88a8;width:120px">Nom</td><td><b>${esc(name)}</b></td></tr>
+<tr><td style="color:#7b88a8">Email</td><td><a href="mailto:${esc(email)}" style="color:#a07e2a">${esc(email)}</a></td></tr>
+${phone ? `<tr><td style="color:#7b88a8">Téléphone</td><td><a href="tel:${esc(phone)}" style="color:#a07e2a">${esc(phone)}</a></td></tr>` : ''}
+${notes ? `<tr><td style="color:#7b88a8">Demande</td><td>${esc(notes)}</td></tr>` : ''}
+<tr><td style="color:#7b88a8">Référence</td><td style="font-family:monospace">${refId}</td></tr>
+</table></div>
+<p><a href="mailto:${esc(email)}?subject=Re:%20Réservation%20${refId}" style="display:inline-block;background:#1c2e58;color:#fff;padding:13px 24px;text-decoration:none;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:13px">Répondre au client →</a></p>
+<p style="font-size:12px;color:#7b88a8">Aucune commission R3STO. 100 % de l'addition reste chez vous.</p>
+</div></div></body></html>`,
+      text: `R3STO — Nouvelle demande\n\nÉtablissement: ${restoName}\nDate: ${humanDate}\nHeure: ${time}\nPersonnes: ${paxN}\n\nCLIENT\n------\nNom: ${name}\nEmail: ${email}\n${phone ? `Téléphone: ${phone}\n` : ''}${notes ? `Demande: ${notes}\n` : ''}Référence: ${refId}\n\n→ Répondez directement à ce mail pour contacter le client.\n\nR3STO Pro — 0 % commission, jamais\n`
+    });
+
+    res.json({ ok: true, ref: refId, resto: restoName, date: humanDate });
+  } catch (err) {
+    console.error('[booking] Error:', err);
+    res.status(500).json({ error: 'Erreur serveur — ré-essayez ou contactez le restaurant' });
+  }
+});
+
 // ── 404 fallback ──────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ error: 'Route non trouvée', path: req.path, method: req.method });
@@ -1184,9 +1337,42 @@ app.use((err, req, res, next) => {
 });
 
 // ═══════════════════════════════════════════════════
+//  AUTO MIGRATION (idempotent — CREATE TABLE IF NOT EXISTS)
+// ═══════════════════════════════════════════════════
+async function autoMigrate() {
+  if (!pool) return;
+  try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS bookings (
+      id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      ref VARCHAR(32) NOT NULL UNIQUE,
+      resto_slug VARCHAR(128) NOT NULL,
+      client_name VARCHAR(180) NOT NULL,
+      client_email VARCHAR(180) NOT NULL,
+      client_phone VARCHAR(40) NULL,
+      date DATE NOT NULL,
+      time TIME NOT NULL,
+      pax TINYINT UNSIGNED NOT NULL,
+      notes TEXT NULL,
+      status ENUM('pending','confirmed','cancelled','no_show','honored') NOT NULL DEFAULT 'pending',
+      confirm_token VARCHAR(64) NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_slug_date (resto_slug, date),
+      KEY idx_email (client_email),
+      KEY idx_status (status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+    console.log('[R3STO] Migration OK: table bookings ready');
+  } catch (err) {
+    console.error('[R3STO] Migration error:', err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════════════
-app.listen(PORT, () => {
-  console.log(`[R3STO] API v1.1.0 running on port ${PORT}`);
+app.listen(PORT, async () => {
+  console.log(`[R3STO] API v1.2.0 running on port ${PORT}`);
   console.log(`[R3STO] Health: http://localhost:${PORT}/health`);
+  await autoMigrate();
 });

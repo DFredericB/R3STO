@@ -9,7 +9,7 @@ import { getToken } from '../../auth/useAuth'
 import { RADIUS, inputStyle, labelStyle } from '../../utils/design'
 import { useToast } from '../../components/ui/Toast'
 
-const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch/api'
+const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com/api'
 
 interface Campaign {
   id: number

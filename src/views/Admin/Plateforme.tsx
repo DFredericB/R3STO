@@ -42,7 +42,7 @@ interface LogEntry {
 
 // Demo data
 const DEMO_SUBDOMAINS: SubdomainStatus[] = [
-  { name: 'api.r3sto.ch', status: 'online', uptime: 99.98, responseTime: 42, lastCheck: '2026-04-12 15:28' },
+  { name: 'api.r3sto.com', status: 'online', uptime: 99.98, responseTime: 42, lastCheck: '2026-04-12 15:28' },
   { name: 'auth.r3sto.ch', status: 'online', uptime: 99.95, responseTime: 68, lastCheck: '2026-04-12 15:27' },
   { name: 'app.r3sto.ch', status: 'online', uptime: 99.92, responseTime: 156, lastCheck: '2026-04-12 15:26' },
   { name: 'admin.r3sto.ch', status: 'online', uptime: 99.97, responseTime: 78, lastCheck: '2026-04-12 15:27' },
@@ -71,7 +71,7 @@ const DEMO_SECURITY: SecurityItem[] = [
 ]
 
 const DEMO_LOGS: LogEntry[] = [
-  { id: 1, level: 'info', timestamp: '2026-04-12 15:28:32', message: 'Health check passed for api.r3sto.ch', service: 'monitoring' },
+  { id: 1, level: 'info', timestamp: '2026-04-12 15:28:32', message: 'Health check passed for api.r3sto.com', service: 'monitoring' },
   { id: 2, level: 'info', timestamp: '2026-04-12 15:27:15', message: 'Deployment completed successfully', service: 'ci-cd' },
   { id: 3, level: 'warn', timestamp: '2026-04-12 15:25:48', message: 'High latency detected on booking.r3sto.ch', service: 'perf' },
   { id: 4, level: 'error', timestamp: '2026-04-12 15:18:09', message: 'Database connection timeout (recovered)', service: 'database' },

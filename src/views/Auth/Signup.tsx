@@ -343,7 +343,7 @@ export function Signup() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 14, fontSize: 11, color: 'rgba(107,130,160,.5)' }}>
-          api.r3sto.ch
+          api.r3sto.com
         </div>
       </form>
 

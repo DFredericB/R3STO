@@ -3,7 +3,7 @@
 //  ══════════════════════════════════════════════════════════════════════════════
 //  Abstraction over data operations
 //  Currently: localStorage via Zustand store
-//  Future: REST API calls to api.r3sto.ch
+//  Future: REST API calls to api.r3sto.com
 //
 //  Usage:
 //    const bookings = await api.resas.list('2026-03-29', 'soir')
@@ -18,7 +18,7 @@ import type {
 } from '../types'
 
 // ── Configuration ──────────────────────────────────────────────────────────
-const API_BASE = import.meta.env.VITE_API_BASE as string || 'https://api.r3sto.ch'
+const API_BASE = import.meta.env.VITE_API_BASE as string || 'https://api.r3sto.com'
 type ApiMode = 'local' | 'api'
 
 /**

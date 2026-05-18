@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from 'react'
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com'
 const TOKEN_KEY = 'r3sto-token'
 
 async function apiGet<T = any>(path: string): Promise<T> {

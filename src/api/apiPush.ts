@@ -17,7 +17,7 @@ let pushing = false
 const prevSnapshot: Record<string, unknown> = {}
 
 function getApiBase(): string {
-  return (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch/api'
+  return (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com/api'
 }
 
 function getToken(): string | null {

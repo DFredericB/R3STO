@@ -556,11 +556,9 @@ function loadFiche(){
 }
 
 // ============================================================
-// BOOKING — endpoint Cloudflare Worker (à brancher au déploiement)
+// BOOKING — endpoint Node.js Infomaniak (api.r3sto.com)
 // ============================================================
-const API_URL = window.R3STO_API_URL || 'https://r3sto-booking.workers.dev';
-//   ⇧ remplacer par https://r3sto-booking.<ton-compte>.workers.dev après wrangler deploy
-//   ou https://api.r3sto.com si tu as configuré le sous-domaine
+const API_URL = window.R3STO_API_URL || 'https://api.r3sto.com';
 
 function openResa(){
   document.getElementById('resaModal').classList.add('on');

@@ -13,7 +13,7 @@ const TEXT = '#e8edf5'
 const MUTED = '#6b82a0'
 const DANGER = '#ef6868'
 
-const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+const API = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com'
 
 export function ResetPassword() {
   const [token, setToken] = useState('')

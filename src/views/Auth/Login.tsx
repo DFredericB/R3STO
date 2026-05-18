@@ -217,7 +217,7 @@ export function Login() {
         </button>
 
         <div style={{ textAlign: 'center', marginTop: 18, fontSize: 11, color: 'rgba(107,130,160,.5)' }}>
-          api.r3sto.ch
+          api.r3sto.com
         </div>
       </form>
 

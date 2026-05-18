@@ -21,7 +21,7 @@ import type { Resa, Service, Fermeture, Site, UserRole } from '../../types'
 const CLOCK_TICK_MS = 30000
 const NEW_RESA_RECENT_MS = 2 * 60 * 60 * 1000
 const MAX_NOTIFS = 12
-const API_BASE = (import.meta.env.VITE_API_BASE as string) || 'https://api.r3sto.ch'
+const API_BASE = (import.meta.env.VITE_API_BASE as string) || 'https://api.r3sto.com'
 const LANGS = ['FR', 'DE', 'IT', 'EN'] as const
 const TABLET_BP = 1100
 

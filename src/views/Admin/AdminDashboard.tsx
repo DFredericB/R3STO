@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { RADIUS, sectionTitle } from '../../utils/design'
 import { useToast } from '../../components/ui/Toast'
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.ch'
+const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.r3sto.com'
 const TOKEN_KEY = 'r3sto-token'
 
 async function apiGet<T = any>(path: string): Promise<T> {
@@ -80,11 +80,11 @@ const DEMO_ACTIVITY: ActivityLog[] = [
   { id: 2, action: 'Upgrade Resto → Gastro', user: 'Auto', timestamp: '2026-04-12 12:15', status: 'success' },
   { id: 3, action: 'Alerte : no-show rate > 10%', user: 'System', timestamp: '2026-04-12 09:48', status: 'warning' },
   { id: 4, action: 'Export CSV : 842 réservations', user: 'Didier', timestamp: '2026-04-11 18:20', status: 'success' },
-  { id: 5, action: 'API rate limit : api.r3sto.ch', user: 'System', timestamp: '2026-04-11 16:45', status: 'error' },
+  { id: 5, action: 'API rate limit : api.r3sto.com', user: 'System', timestamp: '2026-04-11 16:45', status: 'error' },
 ]
 
 const DEMO_SUBDOMAINS: SubdomainHealth[] = [
-  { name: 'api.r3sto.ch', status: 'online', latency: 42, lastCheck: '—' },
+  { name: 'api.r3sto.com', status: 'online', latency: 42, lastCheck: '—' },
   { name: 'auth.r3sto.ch', status: 'online', latency: 68, lastCheck: '—' },
   { name: 'app.r3sto.ch', status: 'online', latency: 156, lastCheck: '—' },
   { name: 'admin.r3sto.ch', status: 'online', latency: 78, lastCheck: '—' },
@@ -348,7 +348,7 @@ export function AdminDashboard() {
     setLoading(true)
     try {
       const hosts = [
-        'https://api.r3sto.ch/healthz',
+        'https://api.r3sto.com/healthz',
         'https://auth.r3sto.ch',
         'https://app.r3sto.ch',
         'https://admin.r3sto.ch',
@@ -357,7 +357,7 @@ export function AdminDashboard() {
       const results = await Promise.all(hosts.map(h => pingHost(h)))
       const now = new Date().toLocaleTimeString('fr-CH')
       setSubdomains([
-        { name: 'api.r3sto.ch', ...results[0], lastCheck: now },
+        { name: 'api.r3sto.com', ...results[0], lastCheck: now },
         { name: 'auth.r3sto.ch', ...results[1], lastCheck: now },
         { name: 'app.r3sto.ch', ...results[2], lastCheck: now },
         { name: 'admin.r3sto.ch', ...results[3], lastCheck: now },
