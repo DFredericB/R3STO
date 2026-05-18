@@ -45,7 +45,7 @@ export interface PlanConfig {
  */
 export const PLANS: Record<PlanId, PlanConfig> = {
   bistro: {
-    name: 'Bistro',
+    name: 'Essentiel',
     priceMonthly: 39,
     priceAnnual: 468,
     stripePriceId: 'price_1TFWg9906pQ0p9GXfDcLAi20',
@@ -64,7 +64,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     ],
   },
   resto: {
-    name: 'Resto',
+    name: 'Premium',
     priceMonthly: 59,
     priceAnnual: 708,
     stripePriceId: 'price_1TFWg9906pQ0p9GXtwaDm2PV',
@@ -85,7 +85,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     ],
   },
   gastro: {
-    name: 'Gastro',
+    name: 'Signature',
     priceMonthly: 79,
     priceAnnual: 948,
     stripePriceId: 'price_1TFWg9906pQ0p9GX98TbpANS',

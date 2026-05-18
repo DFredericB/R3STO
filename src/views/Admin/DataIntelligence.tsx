@@ -55,11 +55,11 @@ const COMPETITORS = [
 ]
 
 const CHURN_INDICATORS = [
-  { resto: 'Pizzeria Napoli', lastLogin: '12 jours', usage: 'Faible', riskScore: 85, plan: 'Bistro', mrr: 39, signal: 'Aucune résa créée depuis 2 sem.' },
-  { resto: 'Le Jardin Fleuri', lastLogin: '8 jours', usage: 'Moyen', riskScore: 62, plan: 'Resto', mrr: 59, signal: 'Widget désactivé, appels support x3' },
-  { resto: 'Sushi Express', lastLogin: '5 jours', usage: 'Faible', riskScore: 58, plan: 'Bistro', mrr: 39, signal: 'Annulation Stripe en attente' },
-  { resto: 'Café du Marché', lastLogin: '15 jours', usage: 'Nul', riskScore: 92, plan: 'Resto', mrr: 59, signal: 'Pas connecté depuis 2 sem, 0 résa ce mois' },
-  { resto: 'Brasserie du Port', lastLogin: '3 jours', usage: 'Moyen', riskScore: 45, plan: 'Gastro', mrr: 79, signal: 'Downgrade demandé par email' },
+  { resto: 'Pizzeria Napoli', lastLogin: '12 jours', usage: 'Faible', riskScore: 85, plan: 'Essentiel', mrr: 39, signal: 'Aucune résa créée depuis 2 sem.' },
+  { resto: 'Le Jardin Fleuri', lastLogin: '8 jours', usage: 'Moyen', riskScore: 62, plan: 'Premium', mrr: 59, signal: 'Widget désactivé, appels support x3' },
+  { resto: 'Sushi Express', lastLogin: '5 jours', usage: 'Faible', riskScore: 58, plan: 'Essentiel', mrr: 39, signal: 'Annulation Stripe en attente' },
+  { resto: 'Café du Marché', lastLogin: '15 jours', usage: 'Nul', riskScore: 92, plan: 'Premium', mrr: 59, signal: 'Pas connecté depuis 2 sem, 0 résa ce mois' },
+  { resto: 'Brasserie du Port', lastLogin: '3 jours', usage: 'Moyen', riskScore: 45, plan: 'Signature', mrr: 79, signal: 'Downgrade demandé par email' },
 ]
 
 const DATA_ASSETS = [

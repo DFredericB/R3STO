@@ -92,11 +92,11 @@ const DEMO_SUBDOMAINS: SubdomainHealth[] = [
 ]
 
 const DEMO_RESTAURANTS: Restaurant[] = [
-  { id: 1, name: 'Aux Trois Glands', city: 'Zurich', plan: 'Gastro', mrr: 79, bookings: 1250 },
-  { id: 2, name: 'Le Bernardin', city: 'Genève', plan: 'Gastro', mrr: 79, bookings: 980 },
-  { id: 3, name: 'Fondue Tradition', city: 'Valais', plan: 'Resto', mrr: 59, bookings: 750 },
-  { id: 4, name: 'Le Petit Café', city: 'Lausanne', plan: 'Bistro', mrr: 39, bookings: 620 },
-  { id: 5, name: 'La Brasserie', city: 'Bâle', plan: 'Resto', mrr: 59, bookings: 540 },
+  { id: 1, name: 'Aux Trois Glands', city: 'Zurich', plan: 'Signature', mrr: 79, bookings: 1250 },
+  { id: 2, name: 'Le Bernardin', city: 'Genève', plan: 'Signature', mrr: 79, bookings: 980 },
+  { id: 3, name: 'Fondue Tradition', city: 'Valais', plan: 'Premium', mrr: 59, bookings: 750 },
+  { id: 4, name: 'Le Petit Café', city: 'Lausanne', plan: 'Essentiel', mrr: 39, bookings: 620 },
+  { id: 5, name: 'La Brasserie', city: 'Bâle', plan: 'Premium', mrr: 59, bookings: 540 },
 ]
 
 const DEMO_REVENUE = [
@@ -109,11 +109,11 @@ const DEMO_REVENUE = [
 ]
 
 const DEMO_SIGNUPS: NewSignup[] = [
-  { id: 1, restaurant: 'Restaurant Le Nomade', plan: 'Gastro', date: '2026-04-12', city: 'Genève' },
-  { id: 2, restaurant: 'Brasserie Au Coin', plan: 'Resto', date: '2026-04-11', city: 'Lausanne' },
-  { id: 3, restaurant: 'Le Petit Bistreau', plan: 'Bistro', date: '2026-04-10', city: 'Neuchâtel' },
-  { id: 4, restaurant: 'Auberge de Montagne', plan: 'Gastro', date: '2026-04-08', city: 'Valais' },
-  { id: 5, restaurant: 'Café de la Gare', plan: 'Bistro', date: '2026-04-07', city: 'Bâle' },
+  { id: 1, restaurant: 'Restaurant Le Nomade', plan: 'Signature', date: '2026-04-12', city: 'Genève' },
+  { id: 2, restaurant: 'Brasserie Au Coin', plan: 'Premium', date: '2026-04-11', city: 'Lausanne' },
+  { id: 3, restaurant: 'Le Petit Bistreau', plan: 'Essentiel', date: '2026-04-10', city: 'Neuchâtel' },
+  { id: 4, restaurant: 'Auberge de Montagne', plan: 'Signature', date: '2026-04-08', city: 'Valais' },
+  { id: 5, restaurant: 'Café de la Gare', plan: 'Essentiel', date: '2026-04-07', city: 'Bâle' },
 ]
 
 // Styles

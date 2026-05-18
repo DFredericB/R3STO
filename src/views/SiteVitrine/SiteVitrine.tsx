@@ -128,8 +128,8 @@ export function SiteVitrine() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, maxWidth: 480, margin: '0 auto 24px', textAlign: 'left' }}>
             {[
-              { plan: 'Resto', price: '59', sub: 'Site sur monresto.r3sto.ch', features: ['Site vitrine inclus', 'Sous-domaine R3STO', 'Branding R3STO', 'Widget réservation'], recommended: false },
-              { plan: 'Gastro', price: '79', sub: 'Domaine personnalisé', features: ['Site vitrine inclus', 'Votre propre domaine', 'Sans branding R3STO', 'Widget réservation'], recommended: true },
+              { plan: 'Premium', price: '59', sub: 'Site sur monresto.r3sto.ch', features: ['Site vitrine inclus', 'Sous-domaine R3STO', 'Branding R3STO', 'Widget réservation'], recommended: false },
+              { plan: 'Signature', price: '79', sub: 'Domaine personnalisé', features: ['Site vitrine inclus', 'Votre propre domaine', 'Sans branding R3STO', 'Widget réservation'], recommended: true },
             ].map(p => (
               <div key={p.plan} style={{
                 background: 'var(--bg)', border: p.recommended ? '2px solid var(--ac)' : '1px solid var(--border)',
