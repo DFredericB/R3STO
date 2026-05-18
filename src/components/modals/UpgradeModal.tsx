@@ -30,9 +30,7 @@ export function UpgradeModal() {
   async function onUpgrade() {
     setBusy(true)
     try {
-      // PlanId Stripe = bistro/resto/gastro uniquement (5 plans → 3 Stripe products via mapping)
-      const stripeId = (minPlan === 'mini' || minPlan === 'mini_plus') ? 'bistro' : minPlan
-      await redirectToCheckout(stripeId as 'bistro' | 'resto' | 'gastro', (resto as any)?.id)
+      await redirectToCheckout(minPlan, (resto as any)?.id)
     } catch (e) {
       toast((e as Error).message, 'error')
       setBusy(false)
