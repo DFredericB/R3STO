@@ -129,76 +129,9 @@ a{color:inherit;text-decoration:none}
 .demo-banner{background:var(--gold);color:#0a0a0a;padding:10px 20px;font-family:var(--fm);font-size:12px;font-weight:600;text-align:center;letter-spacing:.04em}
 .demo-banner b{font-weight:800}
 .demo-banner a{color:#0a0a0a;text-decoration:underline;margin-left:10px;font-weight:700}
-
-/* Splash écran de choix Pro / Mini */
-.splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0a0f17 0%,#13224a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;font-family:var(--ff);color:#e8eef5}
-.splash.hidden{display:none}
-.splash-logo{width:80px;height:80px;margin-bottom:18px}
-.splash-title{font-size:clamp(28px,4vw,40px);font-weight:800;text-align:center;margin:0 0 8px;letter-spacing:-.01em}
-.splash-sub{font-size:15px;color:#aab5cc;text-align:center;margin:0 0 38px;max-width:560px;line-height:1.5}
-.splash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;width:100%;max-width:780px}
-.splash-card{background:rgba(255,255,255,.03);border:1px solid rgba(160,126,42,.25);padding:32px 28px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;text-align:left}
-.splash-card:hover{background:rgba(255,255,255,.06);border-color:#c89752;transform:translateY(-2px)}
-.splash-card-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
-.splash-card-logo{width:44px;height:44px;flex-shrink:0}
-.splash-card-title{font-size:22px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
-.splash-card-tag{display:inline-block;font-family:var(--fm);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;background:rgba(200,151,82,.15);color:#c89752;margin-top:4px}
-.splash-card-desc{font-size:14px;color:#aab5cc;line-height:1.55;margin:0 0 22px;flex:1}
-.splash-card-feat{font-size:13px;color:#e8eef5;margin:0 0 6px;padding-left:18px;position:relative}
-.splash-card-feat::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;background:#c89752}
-.splash-card-cta{margin-top:18px;padding:14px 22px;background:#a07e2a;color:#0a0a0a;font-weight:700;font-size:14px;border:none;cursor:pointer;letter-spacing:.02em;width:100%;text-align:center;transition:background .15s}
-.splash-card-cta:hover{background:#c89752}
-.splash-foot{margin-top:38px;font-size:12px;color:#7b88a8;font-family:var(--fm);text-align:center}
-.splash-foot a{color:#aab5cc;text-decoration:underline}
-.demo-switch{position:fixed;top:10px;right:14px;z-index:9990;background:rgba(0,0,0,.4);color:#fff;font-size:11px;padding:6px 10px;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:var(--fm)}
-.demo-switch:hover{background:rgba(0,0,0,.7)}
 </style>
 </head>
 <body>
-
-<!-- ═══ Splash overlay : choix demo Pro / Mini ═══ -->
-<div class="splash" id="demoSplash">
-  <img src="https://r3sto.com/logo-r3sto-navy.png" alt="R3STO" class="splash-logo">
-  <h1 class="splash-title">Quelle démo voulez-vous tester ?</h1>
-  <p class="splash-sub">R3STO propose deux solutions selon la taille et les besoins de votre établissement. Choisissez celle qui vous correspond — vous pourrez en changer à tout moment.</p>
-
-  <div class="splash-grid">
-    <div class="splash-card" onclick="chooseDemo('pro')">
-      <div class="splash-card-head">
-        <img src="https://r3sto.com/logo-r3sto-navy.png" class="splash-card-logo" alt="">
-        <div>
-          <div class="splash-card-title">R3STO <b style="color:#c89752">Pro</b></div>
-          <span class="splash-card-tag">3 packages</span>
-        </div>
-      </div>
-      <p class="splash-card-desc">Plateforme complète pour restaurants. Réservations, CRM, menu digital, capacité, facturation, livraisons.</p>
-      <div class="splash-card-feat">Essentiel · Premium · Signature</div>
-      <div class="splash-card-feat">Multi-utilisateurs &amp; rôles</div>
-      <div class="splash-card-feat">Stripe Connect &amp; analytics</div>
-      <button class="splash-card-cta">Tester R3STO Pro →</button>
-    </div>
-
-    <div class="splash-card" onclick="chooseDemo('mini')">
-      <div class="splash-card-head">
-        <img src="https://r3sto.com/logo-r3sto-navy.png" class="splash-card-logo" alt="">
-        <div>
-          <div class="splash-card-title">R3STO <b style="color:#c89752">Mini</b></div>
-          <span class="splash-card-tag">Standalone</span>
-        </div>
-      </div>
-      <p class="splash-card-desc">Solution légère et autonome pour petits restaurants. Mise en route immédiate, sans configuration.</p>
-      <div class="splash-card-feat">Réservation + agenda</div>
-      <div class="splash-card-feat">Fiche resto publique</div>
-      <div class="splash-card-feat">14 jours d'essai gratuit</div>
-      <button class="splash-card-cta">Tester R3STO Mini →</button>
-    </div>
-  </div>
-
-  <p class="splash-foot">Aucune inscription requise · données fictives · <a href="https://r3sto.com">Retour au site</a></p>
-</div>
-
-<!-- Bouton retour au choix, affiché après sélection -->
-<button class="demo-switch" id="demoSwitch" onclick="resetDemoChoice()" style="display:none">⇆ Changer de demo</button>
 
 <div class="demo-banner" style="background:var(--gold);color:#0a0a0a;padding:10px 20px;font-family:var(--fm);font-size:12px;font-weight:600;text-align:center;letter-spacing:.04em;grid-column:1/-1">
   🧪 <b>MODE DÉMO</b> — Vous explorez R3STO App avec des données fictives. Vos modifications ne sont pas sauvegardées.
@@ -396,44 +329,6 @@ function userPlan(){
     upg.querySelector('p').textContent = labels[next] || '';
   }
 })();
-</script>
-
-<script>
-// ═══ Splash demo : choix Pro / Mini ═══
-(function(){
-  const KEY = 'r3sto_demo_choice';
-  const splash = document.getElementById('demoSplash');
-  const switchBtn = document.getElementById('demoSwitch');
-
-  // Au load : si choix déjà fait → cache splash + montre switch
-  const prev = localStorage.getItem(KEY);
-  if (prev === 'pro') {
-    splash.classList.add('hidden');
-    switchBtn.style.display = 'block';
-  }
-  // Si jamais "mini" en localStorage on ne devrait pas être sur cette page (redirige)
-  if (prev === 'mini') {
-    window.location.replace('https://mini.r3sto.com/?demo=1');
-    return;
-  }
-})();
-
-function chooseDemo(kind){
-  localStorage.setItem('r3sto_demo_choice', kind);
-  if (kind === 'mini') {
-    window.location.href = 'https://mini.r3sto.com/?demo=1';
-    return;
-  }
-  // Pro : on cache le splash et on reste sur la page
-  document.getElementById('demoSplash').classList.add('hidden');
-  document.getElementById('demoSwitch').style.display = 'block';
-}
-
-function resetDemoChoice(){
-  localStorage.removeItem('r3sto_demo_choice');
-  document.getElementById('demoSplash').classList.remove('hidden');
-  document.getElementById('demoSwitch').style.display = 'none';
-}
 </script>
 </body>
 </html>
