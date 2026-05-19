@@ -922,9 +922,18 @@ const CUISINE_PHOTO_KEYWORDS = {
   fastfood:'street-food', fast_food:'street-food',
   bar:'bar,cocktail',
 };
+function isUsablePhotoUrl(url) {
+  if (!url) return false;
+  // URLs Google Places API nécessitent une clé API — pas utilisable côté client
+  if (url.includes('places.googleapis.com')) return false;
+  if (url.includes('googleusercontent.com') && url.includes('places')) return false;
+  // URLs vides ou placeholder
+  if (url.trim() === '' || url === 'null' || url === 'undefined') return false;
+  return true;
+}
 function genPhotoFallback(r) {
-  if (r.photo_url) return r.photo_url;
-  if (r.image) return r.image;
+  if (isUsablePhotoUrl(r.photo_url)) return r.photo_url;
+  if (isUsablePhotoUrl(r.image)) return r.image;
   const tag = (r.cuisine_tag || r.cuisine || '').toLowerCase().trim();
   const kw = CUISINE_PHOTO_KEYWORDS[tag] || 'restaurant,food';
   const terrace = r.outdoor_seating ? ',terrace' : '';
