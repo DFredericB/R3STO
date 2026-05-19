@@ -764,8 +764,9 @@ async function checkAvailability(restoId, date, time, pax) {
   };
 }
 
-// GET /api/availability?restaurant_id=X&date=YYYY-MM-DD&time=HH:MM&pax=N
-app.get('/api/availability', authMiddleware, async (req, res) => {
+// GET /availability?restaurant_id=X&date=YYYY-MM-DD&time=HH:MM&pax=N
+// (accessible aussi via /api/availability grâce au middleware de réécriture)
+app.get('/availability', authMiddleware, async (req, res) => {
   try {
     const restoId = parseInt(req.query.restaurant_id, 10);
     const date = req.query.date;
@@ -786,9 +787,8 @@ app.get('/api/availability', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/availability/slots?restaurant_id=X&date=YYYY-MM-DD&pax=N
-// Retourne tous les créneaux ouverts (par tranches de 30 min) pour aider l'UI
-app.get('/api/availability/slots', authMiddleware, async (req, res) => {
+// GET /availability/slots?restaurant_id=X&date=YYYY-MM-DD&pax=N
+app.get('/availability/slots', authMiddleware, async (req, res) => {
   try {
     const restoId = parseInt(req.query.restaurant_id, 10);
     const date = req.query.date;
