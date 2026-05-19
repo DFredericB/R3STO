@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inscription — R3STO Pro</title>
+<meta name="description" content="Créez votre compte R3STO Pro en 3 minutes. 14 jours d'essai gratuit, sans engagement.">
+<meta name="theme-color" content="#eef3fa">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--surf:#fff;--surf-2:#f7fafd;
+  --navy:#1c2e58;--navy-2:#13224a;
+  --gold:#a07e2a;--gold-bright:#c89752;--gold-soft:rgba(160,126,42,.10);
+  --text:#0f1620;--t-2:#3a4860;--t-3:#7b88a8;
+  --border:#d6dde8;--border-2:#e8edf3;
+  --danger:#c1272d;--success:#1a7a3e;
+  --ff:'DM Sans',system-ui,-apple-system,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.55;min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+
+.nav{padding:18px 28px;background:#fff;border-bottom:1px solid var(--border)}
+.nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:44px;height:44px;object-fit:contain;display:block;flex-shrink:0}
+.logo-mast{display:flex;flex-direction:column;line-height:1;border-left:1px solid var(--border);padding-left:12px;margin-left:4px}
+.logo-title{font-size:14px;font-weight:700;color:var(--navy);letter-spacing:-.01em;margin-bottom:4px}
+.logo-slogan{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:.14em;font-style:italic;text-transform:uppercase}
+.nav-back{font-size:12.5px;color:var(--t-3);font-family:var(--fm);letter-spacing:.04em}
+.nav-back:hover{color:var(--gold)}
+
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px 60px}
+.box{width:100%;max-width:560px;background:#fff;border:1px solid var(--border);padding:36px 36px 28px}
+
+.steps{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--border)}
+.step{flex:1;padding:12px 8px;text-align:center;font-family:var(--fm);font-size:10.5px;font-weight:700;color:var(--t-3);letter-spacing:.10em;text-transform:uppercase;border-right:1px solid var(--border);position:relative;background:var(--surf-2)}
+.step:last-child{border-right:0}
+.step.on{background:var(--navy);color:#fff}
+.step.done{background:rgba(26,122,62,.08);color:var(--success)}
+.step.done::after{content:'✓';margin-left:6px}
+
+.eyebrow{font-family:var(--fm);font-size:10.5px;font-weight:700;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px;display:block}
+h1{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0 0 10px;color:var(--navy);line-height:1.2}
+.sub{font-size:14.5px;color:var(--t-2);margin:0 0 24px;line-height:1.55}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-family:var(--fm);font-size:10.5px;font-weight:600;color:var(--t-3);letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px}
+.field input, .field select{
+  width:100%;padding:13px 14px;border:1px solid var(--border);
+  background:#fff;font-family:var(--ff);font-size:14.5px;color:var(--text);
+  border-radius:0;outline:none;transition:.18s;
+}
+.field input:focus, .field select:focus{border-color:var(--gold);background:var(--surf-2)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.field-row{grid-template-columns:1fr}}
+
+.plans{display:grid;grid-template-columns:1fr;gap:10px;margin:8px 0 18px}
+.plan{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border:1px solid var(--border);cursor:pointer;transition:.15s;background:#fff}
+.plan:hover{border-color:var(--gold)}
+.plan.on{border-color:var(--navy);background:var(--surf-2);box-shadow:inset 4px 0 0 var(--gold)}
+.plan input{margin-top:4px}
+.plan-name{font-weight:700;font-size:14.5px;color:var(--navy)}
+.plan-price{font-family:var(--fm);font-size:12.5px;font-weight:700;color:var(--gold);margin-left:8px}
+.plan-desc{font-size:12.5px;color:var(--t-2);margin-top:3px;line-height:1.45}
+.plan-tag{display:inline-block;font-family:var(--fm);font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.10em;text-transform:uppercase;padding:2px 6px;background:var(--gold-soft);margin-left:8px;vertical-align:middle}
+
+.btn{
+  width:100%;background:var(--navy);color:#fff;border:0;
+  padding:15px;font-family:var(--ff);font-size:14px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;cursor:pointer;
+  transition:.18s;border-radius:0;
+}
+.btn:hover{background:#0d1a3a}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn-back{background:transparent;color:var(--t-2);border:1px solid var(--border);margin-top:8px}
+.btn-back:hover{background:var(--surf-2);border-color:var(--navy);color:var(--navy)}
+
+.error{margin-top:12px;color:var(--danger);font-size:13px;background:#fdecec;border:1px solid #f5c2c4;padding:10px 12px}
+.success{margin-top:18px;background:rgba(26,122,62,.06);border:1px solid #bee3c9;padding:18px;font-size:14px;color:var(--success);line-height:1.55}
+.success b{color:var(--success)}
+
+[hidden]{display:none !important}
+
+footer{padding:22px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.04em}
+footer a{color:var(--gold);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Inscription</span>
+        <span class="logo-slogan">essai&nbsp;gratuit&nbsp;14j</span>
+      </span>
+    </a>
+    <a href="/pro.html" class="nav-back">← Découvrir Pro</a>
+  </div>
+</nav>
+
+<main>
+  <div class="box">
+    <div class="steps">
+      <div class="step on" id="s1">1 · Restaurant</div>
+      <div class="step" id="s2">2 · Forfait</div>
+      <div class="step" id="s3">3 · Compte</div>
+    </div>
+
+    <!-- ═══ ÉTAPE 1 : Restaurant ═══ -->
+    <div id="step1">
+      <span class="eyebrow">Étape 1 · Votre établissement</span>
+      <h1>Présentez-nous votre restaurant</h1>
+      <p class="sub">Ces informations seront pré-remplies sur votre fiche publique. Vous pourrez les modifier plus tard.</p>
+
+      <div class="field">
+        <label>Nom du restaurant</label>
+        <input type="text" id="restoName" required placeholder="Ex : Le Petit Bistro" autofocus>
+      </div>
+      <div class="field">
+        <label>Adresse complète</label>
+        <input type="text" id="restoAddress" placeholder="Rue, n°, ville, code postal">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Téléphone</label>
+          <input type="tel" id="restoPhone" placeholder="+41 21 ...">
+        </div>
+        <div class="field">
+          <label>Type de cuisine</label>
+          <select id="restoCuisine">
+            <option value="">Sélectionner…</option>
+            <option value="french">Française</option>
+            <option value="italian">Italienne</option>
+            <option value="japanese">Japonaise</option>
+            <option value="chinese">Chinoise</option>
+            <option value="thai">Thaïlandaise</option>
+            <option value="indian">Indienne</option>
+            <option value="lebanese">Libanaise</option>
+            <option value="mediterranean">Méditerranéenne</option>
+            <option value="vegan">Végétarienne / Végane</option>
+            <option value="brasserie">Brasserie</option>
+            <option value="gastronomic">Gastronomique</option>
+            <option value="other">Autre</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" onclick="next(1)">Continuer →</button>
+    </div>
+
+    <!-- ═══ ÉTAPE 2 : Forfait ═══ -->
+    <div id="step2" hidden>
+      <span class="eyebrow">Étape 2 · Votre forfait</span>
+      <h1>Choisissez votre forfait</h1>
+      <p class="sub">14 jours d'essai gratuit sur tous les forfaits. Aucun engagement, annulable à tout moment.</p>
+
+      <div class="plans">
+        <label class="plan" onclick="selectPlan(this,'essentiel')">
+          <input type="radio" name="plan" value="essentiel">
+          <div style="flex:1">
+            <div><span class="plan-name">Essentiel</span><span class="plan-price">39 CHF/mois</span></div>
+            <div class="plan-desc">Réservations + CRM + Menu digital · idéal petit restaurant</div>
+          </div>
+        </label>
+        <label class="plan on" onclick="selectPlan(this,'premium')">
+          <input type="radio" name="plan" value="premium" checked>
+          <div style="flex:1">
+            <div><span class="plan-name">Premium</span><span class="plan-price">59 CHF/mois</span><span class="plan-tag">Populaire</span></div>
+            <div class="plan-desc">Essentiel + Stripe paiements + cartes cadeaux + capacité multi-salles</div>
+          </div>
+        </label>
+        <label class="plan" onclick="selectPlan(this,'signature')">
+          <input type="radio" name="plan" value="signature">
+          <div style="flex:1">
+            <div><span class="plan-name">Signature</span><span class="plan-price">79 CHF/mois</span></div>
+            <div class="plan-desc">Premium + site web inclus + livraisons + support prioritaire</div>
+          </div>
+        </label>
+      </div>
+      <button class="btn" onclick="next(2)">Continuer →</button>
+      <button class="btn btn-back" onclick="back(1)">← Retour</button>
+    </div>
+
+    <!-- ═══ ÉTAPE 3 : Compte ═══ -->
+    <div id="step3" hidden>
+      <span class="eyebrow">Étape 3 · Votre compte</span>
+      <h1>Créez votre accès</h1>
+      <p class="sub">Vous recevrez un email de confirmation. Votre essai gratuit démarre dès la validation.</p>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Prénom</label>
+          <input type="text" id="firstName" required placeholder="Marie">
+        </div>
+        <div class="field">
+          <label>Nom</label>
+          <input type="text" id="lastName" required placeholder="Dupont">
+        </div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" required placeholder="vous@votre-restaurant.ch" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Mot de passe (8 caractères min.)</label>
+        <input type="password" id="password" required minlength="8" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="field" style="display:flex;align-items:flex-start;gap:10px;margin-top:18px">
+        <input type="checkbox" id="cgu" required style="margin-top:4px;width:auto">
+        <label for="cgu" style="font-family:var(--ff);font-size:13px;color:var(--t-2);letter-spacing:0;text-transform:none;font-weight:400;line-height:1.5">
+          J'accepte les <a href="/legal.html" target="_blank" style="color:var(--gold)">CGU</a> et la
+          <a href="/legal.html#privacy" target="_blank" style="color:var(--gold)">politique de confidentialité</a>.
+        </label>
+      </div>
+      <button class="btn" id="submitBtn" onclick="submitSignup()">Créer mon compte gratuit →</button>
+      <button class="btn btn-back" onclick="back(2)">← Retour</button>
+
+      <div id="errorBox" class="error" style="display:none"></div>
+    </div>
+
+    <!-- ═══ ÉTAPE 4 : Succès ═══ -->
+    <div id="step4" hidden>
+      <h1 style="color:var(--success)">✓ Compte créé !</h1>
+      <p class="sub">Bienvenue chez R3STO ! Un email de confirmation a été envoyé à <b id="successEmail"></b>.</p>
+      <div class="success">
+        <b>Étapes suivantes :</b><br>
+        1. Vérifiez votre boîte email (et vos spams)<br>
+        2. Connectez-vous à <a href="https://app.r3sto.com" style="color:var(--gold);font-weight:700">app.r3sto.com</a> pour configurer votre dashboard<br>
+        3. Profitez de 14 jours d'essai gratuit
+      </div>
+      <button class="btn" onclick="window.location.href='https://app.r3sto.com'">Accéder à mon dashboard →</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  © 2026 Innoptim SA · Lausanne · <a href="/legal.html">Légal</a> · <a href="/">r3sto.com</a>
+</footer>
+
+<script>
+const API = 'https://api.r3sto.com';
+const state = { plan: 'premium' };
+
+function setStep(n){
+  for(let i=1; i<=4; i++){
+    const el = document.getElementById('step'+i);
+    if(el) el.hidden = (i !== n);
+  }
+  // Steps indicator
+  ['s1','s2','s3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('on','done');
+    if(i+1 === n) el.classList.add('on');
+    if(i+1 < n) el.classList.add('done');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function next(from){
+  if(from === 1){
+    const name = document.getElementById('restoName').value.trim();
+    if(!name){ alert('Le nom du restaurant est requis.'); return; }
+    state.restoName = name;
+    state.restoAddress = document.getElementById('restoAddress').value.trim();
+    state.restoPhone = document.getElementById('restoPhone').value.trim();
+    state.restoCuisine = document.getElementById('restoCuisine').value;
+    setStep(2);
+  } else if(from === 2){
+    setStep(3);
+  }
+}
+
+function back(to){ setStep(to); }
+
+function selectPlan(el, plan){
+  document.querySelectorAll('.plan').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  el.querySelector('input').checked = true;
+  state.plan = plan;
+}
+
+async function submitSignup(){
+  const btn = document.getElementById('submitBtn');
+  const errEl = document.getElementById('errorBox');
+  errEl.style.display = 'none';
+
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName  = document.getElementById('lastName').value.trim();
+  const email     = document.getElementById('email').value.trim();
+  const password  = document.getElementById('password').value;
+  const cgu       = document.getElementById('cgu').checked;
+
+  if(!firstName || !lastName || !email || !password){
+    errEl.textContent = 'Tous les champs sont requis.';
+    errEl.style.display = 'block'; return;
+  }
+  if(password.length < 8){
+    errEl.textContent = 'Le mot de passe doit faire 8 caractères minimum.';
+    errEl.style.display = 'block'; return;
+  }
+  if(!cgu){
+    errEl.textContent = 'Vous devez accepter les CGU.';
+    errEl.style.display = 'block'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Création…';
+  try {
+    const res = await fetch(API + '/auth/register', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        firstName, lastName, email, password,
+        restaurantName: state.restoName,
+        address: state.restoAddress,
+        phone: state.restoPhone,
+        plan: state.plan,
+      })
+    });
+    const data = await res.json();
+    if(!res.ok){
+      errEl.textContent = data.message || data.error || 'Erreur lors de la création du compte.';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Créer mon compte gratuit →';
+      return;
+    }
+    if(data.access_token){
+      localStorage.setItem('r3sto_token', data.access_token);
+    }
+    document.getElementById('successEmail').textContent = email;
+    setStep(4);
+  } catch(err){
+    errEl.textContent = 'Erreur réseau : ' + err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Créer mon compte gratuit →';
+  }
+}
+</script>
+</body>
+</html>

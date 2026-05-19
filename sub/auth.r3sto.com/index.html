@@ -125,9 +125,21 @@ footer a{color:var(--gold-bright);text-decoration:none}
     </form>
 
     <div class="sent" id="sentBox" hidden>
-      <b>✉ Email envoyé.</b><br>
-      Cliquez sur le lien dans <b id="sentTo">votre boîte</b> pour ouvrir votre espace. Vérifiez vos spams si besoin.
-      <div style="margin-top:14px"><a href="javascript:void(0)" onclick="reset()">← Changer d'email</a></div>
+      <b>✉ Code envoyé à <span id="sentTo">votre boîte</span></b><br>
+      <span style="font-size:12.5px;color:var(--t-2)">Entrez le code à 6 chiffres reçu par email (valable 10 minutes).</span>
+      <form onsubmit="return verifyOtp(event)" style="margin-top:18px">
+        <div class="field" style="margin-bottom:14px">
+          <label>Code de vérification</label>
+          <input type="text" id="otpCode" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                 required autocomplete="one-time-code" placeholder="123456"
+                 style="font-family:var(--fm);font-size:20px;letter-spacing:.5em;text-align:center">
+        </div>
+        <button type="submit" class="btn" id="verifyBtn">Valider →</button>
+      </form>
+      <div id="otpError" style="display:none;margin-top:12px;color:#ff8484;font-size:13px;text-align:center"></div>
+      <div style="margin-top:14px;text-align:center;font-size:12.5px">
+        <a href="javascript:void(0)" onclick="reset()" style="color:var(--gold-bright);text-decoration:none">← Changer d'email</a>
+      </div>
     </div>
 
     <p class="hint" id="hint">
@@ -160,23 +172,78 @@ function switchTab(m, btn){
   }
 }
 
-function sendMagic(e){
+const API = 'https://api.r3sto.com';
+
+async function sendMagic(e){
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Envoi…';
   const email = document.getElementById('email').value.trim();
-  if(!email) { btn.disabled = false; return false; }
-  // TODO Sprint B : POST vers api.r3sto.com/auth/magic-link via Supabase
-  localStorage.setItem('r3sto_email', email);
-  localStorage.setItem('r3sto_mode', mode);
-  document.getElementById('sentTo').textContent = email;
-  document.getElementById('formAuth').hidden = true;
-  document.getElementById('hint').hidden = true;
-  document.getElementById('sentBox').hidden = false;
-  // Demo : auto-redirect après 1.8s
-  setTimeout(() => {
-    window.location.href = mode === 'resto' ? 'https://app.r3sto.com' : 'https://r3sto.com/compte.html';
-  }, 1800);
+  if(!email) return false;
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  try {
+    const res = await fetch(API + '/auth/send-otp', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if(!data.sent){
+      btn.disabled = false;
+      btn.textContent = mode === 'resto' ? 'Accéder à mon restaurant →' : 'Recevoir le lien magique →';
+      alert('Erreur : email non envoyé. Réessayez dans quelques secondes.');
+      return false;
+    }
+    localStorage.setItem('r3sto_email', email);
+    localStorage.setItem('r3sto_mode', mode);
+    document.getElementById('sentTo').textContent = email;
+    document.getElementById('formAuth').hidden = true;
+    document.getElementById('hint').hidden = true;
+    document.getElementById('sentBox').hidden = false;
+    setTimeout(() => document.getElementById('otpCode').focus(), 100);
+  } catch(err){
+    btn.disabled = false;
+    btn.textContent = mode === 'resto' ? 'Accéder à mon restaurant →' : 'Recevoir le lien magique →';
+    alert('Erreur réseau : ' + err.message);
+  }
+  return false;
+}
+
+async function verifyOtp(e){
+  e.preventDefault();
+  const btn = document.getElementById('verifyBtn');
+  const errEl = document.getElementById('otpError');
+  const code = document.getElementById('otpCode').value.trim();
+  const email = localStorage.getItem('r3sto_email');
+  if(!code || code.length !== 6) return false;
+  btn.disabled = true; btn.textContent = 'Vérification…';
+  errEl.style.display = 'none';
+  try {
+    const res = await fetch(API + '/auth/verify-otp', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, code })
+    });
+    const data = await res.json();
+    if(!data.verified){
+      errEl.textContent = data.message || 'Code incorrect ou expiré.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Valider →';
+      return false;
+    }
+    if(data.access_token){
+      localStorage.setItem('r3sto_token', data.access_token);
+    }
+    btn.textContent = '✓ Connecté';
+    setTimeout(() => {
+      window.location.href = mode === 'resto' ? 'https://app.r3sto.com' : 'https://r3sto.com/compte.html';
+    }, 500);
+  } catch(err){
+    errEl.textContent = 'Erreur réseau : ' + err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Valider →';
+  }
   return false;
 }
 
@@ -186,6 +253,8 @@ function reset(){
   document.getElementById('sentBox').hidden = true;
   document.getElementById('submitBtn').disabled = false;
   document.getElementById('submitBtn').textContent = mode === 'resto' ? 'Accéder à mon restaurant →' : 'Recevoir le lien magique →';
+  document.getElementById('otpCode').value = '';
+  document.getElementById('otpError').style.display = 'none';
 }
 </script>
 </body>
