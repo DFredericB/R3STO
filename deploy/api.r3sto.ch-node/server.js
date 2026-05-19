@@ -603,10 +603,9 @@ app.post('/reservations', authMiddleware, async (req, res) => {
     if (!restaurant_id || !guest_name || !date || !time) {
       return res.status(400).json({ error: 'restaurant_id, guest_name, date et time requis' });
     }
-    // Ownership check
-    const [owned] = await pool.query('SELECT id, plan FROM restaurants WHERE id = ? AND user_id = ?', [restaurant_id, req.user.id]);
-    if (owned.length === 0) return res.status(403).json({ error: 'Restaurant non autorisé' });
-    const restoPlan = owned[0].plan || 'essentiel';
+    // Ownership check (le plan vient du JWT — req.user.plan)
+    if (!(await userOwnsResto(req.user.id, restaurant_id))) return res.status(403).json({ error: 'Restaurant non autorisé' });
+    const restoPlan = req.user.plan || 'essentiel';
     const pax = party_size || 2;
     const resaMode = mode === 'auto' ? 'auto' : 'manu';
 
@@ -729,7 +728,7 @@ app.patch('/reservations/:id', authMiddleware, async (req, res) => {
   try {
     const resaId = parseInt(req.params.id, 10);
     const [rows] = await pool.query(
-      `SELECT r.*, rest.user_id, rest.plan FROM reservations r
+      `SELECT r.*, rest.user_id FROM reservations r
        JOIN restaurants rest ON r.restaurant_id = rest.id WHERE r.id = ?`, [resaId]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Réservation non trouvée' });
