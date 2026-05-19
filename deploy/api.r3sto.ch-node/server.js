@@ -968,13 +968,20 @@ function isUsablePhotoUrl(url) {
   return true;
 }
 
+function absolutizePhotoUrl(u) {
+  if (!u) return u;
+  // URL relative /photos/... -> r3sto.ch absolu
+  if (u.startsWith('/photos/')) return 'https://r3sto.ch' + u;
+  if (u.startsWith('photos/')) return 'https://r3sto.ch/' + u;
+  return u;
+}
 function genPhotoFallback(r) {
   // 1. PRIORITÉ : photo locale déjà téléchargée (r3sto.ch/photos/<slug>.jpg)
   const local = localPhotoUrl(r.slug);
   if (local) return local;
   // 2. URL photo directe (non-Google — les refs Google Places expirent, on les skip)
-  if (isUsablePhotoUrl(r.photo_url) && !r.photo_url.includes('places.googleapis')) return r.photo_url;
-  if (isUsablePhotoUrl(r.image) && !r.image.includes('places.googleapis')) return r.image;
+  if (isUsablePhotoUrl(r.photo_url) && !r.photo_url.includes('places.googleapis')) return absolutizePhotoUrl(r.photo_url);
+  if (isUsablePhotoUrl(r.image) && !r.image.includes('places.googleapis')) return absolutizePhotoUrl(r.image);
   // 3. Fallback LoremFlickr thématique (cuisine + terrasse)
   const tag = (r.cuisine_tag || r.cuisine || '').toLowerCase().trim();
   const kw = CUISINE_PHOTO_KEYWORDS[tag] || 'restaurant,food';

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R3STO Carat — Le label des restaurants d'exception</title>
+<meta name="description" content="R3STO Carat : Or, Silver, Bronze. Un label transparent qui agrège Michelin, Gault-Millau et le score R3STO pour distinguer les meilleurs restaurants.">
+<meta name="theme-color" content="#eef3fa">
+<link rel="icon" type="image/png" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3fa;--surf:#fff;--surf-2:#f7fafd;
+  --navy:#1c2e58;--navy-2:#13224a;
+  --gold:#a07e2a;--gold-bright:#c89752;--gold-soft:rgba(160,126,42,.10);
+  --carat-gold:#c89752;--carat-silver:#a8b0bc;--carat-bronze:#b46a3a;
+  --text:#0f1620;--t-2:#3a4860;--t-3:#7b88a8;
+  --border:#d6dde8;--border-2:#e8edf3;
+  --ff:'DM Sans',system-ui,-apple-system,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.65}
+a{color:inherit;text-decoration:none}
+
+.nav{padding:18px 28px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:44px;height:44px;object-fit:contain}
+.logo-mast{display:flex;flex-direction:column;line-height:1;border-left:1px solid var(--border);padding-left:12px;margin-left:4px}
+.logo-title{font-size:14px;font-weight:700;color:var(--navy);letter-spacing:-.01em}
+.logo-slogan{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:.14em;font-style:italic;text-transform:uppercase;margin-top:4px}
+.nav-back{font-size:12.5px;color:var(--t-3);font-family:var(--fm);letter-spacing:.04em}
+.nav-back:hover{color:var(--gold)}
+
+.hero{padding:80px 24px 56px;text-align:center;background:linear-gradient(180deg,#fff 0%,var(--bg) 100%)}
+.hero-in{max-width:780px;margin:0 auto}
+.eyebrow{font-family:var(--fm);font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px;display:block}
+h1{font-size:clamp(36px,5vw,52px);font-weight:800;letter-spacing:-.02em;margin:0 0 18px;color:var(--navy);line-height:1.1}
+h1 .gold{color:var(--gold-bright)}
+.sub{font-size:18px;color:var(--t-2);margin:0;line-height:1.55}
+
+.section{padding:60px 24px}
+.section-in{max-width:1080px;margin:0 auto}
+.section h2{font-size:32px;font-weight:800;letter-spacing:-.01em;margin:0 0 14px;color:var(--navy)}
+.section p{font-size:15.5px;color:var(--t-2);max-width:720px}
+
+/* Niveaux Carat */
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px}
+@media(max-width:780px){.levels{grid-template-columns:1fr}}
+.level{background:#fff;border:1px solid var(--border);padding:32px 28px;text-align:center;position:relative;overflow:hidden}
+.level::before{content:"";position:absolute;left:0;top:0;right:0;height:4px}
+.level.gold::before{background:var(--carat-gold)}
+.level.silver::before{background:var(--carat-silver)}
+.level.bronze::before{background:var(--carat-bronze)}
+.diamond{font-size:42px;line-height:1;margin-bottom:14px}
+.level.gold .diamond{color:var(--carat-gold)}
+.level.silver .diamond{color:var(--carat-silver)}
+.level.bronze .diamond{color:var(--carat-bronze)}
+.level h3{font-size:24px;font-weight:800;margin:0 0 6px;color:var(--navy);letter-spacing:-.01em}
+.level .tag{font-family:var(--fm);font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--t-3);margin-bottom:18px;display:block}
+.level .desc{font-size:14px;color:var(--t-2);line-height:1.55;margin:0 0 18px;text-align:left}
+.level .criteria{font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.04em;padding:10px 14px;background:var(--surf-2);border-top:1px solid var(--border-2);margin-top:auto}
+.level .count{font-size:30px;font-weight:800;color:var(--navy);margin-top:14px;font-family:var(--ff)}
+.level .count small{font-size:13px;font-weight:600;color:var(--t-3);display:block}
+
+/* Méthodologie */
+.method{background:#fff;border:1px solid var(--border);padding:36px;margin-top:36px}
+.method h3{font-size:20px;font-weight:800;color:var(--navy);margin:0 0 18px}
+.formula{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:680px){.formula{grid-template-columns:1fr}}
+.formula-card{background:var(--surf-2);border:1px solid var(--border-2);padding:22px 18px;text-align:center}
+.formula-pct{font-size:38px;font-weight:800;color:var(--gold-bright);line-height:1;letter-spacing:-.02em}
+.formula-src{font-family:var(--fm);font-size:11.5px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--navy);margin-top:6px}
+.formula-desc{font-size:12.5px;color:var(--t-2);margin-top:8px;line-height:1.5}
+
+.values{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:24px}
+@media(max-width:680px){.values{grid-template-columns:1fr}}
+.value-card{border-left:3px solid var(--gold);padding:14px 18px;background:var(--surf-2)}
+.value-card b{display:block;color:var(--navy);font-weight:700;margin-bottom:4px;font-size:14.5px}
+.value-card span{font-size:13.5px;color:var(--t-2);line-height:1.5}
+
+/* Transparence */
+.transparency{background:var(--navy);color:#fff;padding:50px 28px;margin-top:40px}
+.transparency-in{max-width:780px;margin:0 auto;text-align:center}
+.transparency h2{color:#fff;margin-bottom:14px;font-size:28px}
+.transparency p{color:rgba(255,255,255,.85);margin:0 auto 14px}
+.transparency .pillars{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:28px;font-family:var(--fm);font-size:11.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--gold-bright)}
+.transparency .pillars span{padding:8px 16px;border:1px solid rgba(200,151,82,.3);background:rgba(255,255,255,.05)}
+
+/* CTA Final */
+.cta-final{padding:64px 24px;text-align:center;background:var(--bg)}
+.cta-final h2{margin:0 0 12px}
+.btn{display:inline-block;padding:14px 32px;background:var(--navy);color:#fff;font-weight:700;font-size:14.5px;letter-spacing:.04em;text-transform:uppercase;border:0;font-family:var(--ff);margin-top:16px;cursor:pointer}
+.btn:hover{background:#0d1a3a}
+.btn.gold{background:var(--gold);color:#0a0a0a}
+.btn.gold:hover{background:var(--gold-bright)}
+
+footer{padding:24px;text-align:center;font-family:var(--fm);font-size:11px;color:var(--t-3);letter-spacing:.04em;border-top:1px solid var(--border)}
+footer a{color:var(--gold);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="logo">
+      <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
+      <span class="logo-mast">
+        <span class="logo-title">Carat ◆</span>
+        <span class="logo-slogan">label&nbsp;qualité</span>
+      </span>
+    </a>
+    <a href="/" class="nav-back">← r3sto.com</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-in">
+    <span class="eyebrow">R3STO Carat ◆ Le label</span>
+    <h1>Trois niveaux. Une exigence : <span class="gold">l'excellence</span>.</h1>
+    <p class="sub">R3STO Carat distingue les restaurants qui se démarquent par la qualité de leur cuisine, de leur service et de l'expérience qu'ils offrent. Un seul label, transparent, agrégeant les références les plus reconnues.</p>
+  </div>
+</header>
+
+<section class="section">
+  <div class="section-in">
+    <h2>Les 3 niveaux Carat</h2>
+    <p>Le label R3STO Carat est attribué sur la base d'un score agrégé de critères objectifs. Or, Silver et Bronze récompensent différents degrés d'excellence.</p>
+
+    <div class="levels">
+      <div class="level gold">
+        <div class="diamond">◆</div>
+        <h3>Or</h3>
+        <span class="tag">Excellence absolue</span>
+        <p class="desc">Restaurants d'exception combinant note ≥ 4.7★ et 100+ avis clients vérifiés. Ce sont les références de leur région.</p>
+        <div class="count">194<small>restaurants en Suisse</small></div>
+        <div class="criteria">Score ≥ 90/100</div>
+      </div>
+      <div class="level silver">
+        <div class="diamond">◆</div>
+        <h3>Silver</h3>
+        <span class="tag">Excellence reconnue</span>
+        <p class="desc">Restaurants ayant atteint une notoriété solide et constante (≥ 4.4★, 50+ avis), avec une expérience client confirmée.</p>
+        <div class="count">491<small>restaurants en Suisse</small></div>
+        <div class="criteria">Score 70-89/100</div>
+      </div>
+      <div class="level bronze">
+        <div class="diamond">◆</div>
+        <h3>Bronze</h3>
+        <span class="tag">Adresse de confiance</span>
+        <p class="desc">Restaurants ayant prouvé leur qualité avec une régularité notable (≥ 4.0★, 15+ avis). Une valeur sûre à découvrir.</p>
+        <div class="count">267<small>restaurants en Suisse</small></div>
+        <div class="criteria">Score 50-69/100</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-in">
+    <h2>Méthodologie</h2>
+    <p>Le score Carat agrège trois sources indépendantes pondérées. Aucun restaurant ne peut acheter son label : seule la qualité compte.</p>
+
+    <div class="method">
+      <h3>Formule de calcul</h3>
+      <div class="formula">
+        <div class="formula-card">
+          <div class="formula-pct">40%</div>
+          <div class="formula-src">Michelin</div>
+          <div class="formula-desc">Étoiles, Bib Gourmand, sélection officielle du Guide Michelin</div>
+        </div>
+        <div class="formula-card">
+          <div class="formula-pct">30%</div>
+          <div class="formula-src">Gault &amp; Millau</div>
+          <div class="formula-desc">Toques Gault-Millau et notes attribuées par les inspecteurs</div>
+        </div>
+        <div class="formula-card">
+          <div class="formula-pct">30%</div>
+          <div class="formula-src">Score R3STO</div>
+          <div class="formula-desc">Avis vérifiés, ancienneté, constance, expérience client cumulée</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:30px">Nos valeurs</h3>
+      <div class="values">
+        <div class="value-card">
+          <b>Transparence totale</b>
+          <span>Aucun paiement ne change un score Carat. Les critères et pondérations sont publiés ici.</span>
+        </div>
+        <div class="value-card">
+          <b>Sources reconnues</b>
+          <span>Michelin et Gault-Millau sont les références historiques de la gastronomie en Europe.</span>
+        </div>
+        <div class="value-card">
+          <b>Réévaluation continue</b>
+          <span>Les labels sont recalculés régulièrement. Un restaurant peut monter… ou descendre.</span>
+        </div>
+        <div class="value-card">
+          <b>Soutien direct</b>
+          <span>Réserver chez un R3STO Carat = sans commission cachée, en soutenant l'établissement.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="transparency">
+  <div class="transparency-in">
+    <h2>Indépendance &amp; intégrité</h2>
+    <p>R3STO Carat n'est pas un partenariat commercial. C'est un agrégateur indépendant de scores publics. Aucun restaurateur ne peut acheter son Carat, et aucun ne peut payer pour le retirer à un concurrent.</p>
+    <p>Les pondérations 40/30/30 sont fixes. Les recalculs sont effectués trimestriellement.</p>
+    <div class="pillars">
+      <span>◆ Pas de pay-to-play</span>
+      <span>◆ Sources publiques</span>
+      <span>◆ Réévaluation Q1/Q2/Q3/Q4</span>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <h2>Découvrir les R3STO Carat près de chez vous</h2>
+  <p class="sub" style="max-width:540px;margin:0 auto">194 Or · 491 Silver · 267 Bronze en Suisse, plus de 950 restaurants à découvrir.</p>
+  <a href="/recherche.html?carat=gold" class="btn gold">Voir tous les Or →</a>
+  <a href="/recherche.html" class="btn" style="margin-left:8px">Tous les Carat</a>
+</section>
+
+<footer>
+  © 2026 Innoptim SA · Lausanne · <a href="/legal.html">Légal</a> · <a href="/">r3sto.com</a> · <a href="mailto:contact@r3sto.com">contact@r3sto.com</a>
+</footer>
+</body>
+</html>
