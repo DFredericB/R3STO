@@ -975,6 +975,24 @@ function absolutizePhotoUrl(u) {
   if (u.startsWith('photos/')) return 'https://r3sto.ch/' + u;
   return u;
 }
+function genPhotoSource(r) {
+  // Renvoie {url, credit} pour conformité légale (attribution photos)
+  const local = localPhotoUrl(r.slug);
+  if (local) return { url: local, credit: 'google' }; // photos locales = telechargees depuis Google
+  if (isUsablePhotoUrl(r.photo_url) && !r.photo_url.includes('places.googleapis')) {
+    const u = absolutizePhotoUrl(r.photo_url);
+    return { url: u, credit: u.includes('r3sto.ch') ? 'google' : 'external' };
+  }
+  if (isUsablePhotoUrl(r.image) && !r.image.includes('places.googleapis')) {
+    return { url: absolutizePhotoUrl(r.image), credit: 'external' };
+  }
+  // Fallback LoremFlickr (CC license via Flickr community)
+  const tag = (r.cuisine_tag || r.cuisine || '').toLowerCase().trim();
+  const kw = CUISINE_PHOTO_KEYWORDS[tag] || 'restaurant,food';
+  const terrace = r.outdoor_seating ? ',terrace' : '';
+  const lock = r.id || (r.slug ? Math.abs(r.slug.split('').reduce((a,c)=>a*31+c.charCodeAt(0),7)) % 99999 : 42);
+  return { url: `https://loremflickr.com/600/400/${kw}${terrace}?lock=${lock}`, credit: 'flickr' };
+}
 function genPhotoFallback(r) {
   // 1. PRIORITÉ : photo locale déjà téléchargée (r3sto.ch/photos/<slug>.jpg)
   const local = localPhotoUrl(r.slug);
@@ -1073,7 +1091,8 @@ app.get('/public/directory', async (req, res) => {
         outdoor_seating: !!r.outdoor_seating,
         takeaway: !!r.takeaway,
         delivery: !!r.delivery,
-        photo: genPhotoFallback(r),
+        photo: genPhotoSource(r).url,
+        photoCredit: genPhotoSource(r).credit,
         rating: r.rating ? parseFloat(r.rating) : null,
         reviews: r.reviews_count || 0,
         claimed: r.claim_status === 'claimed',
@@ -1107,7 +1126,9 @@ app.get('/public/directory/:slug', async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Fiche non trouvée' });
     const r = rows[0];
-    r.photo = genPhotoFallback(r);
+    const ps = genPhotoSource(r);
+    r.photo = ps.url;
+    r.photoCredit = ps.credit;
     res.json({ restaurant: r });
   } catch (err) {
     res.status(500).json({ error: 'Erreur serveur' });

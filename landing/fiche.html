@@ -111,6 +111,14 @@ a{color:inherit}
 .hero-img .badge.tier-or     {border-color:#d4af37;color:#d4af37}
 .hero-img .badge.tier-silver {border-color:#c0c8d4;color:#c0c8d4}
 .hero-img .badge.tier-bronze {border-color:#cd7f32;color:#cd7f32}
+.hero-img .photo-credit{
+  position:absolute;bottom:8px;right:10px;
+  background:rgba(0,0,0,.55);color:#fff;
+  padding:3px 9px;font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:9.5px;letter-spacing:.08em;font-weight:500;
+  pointer-events:none;
+}
+.hero-img .photo-credit:empty{display:none}
 .hero-meta{
   padding:22px 20px 0;
   display:flex;flex-direction:column;
@@ -270,6 +278,7 @@ footer{
   <div class="hero-resto">
     <div class="hero-img" id="heroImg" style="background-image:url('https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1400&q=80')">
       <div class="badge" id="heroBadge">★ Démo R3STO</div>
+      <div class="photo-credit" id="photoCredit"></div>
     </div>
     <div class="hero-meta">
       <div class="cuisine-tag" id="cuisineTag">Bistro contemporain</div>
@@ -548,6 +557,11 @@ function loadFiche(){
   document.getElementById('kvPrice').textContent = data.price;
   document.getElementById('locName').textContent = data.locName;
   document.getElementById('heroImg').style.backgroundImage = "url('"+data.img+"')";
+  const creditEl = document.getElementById('photoCredit');
+  const creditTxt = data.photoCredit === 'google' ? 'Photo via Google' :
+                    data.photoCredit === 'flickr' ? 'Photo via Flickr CC' :
+                    data.photoCredit === 'external' ? 'Photo source externe' : '';
+  if (creditEl) creditEl.textContent = creditTxt;
   document.getElementById('scores').innerHTML =
     '<span class="score">'+data.scores.michelin+' <b>Michelin</b></span>'+
     '<span class="score">'+data.scores.gm+' <b>G&amp;M</b></span>'+
