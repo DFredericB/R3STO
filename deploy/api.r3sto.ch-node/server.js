@@ -738,8 +738,11 @@ app.patch('/reservations/:id', authMiddleware, async (req, res) => {
 
     const updates = [];
     const values = [];
-    const newDate = req.body.date || r.date;
-    const newTime = req.body.time || r.time;
+    // Normalise (DB renvoie Date object pour DATE, string pour TIME)
+    const normD = d => d instanceof Date ? d.toISOString().slice(0,10) : String(d).slice(0,10);
+    const normT = t => String(t).slice(0,5);
+    const newDate = req.body.date || normD(r.date);
+    const newTime = req.body.time || normT(r.time);
     const newPax = parseInt(req.body.party_size, 10) || r.party_size;
     const override = !!req.body.override;
     const mode = req.body.mode === 'auto' ? 'auto' : (r.mode || 'manu');
