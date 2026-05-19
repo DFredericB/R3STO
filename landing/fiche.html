@@ -10,6 +10,31 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- OpenGraph + Twitter card (SEO + previews sociaux) -->
+<meta property="og:type" content="restaurant.restaurant">
+<meta property="og:site_name" content="R3STO">
+<meta property="og:locale" content="fr_CH">
+<meta property="og:url" id="ogUrl" content="https://r3sto.com/fiche.html">
+<meta property="og:title" id="ogTitle" content="Restaurant — R3STO">
+<meta property="og:description" id="ogDesc" content="Réservez sans commission cachée.">
+<meta property="og:image" id="ogImage" content="https://r3sto.com/og-default.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="twTitle" content="Restaurant — R3STO">
+<meta name="twitter:description" id="twDesc" content="Réservez sans commission cachée.">
+<meta name="twitter:image" id="twImage" content="https://r3sto.com/og-default.jpg">
+
+<!-- Schema.org Restaurant (rempli dynamiquement par loadFiche()) -->
+<script type="application/ld+json" id="restoSchema">
+{
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": "Restaurant",
+  "url": "https://r3sto.com/fiche.html",
+  "priceRange": "$$",
+  "servesCuisine": "Restaurant"
+}
+</script>
 <style>
 :root{
   --bg:#eef3fa;
@@ -535,7 +560,62 @@ function loadFiche(){
   const slug = (params.get('slug') || 'chez-bunnys').toLowerCase();
   const data = FICHES[slug] || FICHES['chez-bunnys'];
 
-  document.title = data.name + ' — R3STO';
+  // ═══ SEO : Title + meta + Schema.org Restaurant + OpenGraph ═══
+  const fullTitle = `${data.name} — ${data.cuisine} · R3STO`;
+  document.title = fullTitle;
+  const desc = `${data.name}, ${data.cuisine.toLowerCase()} à ${data.locName || data.addr || 'Suisse'}. Réservation directe sans commission cachée.`;
+  // Update meta description
+  let mDesc = document.querySelector('meta[name="description"]');
+  if (mDesc) mDesc.setAttribute('content', desc);
+  // OG + Twitter
+  const url = window.location.href;
+  ['ogUrl','ogTitle','ogDesc','ogImage','twTitle','twDesc','twImage'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    if (id.endsWith('Url')) el.setAttribute('content', url);
+    else if (id.endsWith('Title')) el.setAttribute('content', fullTitle);
+    else if (id.endsWith('Desc')) el.setAttribute('content', desc);
+    else if (id.endsWith('Image')) el.setAttribute('content', data.img || 'https://r3sto.com/og-default.jpg');
+  });
+  // Schema.org Restaurant dynamique
+  const tierLbl = caratTier(data.scores);
+  const schemaObj = {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": data.name,
+    "image": data.img,
+    "description": data.sub,
+    "url": url,
+    "telephone": data.phone,
+    "priceRange": data.price,
+    "servesCuisine": data.cuisine,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": data.addr,
+      "addressLocality": data.locName,
+      "addressCountry": "CH"
+    },
+    "acceptsReservations": "True",
+    "potentialAction": {
+      "@type": "ReserveAction",
+      "target": url
+    }
+  };
+  if (data.scores) {
+    const r3 = parseFloat(data.scores.r3) || 0;
+    if (r3 > 0) {
+      schemaObj.aggregateRating = {
+        "@type": "AggregateRating",
+        "ratingValue": r3.toFixed(1),
+        "bestRating": 10,
+        "ratingCount": 50
+      };
+    }
+    if (tierLbl) {
+      schemaObj.award = `R3STO Carat ${tierLbl === 'or' ? 'Or' : tierLbl === 'silver' ? 'Silver' : 'Bronze'}`;
+    }
+  }
+  const schemaEl = document.getElementById('restoSchema');
+  if (schemaEl) schemaEl.textContent = JSON.stringify(schemaObj, null, 2);
   document.getElementById('restoName').textContent = data.name;
   document.getElementById('cuisineTag').textContent = data.cuisine;
   document.getElementById('restoSub').textContent = data.sub;
