@@ -75,7 +75,7 @@ function generateOTP() {
 async function sendOTPEmail(email, code) {
   try {
     await smtpTransport.sendMail({
-      from: '"R3STO" <noreply@r3sto.ch>',
+      from: `"R3STO" <${FROM_EMAIL}>`,
       to: email,
       subject: `${code} — Code de vérification R3STO`,
       html: `
