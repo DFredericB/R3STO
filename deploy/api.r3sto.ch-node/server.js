@@ -924,6 +924,31 @@ const CUISINE_PHOTO_KEYWORDS = {
 };
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || '';
 
+// ── Index des photos locales déjà téléchargées (4380 fichiers sur r3sto.ch/photos/) ──
+const LOCAL_PHOTO_BASE = 'https://r3sto.ch/photos';
+let LOCAL_PHOTOS_INDEX = new Set();
+try {
+  const fs = require('fs');
+  const path = require('path');
+  const photosFile = path.join(__dirname, 'photos.txt');
+  if (fs.existsSync(photosFile)) {
+    const content = fs.readFileSync(photosFile, 'utf8');
+    LOCAL_PHOTOS_INDEX = new Set(content.split('\n').filter(Boolean));
+    console.log(`[R3STO] Index photos chargé : ${LOCAL_PHOTOS_INDEX.size} fichiers`);
+  }
+} catch (err) {
+  console.error('[R3STO] Index photos non chargé:', err.message);
+}
+function localPhotoUrl(slug) {
+  if (!slug) return null;
+  const fname = `${slug}.jpg`;
+  if (LOCAL_PHOTOS_INDEX.has(fname)) return `${LOCAL_PHOTO_BASE}/${fname}`;
+  // Variant sans accent éventuel
+  const fname2 = `${slug}.png`;
+  if (LOCAL_PHOTOS_INDEX.has(fname2)) return `${LOCAL_PHOTO_BASE}/${fname2}`;
+  return null;
+}
+
 function transformGooglePlacesUrl(url) {
   // Format new Places API : https://places.googleapis.com/v1/places/{place_id}/photos/{photo_ref}
   // Resolvable URL : append /media?maxHeightPx=400&maxWidthPx=600&key=API_KEY
@@ -944,14 +969,17 @@ function isUsablePhotoUrl(url) {
 }
 
 function genPhotoFallback(r) {
-  // 1. Photo Google Places (avec clé API) — VRAIE photo du resto
+  // 1. PRIORITÉ : photo locale déjà téléchargée (r3sto.ch/photos/<slug>.jpg)
+  const local = localPhotoUrl(r.slug);
+  if (local) return local;
+  // 2. Photo Google Places (avec clé API) — VRAIE photo du resto
   if (r.photo_url && r.photo_url.includes('places.googleapis.com') && GOOGLE_PLACES_API_KEY) {
     return transformGooglePlacesUrl(r.photo_url);
   }
-  // 2. URL photo directe (non-Google)
+  // 3. URL photo directe (non-Google)
   if (isUsablePhotoUrl(r.photo_url)) return r.photo_url;
   if (isUsablePhotoUrl(r.image)) return r.image;
-  // 3. Fallback LoremFlickr thématique (cuisine + terrasse)
+  // 4. Fallback LoremFlickr thématique (cuisine + terrasse)
   const tag = (r.cuisine_tag || r.cuisine || '').toLowerCase().trim();
   const kw = CUISINE_PHOTO_KEYWORDS[tag] || 'restaurant,food';
   const terrace = r.outdoor_seating ? ',terrace' : '';
