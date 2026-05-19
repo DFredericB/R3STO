@@ -1071,15 +1071,15 @@ img.logo-mark { object-fit:cover; display:block; }
     <a href="/" class="logo">
       <img class="logo-mark" src="/logo-r3sto-navy.png" alt="R3STO" width="44" height="44">
       <span class="logo-mast">
-        <span class="logo-title" id="logoTitle">Annuaire</span>
-        <span class="logo-slogan" id="logoSlogan">guide&nbsp;gourmand</span>
+        <span class="logo-title" id="logoTitle" data-i18n="nav.directory">Annuaire</span>
+        <span class="logo-slogan" id="logoSlogan" data-i18n="nav.tagline">guide&nbsp;gourmand</span>
       </span>
     </a>
     <div class="nav-links" id="navLinks">
-      <a href="/recherche.html">Restaurants</a>
+      <a href="/recherche.html" data-i18n="nav.restaurants">Restaurants</a>
       <a href="/#carat">Carat ◆</a>
-      <a href="/pro.html">Pro</a>
-      <a href="/about.html">À propos</a>
+      <a href="/pro.html" data-i18n="nav.pro">Pro</a>
+      <a href="/about.html" data-i18n="nav.about">À propos</a>
     </div>
     <div class="nav-right">
       <div class="lang" id="langPills">
@@ -1182,8 +1182,8 @@ img.logo-mark { object-fit:cover; display:block; }
         </div>
       </div>
       <a href="https://app.r3sto.ch" class="nav-legacy" id="navFuturaurant" title="Anciens clients Futuraurant — accès direct à l'ancien espace">⇲ Futuraurant</a>
-      <a href="/login.html" class="nav-login" id="navLogin">Connexion</a>
-      <a href="/pro.html" class="nav-pro" id="navPro">Espace Pro <span class="pro-long">→</span></a>
+      <a href="/login.html" class="nav-login" id="navLogin" data-i18n="nav.login">Connexion</a>
+      <a href="/pro.html" class="nav-pro" id="navPro" data-i18n="nav.pro_cta">Espace Pro <span class="pro-long">→</span></a>
       <button class="mob-menu" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
     </div>
   </div>
@@ -1305,7 +1305,7 @@ img.logo-mark { object-fit:cover; display:block; }
         </a>
         <div class="resto-cta-row">
           <div class="resto-status open">● Ouvert</div>
-          <a href="javascript:void(0)" class="resto-book" onclick="openResa('Chez Bunny\\'s')">Réserver →</a>
+          <a href="javascript:void(0)" class="resto-book" onclick="openResa('Chez Bunny\\'s')"data-i18n="cta.book">Réserver →</a>
         </div>
       </article>
 
@@ -1339,7 +1339,7 @@ img.logo-mark { object-fit:cover; display:block; }
         </a>
         <div class="resto-cta-row">
           <div class="resto-status open">● Ouvert</div>
-          <a href="javascript:void(0)" class="resto-book" onclick="openResa('La Pinte')">Réserver →</a>
+          <a href="javascript:void(0)" class="resto-book" onclick="openResa('La Pinte')"data-i18n="cta.book">Réserver →</a>
         </div>
       </article>
 
@@ -1370,7 +1370,7 @@ img.logo-mark { object-fit:cover; display:block; }
           </div>
           <div class="resto-cta-row">
             <div class="resto-status open">● Ouvert</div>
-            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)"data-i18n="cta.book">Réserver →</a>
           </div>
         </div>
       </article>
@@ -1402,7 +1402,7 @@ img.logo-mark { object-fit:cover; display:block; }
           </div>
           <div class="resto-cta-row">
             <div class="resto-status open">● Ouvert</div>
-            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)"data-i18n="cta.book">Réserver →</a>
           </div>
         </div>
       </article>
@@ -1434,7 +1434,7 @@ img.logo-mark { object-fit:cover; display:block; }
           </div>
           <div class="resto-cta-row">
             <div class="resto-status open">● Ouvert</div>
-            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)"data-i18n="cta.book">Réserver →</a>
           </div>
         </div>
       </article>
@@ -1466,7 +1466,7 @@ img.logo-mark { object-fit:cover; display:block; }
           </div>
           <div class="resto-cta-row">
             <div class="resto-status open">● Ouvert</div>
-            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)"data-i18n="cta.book">Réserver →</a>
           </div>
         </div>
       </article>
@@ -1498,7 +1498,7 @@ img.logo-mark { object-fit:cover; display:block; }
           </div>
           <div class="resto-cta-row">
             <div class="resto-status closed">● Fermé · ouvre 19h</div>
-            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)">Réserver →</a>
+            <a href="javascript:void(0)" class="resto-book" onclick="openResa(this.closest('.resto').querySelector('.resto-name').textContent)"data-i18n="cta.book">Réserver →</a>
           </div>
         </div>
       </article>
@@ -2289,6 +2289,17 @@ const TR = {
     'search.where':'Where?',
     'search.where.ph':'Lausanne, Geneva, Zurich, Paris…',
     'search.cta':'Search',
+    'nav.directory':'Directory',
+    'nav.tagline':'gourmet guide',
+    'nav.restaurants':'Restaurants',
+    'nav.pro':'Pro',
+    'nav.about':'About',
+    'nav.login':'Sign in',
+    'nav.pro_cta':'Pro Space →',
+    'cta.book':'Book →',
+    'cta.discover':'Discover →',
+    'cta.signup':'Free trial',
+    'cta.claim':'Claim my restaurant',
     eyebrow:'The international gourmet guide',
     h1:'Discover the <span class="navy">best</span><br>restaurants <span id="heroScope">worldwide</span>.',
     sub:'The directory that highlights independent restaurateurs. Book online directly, without hidden commission, supporting the establishment.',
@@ -2299,6 +2310,17 @@ const TR = {
     'search.where':'Où ?',
     'search.where.ph':'Lausanne, Genève, Zürich, Paris…',
     'search.cta':'Chercher',
+    'nav.directory':'Annuaire',
+    'nav.tagline':'guide gourmand',
+    'nav.restaurants':'Restaurants',
+    'nav.pro':'Pro',
+    'nav.about':'À propos',
+    'nav.login':'Connexion',
+    'nav.pro_cta':'Espace Pro →',
+    'cta.book':'Réserver →',
+    'cta.discover':'Découvrir →',
+    'cta.signup':'Essai gratuit',
+    'cta.claim':'Revendiquer mon restaurant',
     eyebrow:'Le guide gourmand international',
     h1:'Découvrez les <span class="navy">meilleurs</span><br>restaurants <span id="heroScope">du monde</span>.',
     sub:'L\'annuaire qui met en avant les restaurateurs indépendants. Réservez en ligne directement, sans commission cachée.',
@@ -2309,6 +2331,17 @@ const TR = {
     'search.where':'Wo?',
     'search.where.ph':'Lausanne, Genf, Zürich, Berlin…',
     'search.cta':'Suchen',
+    'nav.directory':'Verzeichnis',
+    'nav.tagline':'Gourmet-Guide',
+    'nav.restaurants':'Restaurants',
+    'nav.pro':'Pro',
+    'nav.about':'Über uns',
+    'nav.login':'Anmelden',
+    'nav.pro_cta':'Pro-Bereich →',
+    'cta.book':'Reservieren →',
+    'cta.discover':'Entdecken →',
+    'cta.signup':'Kostenlos testen',
+    'cta.claim':'Mein Restaurant beanspruchen',
     eyebrow:'Der internationale Gourmet-Guide',
     h1:'Entdecken Sie die <span class="navy">besten</span><br>Restaurants <span id="heroScope">weltweit</span>.',
     sub:'Das Verzeichnis, das unabhängige Gastronomen ins Rampenlicht stellt. Direkt online reservieren, ohne versteckte Provisionen.',
@@ -2319,6 +2352,17 @@ const TR = {
     'search.where':'Dove?',
     'search.where.ph':'Lugano, Milano, Roma, Lausanne…',
     'search.cta':'Cerca',
+    'nav.directory':'Elenco',
+    'nav.tagline':'guida gourmet',
+    'nav.restaurants':'Ristoranti',
+    'nav.pro':'Pro',
+    'nav.about':'Chi siamo',
+    'nav.login':'Accedi',
+    'nav.pro_cta':'Spazio Pro →',
+    'cta.book':'Prenota →',
+    'cta.discover':'Scopri →',
+    'cta.signup':'Prova gratuita',
+    'cta.claim':'Rivendica il mio ristorante',
     eyebrow:'La guida gourmet internazionale',
     h1:'Scopri i <span class="navy">migliori</span><br>ristoranti <span id="heroScope">del mondo</span>.',
     sub:'L\'elenco che mette in luce i ristoratori indipendenti. Prenota online direttamente, senza commissioni nascoste.',
