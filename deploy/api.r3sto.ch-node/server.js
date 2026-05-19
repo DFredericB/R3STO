@@ -651,6 +651,170 @@ app.patch('/reservations/:id/status', authMiddleware, async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════
+//  MOTEUR DE DISPONIBILITÉ — coeur du système de résa
+// ═══════════════════════════════════════════════════════════════
+const ACTIVE_RESA_STATUSES = ['reserved','confirmed','arrived','seated'];
+const DEFAULT_SEATING_MINUTES = 90; // durée standard occupation table
+
+/**
+ * Vérifie la dispo de tables pour resto/date/time/pax
+ * Logique :
+ *   1. Trouve services ouverts ce jour/heure
+ *   2. Check fermetures actives
+ *   3. Check booking_cutoff_mins (délai min)
+ *   4. Trouve tables qualifiantes (couverts_min ≤ pax ≤ couverts_max)
+ *   5. Filtre les tables non-réservées dans la fenêtre [time, time+seating]
+ *   6. Retourne candidates ou raison du refus
+ */
+async function checkAvailability(restoId, date, time, pax) {
+  if (!restoId || !date || !time || !pax) {
+    return { available: false, reason: 'Paramètres manquants', candidates: [] };
+  }
+
+  const dt = new Date(`${date}T${time}:00`);
+  if (isNaN(dt.getTime())) return { available: false, reason: 'Date/heure invalide', candidates: [] };
+  const dow = dt.getDay() === 0 ? 7 : dt.getDay(); // 1=lun ... 7=dim
+
+  // 1. Services ouverts à cet horaire et ce jour
+  const [services] = await pool.query(
+    `SELECT * FROM services
+     WHERE restaurant_id = ? AND actif = 1
+       AND heure_debut <= ? AND heure_fin >= ?
+       AND (jours = '' OR jours IS NULL OR FIND_IN_SET(?, REPLACE(jours, ' ', '')))`,
+    [restoId, time, time, String(dow)]
+  );
+  if (services.length === 0) {
+    return { available: false, reason: 'Service fermé à cet horaire', candidates: [] };
+  }
+
+  // 2. Fermetures actives pour cette date
+  const [closures] = await pool.query(
+    `SELECT * FROM fermetures
+     WHERE restaurant_id = ? AND actif = 1
+       AND date_debut <= ? AND date_fin >= ?`,
+    [restoId, date, date]
+  );
+  const closedAll = closures.some(c => c.type === 'restaurant' || c.type === 'vacances' || c.type === 'ferie');
+  if (closedAll) {
+    return { available: false, reason: 'Restaurant fermé ce jour', candidates: [] };
+  }
+  const closedSalles = new Set(closures.filter(c => c.type === 'salle' && c.salle_id).map(c => c.salle_id));
+  const closedServices = new Set(closures.filter(c => c.type === 'service' && c.service_id).map(c => c.service_id));
+
+  // 3. Cutoff (booking_cutoff_mins) — délai min avant résa
+  const now = new Date();
+  for (const s of services) {
+    if (closedServices.has(s.id)) continue;
+    if (s.booking_cutoff_mins && s.booking_cutoff_mins > 0) {
+      const minutesUntil = (dt - now) / 60000;
+      if (minutesUntil < s.booking_cutoff_mins) {
+        return { available: false, reason: `Délai min de ${s.booking_cutoff_mins} min avant résa`, candidates: [] };
+      }
+    }
+  }
+
+  // 4. Tables qualifiantes (capacity + salle ouverte + service applicable)
+  const serviceSalleIds = new Set(services.filter(s => !closedServices.has(s.id)).map(s => s.salle_id).filter(Boolean));
+  const filterSalleClause = serviceSalleIds.size > 0 ? ' AND salle_id IN (?)' : '';
+  let tablesQuery = `SELECT * FROM tables
+                     WHERE restaurant_id = ? AND actif = 1
+                       AND couverts_min <= ? AND couverts_max >= ?` + filterSalleClause;
+  const queryParams = serviceSalleIds.size > 0
+    ? [restoId, pax, pax, Array.from(serviceSalleIds)]
+    : [restoId, pax, pax];
+  const [candidateTables] = await pool.query(tablesQuery, queryParams);
+  const filteredTables = candidateTables.filter(t => !closedSalles.has(t.salle_id));
+  if (filteredTables.length === 0) {
+    return { available: false, reason: `Aucune table pour ${pax} personnes`, candidates: [] };
+  }
+
+  // 5. Réservations conflictuelles dans la fenêtre [time - 90min, time + 90min]
+  const before = new Date(dt.getTime() - DEFAULT_SEATING_MINUTES * 60000);
+  const after = new Date(dt.getTime() + DEFAULT_SEATING_MINUTES * 60000);
+  const beforeTime = before.toTimeString().slice(0, 8);
+  const afterTime = after.toTimeString().slice(0, 8);
+  const [busyResas] = await pool.query(
+    `SELECT table_id FROM reservations
+     WHERE restaurant_id = ? AND date = ?
+       AND time >= ? AND time <= ?
+       AND status IN (?)
+       AND table_id IS NOT NULL`,
+    [restoId, date, beforeTime, afterTime, ACTIVE_RESA_STATUSES]
+  );
+  const busyTableIds = new Set(busyResas.map(r => r.table_id));
+
+  // 6. Filtrage final
+  const freeTables = filteredTables.filter(t => !busyTableIds.has(t.id));
+  if (freeTables.length === 0) {
+    return { available: false, reason: 'Complet à cet horaire', candidates: [] };
+  }
+
+  // Trie par capacity (pour proposer la plus petite table adaptée d'abord)
+  freeTables.sort((a, b) => (a.couverts_max - a.couverts_min) - (b.couverts_max - b.couverts_min));
+
+  return {
+    available: true,
+    candidates: freeTables.slice(0, 5).map(t => ({
+      id: t.id, salle_id: t.salle_id, numero: t.numero, nom: t.nom,
+      couverts_min: t.couverts_min, couverts_max: t.couverts_max, forme: t.forme
+    })),
+    service: { id: services[0].id, nom: services[0].nom, type: services[0].type },
+    seating_minutes: DEFAULT_SEATING_MINUTES
+  };
+}
+
+// GET /api/availability?restaurant_id=X&date=YYYY-MM-DD&time=HH:MM&pax=N
+app.get('/api/availability', authMiddleware, async (req, res) => {
+  try {
+    const restoId = parseInt(req.query.restaurant_id, 10);
+    const date = req.query.date;
+    const time = req.query.time;
+    const pax = parseInt(req.query.pax, 10) || 2;
+
+    // Sécurité : restaurant_id doit appartenir au user
+    if (restoId) {
+      const [owned] = await pool.query('SELECT id FROM restaurants WHERE id = ? AND user_id = ?', [restoId, req.user.id]);
+      if (owned.length === 0) return res.status(403).json({ error: 'Restaurant non autorisé' });
+    }
+
+    const result = await checkAvailability(restoId, date, time, pax);
+    res.json(result);
+  } catch (err) {
+    console.error('[R3STO] availability error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// GET /api/availability/slots?restaurant_id=X&date=YYYY-MM-DD&pax=N
+// Retourne tous les créneaux ouverts (par tranches de 30 min) pour aider l'UI
+app.get('/api/availability/slots', authMiddleware, async (req, res) => {
+  try {
+    const restoId = parseInt(req.query.restaurant_id, 10);
+    const date = req.query.date;
+    const pax = parseInt(req.query.pax, 10) || 2;
+    if (!restoId || !date) return res.status(400).json({ error: 'restaurant_id et date requis' });
+
+    const [owned] = await pool.query('SELECT id FROM restaurants WHERE id = ? AND user_id = ?', [restoId, req.user.id]);
+    if (owned.length === 0) return res.status(403).json({ error: 'Restaurant non autorisé' });
+
+    // Génère slots 18:00 → 22:30 par 30 min (à raffiner selon services)
+    const slots = [];
+    for (let h = 12; h <= 22; h++) {
+      for (const m of [0, 30]) {
+        if (h === 22 && m === 30) continue;
+        const time = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+        const av = await checkAvailability(restoId, date, time, pax);
+        slots.push({ time, available: av.available, reason: av.available ? null : av.reason });
+      }
+    }
+    res.json({ date, pax, slots });
+  } catch (err) {
+    console.error('[R3STO] slots error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 // ═══════════════════════════════════════════════════
 //  ADMIN (Super Admin)
 // ═══════════════════════════════════════════════════
