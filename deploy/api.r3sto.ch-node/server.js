@@ -922,18 +922,36 @@ const CUISINE_PHOTO_KEYWORDS = {
   fastfood:'street-food', fast_food:'street-food',
   bar:'bar,cocktail',
 };
+const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || '';
+
+function transformGooglePlacesUrl(url) {
+  // Format new Places API : https://places.googleapis.com/v1/places/{place_id}/photos/{photo_ref}
+  // Resolvable URL : append /media?maxHeightPx=400&maxWidthPx=600&key=API_KEY
+  if (!url || !url.includes('places.googleapis.com')) return null;
+  if (!GOOGLE_PLACES_API_KEY) return null; // pas de clé -> on laisse fallback LoremFlickr prendre le relais
+  // Évite double /media si déjà présent
+  const base = url.endsWith('/media') ? url : `${url}/media`;
+  const sep = base.includes('?') ? '&' : '?';
+  return `${base}${sep}maxHeightPx=400&maxWidthPx=600&key=${GOOGLE_PLACES_API_KEY}`;
+}
+
 function isUsablePhotoUrl(url) {
   if (!url) return false;
-  // URLs Google Places API nécessitent une clé API — pas utilisable côté client
-  if (url.includes('places.googleapis.com')) return false;
-  if (url.includes('googleusercontent.com') && url.includes('places')) return false;
-  // URLs vides ou placeholder
   if (url.trim() === '' || url === 'null' || url === 'undefined') return false;
+  // URLs Google Places API : utilisables seulement si on a la clé
+  if (url.includes('places.googleapis.com')) return !!GOOGLE_PLACES_API_KEY;
   return true;
 }
+
 function genPhotoFallback(r) {
+  // 1. Photo Google Places (avec clé API) — VRAIE photo du resto
+  if (r.photo_url && r.photo_url.includes('places.googleapis.com') && GOOGLE_PLACES_API_KEY) {
+    return transformGooglePlacesUrl(r.photo_url);
+  }
+  // 2. URL photo directe (non-Google)
   if (isUsablePhotoUrl(r.photo_url)) return r.photo_url;
   if (isUsablePhotoUrl(r.image)) return r.image;
+  // 3. Fallback LoremFlickr thématique (cuisine + terrasse)
   const tag = (r.cuisine_tag || r.cuisine || '').toLowerCase().trim();
   const kw = CUISINE_PHOTO_KEYWORDS[tag] || 'restaurant,food';
   const terrace = r.outdoor_seating ? ',terrace' : '';
