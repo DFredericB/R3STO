@@ -613,7 +613,7 @@ app.post('/reservations', authMiddleware, async (req, res) => {
     let cid = customer_id || null;
     if (!cid && (guest_email || guest_phone)) {
       const [crows] = await pool.query(
-        `SELECT id FROM customers WHERE restaurant_id = ? AND (
+        `SELECT id FROM crm_customers WHERE restaurant_id = ? AND (
            (? <> '' AND email = ?) OR (? <> '' AND phone = ?)
          ) LIMIT 1`,
         [restaurant_id, guest_email || '', guest_email || '', guest_phone || '', guest_phone || '']
@@ -683,7 +683,7 @@ app.post('/reservations', authMiddleware, async (req, res) => {
     // Auto-create customer si pas trouvé
     if (!cid && (guest_email || guest_phone) && guest_name) {
       const [cInsert] = await pool.query(
-        `INSERT INTO customers (restaurant_id, full_name, email, phone, total_visits, last_visit)
+        `INSERT INTO crm_customers (restaurant_id, full_name, email, phone, total_visits, last_visit)
          VALUES (?, ?, ?, ?, 1, ?)`,
         [restaurant_id, guest_name, guest_email || '', guest_phone || '', date]
       );
@@ -691,7 +691,7 @@ app.post('/reservations', authMiddleware, async (req, res) => {
       cid = cInsert.insertId;
     } else if (cid) {
       // Update visit count + last_visit
-      await pool.query('UPDATE customers SET total_visits = total_visits + 1, last_visit = ? WHERE id = ?', [date, cid]);
+      await pool.query('UPDATE crm_customers SET total_visits = total_visits + 1, last_visit = ? WHERE id = ?', [date, cid]);
     }
 
     res.status(201).json({
@@ -1224,7 +1224,7 @@ app.get('/customers', authMiddleware, async (req, res) => {
     if (!restoId || !(await userOwnsResto(req.user.id, restoId))) return res.status(403).json({ error: 'Non autorisé' });
     const q = req.query.q ? `%${req.query.q}%` : null;
     const vip = req.query.vip === '1';
-    let sql = 'SELECT * FROM customers WHERE restaurant_id = ?'; const params = [restoId];
+    let sql = 'SELECT * FROM crm_customers WHERE restaurant_id = ?'; const params = [restoId];
     if (q) { sql += ' AND (full_name LIKE ? OR email LIKE ? OR phone LIKE ?)'; params.push(q, q, q); }
     if (vip) sql += ' AND vip = 1';
     sql += ' ORDER BY last_visit DESC, total_visits DESC LIMIT 200';
@@ -1238,7 +1238,7 @@ app.post('/customers', authMiddleware, async (req, res) => {
     if (!restaurant_id || !full_name) return res.status(400).json({ error: 'restaurant_id et full_name requis' });
     if (!(await userOwnsResto(req.user.id, restaurant_id))) return res.status(403).json({ error: 'Non autorisé' });
     const [r] = await pool.query(
-      `INSERT INTO customers (restaurant_id, full_name, email, phone, preferences, allergies, tags, vip, blacklist, birthday, notes)
+      `INSERT INTO crm_customers (restaurant_id, full_name, email, phone, preferences, allergies, tags, vip, blacklist, birthday, notes)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [restaurant_id, full_name, email || '', phone || '',
        preferences ? JSON.stringify(preferences) : null,
@@ -1252,7 +1252,7 @@ app.post('/customers', authMiddleware, async (req, res) => {
 app.patch('/customers/:id', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT c.* FROM customers c JOIN restaurants r ON c.restaurant_id = r.id WHERE c.id = ? AND r.user_id = ?`,
+      `SELECT c.* FROM crm_customers c JOIN restaurants r ON c.restaurant_id = r.id WHERE c.id = ? AND r.user_id = ?`,
       [req.params.id, req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Client non trouvé' });
@@ -1265,7 +1265,7 @@ app.patch('/customers/:id', authMiddleware, async (req, res) => {
     });
     if (updates.length === 0) return res.json({ ok: true });
     values.push(req.params.id);
-    await pool.query(`UPDATE customers SET ${updates.join(', ')} WHERE id = ?`, values);
+    await pool.query(`UPDATE crm_customers SET ${updates.join(', ')} WHERE id = ?`, values);
     res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
 });
@@ -1436,7 +1436,7 @@ async function pickBestTable(restoId, date, time, pax, customerId, plan) {
   const planRank = { free:0, mini:0, mini_plus:1, bistro:2, essentiel:2, resto:3, premium:3, gastro:4, signature:4 };
   const rank = planRank[plan] ?? 2;
   if (customerId && rank >= 3) {
-    const [crows] = await pool.query('SELECT * FROM customers WHERE id = ? AND restaurant_id = ?', [customerId, restoId]);
+    const [crows] = await pool.query('SELECT * FROM crm_customers WHERE id = ? AND restaurant_id = ?', [customerId, restoId]);
     if (crows.length > 0) customer = crows[0];
   }
   const isVip = customer?.vip === 1;
@@ -2396,7 +2396,7 @@ async function autoMigrate() {
     await addColIfMissing('reservations', 'preferences_used',  "JSON NULL COMMENT 'audit critere selection auto'");
 
     // ── customers : CRM des clients du resto ──
-    await pool.query(`CREATE TABLE IF NOT EXISTS customers (
+    await pool.query(`CREATE TABLE IF NOT EXISTS crm_customers (
       id INT UNSIGNED NOT NULL AUTO_INCREMENT,
       restaurant_id INT NOT NULL,
       full_name VARCHAR(180) NOT NULL,
@@ -2419,7 +2419,7 @@ async function autoMigrate() {
       KEY idx_resto_phone (restaurant_id, phone),
       KEY idx_resto_vip   (restaurant_id, vip)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-    console.log('[R3STO] Migration OK: table customers ready');
+    console.log('[R3STO] Migration OK: table crm_customers ready');
 
   } catch (err) {
     console.error('[R3STO] Migration error:', err.message);
