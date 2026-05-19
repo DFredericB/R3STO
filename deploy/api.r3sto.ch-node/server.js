@@ -972,14 +972,10 @@ function genPhotoFallback(r) {
   // 1. PRIORITÉ : photo locale déjà téléchargée (r3sto.ch/photos/<slug>.jpg)
   const local = localPhotoUrl(r.slug);
   if (local) return local;
-  // 2. Photo Google Places (avec clé API) — VRAIE photo du resto
-  if (r.photo_url && r.photo_url.includes('places.googleapis.com') && GOOGLE_PLACES_API_KEY) {
-    return transformGooglePlacesUrl(r.photo_url);
-  }
-  // 3. URL photo directe (non-Google)
-  if (isUsablePhotoUrl(r.photo_url)) return r.photo_url;
-  if (isUsablePhotoUrl(r.image)) return r.image;
-  // 4. Fallback LoremFlickr thématique (cuisine + terrasse)
+  // 2. URL photo directe (non-Google — les refs Google Places expirent, on les skip)
+  if (isUsablePhotoUrl(r.photo_url) && !r.photo_url.includes('places.googleapis')) return r.photo_url;
+  if (isUsablePhotoUrl(r.image) && !r.image.includes('places.googleapis')) return r.image;
+  // 3. Fallback LoremFlickr thématique (cuisine + terrasse)
   const tag = (r.cuisine_tag || r.cuisine || '').toLowerCase().trim();
   const kw = CUISINE_PHOTO_KEYWORDS[tag] || 'restaurant,food';
   const terrace = r.outdoor_seating ? ',terrace' : '';
