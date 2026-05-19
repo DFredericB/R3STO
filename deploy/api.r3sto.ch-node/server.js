@@ -897,6 +897,41 @@ app.post('/public/reservation', async (req, res) => {
 //  PUBLIC DIRECTORY (Annuaire r3sto.ch)
 // ═══════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════
+// PHOTO FALLBACK — par catégorie cuisine + terrasse
+// ═══════════════════════════════════════════════════
+const CUISINE_PHOTO_KEYWORDS = {
+  italian:'italian,pizza', italienne:'italian,pizza', pizza:'pizza',
+  french:'french,bistro', française:'french,bistro', francaise:'french,bistro',
+  japanese:'japanese,sushi', japonaise:'japanese,sushi', sushi:'sushi,japanese',
+  chinese:'chinese,wok', chinoise:'chinese,wok',
+  indian:'indian,curry', indienne:'indian,curry',
+  thai:'thai,asian', thaïlandaise:'thai,asian',
+  lebanese:'lebanese,mezze', libanaise:'lebanese,mezze',
+  mediterranean:'mediterranean,greek', méditerranéenne:'mediterranean,greek',
+  vegan:'vegan,vegetarian', vegetarian:'vegan,vegetarian',
+  brasserie:'brasserie,beer',
+  gastronomic:'gastronomy,gourmet', gastronomique:'gastronomy,gourmet',
+  burger:'burger,american', american:'burger,american',
+  mexican:'mexican,tacos', mexicaine:'mexican,tacos',
+  spanish:'spanish,tapas', espagnole:'spanish,tapas',
+  greek:'greek,mediterranean', grecque:'greek,mediterranean',
+  korean:'korean,bibimbap', coréenne:'korean,bibimbap',
+  vietnamese:'vietnamese,pho', vietnamienne:'vietnamese,pho',
+  cafe:'cafe,coffee', café:'cafe,coffee',
+  fastfood:'street-food', fast_food:'street-food',
+  bar:'bar,cocktail',
+};
+function genPhotoFallback(r) {
+  if (r.photo_url) return r.photo_url;
+  if (r.image) return r.image;
+  const tag = (r.cuisine_tag || r.cuisine || '').toLowerCase().trim();
+  const kw = CUISINE_PHOTO_KEYWORDS[tag] || 'restaurant,food';
+  const terrace = r.outdoor_seating ? ',terrace' : '';
+  const lock = r.id || (r.slug ? Math.abs(r.slug.split('').reduce((a,c)=>a*31+c.charCodeAt(0),7)) % 99999 : 42);
+  return `https://loremflickr.com/600/400/${kw}${terrace}?lock=${lock}`;
+}
+
 // GET /public/directory — liste paginée des restaurants
 // Query: region, canton, cuisine, carat, q, page, limit
 app.get('/public/directory', async (req, res) => {
@@ -980,7 +1015,7 @@ app.get('/public/directory', async (req, res) => {
         outdoor_seating: !!r.outdoor_seating,
         takeaway: !!r.takeaway,
         delivery: !!r.delivery,
-        photo: r.photo_url || r.image || null,
+        photo: genPhotoFallback(r),
         rating: r.rating ? parseFloat(r.rating) : null,
         reviews: r.reviews_count || 0,
         claimed: r.claim_status === 'claimed',
@@ -1013,7 +1048,9 @@ app.get('/public/directory/:slug', async (req, res) => {
       [req.params.slug]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Fiche non trouvée' });
-    res.json({ restaurant: rows[0] });
+    const r = rows[0];
+    r.photo = genPhotoFallback(r);
+    res.json({ restaurant: r });
   } catch (err) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
