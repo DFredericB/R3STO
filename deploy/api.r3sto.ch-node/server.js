@@ -1005,6 +1005,273 @@ app.get('/reservations/:id/move-logs', authMiddleware, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
+//  CRUD config restaurant — salles / tables / services / fermetures
+//  + CRM customers
+// ═══════════════════════════════════════════════════════════════
+//
+// Helper : verifie qu'un restaurant_id appartient bien au user authentifié
+async function userOwnsResto(userId, restoId) {
+  const [rows] = await pool.query('SELECT id FROM restaurants WHERE id = ? AND user_id = ?', [restoId, userId]);
+  return rows.length > 0;
+}
+
+// ── SALLES ──────────────────────────────────────────────────────
+app.get('/salles', authMiddleware, async (req, res) => {
+  try {
+    const restoId = parseInt(req.query.restaurant_id, 10);
+    if (!restoId || !(await userOwnsResto(req.user.id, restoId))) return res.status(403).json({ error: 'Restaurant non autorisé' });
+    const [rows] = await pool.query('SELECT * FROM salles WHERE restaurant_id = ? ORDER BY position, id', [restoId]);
+    res.json({ salles: rows });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.post('/salles', authMiddleware, async (req, res) => {
+  try {
+    const { restaurant_id, nom, capacite, position, actif } = req.body || {};
+    if (!restaurant_id || !nom) return res.status(400).json({ error: 'restaurant_id et nom requis' });
+    if (!(await userOwnsResto(req.user.id, restaurant_id))) return res.status(403).json({ error: 'Non autorisé' });
+    const [r] = await pool.query(
+      'INSERT INTO salles (restaurant_id, nom, capacite, position, actif) VALUES (?, ?, ?, ?, ?)',
+      [restaurant_id, nom, capacite || 0, position || 0, actif === 0 ? 0 : 1]
+    );
+    res.status(201).json({ id: r.insertId, ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.patch('/salles/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT s.* FROM salles s JOIN restaurants r ON s.restaurant_id = r.id WHERE s.id = ? AND r.user_id = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Salle non trouvée' });
+    const updates = []; const values = [];
+    ['nom','capacite','position','actif'].forEach(k => {
+      if (req.body[k] !== undefined) { updates.push(`${k} = ?`); values.push(req.body[k]); }
+    });
+    if (updates.length === 0) return res.json({ ok: true });
+    values.push(req.params.id);
+    await pool.query(`UPDATE salles SET ${updates.join(', ')} WHERE id = ?`, values);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.delete('/salles/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT s.id FROM salles s JOIN restaurants r ON s.restaurant_id = r.id WHERE s.id = ? AND r.user_id = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Salle non trouvée' });
+    // Vérif : tables liées ?
+    const [tbls] = await pool.query('SELECT COUNT(*) as n FROM tables WHERE salle_id = ?', [req.params.id]);
+    if (tbls[0].n > 0) return res.status(409).json({ error: `Salle contient ${tbls[0].n} table(s) — les supprimer d'abord` });
+    await pool.query('DELETE FROM salles WHERE id = ?', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+
+// ── TABLES ──────────────────────────────────────────────────────
+app.get('/tables', authMiddleware, async (req, res) => {
+  try {
+    const restoId = parseInt(req.query.restaurant_id, 10);
+    if (!restoId || !(await userOwnsResto(req.user.id, restoId))) return res.status(403).json({ error: 'Non autorisé' });
+    const salleId = req.query.salle_id ? parseInt(req.query.salle_id, 10) : null;
+    let sql = 'SELECT * FROM tables WHERE restaurant_id = ?'; const params = [restoId];
+    if (salleId) { sql += ' AND salle_id = ?'; params.push(salleId); }
+    sql += ' ORDER BY salle_id, numero';
+    const [rows] = await pool.query(sql, params);
+    res.json({ tables: rows });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.post('/tables', authMiddleware, async (req, res) => {
+  try {
+    const { restaurant_id, salle_id, numero, nom, couverts_min, couverts_max, forme, pos_x, pos_y, pos_w, actif, combine_with, score_default, features } = req.body || {};
+    if (!restaurant_id || !salle_id || !numero) return res.status(400).json({ error: 'restaurant_id, salle_id, numero requis' });
+    if (!(await userOwnsResto(req.user.id, restaurant_id))) return res.status(403).json({ error: 'Non autorisé' });
+    const [r] = await pool.query(
+      `INSERT INTO tables (restaurant_id, salle_id, numero, nom, couverts_min, couverts_max, forme, pos_x, pos_y, pos_w, actif, combine_with, score_default, features)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [restaurant_id, salle_id, numero, nom || '', couverts_min || 1, couverts_max || 4,
+       forme || 'rect', pos_x || 0, pos_y || 0, pos_w || 1, actif === 0 ? 0 : 1,
+       combine_with || null, score_default || 5, features ? JSON.stringify(features) : null]
+    );
+    res.status(201).json({ id: r.insertId, ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur', detail: err.message }); }
+});
+app.patch('/tables/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT t.* FROM tables t JOIN restaurants r ON t.restaurant_id = r.id WHERE t.id = ? AND r.user_id = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Table non trouvée' });
+    const updates = []; const values = [];
+    ['salle_id','numero','nom','couverts_min','couverts_max','forme','pos_x','pos_y','pos_w','actif','combine_with','score_default'].forEach(k => {
+      if (req.body[k] !== undefined) { updates.push(`${k} = ?`); values.push(req.body[k]); }
+    });
+    if (req.body.features !== undefined) { updates.push('features = ?'); values.push(JSON.stringify(req.body.features)); }
+    if (updates.length === 0) return res.json({ ok: true });
+    values.push(req.params.id);
+    await pool.query(`UPDATE tables SET ${updates.join(', ')} WHERE id = ?`, values);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.delete('/tables/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT t.id FROM tables t JOIN restaurants r ON t.restaurant_id = r.id WHERE t.id = ? AND r.user_id = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Table non trouvée' });
+    // Vérif : résa actives à venir sur cette table ?
+    const [resas] = await pool.query(
+      `SELECT COUNT(*) as n FROM reservations WHERE table_id = ? AND date >= CURDATE() AND status IN (?)`,
+      [req.params.id, ACTIVE_RESA_STATUSES]
+    );
+    if (resas[0].n > 0) return res.status(409).json({ error: `Table a ${resas[0].n} résa(s) active(s) à venir — annuler/déplacer d'abord` });
+    await pool.query('DELETE FROM tables WHERE id = ?', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+
+// ── SERVICES ────────────────────────────────────────────────────
+app.get('/services', authMiddleware, async (req, res) => {
+  try {
+    const restoId = parseInt(req.query.restaurant_id, 10);
+    if (!restoId || !(await userOwnsResto(req.user.id, restoId))) return res.status(403).json({ error: 'Non autorisé' });
+    const [rows] = await pool.query('SELECT * FROM services WHERE restaurant_id = ? ORDER BY type, heure_debut', [restoId]);
+    res.json({ services: rows });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.post('/services', authMiddleware, async (req, res) => {
+  try {
+    const { restaurant_id, salle_id, nom, type, heure_debut, heure_fin, jours, last_order, buffer_mins, booking_cutoff_mins, actif } = req.body || {};
+    if (!restaurant_id || !nom || !heure_debut || !heure_fin) return res.status(400).json({ error: 'restaurant_id, nom, heure_debut, heure_fin requis' });
+    if (!(await userOwnsResto(req.user.id, restaurant_id))) return res.status(403).json({ error: 'Non autorisé' });
+    const [r] = await pool.query(
+      `INSERT INTO services (restaurant_id, salle_id, nom, type, heure_debut, heure_fin, jours, last_order, buffer_mins, booking_cutoff_mins, actif)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [restaurant_id, salle_id || null, nom, type || 'autre', heure_debut, heure_fin,
+       jours || '1,2,3,4,5,6,7', last_order || null, buffer_mins || 15, booking_cutoff_mins || 60, actif === 0 ? 0 : 1]
+    );
+    res.status(201).json({ id: r.insertId, ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur', detail: err.message }); }
+});
+app.patch('/services/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT s.* FROM services s JOIN restaurants r ON s.restaurant_id = r.id WHERE s.id = ? AND r.user_id = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Service non trouvé' });
+    const updates = []; const values = [];
+    ['salle_id','nom','type','heure_debut','heure_fin','jours','last_order','buffer_mins','booking_cutoff_mins','actif'].forEach(k => {
+      if (req.body[k] !== undefined) { updates.push(`${k} = ?`); values.push(req.body[k]); }
+    });
+    if (updates.length === 0) return res.json({ ok: true });
+    values.push(req.params.id);
+    await pool.query(`UPDATE services SET ${updates.join(', ')} WHERE id = ?`, values);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.delete('/services/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT s.id FROM services s JOIN restaurants r ON s.restaurant_id = r.id WHERE s.id = ? AND r.user_id = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Service non trouvé' });
+    await pool.query('DELETE FROM services WHERE id = ?', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+
+// ── FERMETURES ──────────────────────────────────────────────────
+app.get('/fermetures', authMiddleware, async (req, res) => {
+  try {
+    const restoId = parseInt(req.query.restaurant_id, 10);
+    if (!restoId || !(await userOwnsResto(req.user.id, restoId))) return res.status(403).json({ error: 'Non autorisé' });
+    const [rows] = await pool.query('SELECT * FROM fermetures WHERE restaurant_id = ? ORDER BY date_debut DESC', [restoId]);
+    res.json({ fermetures: rows });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.post('/fermetures', authMiddleware, async (req, res) => {
+  try {
+    const { restaurant_id, label, date_debut, date_fin, type, salle_id, service_id, note } = req.body || {};
+    if (!restaurant_id || !date_debut || !date_fin || !type) return res.status(400).json({ error: 'restaurant_id, date_debut, date_fin, type requis' });
+    if (!(await userOwnsResto(req.user.id, restaurant_id))) return res.status(403).json({ error: 'Non autorisé' });
+    const [r] = await pool.query(
+      `INSERT INTO fermetures (restaurant_id, label, date_debut, date_fin, type, salle_id, service_id, note, actif)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      [restaurant_id, label || '', date_debut, date_fin, type, salle_id || null, service_id || null, note || '']
+    );
+    res.status(201).json({ id: r.insertId, ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur', detail: err.message }); }
+});
+app.delete('/fermetures/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT f.id FROM fermetures f JOIN restaurants r ON f.restaurant_id = r.id WHERE f.id = ? AND r.user_id = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Fermeture non trouvée' });
+    await pool.query('DELETE FROM fermetures WHERE id = ?', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+
+// ── CUSTOMERS (CRM) ─────────────────────────────────────────────
+app.get('/customers', authMiddleware, async (req, res) => {
+  try {
+    const restoId = parseInt(req.query.restaurant_id, 10);
+    if (!restoId || !(await userOwnsResto(req.user.id, restoId))) return res.status(403).json({ error: 'Non autorisé' });
+    const q = req.query.q ? `%${req.query.q}%` : null;
+    const vip = req.query.vip === '1';
+    let sql = 'SELECT * FROM customers WHERE restaurant_id = ?'; const params = [restoId];
+    if (q) { sql += ' AND (full_name LIKE ? OR email LIKE ? OR phone LIKE ?)'; params.push(q, q, q); }
+    if (vip) sql += ' AND vip = 1';
+    sql += ' ORDER BY last_visit DESC, total_visits DESC LIMIT 200';
+    const [rows] = await pool.query(sql, params);
+    res.json({ customers: rows });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+app.post('/customers', authMiddleware, async (req, res) => {
+  try {
+    const { restaurant_id, full_name, email, phone, preferences, allergies, tags, vip, blacklist, birthday, notes } = req.body || {};
+    if (!restaurant_id || !full_name) return res.status(400).json({ error: 'restaurant_id et full_name requis' });
+    if (!(await userOwnsResto(req.user.id, restaurant_id))) return res.status(403).json({ error: 'Non autorisé' });
+    const [r] = await pool.query(
+      `INSERT INTO customers (restaurant_id, full_name, email, phone, preferences, allergies, tags, vip, blacklist, birthday, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [restaurant_id, full_name, email || '', phone || '',
+       preferences ? JSON.stringify(preferences) : null,
+       allergies ? JSON.stringify(allergies) : null,
+       tags ? JSON.stringify(tags) : null,
+       vip ? 1 : 0, blacklist ? 1 : 0, birthday || null, notes || '']
+    );
+    res.status(201).json({ id: r.insertId, ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur', detail: err.message }); }
+});
+app.patch('/customers/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT c.* FROM customers c JOIN restaurants r ON c.restaurant_id = r.id WHERE c.id = ? AND r.user_id = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Client non trouvé' });
+    const updates = []; const values = [];
+    ['full_name','email','phone','vip','blacklist','birthday','notes'].forEach(k => {
+      if (req.body[k] !== undefined) { updates.push(`${k} = ?`); values.push(req.body[k]); }
+    });
+    ['preferences','allergies','tags'].forEach(k => {
+      if (req.body[k] !== undefined) { updates.push(`${k} = ?`); values.push(JSON.stringify(req.body[k])); }
+    });
+    if (updates.length === 0) return res.json({ ok: true });
+    values.push(req.params.id);
+    await pool.query(`UPDATE customers SET ${updates.join(', ')} WHERE id = ?`, values);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erreur serveur' }); }
+});
+
+// ═══════════════════════════════════════════════════════════════
 //  MOTEUR DE DISPONIBILITÉ — coeur du système de résa
 // ═══════════════════════════════════════════════════════════════
 const ACTIVE_RESA_STATUSES = ['reserved','confirmed','arrived','seated'];
