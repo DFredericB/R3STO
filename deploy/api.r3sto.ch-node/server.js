@@ -652,6 +652,172 @@ app.patch('/reservations/:id/status', authMiddleware, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
+//  DÉPLACEMENT DE RÉSERVATION — matrice complète T↔Combo
+// ═══════════════════════════════════════════════════════════════
+//
+// 4 cas couverts :
+//   T → T          : 1 table actuelle → 1 nouvelle table
+//   T → Combo      : 1 table actuelle → N tables combinées
+//   Combo → T      : N tables actuelles → 1 nouvelle table
+//   Combo → Combo  : N tables actuelles → M nouvelles tables
+//
+// Mode : 'auto' (système choisit) ou 'manu' (staff drag&drop, peut override)
+// Audit : chaque déplacement loggé dans move_logs avec from/to + reason
+//
+async function getCurrentTables(reservationId) {
+  // Lit reservation_tables, sinon fallback sur reservations.table_id
+  const [rows] = await pool.query(
+    'SELECT table_id FROM reservation_tables WHERE reservation_id = ?',
+    [reservationId]
+  );
+  if (rows.length > 0) return rows.map(r => r.table_id);
+  const [resa] = await pool.query('SELECT table_id FROM reservations WHERE id = ?', [reservationId]);
+  return resa[0]?.table_id ? [resa[0].table_id] : [];
+}
+
+// POST /reservations/:id/move
+// Body: { to_tables: [id, ...], mode: 'auto'|'manu', reason?, override?: bool }
+app.post('/reservations/:id/move', authMiddleware, async (req, res) => {
+  try {
+    const resaId = parseInt(req.params.id, 10);
+    const toTables = (req.body.to_tables || []).map(Number).filter(Boolean);
+    const mode = req.body.mode === 'auto' ? 'auto' : 'manu';
+    const reason = (req.body.reason || '').slice(0, 200);
+    const override = !!req.body.override;
+
+    if (toTables.length === 0) return res.status(400).json({ error: 'to_tables requis' });
+
+    // 1. Verifie résa appartient au user + statut autorisé
+    const [resa] = await pool.query(
+      `SELECT r.*, rest.user_id FROM reservations r
+       JOIN restaurants rest ON r.restaurant_id = rest.id
+       WHERE r.id = ?`, [resaId]
+    );
+    if (resa.length === 0) return res.status(404).json({ error: 'Réservation non trouvée' });
+    if (resa[0].user_id !== req.user.id) return res.status(403).json({ error: 'Non autorisé' });
+    const r = resa[0];
+    if (['done','cancelled'].includes(r.status)) {
+      return res.status(409).json({ error: `Déplacement bloqué (statut ${r.status})` });
+    }
+    const isClientPresent = ['arrived','seated'].includes(r.status);
+
+    // 2. État courant (tables actuelles)
+    const fromTables = await getCurrentTables(resaId);
+    // Détecte le cas
+    const fromType = fromTables.length > 1 ? 'Combo' : 'T';
+    const toType = toTables.length > 1 ? 'Combo' : 'T';
+    const moveCase = `${fromType} → ${toType}`;
+
+    // 3. Charge tables cibles + vérifie qu'elles appartiennent au resto
+    const [tablesCible] = await pool.query(
+      `SELECT * FROM tables WHERE id IN (?) AND restaurant_id = ? AND actif = 1`,
+      [toTables, r.restaurant_id]
+    );
+    if (tablesCible.length !== toTables.length) {
+      return res.status(400).json({ error: 'Une ou plusieurs tables cible invalides' });
+    }
+
+    // 4. Capacity check : Σ capacity_max >= pax
+    const capTotal = tablesCible.reduce((s, t) => s + (t.couverts_max || 0), 0);
+    if (capTotal < r.party_size && !override) {
+      return res.status(409).json({
+        error: `Capacity insuffisante (${capTotal} max, ${r.party_size} pax). Override possible.`,
+        suggestion: 'override:true pour forcer'
+      });
+    }
+
+    // 5. Combo physique check : pour combo cible, tables doivent être combinables entre elles
+    if (toTables.length > 1) {
+      // Au moins 1 table doit lister les autres dans son combine_with (relation symétrique attendue)
+      const combinable = tablesCible.every(t => {
+        if (!t.combine_with) return false;
+        const allowed = t.combine_with.split(',').map(s => parseInt(s.trim(), 10));
+        return toTables.filter(id => id !== t.id).every(id => allowed.includes(id));
+      });
+      if (!combinable && !override) {
+        return res.status(409).json({
+          error: 'Tables non physiquement combinables (champ combine_with manquant)',
+          suggestion: 'override:true pour forcer (si configuration combine_with incomplète)'
+        });
+      }
+    }
+
+    // 6. Conflit check : tables cibles libres dans la fenêtre [time-90, time+90]
+    const dt = new Date(`${r.date}T${r.time}`);
+    const before = new Date(dt.getTime() - DEFAULT_SEATING_MINUTES * 60000).toTimeString().slice(0,8);
+    const after = new Date(dt.getTime() + DEFAULT_SEATING_MINUTES * 60000).toTimeString().slice(0,8);
+    const [conflictRows] = await pool.query(
+      `SELECT DISTINCT COALESCE(rt.table_id, r2.table_id) AS t_id
+       FROM reservations r2
+       LEFT JOIN reservation_tables rt ON rt.reservation_id = r2.id
+       WHERE r2.id != ? AND r2.restaurant_id = ?
+         AND r2.date = ? AND r2.time >= ? AND r2.time <= ?
+         AND r2.status IN (?)`,
+      [resaId, r.restaurant_id, r.date, before, after, ACTIVE_RESA_STATUSES]
+    );
+    const busyIds = new Set(conflictRows.map(x => x.t_id).filter(Boolean));
+    const conflicts = toTables.filter(id => busyIds.has(id));
+    if (conflicts.length > 0 && !override) {
+      return res.status(409).json({
+        error: `Tables occupées : ${conflicts.join(',')}`,
+        conflicts,
+        suggestion: 'override:true pour forcer (cas urgence)'
+      });
+    }
+
+    // 7. APPLY — atomique : update reservations.table_id (primary) + replace reservation_tables
+    const primaryId = toTables[0];
+    await pool.query('UPDATE reservations SET table_id = ? WHERE id = ?', [primaryId, resaId]);
+    await pool.query('DELETE FROM reservation_tables WHERE reservation_id = ?', [resaId]);
+    for (let i = 0; i < toTables.length; i++) {
+      await pool.query(
+        'INSERT INTO reservation_tables (reservation_id, table_id, is_primary) VALUES (?, ?, ?)',
+        [resaId, toTables[i], i === 0 ? 1 : 0]
+      );
+    }
+
+    // 8. Audit log
+    await pool.query(
+      `INSERT INTO move_logs (reservation_id, from_tables, to_tables, mode, user_id, reason, override)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [resaId, JSON.stringify(fromTables), JSON.stringify(toTables), mode, req.user.id, reason, override ? 1 : 0]
+    );
+
+    res.json({
+      ok: true,
+      case: moveCase,
+      from_tables: fromTables,
+      to_tables: toTables,
+      capacity_used: capTotal,
+      party_size: r.party_size,
+      override_applied: override,
+      client_present_warning: isClientPresent ? 'Client déjà arrivé/installé - coordonner avec le service' : null
+    });
+
+  } catch (err) {
+    console.error('[R3STO] move error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur', detail: err.message });
+  }
+});
+
+// GET /reservations/:id/move-logs — historique déplacements
+app.get('/reservations/:id/move-logs', authMiddleware, async (req, res) => {
+  try {
+    const [logs] = await pool.query(
+      `SELECT m.* FROM move_logs m
+       JOIN reservations r ON m.reservation_id = r.id
+       JOIN restaurants rest ON r.restaurant_id = rest.id
+       WHERE m.reservation_id = ? AND rest.user_id = ?
+       ORDER BY m.created_at DESC`,
+      [req.params.id, req.user.id]
+    );
+    res.json({ logs });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
 //  MOTEUR DE DISPONIBILITÉ — coeur du système de résa
 // ═══════════════════════════════════════════════════════════════
 const ACTIVE_RESA_STATUSES = ['reserved','confirmed','arrived','seated'];
@@ -730,19 +896,26 @@ async function checkAvailability(restoId, date, time, pax) {
   }
 
   // 5. Réservations conflictuelles dans la fenêtre [time - 90min, time + 90min]
+  //    Lit aussi reservation_tables pour gérer les combos
   const before = new Date(dt.getTime() - DEFAULT_SEATING_MINUTES * 60000);
   const after = new Date(dt.getTime() + DEFAULT_SEATING_MINUTES * 60000);
   const beforeTime = before.toTimeString().slice(0, 8);
   const afterTime = after.toTimeString().slice(0, 8);
   const [busyResas] = await pool.query(
-    `SELECT table_id FROM reservations
-     WHERE restaurant_id = ? AND date = ?
-       AND time >= ? AND time <= ?
-       AND status IN (?)
-       AND table_id IS NOT NULL`,
+    `SELECT r.id, r.table_id, GROUP_CONCAT(rt.table_id) AS combo_tables
+     FROM reservations r
+     LEFT JOIN reservation_tables rt ON rt.reservation_id = r.id
+     WHERE r.restaurant_id = ? AND r.date = ?
+       AND r.time >= ? AND r.time <= ?
+       AND r.status IN (?)
+     GROUP BY r.id`,
     [restoId, date, beforeTime, afterTime, ACTIVE_RESA_STATUSES]
   );
-  const busyTableIds = new Set(busyResas.map(r => r.table_id));
+  const busyTableIds = new Set();
+  for (const r of busyResas) {
+    if (r.table_id) busyTableIds.add(r.table_id);
+    if (r.combo_tables) r.combo_tables.split(',').map(Number).forEach(id => busyTableIds.add(id));
+  }
 
   // 6. Filtrage final
   const freeTables = filteredTables.filter(t => !busyTableIds.has(t.id));
@@ -1643,6 +1816,41 @@ async function autoMigrate() {
       KEY idx_status (status)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
     console.log('[R3STO] Migration OK: table bookings ready');
+
+    // ── Liaison réservations ↔ tables (gère combos N tables pour 1 résa) ──
+    await pool.query(`CREATE TABLE IF NOT EXISTS reservation_tables (
+      reservation_id INT NOT NULL,
+      table_id INT NOT NULL,
+      is_primary TINYINT(1) NOT NULL DEFAULT 0,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (reservation_id, table_id),
+      KEY idx_table (table_id, reservation_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+    console.log('[R3STO] Migration OK: table reservation_tables ready');
+
+    // ── Audit trail des déplacements (T→T, T→Combo, Combo→T, Combo→Combo) ──
+    await pool.query(`CREATE TABLE IF NOT EXISTS move_logs (
+      id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      reservation_id INT NOT NULL,
+      from_tables JSON NULL,
+      to_tables JSON NOT NULL,
+      mode ENUM('auto','manu') NOT NULL DEFAULT 'manu',
+      user_id INT NULL,
+      reason VARCHAR(200) NULL,
+      override TINYINT(1) NOT NULL DEFAULT 0,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_resa (reservation_id, created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+    console.log('[R3STO] Migration OK: table move_logs ready');
+
+    // ── Champ combine_with sur tables (tables physiquement combinables) ──
+    const [colsTbl] = await pool.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                                        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tables' AND COLUMN_NAME = 'combine_with'`);
+    if (colsTbl.length === 0) {
+      await pool.query(`ALTER TABLE tables ADD COLUMN combine_with TEXT NULL COMMENT 'IDs tables combinables, separes par virgule'`);
+      console.log('[R3STO] Migration OK: tables.combine_with added');
+    }
   } catch (err) {
     console.error('[R3STO] Migration error:', err.message);
   }
