@@ -141,6 +141,10 @@ footer a{color:var(--gold);font-weight:600}
           <textarea id="notes" placeholder="Précisez votre fonction ou tout détail utile à la vérification."></textarea>
         </div>
 
+        <div class="info-box" style="background:rgba(160,126,42,.06);border-color:#e8d9b8">
+          <b>📸 Photo officielle :</b> dès validation de votre claim, vous pourrez uploader votre propre photo depuis votre dashboard. Elle remplacera l'image Google actuelle (qui sera supprimée à votre demande).
+        </div>
+
         <div class="info-box">
           <b>🛡 Vérification manuelle :</b> notre équipe contrôle chaque demande sous 24-48h ouvrées (vérification IDE + appel téléphone). Vous recevrez un email dès que votre fiche sera activée.
         </div>
@@ -209,17 +213,18 @@ async function submitClaim(e){
 
   if(!slug){ errEl.textContent = 'Aucun restaurant sélectionné.'; errEl.style.display = 'block'; return false; }
 
-  const body = {
-    email:  document.getElementById('email').value.trim(),
-    phone:  document.getElementById('phone').value.trim(),
-    ide_number:    document.getElementById('ide').value.trim(),
-    raison_sociale:document.getElementById('raison').value.trim(),
-    notes:  document.getElementById('notes').value.trim(),
-  };
-  if(!body.email){ errEl.textContent = 'Email requis.'; errEl.style.display = 'block'; return false; }
+  const email = document.getElementById('email').value.trim();
+  if(!email){ errEl.textContent = 'Email requis.'; errEl.style.display = 'block'; return false; }
 
   btn.disabled = true; btn.textContent = 'Envoi…';
   try {
+    const body = {
+      email,
+      phone: document.getElementById('phone').value.trim(),
+      ide_number: document.getElementById('ide').value.trim(),
+      raison_sociale: document.getElementById('raison').value.trim(),
+      notes: document.getElementById('notes').value.trim(),
+    };
     const res = await fetch(API + '/public/directory/' + encodeURIComponent(slug) + '/claim', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
