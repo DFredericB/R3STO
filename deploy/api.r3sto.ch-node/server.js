@@ -591,21 +591,208 @@ app.put('/restaurants/:id', authMiddleware, async (req, res) => {
 // ═══════════════════════════════════════════════════
 
 // POST /reservations
+// POST /reservations — création avec mode AUTO ou MANU
+// Body: { restaurant_id, guest_name, guest_email?, guest_phone?, party_size, date, time, notes?, source?,
+//         mode: 'auto'|'manu', table_ids?: [id,...] (si manu), customer_id?: int, override?: bool }
 app.post('/reservations', authMiddleware, async (req, res) => {
   try {
-    const { restaurant_id, guest_name, guest_email, guest_phone, party_size, date, time, notes, source } = req.body;
+    const {
+      restaurant_id, guest_name, guest_email, guest_phone, party_size, date, time, notes, source,
+      mode, table_ids, customer_id, override
+    } = req.body;
     if (!restaurant_id || !guest_name || !date || !time) {
       return res.status(400).json({ error: 'restaurant_id, guest_name, date et time requis' });
     }
+    // Ownership check
+    const [owned] = await pool.query('SELECT id, plan FROM restaurants WHERE id = ? AND user_id = ?', [restaurant_id, req.user.id]);
+    if (owned.length === 0) return res.status(403).json({ error: 'Restaurant non autorisé' });
+    const restoPlan = owned[0].plan || 'essentiel';
+    const pax = party_size || 2;
+    const resaMode = mode === 'auto' ? 'auto' : 'manu';
 
+    // Recherche customer existant si email/phone et pas customer_id donné
+    let cid = customer_id || null;
+    if (!cid && (guest_email || guest_phone)) {
+      const [crows] = await pool.query(
+        `SELECT id FROM customers WHERE restaurant_id = ? AND (
+           (? <> '' AND email = ?) OR (? <> '' AND phone = ?)
+         ) LIMIT 1`,
+        [restaurant_id, guest_email || '', guest_email || '', guest_phone || '', guest_phone || '']
+      );
+      if (crows.length > 0) cid = crows[0].id;
+    }
+
+    let assignedTables = [];
+    let preferencesUsed = null;
+
+    if (resaMode === 'auto') {
+      // Mode AUTO : pickBestTable décide selon package + CRM
+      const pick = await pickBestTable(restaurant_id, date, time, pax, cid, restoPlan);
+      if (!pick.table) {
+        if (!override) {
+          return res.status(409).json({
+            error: 'Mode AUTO : aucune table optimale trouvée',
+            reasons: pick.reasons,
+            suggestion: 'Passer en mode manu ou override:true'
+          });
+        }
+      } else {
+        assignedTables = [pick.table.id];
+        preferencesUsed = { score: pick.score, reasons: pick.reasons, mode: 'auto', plan: restoPlan };
+      }
+    } else {
+      // Mode MANU : staff a fourni table_ids (ou laisse vide = sans table = walk-in non assigné)
+      if (Array.isArray(table_ids) && table_ids.length > 0) {
+        // Validation : tables appartiennent au resto + capacity check
+        const [validTables] = await pool.query(
+          'SELECT id, couverts_max FROM tables WHERE id IN (?) AND restaurant_id = ? AND actif = 1',
+          [table_ids, restaurant_id]
+        );
+        if (validTables.length !== table_ids.length) {
+          return res.status(400).json({ error: 'Une ou plusieurs tables invalides' });
+        }
+        const capTotal = validTables.reduce((s, t) => s + (t.couverts_max || 0), 0);
+        if (capTotal < pax && !override) {
+          return res.status(409).json({
+            error: `Capacity insuffisante (${capTotal} max, ${pax} pax)`,
+            suggestion: 'override:true pour forcer'
+          });
+        }
+        assignedTables = table_ids;
+        preferencesUsed = { mode: 'manu', forced: override === true };
+      }
+    }
+
+    // INSERT
+    const primaryTableId = assignedTables[0] || null;
     const [result] = await pool.query(
-      `INSERT INTO reservations (restaurant_id, guest_name, guest_email, guest_phone, party_size, date, time, notes, source)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [restaurant_id, guest_name, guest_email || '', guest_phone || '', party_size || 2, date, time, notes || '', source || 'app']
+      `INSERT INTO reservations (restaurant_id, guest_name, guest_email, guest_phone, party_size, date, time,
+                                  notes, source, table_id, customer_id, mode, preferences_used)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [restaurant_id, guest_name, guest_email || '', guest_phone || '', pax, date, time,
+       notes || '', source || 'app', primaryTableId, cid, resaMode,
+       preferencesUsed ? JSON.stringify(preferencesUsed) : null]
     );
+    const resaId = result.insertId;
+    // Liens multi-tables (combos)
+    for (let i = 0; i < assignedTables.length; i++) {
+      await pool.query(
+        'INSERT INTO reservation_tables (reservation_id, table_id, is_primary) VALUES (?, ?, ?)',
+        [resaId, assignedTables[i], i === 0 ? 1 : 0]
+      );
+    }
+    // Auto-create customer si pas trouvé
+    if (!cid && (guest_email || guest_phone) && guest_name) {
+      const [cInsert] = await pool.query(
+        `INSERT INTO customers (restaurant_id, full_name, email, phone, total_visits, last_visit)
+         VALUES (?, ?, ?, ?, 1, ?)`,
+        [restaurant_id, guest_name, guest_email || '', guest_phone || '', date]
+      );
+      await pool.query('UPDATE reservations SET customer_id = ? WHERE id = ?', [cInsert.insertId, resaId]);
+      cid = cInsert.insertId;
+    } else if (cid) {
+      // Update visit count + last_visit
+      await pool.query('UPDATE customers SET total_visits = total_visits + 1, last_visit = ? WHERE id = ?', [date, cid]);
+    }
 
-    res.status(201).json({ id: result.insertId, message: 'Réservation créée' });
+    res.status(201).json({
+      id: resaId,
+      message: 'Réservation créée',
+      mode: resaMode,
+      assigned_tables: assignedTables,
+      customer_id: cid,
+      preferences_used: preferencesUsed
+    });
   } catch (err) {
+    console.error('[R3STO] create resa error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur', detail: err.message });
+  }
+});
+
+// POST /reservations/walk-in — résa minute (mode auto)
+app.post('/reservations/walk-in', authMiddleware, async (req, res) => {
+  // Walk-in = résa "maintenant" pour quelques minutes plus tard
+  const now = new Date();
+  const inMin = parseInt(req.body.in_minutes, 10) || 5;
+  now.setMinutes(now.getMinutes() + inMin);
+  const date = now.toISOString().slice(0,10);
+  const time = now.toTimeString().slice(0,5);
+  req.body.date = date; req.body.time = time;
+  req.body.source = 'walkin';
+  req.body.mode = req.body.mode || 'auto';
+  req.body.guest_name = req.body.guest_name || `Walk-in ${time}`;
+  return app._router.handle({ ...req, url: '/reservations', method: 'POST' }, res);
+});
+
+// PATCH /reservations/:id — modification résa (date/heure/pax/notes)
+app.patch('/reservations/:id', authMiddleware, async (req, res) => {
+  try {
+    const resaId = parseInt(req.params.id, 10);
+    const [rows] = await pool.query(
+      `SELECT r.*, rest.user_id, rest.plan FROM reservations r
+       JOIN restaurants rest ON r.restaurant_id = rest.id WHERE r.id = ?`, [resaId]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Réservation non trouvée' });
+    if (rows[0].user_id !== req.user.id) return res.status(403).json({ error: 'Non autorisé' });
+    const r = rows[0];
+    if (['done','cancelled'].includes(r.status)) return res.status(409).json({ error: `Modification bloquée (${r.status})` });
+
+    const updates = [];
+    const values = [];
+    const newDate = req.body.date || r.date;
+    const newTime = req.body.time || r.time;
+    const newPax = parseInt(req.body.party_size, 10) || r.party_size;
+    const override = !!req.body.override;
+    const mode = req.body.mode === 'auto' ? 'auto' : (r.mode || 'manu');
+
+    // Si modif date/heure/pax → recheck dispo
+    if (req.body.date || req.body.time || req.body.party_size) {
+      const av = await checkAvailability(r.restaurant_id, newDate, newTime, newPax);
+      if (!av.available && !override) {
+        return res.status(409).json({
+          error: 'Modification refusée : pas de dispo',
+          reason: av.reason,
+          suggestion: 'override:true pour forcer'
+        });
+      }
+    }
+
+    if (req.body.date) { updates.push('date = ?'); values.push(req.body.date); }
+    if (req.body.time) { updates.push('time = ?'); values.push(req.body.time); }
+    if (req.body.party_size) { updates.push('party_size = ?'); values.push(req.body.party_size); }
+    if (req.body.notes !== undefined) { updates.push('notes = ?'); values.push(req.body.notes); }
+    if (req.body.status) { updates.push('status = ?'); values.push(req.body.status); }
+    if (updates.length === 0) return res.json({ ok: true, message: 'Aucun changement' });
+
+    values.push(resaId);
+    await pool.query(`UPDATE reservations SET ${updates.join(', ')} WHERE id = ?`, values);
+    res.json({ ok: true, mode, override_applied: override });
+  } catch (err) {
+    console.error('[R3STO] patch resa error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// POST /reservations/:id/cancel — annulation avec policy
+app.post('/reservations/:id/cancel', authMiddleware, async (req, res) => {
+  try {
+    const resaId = parseInt(req.params.id, 10);
+    const reason = (req.body.reason || '').slice(0, 200);
+    const fee = !!req.body.apply_fee; // si true, applique cancellation fee
+    const [rows] = await pool.query(
+      `SELECT r.*, rest.user_id FROM reservations r
+       JOIN restaurants rest ON r.restaurant_id = rest.id WHERE r.id = ?`, [resaId]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Réservation non trouvée' });
+    if (rows[0].user_id !== req.user.id) return res.status(403).json({ error: 'Non autorisé' });
+    await pool.query(
+      `UPDATE reservations SET status='cancelled', notes=CONCAT(COALESCE(notes,''),'\n[CANCEL] ',?) WHERE id = ?`,
+      [reason, resaId]
+    );
+    // Si fee → on logge le motif (Stripe charge à venir quand activé)
+    res.json({ ok: true, fee_applied: fee, note: fee ? 'Frais d\'annulation à percevoir' : null });
+  } catch (err) {
+    console.error('[R3STO] cancel error:', err.message);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
@@ -959,6 +1146,84 @@ app.get('/availability', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
+
+// ═══════════════════════════════════════════════════════════════
+//  pickBestTable — moteur AUTO selon package + CRM
+// ═══════════════════════════════════════════════════════════════
+//
+// Critères par package :
+//   free       : pas d'auto (return null → mode manu obligatoire)
+//   essentiel  : 1ère table libre matching capacity (basique)
+//   premium    : + préférences client, score_default, VIP boost
+//   signature  : + capacity-fit (penalty si table trop grande), revenue optim
+//
+async function pickBestTable(restoId, date, time, pax, customerId, plan) {
+  const avail = await checkAvailability(restoId, date, time, pax);
+  if (!avail.available || avail.candidates.length === 0) return { table: null, score: 0, reasons: [avail.reason] };
+
+  // Charger les vraies tables avec toutes leurs colonnes (avail.candidates est light)
+  const ids = avail.candidates.map(c => c.id);
+  const [tables] = await pool.query(`SELECT * FROM tables WHERE id IN (?)`, [ids]);
+
+  // Lookup customer (si fourni et plan >= premium)
+  let customer = null;
+  const planRank = { free:0, mini:0, mini_plus:1, bistro:2, essentiel:2, resto:3, premium:3, gastro:4, signature:4 };
+  const rank = planRank[plan] ?? 2;
+  if (customerId && rank >= 3) {
+    const [crows] = await pool.query('SELECT * FROM customers WHERE id = ? AND restaurant_id = ?', [customerId, restoId]);
+    if (crows.length > 0) customer = crows[0];
+  }
+  const isVip = customer?.vip === 1;
+  const prefs = (() => { try { return customer?.preferences ? JSON.parse(customer.preferences) : []; } catch { return []; } })();
+
+  // Plan free → no auto
+  if (plan === 'free' || plan === 'mini') {
+    return { table: null, score: 0, reasons: ['Mode AUTO non disponible sur plan Mini'] };
+  }
+  // Plan essentiel : 1ère table libre
+  if (rank <= 2) {
+    return { table: tables[0], score: 1, reasons: ['Plan Essentiel : 1ère table libre adaptée'] };
+  }
+
+  // Plan premium+ : scoring complet
+  const scored = tables.map(t => {
+    const reasons = [];
+    let score = 0;
+    // score_default de la table (1-10)
+    const def = t.score_default || 5;
+    score += def;
+    reasons.push(`score table ${def}/10`);
+    // Préférences client matchées
+    const features = (() => { try { return t.features ? JSON.parse(t.features) : []; } catch { return []; } })();
+    const matched = prefs.filter(p => features.includes(p));
+    if (matched.length > 0) {
+      score += matched.length * 10;
+      reasons.push(`préférences match: ${matched.join(',')}`);
+    }
+    // VIP boost : +20 si table top score
+    if (isVip && def >= 8) {
+      score += 20;
+      reasons.push('VIP boost (table top)');
+    } else if (isVip) {
+      score += 5; reasons.push('VIP regular');
+    }
+    // Signature : capacity-fit (penalty si table trop grande, optimisation revenu)
+    if (rank >= 4) {
+      const gap = (t.couverts_max || 0) - pax;
+      if (gap >= 4) {
+        score -= gap * 2;
+        reasons.push(`capacity gap -${gap*2} (Signature optim revenu)`);
+      } else if (gap <= 1) {
+        score += 5;
+        reasons.push('capacity-fit parfait');
+      }
+    }
+    return { table: t, score, reasons };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0];
+}
 
 // GET /availability/slots?restaurant_id=X&date=YYYY-MM-DD&pax=N
 app.get('/availability/slots', authMiddleware, async (req, res) => {
@@ -1844,13 +2109,52 @@ async function autoMigrate() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
     console.log('[R3STO] Migration OK: table move_logs ready');
 
-    // ── Champ combine_with sur tables (tables physiquement combinables) ──
-    const [colsTbl] = await pool.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                                        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tables' AND COLUMN_NAME = 'combine_with'`);
-    if (colsTbl.length === 0) {
-      await pool.query(`ALTER TABLE tables ADD COLUMN combine_with TEXT NULL COMMENT 'IDs tables combinables, separes par virgule'`);
-      console.log('[R3STO] Migration OK: tables.combine_with added');
-    }
+    // ── Helper pour ajouter colonne si manquante ──
+    const addColIfMissing = async (tbl, col, def) => {
+      const [c] = await pool.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`, [tbl, col]);
+      if (c.length === 0) {
+        await pool.query(`ALTER TABLE \`${tbl}\` ADD COLUMN ${col} ${def}`);
+        console.log(`[R3STO] Migration OK: ${tbl}.${col} added`);
+      }
+    };
+
+    // ── tables : combine_with + score_default + features ──
+    await addColIfMissing('tables', 'combine_with', "TEXT NULL COMMENT 'IDs tables combinables, virgule'");
+    await addColIfMissing('tables', 'score_default', "TINYINT UNSIGNED NOT NULL DEFAULT 5 COMMENT 'best-table score 1-10'");
+    await addColIfMissing('tables', 'features',     "JSON NULL COMMENT '[terrasse,vue,banquette,angle...]'");
+
+    // ── reservations : customer_id, mode, preferences_used ──
+    await addColIfMissing('reservations', 'customer_id',       "INT NULL COMMENT 'CRM customer'");
+    await addColIfMissing('reservations', 'mode',              "ENUM('auto','manu') NOT NULL DEFAULT 'manu'");
+    await addColIfMissing('reservations', 'preferences_used',  "JSON NULL COMMENT 'audit critere selection auto'");
+
+    // ── customers : CRM des clients du resto ──
+    await pool.query(`CREATE TABLE IF NOT EXISTS customers (
+      id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      restaurant_id INT NOT NULL,
+      full_name VARCHAR(180) NOT NULL,
+      email VARCHAR(180) NULL,
+      phone VARCHAR(40) NULL,
+      preferences JSON NULL COMMENT '[terrasse,banquette,...]',
+      allergies JSON NULL COMMENT '[gluten,noix,...]',
+      tags JSON NULL COMMENT '[VIP,regulier,famille,...]',
+      vip TINYINT(1) NOT NULL DEFAULT 0,
+      blacklist TINYINT(1) NOT NULL DEFAULT 0,
+      total_visits INT NOT NULL DEFAULT 0,
+      no_shows INT NOT NULL DEFAULT 0,
+      last_visit DATE NULL,
+      birthday DATE NULL,
+      notes TEXT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_resto_email (restaurant_id, email),
+      KEY idx_resto_phone (restaurant_id, phone),
+      KEY idx_resto_vip   (restaurant_id, vip)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+    console.log('[R3STO] Migration OK: table customers ready');
+
   } catch (err) {
     console.error('[R3STO] Migration error:', err.message);
   }
