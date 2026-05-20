@@ -9,7 +9,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { useT } from '../../i18n/useTranslation'
 import { PLAN_META, type Plan } from '../../utils/plans'
 import { useToast } from '../ui/Toast'
-import { redirectToCheckout } from '../../utils/stripe'
+import { redirectToCheckout, normalizePlanId } from '../../utils/stripe'
 import { useState } from 'react'
 
 export function UpgradeModal() {
@@ -23,14 +23,14 @@ export function UpgradeModal() {
   if (!upgradePrompt) return null
 
   const { minPlan, featureLabelKey, icon } = upgradePrompt
-  const currentPlan = (resto?.plan as Plan) || 'bistro'
+  const currentPlan = (resto?.plan as Plan) || 'essentiel'
   const targetMeta = PLAN_META[minPlan]
   const currentMeta = PLAN_META[currentPlan]
 
   async function onUpgrade() {
     setBusy(true)
     try {
-      await redirectToCheckout(minPlan, (resto as any)?.id)
+      await redirectToCheckout(normalizePlanId(minPlan), (resto as any)?.id)
     } catch (e) {
       toast((e as Error).message, 'error')
       setBusy(false)

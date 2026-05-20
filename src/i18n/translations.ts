@@ -881,6 +881,16 @@ const translations: Record<string, Record<Lang, string>> = {
   'client.allergies': { FR: 'Allergies', DE: 'Allergien', IT: 'Allergie', EN: 'Allergies' },
   'client.blacklisted': { FR: 'Bloqué', DE: 'Gesperrt', IT: 'Bloccato', EN: 'Blocked' },
 
+  // ── Plan tarifaires (Mini/Essentiel/Premium/Signature) ───
+  'plan.mini':      { FR: 'Mini',      DE: 'Mini',      IT: 'Mini',      EN: 'Mini' },
+  'plan.essentiel': { FR: 'Essentiel', DE: 'Essentiel', IT: 'Essenziale', EN: 'Essential' },
+  'plan.premium':   { FR: 'Premium',   DE: 'Premium',   IT: 'Premium',   EN: 'Premium' },
+  'plan.signature': { FR: 'Signature', DE: 'Signature', IT: 'Signature', EN: 'Signature' },
+  // Alias rétrocompat
+  'plan.bistro':    { FR: 'Essentiel', DE: 'Essentiel', IT: 'Essenziale', EN: 'Essential' },
+  'plan.resto':     { FR: 'Premium',   DE: 'Premium',   IT: 'Premium',   EN: 'Premium' },
+  'plan.gastro':    { FR: 'Signature', DE: 'Signature', IT: 'Signature', EN: 'Signature' },
+
   // ── Plan de salle / Floor plan ───────────────────
   'plan.free': { FR: 'Libre', DE: 'Frei', IT: 'Libero', EN: 'Free' },
   'plan.occupied': { FR: 'Occupée', DE: 'Besetzt', IT: 'Occupato', EN: 'Occupied' },

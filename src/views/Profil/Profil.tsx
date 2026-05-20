@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../store/useAppStore'
 import { useToast } from '../../components/ui/Toast'
 import PhoneInput from '../../components/ui/PhoneInput'
-import { PLANS, type PlanId, redirectToCheckout, redirectToPortal } from '../../utils/stripe'
+import { PLANS, PLAN_IDS, type PlanId, normalizePlanId, redirectToCheckout, redirectToPortal } from '../../utils/stripe'
 
 interface HoraireDay {
   d: string
@@ -120,7 +120,7 @@ export function Profil() {
   const [description, setDescription] = useState(
     (resto as any)?.description || (isDemo ? 'Restaurant au bord du lac, cuisine raffinée, produits locaux…' : '')
   )
-  const [plan] = useState<'bistro' | 'resto' | 'gastro'>((resto?.plan as any) || 'gastro')
+  const [plan] = useState<PlanId>(normalizePlanId(resto?.plan))
 
   const ambianceOptions = [
     '🕯 Romantique',
@@ -138,17 +138,19 @@ export function Profil() {
     '🌊 Vue panorama',
   ]
 
-  // Plan data from centralized Stripe config
+  // Plan data from centralized Stripe config (4 plans : Mini/Essentiel/Premium/Signature)
   const planFeatures = {
-    bistro: PLANS.bistro.features,
-    resto: PLANS.resto.features,
-    gastro: PLANS.gastro.features,
+    mini:      PLANS.mini.features,
+    essentiel: PLANS.essentiel.features,
+    premium:   PLANS.premium.features,
+    signature: PLANS.signature.features,
   }
 
   const planData = {
-    bistro: { price: `CHF ${PLANS.bistro.priceMonthly}/mois`, annual: `CHF ${PLANS.bistro.priceAnnual}/an`, label: 'moins de 500 CHF/an', color: PLANS.bistro.color },
-    resto: { price: `CHF ${PLANS.resto.priceMonthly}/mois`, annual: `CHF ${PLANS.resto.priceAnnual}/an`, label: 'moins de 1\'000 CHF/an', color: PLANS.resto.color },
-    gastro: { price: `CHF ${PLANS.gastro.priceMonthly}/mois`, annual: `CHF ${PLANS.gastro.priceAnnual}/an`, label: 'moins de 1\'000 CHF/an', color: PLANS.gastro.color },
+    mini:      { price: `CHF ${PLANS.mini.priceMonthly}/mois`,      annual: `CHF ${PLANS.mini.priceAnnual}/an`,      label: 'moins de 350 CHF/an',  color: PLANS.mini.color },
+    essentiel: { price: `CHF ${PLANS.essentiel.priceMonthly}/mois`, annual: `CHF ${PLANS.essentiel.priceAnnual}/an`, label: 'moins de 500 CHF/an',  color: PLANS.essentiel.color },
+    premium:   { price: `CHF ${PLANS.premium.priceMonthly}/mois`,   annual: `CHF ${PLANS.premium.priceAnnual}/an`,   label: 'moins de 700 CHF/an',  color: PLANS.premium.color },
+    signature: { price: `CHF ${PLANS.signature.priceMonthly}/mois`, annual: `CHF ${PLANS.signature.priceAnnual}/an`, label: 'moins de 900 CHF/an',  color: PLANS.signature.color },
   }
 
   const [checkoutLoading, setCheckoutLoading] = useState(false)
@@ -739,7 +741,7 @@ export function Profil() {
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {/* Upgrade/downgrade → Stripe Checkout for different plan */}
-          {(['bistro', 'resto', 'gastro'] as PlanId[]).filter(p => p !== plan).map(p => (
+          {PLAN_IDS.filter(p => p !== plan).map(p => (
             <button
               key={p}
               onClick={() => handleCheckout(p)}
@@ -756,7 +758,7 @@ export function Profil() {
                 opacity: checkoutLoading ? .5 : 1,
               }}
             >
-              {(['bistro', 'resto', 'gastro'] as PlanId[]).indexOf(p) > (['bistro', 'resto', 'gastro'] as PlanId[]).indexOf(plan) ? '⬆' : '⬇'} {PLANS[p].name} — CHF {PLANS[p].priceMonthly}/mo
+              {PLAN_IDS.indexOf(p) > PLAN_IDS.indexOf(plan) ? '⬆' : '⬇'} {PLANS[p].name} — CHF {PLANS[p].priceMonthly}/mo
             </button>
           ))}
           {/* Manage subscription via Stripe Customer Portal */}

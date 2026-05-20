@@ -34,7 +34,7 @@ const MODULES: Module[] = [
   {
     id: 'order', name: 'R3STO Order', icon: '🍳',
     description: 'KDS cuisine & bar, prise de commande, caisse',
-    price: 'Bientôt', color: '#f97316', status: 'available', requiredPlan: 'resto',
+    price: 'Bientôt', color: '#f97316', status: 'available', requiredPlan: 'premium',
     features: ['KDS cuisine temps réel', 'KDS bar', 'Prise de commande serveur', 'Caisse & encaissement'],
     appPath: '/commandes',
   },

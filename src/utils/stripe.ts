@@ -28,89 +28,129 @@ export function getStripe() {
 }
 
 // ── Plan definitions ──
-export type PlanId = 'bistro' | 'resto' | 'gastro'
+// Slugs CANONIQUES (nouveaux). Anciens slugs (bistro/resto/gastro) acceptés
+// en entrée via normalizePlanId() pour rétrocompat.
+export type PlanId = 'mini' | 'essentiel' | 'premium' | 'signature'
+export type PlanIdLegacy = 'bistro' | 'resto' | 'gastro' | 'free'
+export type AnyPlanId = PlanId | PlanIdLegacy
+
+const PLAN_ALIAS: Record<string, PlanId> = {
+  bistro: 'essentiel', resto: 'premium', gastro: 'signature', free: 'mini',
+}
+export function normalizePlanId(p: unknown): PlanId {
+  const s = String(p || '').toLowerCase()
+  if (s === 'mini' || s === 'essentiel' || s === 'premium' || s === 'signature') return s
+  return PLAN_ALIAS[s] || 'essentiel'
+}
 
 export interface PlanConfig {
   name: string
-  priceMonthly: number   // CHF displayed per month
-  priceAnnual: number    // CHF billed annually
-  stripePriceId: string  // Stripe Price ID (annual)
+  priceMonthly: number      // CHF mensuel
+  priceAnnual: number       // CHF annuel (≈ -10% sur 12 mois)
+  priceTriennial: number    // CHF/mois si engagement 3 ans (≈ -34%)
+  stripePriceId: string     // Stripe Price ID (annuel par défaut)
+  stripePriceIdMonthly?: string
+  stripePriceIdTriennial?: string
   color: string
   features: string[]
 }
 
 /**
- * Replace `price_xxx` with the real Price IDs from your Stripe dashboard:
- *   Dashboard → Produits → R3STO → each price has an ID like price_1Qx...
+ * Pricing LOCKED 2026-05.
+ * Mini 29 / Essentiel 39 / Premium 59 / Signature 79 (mensuel)
+ * Stripe IDs à renseigner via .env ou dashboard.
  */
 export const PLANS: Record<PlanId, PlanConfig> = {
-  bistro: {
+  mini: {
+    name: 'Mini',
+    priceMonthly: 29,
+    priceAnnual: 312,
+    priceTriennial: 19,
+    stripePriceId: '',
+    color: 'var(--t3)',
+    features: [
+      'Environnement unique simple',
+      'Mono-salle / 1 service',
+      'Réservations illimitées',
+      '1 utilisateur',
+      'Plan de salle basique',
+      'CRM clients de base',
+      'Stats simples',
+      'Widget réservation',
+      'Support email',
+    ],
+  },
+  essentiel: {
     name: 'Essentiel',
     priceMonthly: 39,
-    priceAnnual: 468,
+    priceAnnual: 420,
+    priceTriennial: 29,
     stripePriceId: 'price_1TFWg9906pQ0p9GXfDcLAi20',
     color: 'var(--gn)',
     features: [
-      'Grille interactive',
-      'Agenda & Journal',
-      'Dashboard temps réel',
-      'Nouvelle résa rapide',
-      'Services & Salles',
-      'Fermetures exceptionnelles',
-      'Notifications email',
-      'Export CSV',
-      '1 utilisateur',
-      'Support dédié',
+      'Tout Mini +',
+      'Multi-salles (jusqu\'à 3)',
+      'Multi-services (midi/soir/brunch)',
+      'Plan de salle complet',
+      '3 utilisateurs',
+      'CRM avancé',
+      'Stats détaillées',
+      'SMS confirmations',
+      'Anti no-show',
+      'Fidélité',
     ],
   },
-  resto: {
+  premium: {
     name: 'Premium',
     priceMonthly: 59,
-    priceAnnual: 708,
+    priceAnnual: 636,
+    priceTriennial: 44,
     stripePriceId: 'price_1TFWg9906pQ0p9GXtwaDm2PV',
     color: 'var(--bl)',
     features: [
-      'Tout Bistro +',
-      'Plan 2D interactif',
-      'Tables & Combos',
-      'Waitlist intelligente',
-      'Groupes & événements',
-      'CRM complet',
-      'Widget réservation',
-      'Menu digital & QR',
+      'Tout Essentiel +',
+      'Multi-établissements (2)',
+      'Utilisateurs illimités',
+      'Auto-pilot intelligent',
+      'Préférences clients & VIP',
+      'Marketing email/SMS',
       'Bons cadeaux',
-      'Marketplace',
-      'Rôles illimités',
-      'Support dédié',
+      'Analytics avancés',
+      'API accès',
+      'Support prioritaire',
     ],
   },
-  gastro: {
+  signature: {
     name: 'Signature',
     priceMonthly: 79,
-    priceAnnual: 948,
+    priceAnnual: 852,
+    priceTriennial: 59,
     stripePriceId: 'price_1TFWg9906pQ0p9GX98TbpANS',
     color: 'var(--am)',
     features: [
-      'Tout Resto +',
-      'Avis clients',
+      'Tout Premium +',
+      'Multi-établissements illimités',
+      'Yield management',
+      'Carat boost référencement',
       'Site vitrine',
+      'Widget white-label',
+      'Avis clients',
       'Prépaiement & acomptes',
-      'Multi-sites (jusqu\'à 12)',
-      'IA optimisation',
-      'Notifications SMS',
-      'Rapports avancés',
-      'Marketplace premium',
-      'API REST',
-      'Support dédié + SLA',
+      'Rapports yield avancés',
+      'Account manager dédié',
+      'SLA premium',
     ],
   },
 }
 
 // ── Plan gating ──
-export const PLAN_LEVEL: Record<PlanId, number> = { bistro: 1, resto: 2, gastro: 3 }
-export function hasPlan(current: PlanId | undefined, required: PlanId): boolean {
-  return PLAN_LEVEL[current || 'bistro'] >= PLAN_LEVEL[required]
+export const PLAN_LEVEL: Record<PlanId, number> = { mini: 1, essentiel: 2, premium: 3, signature: 4 }
+export function hasPlan(current: AnyPlanId | undefined, required: AnyPlanId): boolean {
+  return PLAN_LEVEL[normalizePlanId(current)] >= PLAN_LEVEL[normalizePlanId(required)]
 }
+
+// Liste ordonnée pour les boucles UI
+export const PLAN_IDS: PlanId[] = ['mini', 'essentiel', 'premium', 'signature']
 
 // ── Module Add-on definitions ──
 export type ModuleId = 'order' | 'cash' | 'delivery'
