@@ -1636,27 +1636,112 @@ app.put('/admin/clients/:id', authMiddleware, adminMiddleware, async (req, res) 
 //  STRIPE
 // ═══════════════════════════════════════════════════
 
-// POST /create-checkout-session
+// ── Plan matrix (locked pricing 2026-05) ──
+// Mini 29 / Essentiel 39 / Premium 59 / Signature 79 (mensuel)
+const PLAN_MATRIX = {
+  mini:      { rank: 1, price: 29, label: 'Mini' },
+  essentiel: { rank: 2, price: 39, label: 'Essentiel' },
+  premium:   { rank: 3, price: 59, label: 'Premium' },
+  signature: { rank: 4, price: 79, label: 'Signature' },
+};
+
+// Stripe price IDs (à remplir une fois les produits créés en dashboard Stripe)
+const STRIPE_PRICE_IDS = {
+  mini:      { monthly: process.env.STRIPE_PRICE_MINI_M,      yearly: process.env.STRIPE_PRICE_MINI_Y,      triennial: process.env.STRIPE_PRICE_MINI_3Y },
+  essentiel: { monthly: process.env.STRIPE_PRICE_ESSENTIEL_M, yearly: process.env.STRIPE_PRICE_ESSENTIEL_Y, triennial: process.env.STRIPE_PRICE_ESSENTIEL_3Y },
+  premium:   { monthly: process.env.STRIPE_PRICE_PREMIUM_M,   yearly: process.env.STRIPE_PRICE_PREMIUM_Y,   triennial: process.env.STRIPE_PRICE_PREMIUM_3Y },
+  signature: { monthly: process.env.STRIPE_PRICE_SIGNATURE_M, yearly: process.env.STRIPE_PRICE_SIGNATURE_Y, triennial: process.env.STRIPE_PRICE_SIGNATURE_3Y },
+};
+
+// GET /plans — expose la grille (pour landing + signup + upgrade UI)
+app.get('/plans', (req, res) => {
+  res.json({
+    plans: Object.entries(PLAN_MATRIX).map(([key, v]) => ({
+      key, ...v,
+      pricing: {
+        monthly:   v.price,
+        yearly:    Math.round(v.price * 0.90),  // -10%
+        triennial: Math.round(v.price * 0.66),  // -34%
+      },
+    })),
+  });
+});
+
+// POST /create-checkout-session  (signup direct OU upgrade)
 app.post('/create-checkout-session', async (req, res) => {
   if (!STRIPE_SECRET) return res.status(500).json({ error: 'Stripe non configuré' });
 
   try {
     const stripe = require('stripe')(STRIPE_SECRET);
-    const { priceId, email, userId } = req.body;
+    const { plan, billing = 'monthly', email, userId, priceId: rawPriceId } = req.body;
+
+    // priceId direct (legacy) OU calculé depuis plan+billing
+    let priceId = rawPriceId;
+    if (!priceId && plan && STRIPE_PRICE_IDS[plan]) {
+      priceId = STRIPE_PRICE_IDS[plan][billing];
+    }
+    if (!priceId) return res.status(400).json({ error: 'Plan ou priceId invalide' });
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       customer_email: email,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: 'https://app.r3sto.ch/dashboard?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://app.r3sto.ch/pricing',
-      metadata: { userId: String(userId) },
+      success_url: 'https://app.r3sto.com/dashboard?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://r3sto.com/pricing',
+      metadata: { userId: String(userId || ''), plan: plan || '', billing },
     });
 
     res.json({ url: session.url });
   } catch (err) {
     console.error('[R3STO] Stripe checkout error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /plan/upgrade — change le plan d'un user authentifié
+// Body: { plan: 'essentiel'|'premium'|'signature', billing: 'monthly'|'yearly'|'triennial' }
+app.post('/plan/upgrade', authMiddleware, async (req, res) => {
+  try {
+    const { plan, billing = 'monthly' } = req.body;
+    if (!PLAN_MATRIX[plan]) return res.status(400).json({ error: 'Plan invalide' });
+
+    const currentPlan = req.user.plan || 'mini';
+    const currentRank = PLAN_MATRIX[currentPlan]?.rank || 0;
+    const targetRank  = PLAN_MATRIX[plan].rank;
+
+    // Empêche downgrade direct (passe par Stripe portal)
+    if (targetRank < currentRank) {
+      return res.status(400).json({
+        error: 'Downgrade non supporté ici. Utilise le portail Stripe.',
+        portalEndpoint: '/create-portal-session',
+      });
+    }
+    if (targetRank === currentRank) {
+      return res.status(400).json({ error: 'Tu es déjà sur ce plan' });
+    }
+
+    // Si Stripe configuré → checkout, sinon update direct (mode dev)
+    if (STRIPE_SECRET && STRIPE_PRICE_IDS[plan]?.[billing]) {
+      const stripe = require('stripe')(STRIPE_SECRET);
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        customer_email: req.user.email,
+        line_items: [{ price: STRIPE_PRICE_IDS[plan][billing], quantity: 1 }],
+        success_url: 'https://app.r3sto.com/dashboard?upgraded=1',
+        cancel_url: 'https://app.r3sto.com/plan',
+        metadata: { userId: String(req.user.id), plan, billing, upgrade_from: currentPlan },
+      });
+      return res.json({ url: session.url, mode: 'stripe' });
+    }
+
+    // Mode dev / sans Stripe : update direct
+    await pool.query('UPDATE users SET plan = ? WHERE id = ?', [plan, req.user.id]);
+    console.log(`[R3STO] User ${req.user.id} ${currentPlan} → ${plan} (dev mode, no Stripe)`);
+    res.json({ ok: true, mode: 'dev', plan, from: currentPlan });
+  } catch (err) {
+    console.error('[R3STO] Upgrade error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -1694,24 +1779,52 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       case 'checkout.session.completed': {
         const session = event.data.object;
         const userId = session.metadata?.userId;
+        const planFromMeta = session.metadata?.plan;
         if (userId) {
-          // Determine plan from amount
-          const plan = session.amount_total >= 7900 ? 'gastro' : session.amount_total >= 5900 ? 'resto' : 'bistro';
+          // Plan from metadata si présent, sinon deduit du montant (CHF cents)
+          let plan = planFromMeta;
+          if (!plan || !PLAN_MATRIX[plan]) {
+            const amt = session.amount_total || 0;
+            plan = amt >= 7900 ? 'signature'
+                 : amt >= 5900 ? 'premium'
+                 : amt >= 3900 ? 'essentiel'
+                 : 'mini';
+          }
           await pool.query(
             'UPDATE users SET plan = ?, stripe_customer_id = ?, stripe_subscription_id = ? WHERE id = ?',
             [plan, session.customer, session.subscription, userId]
           );
-          console.log(`[R3STO] User ${userId} upgraded to ${plan}`);
+          console.log(`[R3STO] User ${userId} → plan=${plan}`);
         }
         break;
       }
       case 'customer.subscription.deleted': {
         const sub = event.data.object;
+        // Cancel = retour à mini (jamais free permanent, car le trial 14j est terminé)
         await pool.query(
-          'UPDATE users SET plan = "free", stripe_subscription_id = NULL WHERE stripe_subscription_id = ?',
+          'UPDATE users SET plan = "mini", stripe_subscription_id = NULL WHERE stripe_subscription_id = ?',
           [sub.id]
         );
-        console.log(`[R3STO] Subscription cancelled: ${sub.id}`);
+        console.log(`[R3STO] Subscription cancelled: ${sub.id} → plan=mini`);
+        break;
+      }
+      case 'customer.subscription.updated': {
+        const sub = event.data.object;
+        // Détecte changement de price → reflète le nouveau plan
+        const priceId = sub.items?.data?.[0]?.price?.id;
+        if (priceId) {
+          let newPlan = null;
+          for (const [planKey, bills] of Object.entries(STRIPE_PRICE_IDS)) {
+            if (Object.values(bills).includes(priceId)) { newPlan = planKey; break; }
+          }
+          if (newPlan) {
+            await pool.query(
+              'UPDATE users SET plan = ? WHERE stripe_subscription_id = ?',
+              [newPlan, sub.id]
+            );
+            console.log(`[R3STO] Subscription ${sub.id} → plan=${newPlan}`);
+          }
+        }
         break;
       }
     }
