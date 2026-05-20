@@ -2138,7 +2138,143 @@ app.get('/sync/state', authMiddleware, async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════
+//  Translator : sync React state → tables SQL (UPSERT + soft-delete)
+// ═══════════════════════════════════════════════════════════════
+//
+// Préserve l'auto-sync existant (settings JSON) ET aligne les vraies
+// tables SQL pour que le moteur de résa voie la config restaurateur.
+//
+// Stratégie : UPSERT sur (restaurant_id, external_id) ; les éléments
+// non-référencés dans le payload sont marqués actif=0 (soft-delete).
+//
+const SHAPE_MAP = { round:'round', round_sm:'round', round_lg:'round', rect:'rect', rect_lg:'rect', square:'square', square_sm:'square', oval:'oval', banquette:'banquette', bar:'bar' };
+function safeNum(v, def=0) { const n = Number(v); return Number.isFinite(n) ? n : def; }
+
+async function translateToSql(restoId, data) {
+  const out = { salles:0, tables:0, services:0, fermetures:0, errors:[] };
+  try {
+    // ── SALLES ──
+    const salles = Array.isArray(data.salles) ? data.salles : [];
+    if (salles.length > 0) {
+      await pool.query('UPDATE salles SET actif=0 WHERE restaurant_id=?', [restoId]);
+      for (const s of salles) {
+        const extId = String(s.id || '').slice(0,64);
+        if (!extId) continue;
+        await pool.query(
+          `INSERT INTO salles (restaurant_id, external_id, nom, capacite, position, actif)
+           VALUES (?, ?, ?, ?, ?, 1)
+           ON DUPLICATE KEY UPDATE
+             nom=VALUES(nom), capacite=VALUES(capacite), position=VALUES(position), actif=1`,
+          [restoId, extId, s.name || extId, safeNum(s.maxCouverts || s.capacite), safeNum(s.priority)]
+        );
+        out.salles++;
+      }
+    }
+    // Recharge mapping ext → SQL id
+    const [salleRows] = await pool.query(
+      'SELECT id, external_id FROM salles WHERE restaurant_id=?', [restoId]
+    );
+    const salleMap = {};
+    for (const sr of salleRows) salleMap[sr.external_id] = sr.id;
+
+    // ── TABLES ──
+    const tables = Array.isArray(data.tables) ? data.tables : [];
+    if (tables.length > 0) {
+      await pool.query('UPDATE tables SET actif=0 WHERE restaurant_id=?', [restoId]);
+      for (const t of tables) {
+        const extId = String(t.id || '').slice(0,64);
+        if (!extId) continue;
+        // Le React met `salle` = nom de la salle (string), ou `salleId` = external_id
+        let salleId = null;
+        const salleKey = t.salleId || t.salle;
+        if (salleKey && salleMap[salleKey]) salleId = salleMap[salleKey];
+        if (!salleId) {
+          // Fallback : lookup par nom dans salles SQL
+          const [sr] = await pool.query(
+            'SELECT id FROM salles WHERE restaurant_id=? AND nom=? LIMIT 1',
+            [restoId, salleKey]
+          );
+          if (sr.length > 0) salleId = sr[0].id;
+        }
+        if (!salleId) continue; // skip si pas de salle parente trouvée
+        await pool.query(
+          `INSERT INTO tables (restaurant_id, external_id, salle_id, numero, nom, couverts_min, couverts_max, forme, pos_x, pos_y, pos_w, actif, score_default)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+           ON DUPLICATE KEY UPDATE
+             salle_id=VALUES(salle_id), numero=VALUES(numero), nom=VALUES(nom),
+             couverts_min=VALUES(couverts_min), couverts_max=VALUES(couverts_max),
+             forme=VALUES(forme), pos_x=VALUES(pos_x), pos_y=VALUES(pos_y), pos_w=VALUES(pos_w),
+             actif=1, score_default=VALUES(score_default)`,
+          [restoId, extId, salleId, t.n || extId, t.label || '',
+           safeNum(t.capMin, 1), safeNum(t.capMax, 4),
+           SHAPE_MAP[t.shape] || 'rect',
+           safeNum(t.x), safeNum(t.y), safeNum(t.w, 1),
+           safeNum(t.priority, 5)]
+        );
+        out.tables++;
+      }
+    }
+
+    // ── SERVICES ──
+    const services = Array.isArray(data.services) ? data.services : [];
+    if (services.length > 0) {
+      await pool.query('UPDATE services SET actif=0 WHERE restaurant_id=?', [restoId]);
+      for (const sv of services) {
+        const extId = String(sv.id || '').slice(0,64);
+        if (!extId) continue;
+        // jours React = [0,1,2,3,4,5,6] (0=dim) → SQL = "7,1,2,3,4,5,6" (7=dim selon ISO)
+        const jours = Array.isArray(sv.jours)
+          ? sv.jours.map(d => d === 0 ? 7 : d).filter(d => d >= 1 && d <= 7).join(',')
+          : '1,2,3,4,5,6,7';
+        await pool.query(
+          `INSERT INTO services (restaurant_id, external_id, nom, type, heure_debut, heure_fin, jours, last_order, buffer_mins, booking_cutoff_mins, actif)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+           ON DUPLICATE KEY UPDATE
+             nom=VALUES(nom), type=VALUES(type), heure_debut=VALUES(heure_debut), heure_fin=VALUES(heure_fin),
+             jours=VALUES(jours), last_order=VALUES(last_order), buffer_mins=VALUES(buffer_mins),
+             booking_cutoff_mins=VALUES(booking_cutoff_mins), actif=1`,
+          [restoId, extId, sv.name || extId,
+           (sv.name||'').toLowerCase().includes('midi') ? 'midi'
+             : (sv.name||'').toLowerCase().includes('soir') ? 'soir'
+             : (sv.name||'').toLowerCase().includes('brunch') ? 'brunch' : 'autre',
+           sv.open || '12:00', sv.close || '14:00', jours,
+           sv.lastOrder || null,
+           safeNum(sv.buffer, 15),
+           safeNum(sv.bookingCutoffMins, 0)]
+        );
+        out.services++;
+      }
+    }
+
+    // ── FERMETURES ──
+    const fermetures = Array.isArray(data.fermetures) ? data.fermetures : [];
+    if (fermetures.length > 0) {
+      await pool.query('UPDATE fermetures SET actif=0 WHERE restaurant_id=?', [restoId]);
+      for (const f of fermetures) {
+        const extId = String(f.id || '').slice(0,64);
+        if (!extId) continue;
+        await pool.query(
+          `INSERT INTO fermetures (restaurant_id, external_id, label, date_debut, date_fin, type, actif)
+           VALUES (?, ?, ?, ?, ?, ?, 1)
+           ON DUPLICATE KEY UPDATE
+             label=VALUES(label), date_debut=VALUES(date_debut), date_fin=VALUES(date_fin),
+             type=VALUES(type), actif=1`,
+          [restoId, extId, f.label || '', f.from || f.date_debut, f.to || f.date_fin || f.from,
+           f.type || 'restaurant']
+        );
+        out.fermetures++;
+      }
+    }
+  } catch (err) {
+    out.errors.push(err.message);
+    console.error('[R3STO] translateToSql error:', err.message);
+  }
+  return out;
+}
+
 // POST /sync/push — Sauvegarde l'état complet dans restaurant.settings
+//                 + UPSERT vers tables SQL pour le moteur de résa (translator)
 app.post('/sync/push', authMiddleware, async (req, res) => {
   try {
     const { restaurantId, ...data } = req.body;
@@ -2179,7 +2315,10 @@ app.post('/sync/push', authMiddleware, async (req, res) => {
       values
     );
 
-    res.json({ ok: true });
+    // ── TRANSLATOR : sync vers tables SQL (silencieux si erreur, settings reste OK) ──
+    const translated = await translateToSql(restaurantId, settings);
+
+    res.json({ ok: true, translated });
   } catch (err) {
     console.error('[R3STO] Sync push error:', err);
     res.status(500).json({ error: 'Erreur serveur' });
@@ -2397,6 +2536,23 @@ async function autoMigrate() {
     await addColIfMissing('reservations', 'customer_id',       "INT NULL COMMENT 'CRM customer'");
     await addColIfMissing('reservations', 'mode',              "ENUM('auto','manu') NOT NULL DEFAULT 'manu'");
     await addColIfMissing('reservations', 'preferences_used',  "JSON NULL COMMENT 'audit critere selection auto'");
+
+    // ── external_id sur salles/tables/services/fermetures pour sync React ──
+    await addColIfMissing('salles',     'external_id', "VARCHAR(64) NULL COMMENT 'ID React frontend'");
+    await addColIfMissing('tables',     'external_id', "VARCHAR(64) NULL COMMENT 'ID React frontend'");
+    await addColIfMissing('services',   'external_id', "VARCHAR(64) NULL COMMENT 'ID React frontend'");
+    await addColIfMissing('fermetures', 'external_id', "VARCHAR(64) NULL COMMENT 'ID React frontend'");
+    // Index unique sur (restaurant_id, external_id) pour upsert
+    for (const tbl of ['salles','tables','services','fermetures']) {
+      try {
+        const [idx] = await pool.query(`SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS
+                                        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = 'idx_resto_extid'`, [tbl]);
+        if (idx.length === 0) {
+          await pool.query(`ALTER TABLE \`${tbl}\` ADD UNIQUE KEY idx_resto_extid (restaurant_id, external_id)`);
+          console.log(`[R3STO] Migration OK: ${tbl} idx_resto_extid unique`);
+        }
+      } catch (e) { /* déjà existant ou conflit, on ignore */ }
+    }
 
     // ── customers : CRM des clients du resto ──
     await pool.query(`CREATE TABLE IF NOT EXISTS crm_customers (
