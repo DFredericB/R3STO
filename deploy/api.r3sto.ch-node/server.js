@@ -2872,6 +2872,70 @@ async function autoMigrate() {
       } catch (e) { /* déjà existant ou conflit, on ignore */ }
     }
 
+    // ── Tables annuaire (creation si absentes — preprod fresh) ──
+    await pool.query(`CREATE TABLE IF NOT EXISTS directory_restaurants (
+      id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      slug VARCHAR(180) NOT NULL UNIQUE,
+      name VARCHAR(180) NOT NULL,
+      city VARCHAR(120) NULL,
+      canton_iso VARCHAR(8) NULL,
+      address VARCHAR(255) NULL,
+      phone VARCHAR(40) NULL,
+      website VARCHAR(255) NULL,
+      email VARCHAR(180) NULL,
+      lat DECIMAL(10,7) NULL,
+      lng DECIMAL(10,7) NULL,
+      cuisine_tag VARCHAR(80) NULL,
+      price_range VARCHAR(10) NULL,
+      rating DECIMAL(3,2) NULL,
+      review_count INT NULL DEFAULT 0,
+      photo_url VARCHAR(500) NULL,
+      claim_status ENUM('unclaimed','pending','claimed') NOT NULL DEFAULT 'unclaimed',
+      status ENUM('live','draft','archived') NOT NULL DEFAULT 'live',
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_city (city),
+      KEY idx_canton (canton_iso),
+      KEY idx_claim (claim_status, status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+    await pool.query(`CREATE TABLE IF NOT EXISTS directory_claims (
+      id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      restaurant_id INT UNSIGNED NOT NULL,
+      email VARCHAR(180) NOT NULL,
+      phone VARCHAR(40) NULL,
+      ide_number VARCHAR(40) NULL,
+      raison_sociale VARCHAR(180) NULL,
+      notes TEXT NULL,
+      ip_address VARCHAR(45) NULL,
+      user_agent VARCHAR(255) NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_resto (restaurant_id),
+      KEY idx_email (email)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+    await pool.query(`CREATE TABLE IF NOT EXISTS directory_submissions (
+      id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      name VARCHAR(180) NOT NULL,
+      city VARCHAR(120) NULL,
+      canton_iso VARCHAR(8) NULL,
+      address VARCHAR(255) NULL,
+      phone VARCHAR(40) NULL,
+      website VARCHAR(255) NULL,
+      email VARCHAR(180) NULL,
+      ide_number VARCHAR(40) NULL,
+      submitter_name VARCHAR(180) NULL,
+      submitter_email VARCHAR(180) NOT NULL,
+      notes TEXT NULL,
+      ip_address VARCHAR(45) NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_submitter (submitter_email)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+    console.log('[R3STO] Migration OK: tables directory_* ready');
+
     // ── Admin tracking sur claims & submissions ──
     await addColIfMissing('directory_claims', 'status',           "ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending'");
     await addColIfMissing('directory_claims', 'reviewed_at',      "DATETIME NULL");
