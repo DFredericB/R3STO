@@ -32,7 +32,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"R3STO","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://r3sto.com/pro","description":"Plateforme SaaS de gestion pour restaurants suisses. 0% commission.","offers":[{"@type":"Offer","name":"Essentiel","price":"39","priceCurrency":"CHF","billingIncrement":"P1M"},{"@type":"Offer","name":"Premium","price":"59","priceCurrency":"CHF","billingIncrement":"P1M"},{"@type":"Offer","name":"Signature","price":"79","priceCurrency":"CHF","billingIncrement":"P1M"}],"author":{"@type":"Organization","name":"R3STO","address":{"@type":"PostalAddress","addressLocality":"Lausanne","addressCountry":"CH"}}}
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"R3STO","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://r3sto.com/pro","description":"Plateforme SaaS de gestion pour restaurants suisses. 0% commission.","offers":[{"@type":"Offer","name":"Mini (offre spéciale)","price":"19","priceCurrency":"CHF","billingIncrement":"P1M","description":"Engagement 3 ans uniquement"},{"@type":"Offer","name":"Essentiel","price":"39","priceCurrency":"CHF","billingIncrement":"P1M"},{"@type":"Offer","name":"Premium","price":"59","priceCurrency":"CHF","billingIncrement":"P1M"},{"@type":"Offer","name":"Signature","price":"79","priceCurrency":"CHF","billingIncrement":"P1M"}],"author":{"@type":"Organization","name":"R3STO","address":{"@type":"PostalAddress","addressLocality":"Lausanne","addressCountry":"CH"}}}
 </script>
 <style>
 * {margin:0;padding:0;box-sizing:border-box}
@@ -1742,9 +1742,8 @@ img.logo-mark { object-fit:cover; display:block; }
       <h2 class="s-title">Un prix <span class="gold">fixe</span>. Pas de surprise.</h2>
       <p class="s-sub">3 plans pour grandir à votre rythme. 0% commission, hébergement suisse inclus.</p>
       <div class="dur-tabs">
-        <button class="dtab on" id="dtab-0" onclick="setDur(0)">1 an</button>
-        <button class="dtab" id="dtab-1" onclick="setDur(1)">2 ans <span class="dtab-save">−15%</span></button>
-        <button class="dtab" id="dtab-2" onclick="setDur(2)">3 ans <span class="dtab-save">−25%</span></button>
+        <button class="dtab on" id="dtab-0" onclick="setBill('monthly')">Mensuel</button>
+        <button class="dtab" id="dtab-1" onclick="setBill('yearly')">Annuel <span class="dtab-save">−10%</span></button>
       </div>
     </div>
 
@@ -1753,17 +1752,18 @@ img.logo-mark { object-fit:cover; display:block; }
         <div class="plan-head">
           <div class="plan-name">Essentiel</div>
           <div class="plan-price" id="lp-price-essentiel">39<small>CHF / mois</small></div>
-          <div class="plan-billing" id="lp-bill-essentiel">Facturation annuelle · 468 CHF/an</div>
-          <div class="plan-tagline">Pour démarrer la digitalisation, simple et efficace.</div>
+          <div class="plan-billing" id="lp-bill-essentiel">Facturé mensuellement</div>
+          <div class="plan-tagline">L'entrée Pro : vraie plateforme avec équipe.</div>
         </div>
         <ul class="plan-feats">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Vues Grille, Agenda &amp; Journal</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Dashboard temps réel</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Services &amp; salles multiples</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Confirmations email automatiques</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Fermetures exceptionnelles</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 1 utilisateur · Support email</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Hébergement suisse inclus</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Widget de réservation + multi-salles</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Multi-services (midi / soir / brunch)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Plan de salle 2D interactif</strong></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Anti no-show</strong> (empreinte CB)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> SMS auto (confirmations + rappels)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> CRM avancé (préférences, allergies, VIP)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Programme fidélité</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 3 utilisateurs · Hébergement Suisse</li>
         </ul>
         <a href="https://auth.r3sto.com/signup?plan=essentiel" class="plan-btn outline">Choisir Essentiel</a>
       </article>
@@ -1772,18 +1772,17 @@ img.logo-mark { object-fit:cover; display:block; }
         <div class="plan-head">
           <div class="plan-name">Premium</div>
           <div class="plan-price" id="lp-price-premium">59<small>CHF / mois</small></div>
-          <div class="plan-billing" id="lp-bill-premium">Facturation annuelle · 708 CHF/an</div>
-          <div class="plan-tagline">Le standard pour restaurants qui veulent grandir intelligemment.</div>
+          <div class="plan-billing" id="lp-bill-premium">Facturé mensuellement</div>
+          <div class="plan-tagline">L'intelligence : IA auto-pilot + 2 établissements.</div>
         </div>
         <ul class="plan-feats">
           <li class="hl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Tout Essentiel, plus :</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Plan de salle 2D interactif</strong></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Tables &amp; Combos dynamiques</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> CRM complet (allergies, VIP, fidélité)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Widget de réservation intégrable</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Liste d'attente &amp; gestion no-shows</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Bons cadeaux &amp; campagnes marketing</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Utilisateurs illimités · Support dédié</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Auto-pilot IA</strong> (pickBestTable scoring)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Marketing email/SMS campagnes auto</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Analytics avancés + cohortes</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Gestion des réponses aux avis</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>2 établissements</strong></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Utilisateurs illimités · Support prioritaire</li>
         </ul>
         <a href="https://auth.r3sto.com/signup?plan=premium" class="plan-btn primary">Choisir Premium</a>
       </article>
@@ -1792,25 +1791,82 @@ img.logo-mark { object-fit:cover; display:block; }
         <div class="plan-head">
           <div class="plan-name">Signature</div>
           <div class="plan-price" id="lp-price-signature">79<small>CHF / mois</small></div>
-          <div class="plan-billing" id="lp-bill-signature">Facturation annuelle · 948 CHF/an</div>
-          <div class="plan-tagline">Pour les gastronomes et groupes multi-sites, sans compromis.</div>
+          <div class="plan-billing" id="lp-bill-signature">Facturé mensuellement</div>
+          <div class="plan-tagline">Le top : multi-sites illimité + yield + white-label.</div>
         </div>
         <ul class="plan-feats">
           <li class="hl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Tout Premium, plus :</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Prépaiement Stripe + caution auto</strong></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Site vitrine inclus (sous-domaine)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Multi-sites (jusqu'à 12 établissements)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> IA prédictions &amp; optimisation créneaux</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> SMS auto + rapports personnalisés</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> API REST · Support dédié + SLA</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Multi-établissements illimités</strong></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Yield management</strong> revenue optim</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> <strong>Site vitrine inclus</strong></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Widget white-label custom branding</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Prépaiement + bons cadeaux + API</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Boost référencement Carat</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Account manager dédié + SLA</li>
         </ul>
         <a href="https://auth.r3sto.com/signup?plan=signature" class="plan-btn outline">Choisir Signature</a>
       </article>
     </div>
 
-    <p class="price-note">Tous les prix HT · 0% commission · Hébergement Suisse Infomaniak inclus · Engagement 2 ans −15%, 3 ans −25%</p>
+    <!-- ═══ OFFRE SPÉCIALE MINI ═══ -->
+    <div class="mini-offer">
+      <div class="mini-offer-inner">
+        <div class="mini-badge">🔥 OFFRE SPÉCIALE LANCEMENT</div>
+        <div class="mini-grid">
+          <div class="mini-left">
+            <h3 class="mini-title">R3STO <span class="gold">Mini</span></h3>
+            <div class="mini-tagline">Le calepin numérique du restaurateur indépendant</div>
+            <div class="mini-price-row">
+              <div class="mini-price"><span class="amt">19</span><small>CHF / mois</small></div>
+              <div class="mini-commit">Engagement 3 ans · Tarif garanti 36 mois</div>
+            </div>
+            <a href="https://auth.r3sto.com/signup?plan=mini&billing=triennial" class="mini-cta">Profiter de l'offre →</a>
+            <div class="mini-fineprint">Quantité limitée · 200 premiers restaurants</div>
+          </div>
+          <div class="mini-right">
+            <div class="mini-feats-title">Inclus dans Mini</div>
+            <ul class="mini-feats">
+              <li>✓ Widget réservation</li>
+              <li>✓ Multi-salles &amp; multi-services</li>
+              <li>✓ Blacklist clients</li>
+              <li>✓ CRM léger (nom / tel / historique)</li>
+              <li>✓ Email confirmation auto</li>
+              <li>✓ Fiche annuaire + Label Carat</li>
+              <li>✓ 1 utilisateur (le patron)</li>
+              <li>✓ Hébergement Suisse Infomaniak</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="price-note">Tous les prix HT · 0% commission · Hébergement Suisse Infomaniak inclus · Annuel −10%</p>
   </div>
 </section>
+
+<style>
+.mini-offer { margin-top: 56px; padding: 0; background: linear-gradient(135deg, rgba(160,126,42,.10) 0%, rgba(200,151,82,.08) 100%); border: 1px solid var(--gold); border-radius: 16px; overflow: hidden; position: relative; }
+.mini-offer::before { content: ''; position: absolute; top: -40%; right: -10%; width: 60%; height: 180%; background: radial-gradient(ellipse, rgba(200,151,82,.15) 0%, transparent 60%); pointer-events: none; }
+.mini-offer-inner { padding: 36px 40px; position: relative; }
+.mini-badge { display: inline-block; padding: 6px 14px; background: var(--gold); color: var(--bg); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; border-radius: 4px; margin-bottom: 20px; }
+.mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+@media (max-width: 768px) { .mini-grid { grid-template-columns: 1fr; gap: 24px; } .mini-offer-inner { padding: 28px 22px; } }
+.mini-title { font-size: 36px; font-weight: 800; margin: 0 0 6px; color: var(--text); }
+.mini-tagline { font-size: 15px; color: var(--t-2); margin-bottom: 24px; }
+.mini-price-row { margin-bottom: 24px; }
+.mini-price { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+.mini-price .amt { font-size: 56px; font-weight: 800; color: var(--gold-bright); line-height: 1; }
+.mini-price small { font-size: 14px; color: var(--t-2); font-weight: 500; }
+.mini-commit { font-size: 12px; color: var(--t-3); font-family: var(--fm); }
+.mini-cta { display: inline-block; padding: 14px 28px; background: var(--gold); color: var(--bg); font-weight: 700; font-size: 15px; border-radius: 6px; text-decoration: none; transition: .2s; }
+.mini-cta:hover { background: var(--gold-bright); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(200,151,82,.30); }
+.mini-fineprint { font-size: 11px; color: var(--t-3); margin-top: 12px; font-style: italic; }
+.mini-right { padding: 24px; background: rgba(15,22,32,.40); border: 1px solid var(--border); border-radius: 10px; }
+.mini-feats-title { font-family: var(--fm); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-bright); margin-bottom: 14px; }
+.mini-feats { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mini-feats li { font-size: 13px; color: var(--text); }
+@media (max-width: 480px) { .mini-feats { grid-template-columns: 1fr; } }
+</style>
 
 <!-- =========================================================
      MANIFESTO
@@ -2284,29 +2340,29 @@ document.addEventListener('click', function(e){
   if(!e.target.closest('.country')) document.getElementById('countryMenu').classList.remove('open');
 });
 
-/* Duration tabs — recalcule les prix avec remise */
+/* Billing toggle — Mensuel / Annuel (-10%) */
 var BASE = [39, 59, 79];
-var DISC = [0, .15, .25];
-var YRS  = [1, 2, 3];
 var PLANS_K = ['essentiel', 'premium', 'signature'];
-var curDur = 0;
+var curBill = 'monthly';
 
-function setDur(d){
-  curDur = d;
-  document.querySelectorAll('.dur-tabs .dtab').forEach(function(b, i){
-    b.classList.toggle('on', i === d);
+function setBill(b){
+  curBill = b;
+  var idx = b === 'monthly' ? 0 : 1;
+  document.querySelectorAll('.dur-tabs .dtab').forEach(function(btn, i){
+    btn.classList.toggle('on', i === idx);
   });
   renderPrices();
 }
 function renderPrices(){
   PLANS_K.forEach(function(k, i){
-    var mo = Math.round(BASE[i] * (1 - DISC[curDur]));
-    var tot = Math.round(mo * 12 * YRS[curDur]);
-    var durLbl = curDur === 0 ? '1 an' : curDur === 1 ? '2 ans' : '3 ans';
+    var mo = curBill === 'yearly' ? Math.round(BASE[i] * 0.90) : BASE[i];
+    var tot = mo * 12;
     var priceEl = document.getElementById('lp-price-' + k);
     var billEl = document.getElementById('lp-bill-' + k);
     if(priceEl) priceEl.innerHTML = mo + '<small>CHF / mois</small>';
-    if(billEl) billEl.textContent = 'Facturation annuelle · ' + tot + ' CHF / ' + durLbl;
+    if(billEl) billEl.textContent = curBill === 'yearly'
+      ? 'Facturé annuellement · ' + tot + ' CHF/an'
+      : 'Facturé mensuellement';
   });
 }
 /* Langues nationales par pays (ordre = priorité, 1re = langue principale).

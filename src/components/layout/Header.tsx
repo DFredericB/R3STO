@@ -178,7 +178,7 @@ export function Header() {
   const displayName = isAdmin
     ? t('header.adminConsole')
     : (activeDemoResto ? `${activeDemoResto.name} · ${activeDemoResto.ville}` : (activeSite ? activeSite.name : (resto.name || t('general.myRestaurant'))))
-  const hasMultiSites = sites.length > 0 && isPlanEligible('multiSite')
+  const hasMultiSites = sites.length > 0 && (isPlanEligible('multiSite2') || isPlanEligible('multiSiteUnlimited'))
   const canSwitchTopName = !isAdmin && (hasMultiSites || isDemo)
 
   const currentUser = users.find(u => u.active && u.role === userRole) || users.find(u => u.active) || null

@@ -1830,34 +1830,48 @@ app.put('/admin/clients/:id', authMiddleware, adminMiddleware, async (req, res) 
 //  STRIPE
 // ═══════════════════════════════════════════════════
 
-// ── Plan matrix (locked pricing 2026-05) ──
-// Mini 29 / Essentiel 39 / Premium 59 / Signature 79 (mensuel)
+// ── Plan matrix (LOCKED 2026-05-20) ──
+// Mini = OFFRE SPÉCIALE 19 CHF/mois (engagement 3 ans uniquement)
+// Essentiel/Premium/Signature : mensuel + annuel (-10%)
 const PLAN_MATRIX = {
-  mini:      { rank: 1, price: 29, label: 'Mini' },
-  essentiel: { rank: 2, price: 39, label: 'Essentiel' },
-  premium:   { rank: 3, price: 59, label: 'Premium' },
-  signature: { rank: 4, price: 79, label: 'Signature' },
+  mini: {
+    rank: 1, label: 'Mini',
+    isSpecialOffer: true,
+    pricing: { triennial: 19 },     // ⭐ uniquement 3 ans
+    limits:  { maxUsers: 1,   maxEstablishments: 1 },
+  },
+  essentiel: {
+    rank: 2, label: 'Essentiel',
+    isSpecialOffer: false,
+    pricing: { monthly: 39, yearly: 35 },
+    limits:  { maxUsers: 3,   maxEstablishments: 1 },
+  },
+  premium: {
+    rank: 3, label: 'Premium',
+    isSpecialOffer: false,
+    pricing: { monthly: 59, yearly: 53 },
+    limits:  { maxUsers: 99,  maxEstablishments: 2 },
+  },
+  signature: {
+    rank: 4, label: 'Signature',
+    isSpecialOffer: false,
+    pricing: { monthly: 79, yearly: 71 },
+    limits:  { maxUsers: 999, maxEstablishments: 99 },
+  },
 };
 
-// Stripe price IDs (à remplir une fois les produits créés en dashboard Stripe)
+// Stripe price IDs — 7 produits seulement (Mini 3-ans + autres mensuel/annuel)
 const STRIPE_PRICE_IDS = {
-  mini:      { monthly: process.env.STRIPE_PRICE_MINI_M,      yearly: process.env.STRIPE_PRICE_MINI_Y,      triennial: process.env.STRIPE_PRICE_MINI_3Y },
-  essentiel: { monthly: process.env.STRIPE_PRICE_ESSENTIEL_M, yearly: process.env.STRIPE_PRICE_ESSENTIEL_Y, triennial: process.env.STRIPE_PRICE_ESSENTIEL_3Y },
-  premium:   { monthly: process.env.STRIPE_PRICE_PREMIUM_M,   yearly: process.env.STRIPE_PRICE_PREMIUM_Y,   triennial: process.env.STRIPE_PRICE_PREMIUM_3Y },
-  signature: { monthly: process.env.STRIPE_PRICE_SIGNATURE_M, yearly: process.env.STRIPE_PRICE_SIGNATURE_Y, triennial: process.env.STRIPE_PRICE_SIGNATURE_3Y },
+  mini:      { triennial: process.env.STRIPE_PRICE_MINI_3Y },
+  essentiel: { monthly: process.env.STRIPE_PRICE_ESSENTIEL_M, yearly: process.env.STRIPE_PRICE_ESSENTIEL_Y },
+  premium:   { monthly: process.env.STRIPE_PRICE_PREMIUM_M,   yearly: process.env.STRIPE_PRICE_PREMIUM_Y },
+  signature: { monthly: process.env.STRIPE_PRICE_SIGNATURE_M, yearly: process.env.STRIPE_PRICE_SIGNATURE_Y },
 };
 
 // GET /plans — expose la grille (pour landing + signup + upgrade UI)
 app.get('/plans', (req, res) => {
   res.json({
-    plans: Object.entries(PLAN_MATRIX).map(([key, v]) => ({
-      key, ...v,
-      pricing: {
-        monthly:   v.price,
-        yearly:    Math.round(v.price * 0.90),  // -10%
-        triennial: Math.round(v.price * 0.66),  // -34%
-      },
-    })),
+    plans: Object.entries(PLAN_MATRIX).map(([key, v]) => ({ key, ...v })),
   });
 });
 
