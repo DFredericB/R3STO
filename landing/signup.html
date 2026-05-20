@@ -160,34 +160,66 @@ footer a{color:var(--gold);font-weight:600}
     <div id="step2" hidden>
       <span class="eyebrow">Étape 2 · Votre forfait</span>
       <h1>Choisissez votre forfait</h1>
-      <p class="sub">14 jours d'essai gratuit sur tous les forfaits. Aucun engagement, annulable à tout moment.</p>
+      <p class="sub">14 jours d'essai gratuit sur Essentiel/Premium/Signature. Aucun engagement, annulable à tout moment.</p>
+
+      <!-- ⭐ OFFRE SPÉCIALE MINI -->
+      <div class="mini-card" id="mini-card" onclick="selectPlan(null,'mini')">
+        <input type="radio" name="plan" value="mini" id="plan-mini" style="display:none">
+        <div class="mini-card-head">
+          <div class="mini-badge">🔥 OFFRE SPÉCIALE</div>
+          <div class="mini-card-title">R3STO Mini</div>
+        </div>
+        <div class="mini-card-body">
+          <div class="mini-card-price"><span class="amt">19</span><small>CHF/mois</small></div>
+          <div class="mini-card-commit">Engagement 3 ans · Tarif garanti</div>
+        </div>
+        <div class="mini-card-desc">Le calepin numérique : widget + multi-salles + CRM léger + blacklist + annuaire. 1 utilisateur (le patron).</div>
+      </div>
+
+      <div class="plan-divider"><span>ou choisissez un plan Pro standard</span></div>
 
       <div class="plans">
         <label class="plan" onclick="selectPlan(this,'essentiel')">
           <input type="radio" name="plan" value="essentiel">
           <div style="flex:1">
             <div><span class="plan-name">Essentiel</span><span class="plan-price">39 CHF/mois</span></div>
-            <div class="plan-desc">Réservations + CRM + Menu digital · idéal petit restaurant</div>
+            <div class="plan-desc">Plan 2D + anti no-show + SMS + CRM avancé + fidélité · 3 users</div>
           </div>
         </label>
         <label class="plan on" onclick="selectPlan(this,'premium')">
           <input type="radio" name="plan" value="premium" checked>
           <div style="flex:1">
             <div><span class="plan-name">Premium</span><span class="plan-price">59 CHF/mois</span><span class="plan-tag">Populaire</span></div>
-            <div class="plan-desc">Essentiel + Stripe paiements + cartes cadeaux + capacité multi-salles</div>
+            <div class="plan-desc">Tout Essentiel + auto-pilot IA + marketing + 2 établissements + users illimités</div>
           </div>
         </label>
         <label class="plan" onclick="selectPlan(this,'signature')">
           <input type="radio" name="plan" value="signature">
           <div style="flex:1">
             <div><span class="plan-name">Signature</span><span class="plan-price">79 CHF/mois</span></div>
-            <div class="plan-desc">Premium + site web inclus + livraisons + support prioritaire</div>
+            <div class="plan-desc">Tout Premium + multi-sites illimité + yield + site vitrine + white-label + API</div>
           </div>
         </label>
       </div>
       <button class="btn" onclick="next(2)">Continuer →</button>
       <button class="btn btn-back" onclick="back(1)">← Retour</button>
     </div>
+
+    <style>
+    .mini-card { padding:18px 20px; border:2px solid var(--gold); background: linear-gradient(135deg, rgba(160,126,42,.08), rgba(200,151,82,.04)); border-radius:8px; cursor:pointer; margin-bottom:16px; transition:.2s; position:relative; }
+    .mini-card:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(200,151,82,.20); }
+    .mini-card.on { border-color:var(--navy); box-shadow:inset 4px 0 0 var(--gold), 0 4px 14px rgba(200,151,82,.25); }
+    .mini-card-head { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .mini-badge { font-size:10px; font-weight:800; letter-spacing:.10em; color:var(--bg); background:var(--gold); padding:2px 8px; border-radius:3px; }
+    .mini-card-title { font-size:16px; font-weight:800; color:var(--navy); }
+    .mini-card-body { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+    .mini-card-price .amt { font-size:34px; font-weight:800; color:var(--gold); line-height:1; }
+    .mini-card-price small { font-size:12px; color:var(--t-2); margin-left:4px; }
+    .mini-card-commit { font-family:var(--fm); font-size:11px; color:var(--t-3); }
+    .mini-card-desc { font-size:12.5px; color:var(--t-2); margin-top:10px; line-height:1.45; }
+    .plan-divider { display:flex; align-items:center; gap:12px; margin:18px 0 12px; color:var(--t-3); font-size:11px; font-family:var(--fm); letter-spacing:.06em; text-transform:uppercase; }
+    .plan-divider::before, .plan-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+    </style>
 
     <!-- ═══ ÉTAPE 3 : Compte ═══ -->
     <div id="step3" hidden>
@@ -281,11 +313,38 @@ function next(from){
 function back(to){ setStep(to); }
 
 function selectPlan(el, plan){
+  // Deselect all standard plans
   document.querySelectorAll('.plan').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-  el.querySelector('input').checked = true;
-  state.plan = plan;
+  // Deselect mini card
+  const miniCard = document.getElementById('mini-card');
+  if(miniCard) miniCard.classList.remove('on');
+
+  if(plan === 'mini'){
+    if(miniCard) miniCard.classList.add('on');
+    document.getElementById('plan-mini').checked = true;
+    state.plan = 'mini';
+    state.billing = 'triennial';  // Mini = uniquement 3 ans
+  } else {
+    if(el){
+      el.classList.add('on');
+      el.querySelector('input').checked = true;
+    }
+    state.plan = plan;
+    state.billing = 'monthly';
+  }
 }
+
+// Pre-select via URL ?plan=mini
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var p = params.get('plan');
+  if(p === 'mini'){
+    selectPlan(null, 'mini');
+  } else if(p && ['essentiel','premium','signature'].includes(p)){
+    var lbl = document.querySelector('.plan input[value="'+p+'"]');
+    if(lbl) selectPlan(lbl.closest('.plan'), p);
+  }
+})();
 
 async function submitSignup(){
   const btn = document.getElementById('submitBtn');
