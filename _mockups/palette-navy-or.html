@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>R3STO — Mockup palette Navy + Or</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: #f4f6fa; color: #0c1730; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+/* Palette officielle locked */
+:root {
+  --navy-deep: #0c1a3e;
+  --navy: #1c2e58;
+  --navy-2: #13224a;
+  --navy-light: #2b3f72;
+
+  /* Tons or à tester */
+  --or-sobre: #a07e2a;        /* signature commune */
+  --or-vif: #c89752;
+  --or-deep: #7d5e1a;          /* + sombre, mieux sur light */
+  --or-bright: #d4a44a;         /* + lumineux, ressort sur dark */
+  --or-pale: #e8c982;           /* light gold */
+  --cuivre: #b8632b;
+}
+
+.page-head { background: var(--navy); color: #fff; padding: 36px 40px; text-align: center; border-bottom: 4px solid var(--or-sobre); }
+.page-head h1 { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+.page-head .sub { font-size: 13px; opacity: .7; margin-top: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: .08em; }
+
+.section-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #4a5878; padding: 40px 40px 16px; }
+
+/* Swatches */
+.swatches { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; padding: 0 40px 32px; }
+.sw { aspect-ratio: 1; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .04em; color: #fff; }
+.sw.light { color: #0c1a3e; }
+.sw small { font-size: 8.5px; font-weight: 500; opacity: .75; margin-top: 2px; }
+
+/* Mockup cards container */
+.mockups { padding: 0 40px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 1000px) { .mockups { grid-template-columns: 1fr; } }
+
+.variant { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,.06); }
+.variant-head { padding: 14px 20px; background: #f8fafd; border-bottom: 1px solid #e3ebf5; display: flex; align-items: center; justify-content: space-between; }
+.variant-head .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #1c2e58; letter-spacing: .08em; }
+.variant-head .swatch-row { display: flex; gap: 4px; }
+.variant-head .dot { width: 16px; height: 16px; border-radius: 4px; }
+
+/* ─── HERO MOCKUPS (sections de la landing) ─── */
+
+/* Variant A : Dark navy + or vif */
+.hero-A { background: linear-gradient(135deg, #1c2e58 0%, #0c1a3e 100%); padding: 48px 36px; color: #fff; min-height: 280px; }
+.hero-A .badge { display: inline-block; padding: 5px 12px; background: rgba(212,164,74,.15); border: 1px solid #d4a44a; color: #d4a44a; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; border-radius: 4px; margin-bottom: 18px; }
+.hero-A h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 12px; }
+.hero-A h2 .accent { color: #d4a44a; font-style: italic; }
+.hero-A p { font-size: 14px; opacity: .8; max-width: 460px; margin-bottom: 22px; }
+.hero-A .cta-row { display: flex; gap: 10px; }
+.hero-A .cta { padding: 11px 22px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
+.hero-A .cta.primary { background: #d4a44a; color: #1c2e58; }
+.hero-A .cta.outline { background: transparent; border: 1px solid rgba(255,255,255,.3); color: #fff; }
+
+/* Variant B : Dark navy + or sobre (actuel) */
+.hero-B { background: linear-gradient(135deg, #1c2e58 0%, #0c1a3e 100%); padding: 48px 36px; color: #fff; min-height: 280px; }
+.hero-B .badge { display: inline-block; padding: 5px 12px; background: rgba(160,126,42,.15); border: 1px solid #a07e2a; color: #a07e2a; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; border-radius: 4px; margin-bottom: 18px; }
+.hero-B h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 12px; }
+.hero-B h2 .accent { color: #c89752; font-style: italic; }
+.hero-B p { font-size: 14px; opacity: .8; max-width: 460px; margin-bottom: 22px; }
+.hero-B .cta-row { display: flex; gap: 10px; }
+.hero-B .cta { padding: 11px 22px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
+.hero-B .cta.primary { background: #c89752; color: #1c2e58; }
+.hero-B .cta.outline { background: transparent; border: 1px solid rgba(255,255,255,.3); color: #fff; }
+
+/* Variant C : Light bg + or deep */
+.hero-C { background: #ffffff; padding: 48px 36px; min-height: 280px; }
+.hero-C .badge { display: inline-block; padding: 5px 12px; background: #fff8e8; border: 1px solid #e6d090; color: #7d5e1a; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; border-radius: 4px; margin-bottom: 18px; }
+.hero-C h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 12px; color: #0c1a3e; }
+.hero-C h2 .accent { color: #7d5e1a; font-style: italic; }
+.hero-C p { font-size: 14px; color: #4a5878; max-width: 460px; margin-bottom: 22px; }
+.hero-C .cta-row { display: flex; gap: 10px; }
+.hero-C .cta { padding: 11px 22px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
+.hero-C .cta.primary { background: #1c2e58; color: #d4a44a; }
+.hero-C .cta.outline { background: transparent; border: 1px solid #1c2e58; color: #1c2e58; }
+
+/* Variant D : Light bg + or sobre actuel (pro.html actuel) */
+.hero-D { background: #ffffff; padding: 48px 36px; min-height: 280px; }
+.hero-D .badge { display: inline-block; padding: 5px 12px; background: rgba(160,126,42,.10); border: 1px solid #a07e2a; color: #a07e2a; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; border-radius: 4px; margin-bottom: 18px; }
+.hero-D h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 12px; color: #0c1a3e; }
+.hero-D h2 .accent { color: #a07e2a; font-style: italic; }
+.hero-D p { font-size: 14px; color: #4a5878; max-width: 460px; margin-bottom: 22px; }
+.hero-D .cta-row { display: flex; gap: 10px; }
+.hero-D .cta { padding: 11px 22px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
+.hero-D .cta.primary { background: #1c2e58; color: #c89752; }
+.hero-D .cta.outline { background: transparent; border: 1px solid #1c2e58; color: #1c2e58; }
+
+/* ─── PRICING CARDS MOCKUPS ─── */
+.pricing-block { padding: 0 40px 60px; }
+.pricing-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
+@media (max-width: 1000px) { .pricing-row { grid-template-columns: 1fr; } }
+
+.pricing-card { padding: 28px; border-radius: 14px; }
+
+/* Pricing variant 1 : Navy bg + or bright accent */
+.pc-1 { background: #1c2e58; color: #fff; border: 1px solid #2b3f72; }
+.pc-1 .pc-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #d4a44a; margin-bottom: 10px; }
+.pc-1 .pc-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.pc-1 .pc-price { font-size: 42px; font-weight: 800; color: #d4a44a; margin: 14px 0 4px; }
+.pc-1 .pc-price small { font-size: 13px; opacity: .7; font-weight: 500; margin-left: 4px; }
+.pc-1 .pc-sub { font-size: 12px; opacity: .7; margin-bottom: 18px; }
+.pc-1 .pc-cta { display: inline-block; padding: 11px 22px; background: #d4a44a; color: #1c2e58; font-weight: 700; border-radius: 6px; text-decoration: none; font-size: 13px; }
+
+/* Pricing variant 2 : White bg + navy + or deep */
+.pc-2 { background: #fff; color: #0c1a3e; border: 1px solid #d6dfee; }
+.pc-2 .pc-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #7d5e1a; margin-bottom: 10px; }
+.pc-2 .pc-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; color: #1c2e58; }
+.pc-2 .pc-price { font-size: 42px; font-weight: 800; color: #7d5e1a; margin: 14px 0 4px; }
+.pc-2 .pc-price small { font-size: 13px; color: #7b88a8; font-weight: 500; margin-left: 4px; }
+.pc-2 .pc-sub { font-size: 12px; color: #4a5878; margin-bottom: 18px; }
+.pc-2 .pc-cta { display: inline-block; padding: 11px 22px; background: #1c2e58; color: #d4a44a; font-weight: 700; border-radius: 6px; text-decoration: none; font-size: 13px; }
+
+/* Pricing variant 3 : Light bg with gold gradient banner */
+.pc-3 { background: linear-gradient(135deg, #fff8e8 0%, #fdf2d2 100%); color: #0c1a3e; border: 2px solid #d4a44a; position: relative; }
+.pc-3::before { content: '🔥 OFFRE SPÉCIALE'; position: absolute; top: -10px; left: 20px; background: #1c2e58; color: #d4a44a; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800; letter-spacing: .14em; padding: 4px 12px; border-radius: 3px; }
+.pc-3 .pc-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 800; margin: 8px 0 6px; color: #1c2e58; }
+.pc-3 .pc-tag { font-size: 13px; color: #4a5878; margin-bottom: 18px; }
+.pc-3 .pc-price { font-size: 56px; font-weight: 800; color: #7d5e1a; line-height: 1; margin-bottom: 6px; }
+.pc-3 .pc-price small { font-size: 14px; color: #4a5878; font-weight: 500; margin-left: 4px; }
+.pc-3 .pc-engage { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #4a5878; margin-bottom: 20px; }
+.pc-3 .pc-cta { display: inline-block; padding: 13px 26px; background: #1c2e58; color: #d4a44a; font-weight: 700; border-radius: 6px; text-decoration: none; font-size: 13px; }
+
+/* Pricing variant 4 : Navy banner with gold border */
+.pc-4 { background: linear-gradient(135deg, #1c2e58 0%, #13224a 100%); color: #fff; border: 2px solid #d4a44a; position: relative; box-shadow: 0 10px 30px rgba(28,46,88,.25); }
+.pc-4::before { content: '🔥 OFFRE SPÉCIALE'; position: absolute; top: -10px; left: 20px; background: #d4a44a; color: #1c2e58; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800; letter-spacing: .14em; padding: 4px 12px; border-radius: 3px; }
+.pc-4 .pc-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 800; margin: 8px 0 6px; color: #d4a44a; }
+.pc-4 .pc-tag { font-size: 13px; opacity: .75; margin-bottom: 18px; }
+.pc-4 .pc-price { font-size: 56px; font-weight: 800; color: #d4a44a; line-height: 1; margin-bottom: 6px; }
+.pc-4 .pc-price small { font-size: 14px; opacity: .7; font-weight: 500; margin-left: 4px; }
+.pc-4 .pc-engage { font-family: 'JetBrains Mono', monospace; font-size: 11px; opacity: .75; margin-bottom: 20px; }
+.pc-4 .pc-cta { display: inline-block; padding: 13px 26px; background: #d4a44a; color: #1c2e58; font-weight: 700; border-radius: 6px; text-decoration: none; font-size: 13px; }
+
+/* ─── INSURANCE-INSPIRED MOCKUPS (le mix Vaud Assurances) ─── */
+.insurance-row { padding: 0 40px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 1000px) { .insurance-row { grid-template-columns: 1fr; } }
+
+/* Insurance A : Navy hero with sober gold accents */
+.ins-A { background: #1c2e58; color: #fff; padding: 36px 32px; border-radius: 14px; }
+.ins-A .ins-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .14em; color: #d4a44a; margin-bottom: 14px; text-transform: uppercase; }
+.ins-A .ins-h { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; line-height: 1.2; margin-bottom: 18px; max-width: 380px; }
+.ins-A .ins-h em { color: #d4a44a; font-style: italic; font-weight: 800; }
+.ins-A .ins-stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 22px; padding-top: 18px; border-top: 1px solid rgba(212,164,74,.25); }
+.ins-A .ins-stat .n { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 800; color: #d4a44a; }
+.ins-A .ins-stat .l { font-size: 10px; opacity: .65; margin-top: 2px; }
+.ins-A .ins-cta { display: inline-block; padding: 10px 20px; background: #d4a44a; color: #1c2e58; font-weight: 700; border-radius: 4px; text-decoration: none; font-size: 12.5px; }
+
+/* Insurance B : Light bg, navy text, gold gradient bar */
+.ins-B { background: #fff; color: #0c1a3e; padding: 36px 32px; border-radius: 14px; border: 1px solid #e3ebf5; position: relative; overflow: hidden; }
+.ins-B::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #a07e2a 0%, #d4a44a 50%, #a07e2a 100%); }
+.ins-B .ins-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .14em; color: #7d5e1a; margin-bottom: 14px; text-transform: uppercase; }
+.ins-B .ins-h { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; line-height: 1.2; margin-bottom: 18px; max-width: 380px; color: #1c2e58; }
+.ins-B .ins-h em { color: #7d5e1a; font-style: italic; font-weight: 800; }
+.ins-B .ins-stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 22px; padding-top: 18px; border-top: 1px solid #e3ebf5; }
+.ins-B .ins-stat .n { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 800; color: #1c2e58; }
+.ins-B .ins-stat .l { font-size: 10px; color: #4a5878; margin-top: 2px; }
+.ins-B .ins-cta { display: inline-block; padding: 10px 20px; background: #1c2e58; color: #d4a44a; font-weight: 700; border-radius: 4px; text-decoration: none; font-size: 12.5px; }
+
+/* ─── COMPARATIF SIDE BY SIDE des ors sur navy ─── */
+.gold-comp { background: #1c2e58; padding: 40px; }
+.gold-comp h3 { color: #d4a44a; font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 24px; text-align: center; }
+.gold-comp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.gold-sample { background: #13224a; border-radius: 8px; padding: 22px 18px; text-align: center; }
+.gold-sample .num { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+.gold-sample .lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #fff; opacity: .7; margin-bottom: 4px; }
+.gold-sample .hex { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; opacity: .5; }
+
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>R3STO — Palette Navy × Or</h1>
+  <div class="sub">Comparatif tons or sur fonds clair et sombre · 2026-05-20</div>
+</div>
+
+<!-- ─── Swatches palette officielle + variantes test ─── -->
+<div class="section-title">Palette officielle (locked) + variantes test</div>
+<div class="swatches">
+  <div class="sw" style="background:#0c1a3e">#0c1a3e<small>Navy deep</small></div>
+  <div class="sw" style="background:#1c2e58">#1c2e58<small>Navy ⭐ logo</small></div>
+  <div class="sw" style="background:#2b3f72">#2b3f72<small>Navy light</small></div>
+  <div class="sw light" style="background:#7d5e1a;color:#fff">#7d5e1a<small>Or deep (test)</small></div>
+  <div class="sw" style="background:#a07e2a">#a07e2a<small>Or sobre ⭐ signature</small></div>
+  <div class="sw" style="background:#c89752">#c89752<small>Or vif</small></div>
+  <div class="sw" style="background:#d4a44a">#d4a44a<small>Or bright (test)</small></div>
+</div>
+
+<!-- ─── COMPARATIF VISUEL DES ORS SUR NAVY ─── -->
+<div class="gold-comp">
+  <h3>Quel or est le plus joli sur le navy ?</h3>
+  <div class="gold-comp-grid">
+    <div class="gold-sample"><div class="num" style="color:#7d5e1a">19</div><div class="lbl">Or deep</div><div class="hex">#7d5e1a</div></div>
+    <div class="gold-sample"><div class="num" style="color:#a07e2a">19</div><div class="lbl">Or sobre</div><div class="hex">#a07e2a</div></div>
+    <div class="gold-sample"><div class="num" style="color:#c89752">19</div><div class="lbl">Or vif</div><div class="hex">#c89752</div></div>
+    <div class="gold-sample"><div class="num" style="color:#d4a44a">19</div><div class="lbl">Or bright</div><div class="hex">#d4a44a</div></div>
+    <div class="gold-sample"><div class="num" style="color:#e8c982">19</div><div class="lbl">Or pâle</div><div class="hex">#e8c982</div></div>
+  </div>
+</div>
+
+<!-- ─── HERO MOCKUPS ─── -->
+<div class="section-title">Hero sections — fond sombre vs fond clair</div>
+<div class="mockups">
+
+  <div class="variant">
+    <div class="variant-head">
+      <div class="label">A · NAVY + OR BRIGHT (#d4a44a)</div>
+      <div class="swatch-row"><div class="dot" style="background:#1c2e58"></div><div class="dot" style="background:#d4a44a"></div></div>
+    </div>
+    <div class="hero-A">
+      <div class="badge">Plateforme N°1 Suisse</div>
+      <h2>Reprenez le contrôle de <span class="accent">votre restaurant</span>.</h2>
+      <p>0% commission. Hébergement Suisse. Conçu par des restaurateurs pour des restaurateurs exigeants.</p>
+      <div class="cta-row">
+        <button class="cta primary">Démarrer mon essai</button>
+        <button class="cta outline">Découvrir →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-head">
+      <div class="label">B · NAVY + OR SOBRE (actuel auth.r3sto.com)</div>
+      <div class="swatch-row"><div class="dot" style="background:#1c2e58"></div><div class="dot" style="background:#a07e2a"></div></div>
+    </div>
+    <div class="hero-B">
+      <div class="badge">Plateforme N°1 Suisse</div>
+      <h2>Reprenez le contrôle de <span class="accent">votre restaurant</span>.</h2>
+      <p>0% commission. Hébergement Suisse. Conçu par des restaurateurs pour des restaurateurs exigeants.</p>
+      <div class="cta-row">
+        <button class="cta primary">Démarrer mon essai</button>
+        <button class="cta outline">Découvrir →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-head">
+      <div class="label">C · BLANC + NAVY + OR DEEP (#7d5e1a)</div>
+      <div class="swatch-row"><div class="dot" style="background:#fff;border:1px solid #ddd"></div><div class="dot" style="background:#1c2e58"></div><div class="dot" style="background:#7d5e1a"></div></div>
+    </div>
+    <div class="hero-C">
+      <div class="badge">Plateforme N°1 Suisse</div>
+      <h2>Reprenez le contrôle de <span class="accent">votre restaurant</span>.</h2>
+      <p>0% commission. Hébergement Suisse. Conçu par des restaurateurs pour des restaurateurs exigeants.</p>
+      <div class="cta-row">
+        <button class="cta primary">Démarrer mon essai</button>
+        <button class="cta outline">Découvrir →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-head">
+      <div class="label">D · BLANC + NAVY + OR SOBRE (actuel pro.html)</div>
+      <div class="swatch-row"><div class="dot" style="background:#fff;border:1px solid #ddd"></div><div class="dot" style="background:#1c2e58"></div><div class="dot" style="background:#a07e2a"></div></div>
+    </div>
+    <div class="hero-D">
+      <div class="badge">Plateforme N°1 Suisse</div>
+      <h2>Reprenez le contrôle de <span class="accent">votre restaurant</span>.</h2>
+      <p>0% commission. Hébergement Suisse. Conçu par des restaurateurs pour des restaurateurs exigeants.</p>
+      <div class="cta-row">
+        <button class="cta primary">Démarrer mon essai</button>
+        <button class="cta outline">Découvrir →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── PRICING MOCKUPS ─── -->
+<div class="section-title">Cards pricing — variantes</div>
+<div class="pricing-block">
+
+  <div class="pricing-row">
+    <div class="pricing-card pc-1">
+      <div class="pc-name">Plan Premium</div>
+      <div class="pc-title">Premium</div>
+      <div class="pc-price">59<small>CHF/mois</small></div>
+      <div class="pc-sub">Facturé mensuellement · Engagement libre</div>
+      <a href="#" class="pc-cta">Choisir Premium →</a>
+    </div>
+
+    <div class="pricing-card pc-2">
+      <div class="pc-name">Plan Premium</div>
+      <div class="pc-title">Premium</div>
+      <div class="pc-price">59<small>CHF/mois</small></div>
+      <div class="pc-sub">Facturé mensuellement · Engagement libre</div>
+      <a href="#" class="pc-cta">Choisir Premium →</a>
+    </div>
+  </div>
+
+  <div class="pricing-row">
+    <div class="pricing-card pc-3">
+      <div class="pc-title">R3STO Mini</div>
+      <div class="pc-tag">Le calepin numérique du restaurateur indépendant</div>
+      <div class="pc-price">19<small>CHF/mois</small></div>
+      <div class="pc-engage">Engagement 3 ans · Tarif garanti 36 mois</div>
+      <a href="#" class="pc-cta">Profiter de l'offre →</a>
+    </div>
+
+    <div class="pricing-card pc-4">
+      <div class="pc-title">R3STO Mini</div>
+      <div class="pc-tag">Le calepin numérique du restaurateur indépendant</div>
+      <div class="pc-price">19<small>CHF/mois</small></div>
+      <div class="pc-engage">Engagement 3 ans · Tarif garanti 36 mois</div>
+      <a href="#" class="pc-cta">Profiter de l'offre →</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── INSURANCE-INSPIRED MOCKUPS ─── -->
+<div class="section-title">Inspiration "Vaud Assurances" — confiance institutionnelle</div>
+<div class="insurance-row">
+
+  <div class="ins-A">
+    <div class="ins-eyebrow">⭐ Confiance · Suisse · Indépendant</div>
+    <div class="ins-h">Votre restaurant mérite une <em>plateforme suisse</em>.</div>
+    <div class="ins-stat-row">
+      <div class="ins-stat"><div class="n">8200+</div><div class="l">Restaurants CH</div></div>
+      <div class="ins-stat"><div class="n">0%</div><div class="l">Commission</div></div>
+      <div class="ins-stat"><div class="n">14j</div><div class="l">Essai gratuit</div></div>
+    </div>
+    <a href="#" class="ins-cta">Démarrer l'essai →</a>
+  </div>
+
+  <div class="ins-B">
+    <div class="ins-eyebrow">⭐ Confiance · Suisse · Indépendant</div>
+    <div class="ins-h">Votre restaurant mérite une <em>plateforme suisse</em>.</div>
+    <div class="ins-stat-row">
+      <div class="ins-stat"><div class="n">8200+</div><div class="l">Restaurants CH</div></div>
+      <div class="ins-stat"><div class="n">0%</div><div class="l">Commission</div></div>
+      <div class="ins-stat"><div class="n">14j</div><div class="l">Essai gratuit</div></div>
+    </div>
+    <a href="#" class="ins-cta">Démarrer l'essai →</a>
+  </div>
+
+</div>
+
+<div style="padding:30px 40px;background:#0c1a3e;color:#fff;text-align:center;font-size:13px">
+  <strong style="color:#d4a44a">Question pour toi</strong> : quelle variante te parle le plus ? A / B / C / D / pricing 1-4 / insurance A-B ?
+</div>
+
+</body>
+</html>
