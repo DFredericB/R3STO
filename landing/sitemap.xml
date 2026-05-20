@@ -42,8 +42,37 @@
   <url><loc>https://r3sto.com/fiche.html?slug=le-petit-boeuf</loc><priority>0.6</priority></url>
   <url><loc>https://r3sto.com/fiche.html?slug=sakura</loc><priority>0.7</priority></url>
 
-  <!-- ═══ Pages SEO locales (Suisse) ═══ -->
-  <!-- Note : seront créées prochainement via /restaurants-{ville} -->
+  <!-- ═══ Pages SEO locales Suisse (30 villes top par nb restos) ═══ -->
+  <url><loc>https://r3sto.com/restaurants-geneve.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://r3sto.com/restaurants-zurich.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://r3sto.com/restaurants-lausanne.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://r3sto.com/restaurants-bern.html</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://r3sto.com/restaurants-sion.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://r3sto.com/restaurants-winterthur.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://r3sto.com/restaurants-fribourg.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://r3sto.com/restaurants-luzern.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://r3sto.com/restaurants-neuchatel.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://r3sto.com/restaurants-zermatt.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://r3sto.com/restaurants-la-chaux-de-fonds.html</loc><changefreq>weekly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://r3sto.com/restaurants-vevey.html</loc><changefreq>weekly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://r3sto.com/restaurants-martigny.html</loc><changefreq>weekly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://r3sto.com/restaurants-carouge.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://r3sto.com/restaurants-lugano.html</loc><changefreq>weekly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://r3sto.com/restaurants-biel-bienne.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://r3sto.com/restaurants-montreux.html</loc><changefreq>weekly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://r3sto.com/restaurants-sierre.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://r3sto.com/restaurants-morges.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://r3sto.com/restaurants-verbier.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://r3sto.com/restaurants-yverdon-les-bains.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://r3sto.com/restaurants-monthey.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://r3sto.com/restaurants-meyrin.html</loc><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://r3sto.com/restaurants-nyon.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://r3sto.com/restaurants-delemont.html</loc><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://r3sto.com/restaurants-crans-montana.html</loc><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://r3sto.com/restaurants-saas-fee.html</loc><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://r3sto.com/restaurants-brig.html</loc><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://r3sto.com/restaurants-bulle.html</loc><changefreq>weekly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://r3sto.com/restaurants-carouge-ge.html</loc><changefreq>weekly</changefreq><priority>0.65</priority></url>
 
   <!-- ═══ Légal ═══ -->
   <url><loc>https://r3sto.com/legal.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
