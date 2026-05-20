@@ -1608,6 +1608,200 @@ app.get('/admin/restaurants', authMiddleware, adminMiddleware, async (req, res) 
   }
 });
 
+// ── Admin : moderation des CLAIMS (revendications fiches annuaire) ──
+
+// GET /admin/claims?status=pending|approved|rejected|all
+app.get('/admin/claims', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const status = req.query.status || 'pending';
+    let where = '';
+    const params = [];
+    if (status !== 'all') { where = 'WHERE c.status = ?'; params.push(status); }
+    const [claims] = await pool.query(`
+      SELECT c.*,
+             dr.name as restaurant_name, dr.slug, dr.city, dr.canton_iso,
+             dr.address as restaurant_address, dr.phone as restaurant_phone,
+             dr.website as restaurant_website
+      FROM directory_claims c
+      LEFT JOIN directory_restaurants dr ON dr.id = c.restaurant_id
+      ${where}
+      ORDER BY c.created_at DESC
+      LIMIT 200
+    `, params);
+    res.json({ claims, count: claims.length });
+  } catch (err) {
+    console.error('[admin/claims]', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// POST /admin/claims/:id/approve  → marque resto claimed, optionnellement crée user
+// body: { create_user: true, send_email: true }
+app.post('/admin/claims/:id/approve', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { create_user = true, send_email = true } = req.body || {};
+    const [claims] = await pool.query('SELECT * FROM directory_claims WHERE id = ?', [req.params.id]);
+    if (claims.length === 0) return res.status(404).json({ error: 'Claim introuvable' });
+    const claim = claims[0];
+
+    // Marque claim approuvé
+    await pool.query(
+      `UPDATE directory_claims SET status = 'approved', reviewed_at = NOW(), reviewer_id = ?
+       WHERE id = ?`,
+      [req.user.id, claim.id]
+    );
+    // Marque directory_restaurants claimed
+    await pool.query(
+      `UPDATE directory_restaurants SET claim_status = 'claimed', claimed_at = NOW() WHERE id = ?`,
+      [claim.restaurant_id]
+    );
+
+    let userId = null;
+    let onboardToken = null;
+    if (create_user) {
+      // Crée user en mode pending — sans password, magic link OTP suivra
+      const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [claim.email]);
+      if (existing.length > 0) {
+        userId = existing[0].id;
+      } else {
+        onboardToken = require('crypto').randomBytes(20).toString('hex');
+        const [r] = await pool.query(
+          `INSERT INTO users (email, name, phone, role, plan, status, onboard_token, created_at)
+           VALUES (?, ?, ?, 'owner', 'mini', 'pending', ?, NOW())`,
+          [claim.email, claim.raison_sociale || claim.email.split('@')[0], claim.phone || '', onboardToken]
+        );
+        userId = r.insertId;
+      }
+    }
+
+    // Email d'invitation (best-effort)
+    if (send_email && claim.email && transporter) {
+      try {
+        const link = onboardToken
+          ? `https://r3sto.com/onboard?token=${onboardToken}`
+          : `https://app.r3sto.com/login`;
+        await transporter.sendMail({
+          from: `"R3STO" <${FROM_EMAIL}>`,
+          to: claim.email,
+          subject: '🎉 Ta fiche R3STO est validée',
+          html: `<p>Bonjour,</p>
+                 <p>Ta demande de revendication pour <strong>${claim.raison_sociale || 'ton établissement'}</strong> a été validée.</p>
+                 <p><a href="${link}" style="background:#a07e2a;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">Accéder à mon espace</a></p>
+                 <p>À bientôt,<br>L'équipe R3STO</p>`,
+        });
+      } catch (e) { console.warn('[claim approve] mail fail:', e.message); }
+    }
+
+    res.json({ ok: true, user_id: userId, onboard_token: onboardToken });
+  } catch (err) {
+    console.error('[admin/claims approve]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/claims/:id/reject  body: { reason }
+app.post('/admin/claims/:id/reject', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { reason } = req.body || {};
+    const [claims] = await pool.query('SELECT * FROM directory_claims WHERE id = ?', [req.params.id]);
+    if (claims.length === 0) return res.status(404).json({ error: 'Claim introuvable' });
+    const claim = claims[0];
+
+    await pool.query(
+      `UPDATE directory_claims SET status = 'rejected', reviewed_at = NOW(), reviewer_id = ?, rejection_reason = ?
+       WHERE id = ?`,
+      [req.user.id, reason || null, claim.id]
+    );
+    // Remet directory_restaurants à unclaimed si plus aucun claim pending
+    const [pending] = await pool.query(
+      `SELECT COUNT(*) as n FROM directory_claims WHERE restaurant_id = ? AND status = 'pending'`,
+      [claim.restaurant_id]
+    );
+    if (pending[0].n === 0) {
+      await pool.query(
+        `UPDATE directory_restaurants SET claim_status = 'unclaimed' WHERE id = ? AND claim_status = 'pending'`,
+        [claim.restaurant_id]
+      );
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Admin : moderation des SUBMISSIONS (nouvelles fiches proposees) ──
+
+// GET /admin/submissions?status=pending|approved|rejected|all
+app.get('/admin/submissions', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const status = req.query.status || 'pending';
+    let where = '';
+    const params = [];
+    if (status !== 'all') { where = 'WHERE status = ?'; params.push(status); }
+    const [submissions] = await pool.query(
+      `SELECT * FROM directory_submissions ${where} ORDER BY created_at DESC LIMIT 200`,
+      params
+    );
+    res.json({ submissions, count: submissions.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/submissions/:id/approve → crée la fiche dans directory_restaurants
+app.post('/admin/submissions/:id/approve', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const [subs] = await pool.query('SELECT * FROM directory_submissions WHERE id = ?', [req.params.id]);
+    if (subs.length === 0) return res.status(404).json({ error: 'Soumission introuvable' });
+    const s = subs[0];
+
+    // Génère un slug unique
+    const baseSlug = (s.name || 'restaurant')
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 80);
+    let slug = baseSlug;
+    let suffix = 1;
+    while (true) {
+      const [exists] = await pool.query('SELECT id FROM directory_restaurants WHERE slug = ?', [slug]);
+      if (exists.length === 0) break;
+      suffix++;
+      slug = `${baseSlug}-${suffix}`;
+    }
+
+    const [r] = await pool.query(
+      `INSERT INTO directory_restaurants
+        (slug, name, city, canton_iso, address, phone, website, email, claim_status, source, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'unclaimed', 'submission', NOW())`,
+      [slug, s.name, s.city || '', s.canton_iso || '', s.address || '', s.phone || '', s.website || '', s.email || '']
+    );
+    await pool.query(
+      `UPDATE directory_submissions SET status = 'approved', reviewed_at = NOW(), reviewer_id = ?, restaurant_id = ? WHERE id = ?`,
+      [req.user.id, r.insertId, s.id]
+    );
+    res.json({ ok: true, restaurant_id: r.insertId, slug });
+  } catch (err) {
+    console.error('[admin/submissions approve]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/submissions/:id/reject  body: { reason }
+app.post('/admin/submissions/:id/reject', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { reason } = req.body || {};
+    await pool.query(
+      `UPDATE directory_submissions SET status = 'rejected', reviewed_at = NOW(), reviewer_id = ?, rejection_reason = ? WHERE id = ?`,
+      [req.user.id, reason || null, req.params.id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PUT /admin/clients/:id (update plan, status, role)
 app.put('/admin/clients/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
@@ -2663,6 +2857,22 @@ async function autoMigrate() {
         }
       } catch (e) { /* déjà existant ou conflit, on ignore */ }
     }
+
+    // ── Admin tracking sur claims & submissions ──
+    await addColIfMissing('directory_claims', 'status',           "ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending'");
+    await addColIfMissing('directory_claims', 'reviewed_at',      "DATETIME NULL");
+    await addColIfMissing('directory_claims', 'reviewer_id',      "INT NULL");
+    await addColIfMissing('directory_claims', 'rejection_reason', "VARCHAR(255) NULL");
+    await addColIfMissing('directory_submissions', 'status',           "ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending'");
+    await addColIfMissing('directory_submissions', 'reviewed_at',      "DATETIME NULL");
+    await addColIfMissing('directory_submissions', 'reviewer_id',      "INT NULL");
+    await addColIfMissing('directory_submissions', 'rejection_reason', "VARCHAR(255) NULL");
+    await addColIfMissing('directory_submissions', 'restaurant_id',    "INT NULL COMMENT 'Si approve, id du dir_restaurant créé'");
+    await addColIfMissing('directory_restaurants', 'claimed_at',       "DATETIME NULL");
+    await addColIfMissing('directory_restaurants', 'source',           "VARCHAR(40) NULL DEFAULT 'import'");
+
+    // Onboard token (claim approve crée user en pending)
+    await addColIfMissing('users', 'onboard_token', "VARCHAR(64) NULL");
 
     // ── customers : CRM des clients du resto ──
     await pool.query(`CREATE TABLE IF NOT EXISTS crm_customers (

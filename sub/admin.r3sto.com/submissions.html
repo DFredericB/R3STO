@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R3STO Admin — Modération Soumissions</title>
+<meta name="theme-color" content="#0f1620">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="https://r3sto.com/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1620;--bg-2:#131c2a;--surf:#1a2435;--surf-2:#212d42;
+  --navy:#1c2e58;
+  --gold:#a07e2a;--gold-bright:#c89752;--gold-soft:rgba(160,126,42,.10);
+  --text:#e8eef5;--t-2:#aab5cc;--t-3:#7b88a8;
+  --border:rgba(74,107,140,.18);--border-2:rgba(74,107,140,.10);
+  --danger:#ff8484;--success:#4ade80;--warning:#fbbf24;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,monospace;
+  --sidebar-w:240px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.55;display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100vh}
+a{color:inherit;text-decoration:none}
+@media(max-width:880px){body{grid-template-columns:1fr}.sidebar{display:none}}
+
+.sidebar{background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-brand{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.sb-mast b{font-size:13px;font-weight:700;color:var(--text)}
+.sb-mast span{font-size:9.5px;font-weight:600;color:var(--gold-bright);letter-spacing:.14em;text-transform:uppercase}
+.sb-section{font-family:var(--fm);font-size:9.5px;font-weight:700;color:var(--t-3);letter-spacing:.16em;text-transform:uppercase;padding:18px 20px 8px}
+.sb-nav{padding:0 12px;display:flex;flex-direction:column;gap:1px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 12px;color:var(--t-2);font-size:13.5px;font-weight:500;border-left:2px solid transparent;transition:.15s}
+.sb-link:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.sb-link.on{color:var(--text);background:var(--gold-soft);border-left-color:var(--gold)}
+.sb-link .count{margin-left:auto;font-family:var(--fm);font-size:10px;color:var(--t-3);background:var(--bg-2);padding:2px 7px;border:1px solid var(--border-2)}
+
+.main{padding:28px 36px;max-width:1400px}
+h1{font-size:22px;font-weight:700;margin:0 0 6px}
+.sub{color:var(--t-2);font-size:13.5px;margin-bottom:24px}
+
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.tab{padding:10px 16px;font-size:13px;font-weight:600;color:var(--t-2);cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+.tab.on{color:var(--gold-bright);border-bottom-color:var(--gold)}
+.tab .badge{font-family:var(--fm);font-size:10px;padding:1px 6px;border-radius:8px;background:var(--bg-2);margin-left:6px}
+
+.table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surf);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.table thead{background:var(--bg-2)}
+.table th{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t-3);padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.table td{padding:12px;border-bottom:1px solid var(--border-2);vertical-align:top}
+.muted{color:var(--t-3);font-size:11.5px}
+.pill{font-family:var(--fm);font-size:10px;padding:2px 8px;border-radius:10px;display:inline-block}
+.pill-pending{background:rgba(251,191,36,.15);color:var(--warning);border:1px solid rgba(251,191,36,.30)}
+.pill-approved{background:rgba(74,222,128,.15);color:var(--success);border:1px solid rgba(74,222,128,.30)}
+.pill-rejected{background:rgba(255,132,132,.15);color:var(--danger);border:1px solid rgba(255,132,132,.30)}
+
+.btn{font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:4px;cursor:pointer;border:1px solid;margin-right:4px;transition:.15s}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn-approve{background:rgba(74,222,128,.10);color:var(--success);border-color:rgba(74,222,128,.35)}
+.btn-reject{background:rgba(255,132,132,.10);color:var(--danger);border-color:rgba(255,132,132,.35)}
+
+.empty{padding:48px;text-align:center;color:var(--t-3);font-size:13px}
+.empty b{display:block;color:var(--text);font-size:16px;margin-bottom:8px}
+
+#toast{position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:6px;font-size:13px;font-weight:600;background:var(--surf-2);border:1px solid var(--gold);color:var(--gold-bright);box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;z-index:1000}
+#toast.show{display:block}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-mast"><b>R3STO Admin</b><span>Innoptim</span></div>
+  </div>
+  <div class="sb-section">Plateforme</div>
+  <div class="sb-nav">
+    <a href="/" class="sb-link">Vue d'ensemble</a>
+    <a href="/restos.html" class="sb-link">Restaurants</a>
+    <a href="/users.html" class="sb-link">Utilisateurs</a>
+    <a href="/bookings.html" class="sb-link">Réservations</a>
+  </div>
+  <div class="sb-section">Modération</div>
+  <div class="sb-nav">
+    <a href="/claims.html" class="sb-link">Claims annuaire <span class="count" id="badge-claims">…</span></a>
+    <a href="/submissions.html" class="sb-link on">Soumissions <span class="count" id="badge-subs">…</span></a>
+  </div>
+  <div class="sb-section">Finance</div>
+  <div class="sb-nav">
+    <a href="/subscriptions.html" class="sb-link">Abonnements</a>
+  </div>
+</aside>
+
+<main class="main">
+  <h1>📨 Modération des soumissions</h1>
+  <div class="sub">Nouvelles fiches restaurants proposées via /signaler. Approuve pour créer la fiche dans l'annuaire (status unclaimed).</div>
+
+  <div class="tabs">
+    <div class="tab on" data-status="pending">En attente <span class="badge" id="cnt-pending">0</span></div>
+    <div class="tab" data-status="approved">Approuvés <span class="badge" id="cnt-approved">0</span></div>
+    <div class="tab" data-status="rejected">Rejetés <span class="badge" id="cnt-rejected">0</span></div>
+    <div class="tab" data-status="all">Tous</div>
+  </div>
+
+  <div id="content">
+    <div class="empty"><b>Chargement…</b></div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const API = 'https://api.r3sto.com';
+const TOKEN = localStorage.getItem('r3sto_admin_token') || prompt('Token admin (JWT) :');
+if (TOKEN && !localStorage.getItem('r3sto_admin_token')) localStorage.setItem('r3sto_admin_token', TOKEN);
+
+let currentStatus = 'pending';
+let cachedData = { pending: [], approved: [], rejected: [], all: [] };
+
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = isError ? 'var(--danger)' : 'var(--gold)';
+  t.style.color = isError ? 'var(--danger)' : 'var(--gold-bright)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function api(path, opts = {}) {
+  const r = await fetch(API + path, {
+    ...opts,
+    headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json', ...(opts.headers || {}) },
+  });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `HTTP ${r.status}`);
+  return r.json();
+}
+
+async function loadStatus(status) {
+  currentStatus = status;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.status === status));
+  document.getElementById('content').innerHTML = '<div class="empty"><b>Chargement…</b></div>';
+  try {
+    const { submissions } = await api(`/admin/submissions?status=${status}`);
+    cachedData[status] = submissions;
+    render(submissions, status);
+    updateBadges();
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<div class="empty"><b>Erreur</b>${e.message}</div>`;
+  }
+}
+
+function render(subs, status) {
+  if (!subs.length) {
+    document.getElementById('content').innerHTML = `<div class="empty"><b>Aucune soumission</b>${status === 'pending' ? 'Tout est traité 🎉' : 'Aucun résultat'}</div>`;
+    return;
+  }
+  const showActions = status === 'pending';
+  const rows = subs.map(s => {
+    const dt = new Date(s.created_at).toLocaleString('fr-CH', { dateStyle: 'short', timeStyle: 'short' });
+    const statusPill = s.status === 'approved' ? 'pill-approved' : s.status === 'rejected' ? 'pill-rejected' : 'pill-pending';
+    return `<tr>
+      <td><b>${s.name}</b><div class="muted">${s.city || ''} ${s.canton_iso || ''} · ${s.address || ''}</div></td>
+      <td>${s.website ? `<a href="${s.website}" target="_blank" style="color:var(--gold-bright)">${s.website.replace(/^https?:\/\//,'').slice(0,30)}</a>` : '<span class="muted">—</span>'}<div class="muted">${s.phone || ''}</div></td>
+      <td>${s.submitter_email}<div class="muted">${s.submitter_name || ''}</div></td>
+      <td class="muted">${s.notes || '—'}</td>
+      <td>${dt}<div><span class="pill ${statusPill}">${s.status}</span></div></td>
+      ${showActions ? `<td>
+        <button class="btn btn-approve" onclick="approve(${s.id})">✓ Approuver</button>
+        <button class="btn btn-reject" onclick="reject(${s.id})">✗ Rejeter</button>
+      </td>` : `<td class="muted">${s.rejection_reason || '—'}</td>`}
+    </tr>`;
+  }).join('');
+  document.getElementById('content').innerHTML = `
+    <table class="table">
+      <thead><tr>
+        <th>Restaurant</th><th>Web / Tel</th><th>Soumetteur</th><th>Notes</th><th>Date / Statut</th>
+        <th>${showActions ? 'Actions' : 'Détails'}</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+async function approve(id) {
+  if (!confirm('Créer la fiche annuaire ? Elle apparaîtra en status unclaimed.')) return;
+  const btn = event.target;
+  btn.disabled = true;
+  try {
+    const r = await api(`/admin/submissions/${id}/approve`, { method: 'POST' });
+    toast(`✓ Fiche créée · slug=${r.slug}`);
+    loadStatus(currentStatus);
+  } catch (e) { toast(e.message, true); btn.disabled = false; }
+}
+
+async function reject(id) {
+  const reason = prompt('Raison du rejet :');
+  if (reason === null) return;
+  const btn = event.target;
+  btn.disabled = true;
+  try {
+    await api(`/admin/submissions/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason }) });
+    toast('✗ Rejeté');
+    loadStatus(currentStatus);
+  } catch (e) { toast(e.message, true); btn.disabled = false; }
+}
+
+function updateBadges() {
+  document.getElementById('cnt-pending').textContent = cachedData.pending?.length || 0;
+  document.getElementById('cnt-approved').textContent = cachedData.approved?.length || 0;
+  document.getElementById('cnt-rejected').textContent = cachedData.rejected?.length || 0;
+  document.getElementById('badge-subs').textContent = cachedData.pending?.length || 0;
+}
+
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => loadStatus(t.dataset.status)));
+
+(async () => {
+  for (const s of ['pending', 'approved', 'rejected']) {
+    try { cachedData[s] = (await api(`/admin/submissions?status=${s}`)).submissions; } catch {}
+  }
+  updateBadges();
+  render(cachedData.pending, 'pending');
+  try {
+    const { claims } = await api('/admin/claims?status=pending');
+    document.getElementById('badge-claims').textContent = claims.length;
+  } catch {}
+})();
+</script>
+
+</body>
+</html>
