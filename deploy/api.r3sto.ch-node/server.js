@@ -1445,13 +1445,10 @@ async function pickBestTable(restoId, date, time, pax, customerId, plan) {
   const isVip = customer?.vip === 1;
   const prefs = (() => { try { return customer?.preferences ? JSON.parse(customer.preferences) : []; } catch { return []; } })();
 
-  // Plan free → no auto
-  if (plan === 'free' || plan === 'mini') {
-    return { table: null, score: 0, reasons: ['Mode AUTO non disponible sur plan Mini'] };
-  }
-  // Plan essentiel : 1ère table libre
-  if (rank <= 2) {
-    return { table: tables[0], score: 1, reasons: ['Plan Essentiel : 1ère table libre adaptée'] };
+  // Plan Mini/free : 1ère table libre (AUTO basique, sans intelligence)
+  if (plan === 'free' || plan === 'mini' || rank <= 2) {
+    const planLabel = (plan === 'free' || plan === 'mini') ? 'Mini' : 'Essentiel';
+    return { table: tables[0], score: 1, reasons: [`Plan ${planLabel} : 1ère table libre adaptée`] };
   }
 
   // Plan premium+ : scoring complet
