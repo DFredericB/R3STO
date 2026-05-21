@@ -540,7 +540,8 @@ export const useAppStore = create<AppStore>()(
           // Seules les données sont factices.
           try {
             const host = typeof window !== 'undefined' ? window.location.hostname : ''
-            const isDemoHost = host.startsWith('demo.') || host === 'demo.r3sto.ch'
+            const isDemoQuery = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('demo')
+            const isDemoHost = host.startsWith('demo.') || host === 'demo.r3sto.ch' || isDemoQuery
             if (state && (isDemoHost || state.isDemo)) {
               state.isDemo = true
               state.userRole = 'superadmin'

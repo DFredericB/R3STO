@@ -119,7 +119,8 @@ export default function App() {
   // Sur demo.r3sto.ch : charger les données démo immédiatement
   // Sur app.r3sto.ch : purger les données démo résiduelles
   useState(() => {
-    const isDemoHost = window.location.hostname.startsWith('demo.')
+    const isDemoQuery = new URLSearchParams(window.location.search).has('demo')
+    const isDemoHost = window.location.hostname.startsWith('demo.') || isDemoQuery
     if (!isDemoHost) {
       // Purge résidus démo sur prod
       const store = useAppStore.getState() as any
@@ -142,7 +143,7 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
 
-  const isDemo = window.location.hostname.startsWith('demo.')
+  const isDemo = window.location.hostname.startsWith('demo.') || new URLSearchParams(window.location.search).has('demo')
   const isAdmin = window.location.hostname.startsWith('admin.')
 
   // ── Auto-login via token URL (admin → demo) ─────────────────
