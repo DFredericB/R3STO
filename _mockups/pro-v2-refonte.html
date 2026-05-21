@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R3STO Pro — Refonte 2026-05-21</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f6fa;
+  --surf: #ffffff;
+  --surf-2: #eef3fa;
+  --navy: #1c2e58;
+  --navy-deep: #0c1a3e;
+  --navy-light: #2b3f72;
+  --gold: #a07e2a;
+  --gold-bright: #c89752;
+  --gold-deep: #7d5e1a;
+  --text: #0c1730;
+  --t-2: #4a5878;
+  --t-3: #7b88a8;
+  --border: #d6dfee;
+  --green: #16a34a;
+  --red: #dc2626;
+  --ff: 'DM Sans', system-ui, sans-serif;
+  --fm: 'JetBrains Mono', ui-monospace, monospace;
+  --serif: 'Playfair Display', serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--ff); background: var(--bg); color: var(--text); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.inner { max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+.eyebrow { font-family: var(--fm); font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 16px; }
+
+/* ───── NAV ───── */
+.nav { padding: 22px 28px; background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); background: rgba(244,246,250,.85); }
+.nav-row { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
+.logo-mark { width: 40px; height: 40px; background: var(--navy); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--gold-bright); font-family: var(--serif); font-size: 16px; font-weight: 800; }
+.logo-mast { line-height: 1.1; }
+.logo-mast b { font-size: 14px; font-weight: 700; color: var(--navy); display: block; letter-spacing: -.01em; }
+.logo-mast span { font-family: var(--fm); font-size: 10px; color: var(--gold-deep); letter-spacing: .14em; text-transform: uppercase; }
+.nav-links { display: flex; gap: 28px; }
+.nav-links a { color: var(--t-2); text-decoration: none; font-size: 14px; font-weight: 500; }
+.nav-links a:hover { color: var(--navy); }
+.nav-cta { padding: 10px 22px; background: var(--navy); color: #fff; border-radius: 4px; font-size: 13px; font-weight: 700; text-decoration: none; }
+
+/* ───── HERO bicolore split ───── */
+.hero { padding: 80px 28px 60px; background: linear-gradient(180deg, var(--bg) 0%, var(--surf-2) 100%); }
+.hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 60px; align-items: center; max-width: 1240px; margin: 0 auto; }
+@media(max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+.hero-title { font-family: var(--serif); font-size: clamp(40px, 5.5vw, 68px); font-weight: 800; line-height: 1.05; letter-spacing: -1.5px; color: var(--navy); margin-bottom: 24px; }
+.hero-title em { color: var(--gold-deep); font-style: italic; font-weight: 800; }
+.hero-sub { font-size: 18px; line-height: 1.6; color: var(--t-2); margin-bottom: 32px; max-width: 540px; }
+.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 36px; }
+.btn { padding: 14px 26px; border-radius: 4px; font-size: 14px; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; transition: .2s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy-deep); transform: translateY(-1px); }
+.btn-secondary { background: transparent; color: var(--navy); border: 1.5px solid var(--navy); }
+.btn-secondary:hover { background: var(--navy); color: #fff; }
+
+.hero-trust { display: flex; gap: 28px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid var(--border); }
+.hero-trust div { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--t-2); }
+.hero-trust b { color: var(--gold-deep); font-weight: 700; }
+.dot-live { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+/* Hero RIGHT — mockup dashboard preview */
+.hero-mockup { position: relative; }
+.dash-card { background: var(--navy); border-radius: 12px; box-shadow: 0 30px 80px rgba(28,46,88,.25), 0 12px 30px rgba(28,46,88,.15); overflow: hidden; transform: rotate(-1deg) translateY(0); transition: .3s; }
+.dash-card:hover { transform: rotate(0deg) translateY(-4px); }
+.dash-bar { padding: 12px 16px; background: rgba(0,0,0,.2); display: flex; gap: 6px; align-items: center; }
+.dash-dot { width: 10px; height: 10px; border-radius: 50%; }
+.dash-dot.r { background: #ff5f57; }
+.dash-dot.y { background: #ffbd2e; }
+.dash-dot.g { background: #28ca42; }
+.dash-url { margin-left: 10px; color: rgba(255,255,255,.6); font-family: var(--fm); font-size: 11px; }
+.dash-body { padding: 20px 24px; color: #fff; }
+.dash-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.dash-h b { font-size: 13px; color: var(--gold-bright); font-family: var(--fm); letter-spacing: .08em; text-transform: uppercase; }
+.dash-stats { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.dash-stat { background: rgba(255,255,255,.05); border: 1px solid rgba(212,164,74,.2); padding: 12px; border-radius: 6px; }
+.dash-stat .n { font-family: var(--serif); font-size: 22px; font-weight: 800; color: var(--gold-bright); line-height: 1; margin-bottom: 4px; }
+.dash-stat .l { font-size: 9.5px; color: rgba(255,255,255,.6); font-family: var(--fm); text-transform: uppercase; letter-spacing: .06em; }
+.dash-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.dash-cell { aspect-ratio: 1; border-radius: 3px; }
+.dash-cell.free { background: rgba(255,255,255,.08); }
+.dash-cell.occ { background: var(--gold-bright); }
+.dash-cell.held { background: rgba(212,164,74,.4); }
+.dash-cell.blocked { background: rgba(220,38,38,.4); }
+
+/* ───── STAT BAR géante ───── */
+.stat-bar { padding: 50px 28px; background: var(--navy); }
+.stat-bar-grid { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+@media(max-width: 768px) { .stat-bar-grid { grid-template-columns: 1fr 1fr; gap: 24px 0; } }
+.stat-big { padding: 0 24px; border-left: 1px solid rgba(212,164,74,.2); color: #fff; }
+.stat-big:first-child { border-left: 0; padding-left: 0; }
+.stat-big .n { font-family: var(--serif); font-size: clamp(40px, 5vw, 64px); font-weight: 800; color: var(--gold-bright); line-height: 1; margin-bottom: 8px; }
+.stat-big .l { font-size: 13px; color: rgba(255,255,255,.7); }
+.stat-big.danger .n { color: #ff8484; }
+
+/* ───── SECTION TITLE ───── */
+.section { padding: 100px 28px; }
+.section-head { text-align: center; margin-bottom: 60px; max-width: 720px; margin-left: auto; margin-right: auto; }
+.section-title { font-family: var(--serif); font-size: clamp(34px, 4vw, 48px); font-weight: 700; line-height: 1.1; letter-spacing: -1px; margin-bottom: 16px; color: var(--navy); }
+.section-title em { color: var(--gold-deep); font-style: italic; }
+.section-sub { font-size: 17px; color: var(--t-2); line-height: 1.6; }
+
+/* ───── BENTO GRID 4 axes (au lieu du camembert) ───── */
+.bento { display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: 200px; gap: 16px; max-width: 1240px; margin: 0 auto; }
+@media(max-width: 900px) { .bento { grid-template-columns: 1fr 1fr; grid-auto-rows: auto; } }
+
+.bento-card { background: var(--surf); border: 1px solid var(--border); border-radius: 14px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; transition: .25s; position: relative; overflow: hidden; }
+.bento-card:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(28,46,88,.10); border-color: var(--gold-deep); }
+.bento-card .b-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px; }
+.bento-card h3 { font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.bento-card p { font-size: 14px; color: var(--t-2); line-height: 1.5; }
+
+/* Bento sizes */
+.b-resa { grid-column: span 4; grid-row: span 2; background: var(--navy); color: #fff; padding: 36px; }
+.b-resa .b-icon { background: var(--gold-bright); color: var(--navy); }
+.b-resa h3 { color: #fff; font-size: 28px; }
+.b-resa p { color: rgba(255,255,255,.75); font-size: 15px; }
+.b-resa::after { content: ''; position: absolute; right: -60px; bottom: -60px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(212,164,74,.18) 0%, transparent 70%); }
+
+.b-seo { grid-column: span 2; background: linear-gradient(135deg, #fff8e8 0%, #fff 100%); border-color: var(--gold-deep); }
+.b-seo .b-icon { background: var(--gold-deep); color: #fff; }
+
+.b-site { grid-column: span 2; }
+.b-site .b-icon { background: var(--gold-bright); color: var(--navy); }
+
+.b-modules { grid-column: span 4; background: var(--navy-deep); color: #fff; }
+.b-modules .b-icon { background: var(--gold-bright); color: var(--navy); }
+.b-modules h3 { color: #fff; }
+.b-modules p { color: rgba(255,255,255,.75); }
+.b-modules-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.b-modules-list span { font-family: var(--fm); font-size: 11px; padding: 4px 10px; background: rgba(212,164,74,.15); border: 1px solid rgba(212,164,74,.4); color: var(--gold-bright); border-radius: 4px; }
+
+/* ───── BEFORE/AFTER compare ───── */
+.compare-sec { background: var(--surf-2); padding: 100px 28px; }
+.compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 36px; max-width: 1100px; margin: 0 auto; align-items: stretch; }
+@media(max-width: 800px) { .compare-grid { grid-template-columns: 1fr; } }
+.compare-col { background: var(--surf); border-radius: 14px; padding: 36px 32px; }
+.compare-col.before { border: 1px solid #e8c8c8; opacity: .7; position: relative; }
+.compare-col.before::before { content: '✗'; position: absolute; top: -16px; left: -16px; width: 36px; height: 36px; background: var(--red); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; }
+.compare-col.after { border: 2px solid var(--gold-deep); position: relative; box-shadow: 0 12px 36px rgba(160,126,42,.15); }
+.compare-col.after::before { content: '✓'; position: absolute; top: -16px; left: -16px; width: 36px; height: 36px; background: var(--green); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; }
+.compare-col h4 { font-family: var(--fm); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--t-3); margin-bottom: 18px; }
+.compare-col.after h4 { color: var(--gold-deep); }
+.compare-h2 { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--navy); margin-bottom: 20px; line-height: 1.2; }
+.compare-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.compare-list li { font-size: 14px; color: var(--t-2); padding-left: 28px; position: relative; line-height: 1.5; }
+.compare-list li::before { position: absolute; left: 0; top: 0; font-size: 16px; }
+.compare-col.before .compare-list li::before { content: '✗'; color: var(--red); }
+.compare-col.after .compare-list li::before { content: '✓'; color: var(--green); font-weight: 800; }
+.compare-vs { display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 28px; font-weight: 800; color: var(--gold-deep); font-style: italic; }
+
+/* ───── JOURNEY timeline ───── */
+.journey { padding: 100px 28px; background: var(--bg); }
+.journey-track { max-width: 1100px; margin: 0 auto; position: relative; }
+.journey-line { position: absolute; left: 50%; top: 40px; bottom: 40px; width: 2px; background: var(--gold-deep); transform: translateX(-50%); }
+@media(max-width: 800px) { .journey-line { left: 30px; } }
+.journey-step { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin-bottom: 60px; position: relative; }
+@media(max-width: 800px) { .journey-step { grid-template-columns: 60px 1fr; gap: 16px; } }
+.journey-step:last-child { margin-bottom: 0; }
+.journey-num { width: 60px; height: 60px; background: var(--navy); border: 3px solid var(--gold-bright); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold-bright); font-family: var(--serif); font-size: 24px; font-weight: 800; position: relative; z-index: 2; }
+.journey-step .content { background: var(--surf); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; }
+@media(max-width: 800px) { .journey-step .content { grid-column: 2; } }
+.journey-step .content h4 { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.journey-step .content p { font-size: 14px; color: var(--t-2); line-height: 1.55; }
+.journey-step.right .content { grid-column: 3; }
+.journey-step.left .content { grid-column: 1; text-align: right; }
+@media(max-width: 800px) { .journey-step.right .content, .journey-step.left .content { grid-column: 2; text-align: left; } }
+.journey-spacer { display: block; }
+@media(max-width: 800px) { .journey-spacer { display: none; } }
+
+/* ───── PRICING refonte ───── */
+.pricing { padding: 100px 28px; background: var(--surf-2); }
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1100px; margin: 50px auto 40px; }
+@media(max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; max-width: 480px; } }
+.price-card { background: var(--surf); border: 1px solid var(--border); border-radius: 14px; padding: 36px 28px; display: flex; flex-direction: column; transition: .25s; }
+.price-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(28,46,88,.10); }
+.price-card.featured { border: 2px solid var(--gold-deep); position: relative; transform: scale(1.03); }
+.price-card.featured::before { content: 'POPULAIRE'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--gold-deep); color: #fff; font-family: var(--fm); font-size: 10px; font-weight: 700; letter-spacing: .14em; padding: 4px 12px; border-radius: 3px; }
+.price-name { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.price-tag { font-size: 13px; color: var(--t-3); margin-bottom: 24px; }
+.price-amount { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+.price-amount .amt { font-family: var(--serif); font-size: 48px; font-weight: 800; color: var(--gold-deep); line-height: 1; }
+.price-amount small { font-size: 13px; color: var(--t-3); }
+.price-period { font-family: var(--fm); font-size: 11px; color: var(--t-3); letter-spacing: .04em; margin-bottom: 24px; }
+.price-feats { list-style: none; padding: 0; flex: 1; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.price-feats li { font-size: 13.5px; color: var(--t-2); padding-left: 22px; position: relative; line-height: 1.5; }
+.price-feats li::before { content: '✓'; position: absolute; left: 0; top: 0; color: var(--gold-deep); font-weight: 800; }
+.price-cta { padding: 12px 22px; background: transparent; color: var(--navy); border: 1.5px solid var(--navy); border-radius: 4px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; transition: .2s; }
+.price-cta:hover { background: var(--navy); color: #fff; }
+.price-card.featured .price-cta { background: var(--navy); color: #fff; }
+.price-card.featured .price-cta:hover { background: var(--navy-deep); }
+
+/* Mini banner spéciale */
+.mini-banner { max-width: 1100px; margin: 0 auto; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%); border-radius: 16px; padding: 36px 40px; color: #fff; position: relative; overflow: hidden; border: 2px solid var(--gold-bright); display: grid; grid-template-columns: 1fr auto; gap: 36px; align-items: center; }
+@media(max-width: 800px) { .mini-banner { grid-template-columns: 1fr; gap: 20px; } }
+.mini-banner::before { content: '🔥 OFFRE SPÉCIALE LANCEMENT'; position: absolute; top: -12px; left: 36px; background: var(--gold-bright); color: var(--navy); font-family: var(--fm); font-size: 10px; font-weight: 800; letter-spacing: .14em; padding: 4px 12px; border-radius: 3px; }
+.mini-banner h3 { font-family: var(--serif); font-size: 32px; font-weight: 800; color: var(--gold-bright); margin-bottom: 8px; }
+.mini-banner p { color: rgba(255,255,255,.8); font-size: 15px; margin-bottom: 16px; max-width: 480px; }
+.mini-banner .feats { display: flex; gap: 6px; flex-wrap: wrap; }
+.mini-banner .feats span { font-family: var(--fm); font-size: 10px; padding: 3px 8px; background: rgba(212,164,74,.15); border: 1px solid rgba(212,164,74,.4); color: var(--gold-bright); border-radius: 3px; }
+.mini-banner .pricing-block { text-align: right; }
+@media(max-width: 800px) { .mini-banner .pricing-block { text-align: left; } }
+.mini-banner .amt-big { font-family: var(--serif); font-size: 64px; font-weight: 800; color: var(--gold-bright); line-height: 1; margin-bottom: 6px; }
+.mini-banner .amt-big small { font-size: 16px; color: rgba(255,255,255,.7); font-weight: 500; }
+.mini-banner .commit { font-family: var(--fm); font-size: 11px; color: rgba(255,255,255,.7); margin-bottom: 16px; }
+.mini-banner .cta { display: inline-block; padding: 13px 28px; background: var(--gold-bright); color: var(--navy); font-weight: 800; border-radius: 4px; text-decoration: none; font-size: 13px; }
+
+/* ───── FOOTER ───── */
+.footer { padding: 60px 28px; background: var(--navy-deep); color: rgba(255,255,255,.6); font-size: 13px; text-align: center; }
+.footer a { color: var(--gold-bright); text-decoration: none; }
+
+</style>
+</head>
+<body>
+
+<!-- ───── NAV ───── -->
+<nav class="nav">
+  <div class="nav-row">
+    <a href="/" class="logo">
+      <div class="logo-mark">R3</div>
+      <div class="logo-mast"><b>R3STO</b><span>Espace Pro</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="#axes">L'écosystème</a>
+      <a href="#compare">Comparatif</a>
+      <a href="#journey">Comment ça marche</a>
+      <a href="#tarifs">Tarifs</a>
+    </div>
+    <a href="https://auth.r3sto.com/signup" class="nav-cta">Essai 14 jours →</a>
+  </div>
+</nav>
+
+<!-- ───── HERO ───── -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-left">
+      <div class="eyebrow">CH · FR · DE · IT · Sans commission, jamais</div>
+      <h1 class="hero-title">L'<em>OS</em> du restaurateur indépendant.</h1>
+      <p class="hero-sub">Une plateforme suisse unique pour gérer vos réservations, héberger votre site, apparaître dans l'annuaire R3STO consulté par des milliers de gourmets — et bien plus.</p>
+      <div class="hero-btns">
+        <a href="https://auth.r3sto.com/signup" class="btn btn-primary">Démarrer l'essai 14 jours →</a>
+        <a href="#tarifs" class="btn btn-secondary">Voir les tarifs</a>
+      </div>
+      <div class="hero-trust">
+        <div><span class="dot-live"></span> <b>+800</b> réservations/jour</div>
+        <div><b>0%</b> commission</div>
+        <div><b>14j</b> d'essai gratuit</div>
+        <div>Hébergé <b>en Suisse</b></div>
+      </div>
+    </div>
+
+    <div class="hero-mockup">
+      <div class="dash-card">
+        <div class="dash-bar">
+          <span class="dash-dot r"></span>
+          <span class="dash-dot y"></span>
+          <span class="dash-dot g"></span>
+          <span class="dash-url">app.r3sto.com — Le Comptoir du Lac · Lausanne</span>
+        </div>
+        <div class="dash-body">
+          <div class="dash-h">
+            <b>Plan de salle · Vendredi 22 mai · Service du soir</b>
+          </div>
+          <div class="dash-stats">
+            <div class="dash-stat"><div class="n">31</div><div class="l">Résas</div></div>
+            <div class="dash-stat"><div class="n">164</div><div class="l">Couverts</div></div>
+            <div class="dash-stat"><div class="n">97%</div><div class="l">Rempl.</div></div>
+            <div class="dash-stat"><div class="n">2</div><div class="l">VIP</div></div>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-cell occ"></div><div class="dash-cell occ"></div><div class="dash-cell free"></div><div class="dash-cell occ"></div>
+            <div class="dash-cell held"></div><div class="dash-cell occ"></div><div class="dash-cell occ"></div><div class="dash-cell free"></div>
+            <div class="dash-cell occ"></div><div class="dash-cell occ"></div><div class="dash-cell occ"></div><div class="dash-cell blocked"></div>
+            <div class="dash-cell free"></div><div class="dash-cell occ"></div><div class="dash-cell held"></div><div class="dash-cell occ"></div>
+            <div class="dash-cell occ"></div><div class="dash-cell occ"></div><div class="dash-cell free"></div><div class="dash-cell occ"></div>
+            <div class="dash-cell occ"></div><div class="dash-cell occ"></div><div class="dash-cell occ"></div><div class="dash-cell held"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───── STAT BAR géante ───── -->
+<section class="stat-bar">
+  <div class="stat-bar-grid">
+    <div class="stat-big danger">
+      <div class="n">−87%</div>
+      <div class="l">No-shows avec prépaiement Stripe</div>
+    </div>
+    <div class="stat-big">
+      <div class="n">0%</div>
+      <div class="l">Commission, pour toujours</div>
+    </div>
+    <div class="stat-big">
+      <div class="n">+2h</div>
+      <div class="l">Gagnées par jour</div>
+    </div>
+    <div class="stat-big">
+      <div class="n">10 min</div>
+      <div class="l">Pour être opérationnel</div>
+    </div>
+  </div>
+</section>
+
+<!-- ───── BENTO 4 AXES ───── -->
+<section class="section" id="axes">
+  <div class="section-head">
+    <div class="eyebrow">L'écosystème R3STO</div>
+    <h2 class="section-title">4 piliers du métier <em>en un seul outil</em></h2>
+    <p class="section-sub">Les autres plateformes ne couvrent qu'un axe (la réservation). R3STO couvre l'<strong>ensemble du métier</strong> du restaurateur indépendant.</p>
+  </div>
+
+  <div class="bento">
+    <article class="bento-card b-resa">
+      <div>
+        <div class="b-icon">🪑</div>
+        <h3>Réservations</h3>
+        <p>Widget intégrable, plan de salle 2D interactif, auto-pilot IA best-table, anti no-show, walk-in, waitlist, groupes, événements. Le cœur du métier, sans concession.</p>
+      </div>
+    </article>
+
+    <article class="bento-card b-seo">
+      <div>
+        <div class="b-icon">🌐</div>
+        <h3>Référencement</h3>
+      </div>
+      <p>Annuaire r3sto.com, label Carat, 30 pages SEO locales, Schema.org, multi-langue FR/DE/IT/EN.</p>
+    </article>
+
+    <article class="bento-card b-site">
+      <div>
+        <div class="b-icon">🏪</div>
+        <h3>Site & Comm</h3>
+      </div>
+      <p>Site vitrine, marketing emails segmentés, gestion avis, widget white-label, fidélité.</p>
+    </article>
+
+    <article class="bento-card b-modules">
+      <div>
+        <div class="b-icon">💳</div>
+        <h3>Revenus &amp; Modules</h3>
+        <p>Au-delà de la résa, des outils pour faire croître votre CA. Bons cadeaux, prépaiement, click &amp; collect, livraison, yield management.</p>
+        <div class="b-modules-list">
+          <span>Order</span><span>Delivery</span><span>Gift cards</span><span>Yield</span><span>Analytics+</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ───── COMPARE BEFORE/AFTER ───── -->
+<section class="compare-sec" id="compare">
+  <div class="section-head">
+    <div class="eyebrow">Avant vs. avec R3STO</div>
+    <h2 class="section-title">La vie de votre resto, <em>réinventée</em>.</h2>
+  </div>
+
+  <div class="compare-grid inner">
+    <div class="compare-col before">
+      <h4>Avant</h4>
+      <div class="compare-h2">Plateforme étrangère + cahier papier</div>
+      <ul class="compare-list">
+        <li>Commission 2 à 5 € par couvert</li>
+        <li>Vos clients appartiennent à la plateforme</li>
+        <li>Aucun contrôle sur les données</li>
+        <li>Site web facturé 2 à 5 000 CHF</li>
+        <li>Plusieurs outils non synchronisés</li>
+        <li>No-shows : 15 % du CA perdu</li>
+        <li>Pas d'optimisation IA des tables</li>
+        <li>Support à l'étranger, sans suivi</li>
+      </ul>
+    </div>
+
+    <div class="compare-vs">vs</div>
+
+    <div class="compare-col after">
+      <h4>Avec R3STO</h4>
+      <div class="compare-h2">L'OS du restaurant indépendant</div>
+      <ul class="compare-list">
+        <li>0 % commission, abonnement fixe</li>
+        <li>Vos clients, vos données, votre propriété</li>
+        <li>Hébergé en Suisse, RGPD natif</li>
+        <li>Site vitrine inclus dès Signature</li>
+        <li>Tout dans une seule plateforme synchronisée</li>
+        <li>Anti no-show Stripe : −87 % de pertes</li>
+        <li>Auto-pilot IA : best-table scoring + VIP</li>
+        <li>Support suisse, conçu par des restaurateurs</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ───── JOURNEY ───── -->
+<section class="journey" id="journey">
+  <div class="section-head">
+    <div class="eyebrow">Comment ça marche</div>
+    <h2 class="section-title">De l'inscription à votre <em>premier service</em>, en 4 étapes.</h2>
+  </div>
+
+  <div class="journey-track">
+    <div class="journey-line"></div>
+
+    <div class="journey-step left">
+      <div class="content">
+        <h4>1. Inscription en 2 minutes</h4>
+        <p>Vous créez votre compte sur auth.r3sto.com avec un magic link sécurisé. Choisissez votre forfait (Mini, Essentiel, Premium ou Signature).</p>
+      </div>
+      <div class="journey-num">1</div>
+      <div class="journey-spacer"></div>
+    </div>
+
+    <div class="journey-step right">
+      <div class="journey-spacer"></div>
+      <div class="journey-num">2</div>
+      <div class="content">
+        <h4>2. Configuration guidée</h4>
+        <p>Tutoriel interactif : salles, tables, services, horaires. En 10 minutes, votre établissement est paramétré et prêt à recevoir des réservations.</p>
+      </div>
+    </div>
+
+    <div class="journey-step left">
+      <div class="content">
+        <h4>3. Widget &amp; annuaire activés</h4>
+        <p>Le widget de réservation s'intègre à votre site existant. Votre fiche apparaît dans l'annuaire R3STO consulté par les gourmets.</p>
+      </div>
+      <div class="journey-num">3</div>
+      <div class="journey-spacer"></div>
+    </div>
+
+    <div class="journey-step right">
+      <div class="journey-spacer"></div>
+      <div class="journey-num">4</div>
+      <div class="content">
+        <h4>4. Premier service serein</h4>
+        <p>Vos clients réservent. Vous gérez. Anti no-show activé, rappels emails, plan de salle live, CRM clients. Le tout sans commission, hébergé en Suisse.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───── PRICING ───── -->
+<section class="pricing" id="tarifs">
+  <div class="section-head">
+    <div class="eyebrow">Tarifs transparents</div>
+    <h2 class="section-title">Un prix <em>fixe</em>. Pas de surprise.</h2>
+    <p class="section-sub">3 plans Pro pour grandir à votre rythme + l'offre spéciale Mini. 14 jours d'essai gratuit sur tous les plans. Engagement 1, 2 ou 3 ans avec remise jusqu'à −25%.</p>
+  </div>
+
+  <div class="pricing-grid">
+    <article class="price-card">
+      <div class="price-name">Essentiel</div>
+      <div class="price-tag">Vraie plateforme avec équipe</div>
+      <div class="price-amount"><span class="amt">39</span><small>CHF/mois</small></div>
+      <div class="price-period">468 CHF/an · −25% sur 3 ans (1053 CHF)</div>
+      <ul class="price-feats">
+        <li>Plan de salle 2D interactif</li>
+        <li>Anti no-show empreinte CB Stripe</li>
+        <li>Emails automatiques</li>
+        <li>CRM avancé (prefs, allergies, VIP)</li>
+        <li>Programme fidélité</li>
+      </ul>
+      <a href="https://auth.r3sto.com/signup?plan=essentiel" class="price-cta">Choisir Essentiel</a>
+    </article>
+
+    <article class="price-card featured">
+      <div class="price-name">Premium</div>
+      <div class="price-tag">Auto-pilot IA + 2 établissements</div>
+      <div class="price-amount"><span class="amt">59</span><small>CHF/mois</small></div>
+      <div class="price-period">708 CHF/an · −25% sur 3 ans (1593 CHF)</div>
+      <ul class="price-feats">
+        <li>Tout Essentiel +</li>
+        <li>Auto-pilot IA best-table scoring</li>
+        <li>Marketing emails campagnes auto</li>
+        <li>Analytics avancés + cohortes</li>
+        <li>Gestion réponses aux avis</li>
+        <li>2 établissements</li>
+      </ul>
+      <a href="https://auth.r3sto.com/signup?plan=premium" class="price-cta">Choisir Premium</a>
+    </article>
+
+    <article class="price-card">
+      <div class="price-name">Signature</div>
+      <div class="price-tag">Le top, sans compromis</div>
+      <div class="price-amount"><span class="amt">79</span><small>CHF/mois</small></div>
+      <div class="price-period">948 CHF/an · −25% sur 3 ans (2133 CHF)</div>
+      <ul class="price-feats">
+        <li>Tout Premium +</li>
+        <li>Multi-établissements illimités</li>
+        <li>Yield management revenue optim</li>
+        <li>Site vitrine inclus</li>
+        <li>Widget white-label, API ouverte</li>
+        <li>Bons cadeaux, prépaiement</li>
+        <li>Boost référencement Carat</li>
+        <li>Account manager + SLA premium</li>
+      </ul>
+      <a href="https://auth.r3sto.com/signup?plan=signature" class="price-cta">Choisir Signature</a>
+    </article>
+  </div>
+
+  <!-- Mini Banner -->
+  <div class="mini-banner">
+    <div>
+      <h3>R3STO Mini</h3>
+      <p>Le calepin numérique du restaurateur indépendant. Widget, multi-salles, multi-services, CRM léger, annuaire R3STO. 1 utilisateur.</p>
+      <div class="feats">
+        <span>Widget réservation</span>
+        <span>Multi-salles</span>
+        <span>Multi-services</span>
+        <span>Blacklist</span>
+        <span>CRM léger</span>
+        <span>Annuaire + Carat</span>
+      </div>
+    </div>
+    <div class="pricing-block">
+      <div class="amt-big">19<small> CHF/mois</small></div>
+      <div class="commit">Engagement 3 ans · Tarif garanti 36 mois</div>
+      <a href="https://auth.r3sto.com/signup?plan=mini" class="cta">Profiter de l'offre →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ───── FOOTER ───── -->
+<footer class="footer">
+  © 2026 Innoptim SA · Lausanne · <a href="https://r3sto.com">r3sto.com</a> · <a href="/legal.html">Légal</a>
+</footer>
+
+</body>
+</html>

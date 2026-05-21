@@ -324,41 +324,119 @@ section {padding:var(--section-pad);position:relative}
 @keyframes pulse {0%,100%{opacity:1}50%{opacity:.4}}
 
 /* =========================================================
-   STATS STRIP (subtle navy bandeau)
+   STATS STRIP (navy bandeau vivant avec animation)
    ========================================================= */
 .stats {
-  background:var(--navy);
-  padding:64px 24px;
+  background: linear-gradient(135deg, #1c2e58 0%, #13224a 50%, #0c1a3e 100%);
+  padding: 64px 24px 72px;
+  position: relative;
+  overflow: hidden;
+}
+.stats::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(200,151,82,.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+.stats::after {
+  content: '';
+  position: absolute;
+  bottom: -60%; left: -20%;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(160,126,42,.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.stats-eyebrow {
+  max-width:var(--max);margin:0 auto 32px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--fm);font-size:11px;font-weight:700;
+  letter-spacing:.20em;text-transform:uppercase;
+  color:var(--gold-bright);
+  position:relative;z-index:2;
+}
+.stats-eyebrow .live-dot {
+  width:8px;height:8px;border-radius:50%;background:#4ade80;
+  box-shadow:0 0 0 0 rgba(74,222,128,.6);
+  animation:livePulse 1.8s infinite;
+}
+@keyframes livePulse {
+  0% { box-shadow: 0 0 0 0 rgba(74,222,128,.6); }
+  70% { box-shadow: 0 0 0 12px rgba(74,222,128,0); }
+  100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
 }
 .stats-grid {
   max-width:var(--max);margin:0 auto;
   display:grid;grid-template-columns:repeat(4,1fr);
+  position:relative;z-index:2;
 }
 .stats-grid > div {
-  padding:8px 32px;
-  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
-  border-left:1px solid rgba(255,255,255,.12);
-  text-align:left;
+  padding: 24px 28px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  position: relative;
+  border-radius: 12px;
+  transition: .3s;
+  cursor: default;
 }
-.stats-grid > div:first-child {border-left:0;padding-left:0}
+.stats-grid > div:hover {
+  background: rgba(212,164,74,.06);
+  transform: translateY(-4px);
+}
+.stats-grid > div:not(:first-child)::before {
+  content: '';
+  position: absolute;
+  left: -1px; top: 20%; bottom: 20%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(212,164,74,.25), transparent);
+}
+.stat-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+  display: inline-flex;
+  width: 56px; height: 56px;
+  background: rgba(212,164,74,.12);
+  border: 1px solid rgba(212,164,74,.3);
+  border-radius: 14px;
+  align-items: center; justify-content: center;
+  transition: .3s;
+}
+.stats-grid > div:hover .stat-icon {
+  background: rgba(212,164,74,.25);
+  transform: rotate(-6deg) scale(1.08);
+}
 .stat-n {
   font-family:var(--ff);
-  font-size:clamp(34px,4.5vw,54px);
-  font-weight:800;letter-spacing:-1.8px;
+  font-size:clamp(40px,5vw,60px);
+  font-weight:900;letter-spacing:-2px;
   line-height:1;color:#fff;
+  display:flex;align-items:baseline;gap:4px;
 }
 .stat-n .gold {color:var(--gold-bright)}
-.stat-n.danger {color:#ff8484}
+.stat-n.danger {color:#ff8484; text-shadow: 0 0 30px rgba(255,132,132,.3); }
+.stat-n.success {color:#4ade80; text-shadow: 0 0 30px rgba(74,222,128,.3); }
+.stat-n.goldglow {color:var(--gold-bright); text-shadow: 0 0 30px rgba(212,164,74,.4); }
 .stat-l {
-  font-family:var(--fm);font-size:11px;
-  color:rgba(255,255,255,.55);
-  margin-top:16px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+  font-family:var(--fm);font-size:11.5px;
+  color:rgba(255,255,255,.65);
+  margin-top:12px;font-weight:500;letter-spacing:.10em;text-transform:uppercase;
+  line-height:1.5;
 }
+.stat-trend {
+  margin-top: 10px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--fm); font-size: 10px;
+  color: var(--gold-bright);
+  padding: 3px 8px;
+  background: rgba(212,164,74,.1);
+  border-radius: 3px;
+  letter-spacing: .04em;
+}
+.stat-trend.up::before { content: '↗'; font-weight: 700; }
+.stat-trend.down::before { content: '↘'; font-weight: 700; color: #4ade80; }
 @media(max-width:900px){
-  .stats-grid{grid-template-columns:repeat(2,1fr);gap:32px 0}
-  .stats-grid > div:nth-child(3){border-left:0;padding-left:0}
-  .stats-grid > div{padding:8px 24px}
-  .stats-grid > div:first-child{padding-left:0}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:24px 0}
+  .stats-grid > div:nth-child(3)::before, .stats-grid > div:nth-child(1)::before{display:none}
 }
 @media(max-width:540px){
   .stats-grid{grid-template-columns:1fr;gap:0}
@@ -1361,11 +1439,36 @@ img.logo-mark { object-fit:cover; display:block; }
      STATS
      ========================================================= -->
 <div class="stats">
+  <div class="stats-eyebrow">
+    <span class="live-dot"></span>
+    <span>L'impact R3STO sur votre restaurant</span>
+    <span class="live-dot"></span>
+  </div>
   <div class="stats-grid">
-    <div><div class="stat-n danger">−87%</div><div class="stat-l">No-shows avec prépaiement Stripe</div></div>
-    <div><div class="stat-n">0%</div><div class="stat-l">Commission sur réservations</div></div>
-    <div><div class="stat-n">+2h</div><div class="stat-l">Gagnées par jour</div></div>
-    <div><div class="stat-n">10 min</div><div class="stat-l">Pour être opérationnel</div></div>
+    <div>
+      <span class="stat-icon">🛡️</span>
+      <div class="stat-n danger">−87<small style="font-size:.6em;letter-spacing:0">%</small></div>
+      <div class="stat-l">No-shows avec prépaiement Stripe</div>
+      <span class="stat-trend down">moins de pertes</span>
+    </div>
+    <div>
+      <span class="stat-icon">💰</span>
+      <div class="stat-n success">0<small style="font-size:.6em;letter-spacing:0">%</small></div>
+      <div class="stat-l">Commission, pour toujours</div>
+      <span class="stat-trend up">+CHF économisés</span>
+    </div>
+    <div>
+      <span class="stat-icon">⏱️</span>
+      <div class="stat-n goldglow">+2h</div>
+      <div class="stat-l">Gagnées par jour</div>
+      <span class="stat-trend up">productivité boostée</span>
+    </div>
+    <div>
+      <span class="stat-icon">🚀</span>
+      <div class="stat-n">10<small style="font-size:.5em;letter-spacing:0;margin-left:6px">min</small></div>
+      <div class="stat-l">Pour être opérationnel</div>
+      <span class="stat-trend up">démarrage éclair</span>
+    </div>
   </div>
 </div>
 
