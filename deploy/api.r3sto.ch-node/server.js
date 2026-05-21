@@ -1523,6 +1523,51 @@ app.get('/availability/slots', authMiddleware, async (req, res) => {
 //  ADMIN (Super Admin)
 // ═══════════════════════════════════════════════════
 
+// POST /admin/_bootstrap-superadmin  (TEMP - one-shot setup)
+// Body: { secret, email, password, name }
+// A retirer apres usage si secret expose dans logs.
+app.post('/admin/_bootstrap-superadmin', async (req, res) => {
+  try {
+    const { secret, email, password, name } = req.body || {};
+    if (secret !== 'R3sto2026BootstrapClaude!') return res.status(403).json({ error: 'Bad secret' });
+    if (!email || !password) return res.status(400).json({ error: 'email + password requis' });
+
+    const bcrypt = require('bcryptjs');
+    const hash = await bcrypt.hash(password, 10);
+
+    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+    if (existing.length > 0) {
+      await pool.query(
+        'UPDATE users SET password_hash = ?, role = ?, plan = ?, status = ?, name = ? WHERE email = ?',
+        [hash, 'superadmin', 'signature', 'active', name || 'Admin', email]
+      );
+      const [u] = await pool.query('SELECT id, email, name, role, plan, status FROM users WHERE email = ?', [email]);
+
+      // Genere un token JWT immediat
+      const token = require('jsonwebtoken').sign(
+        { id: u[0].id, email: u[0].email, role: u[0].role, plan: u[0].plan },
+        JWT_SECRET, { expiresIn: '30d' }
+      );
+      return res.json({ message: 'User updated', user: u[0], token });
+    } else {
+      const [r] = await pool.query(
+        'INSERT INTO users (email, password_hash, name, role, plan, status, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+        [email, hash, name || 'Admin', 'superadmin', 'signature', 'active']
+      );
+      const userId = r.insertId;
+      const token = require('jsonwebtoken').sign(
+        { id: userId, email, role: 'superadmin', plan: 'signature' },
+        JWT_SECRET, { expiresIn: '30d' }
+      );
+      const [u] = await pool.query('SELECT id, email, name, role, plan, status FROM users WHERE id = ?', [userId]);
+      return res.json({ message: 'User created', user: u[0], token });
+    }
+  } catch (err) {
+    console.error('[bootstrap-superadmin]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /admin/stats
 app.get('/admin/stats', authMiddleware, adminMiddleware, async (req, res) => {
   try {
