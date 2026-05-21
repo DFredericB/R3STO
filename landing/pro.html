@@ -1226,6 +1226,33 @@ section {padding:var(--section-pad);position:relative}
 @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:32px}}
 @media(max-width:640px){.footer-grid{grid-template-columns:1fr;gap:32px}.footer-bot{grid-template-columns:1fr;text-align:left}.footer-bot .made{text-align:left;white-space:normal}}
 
+/* Footer CTA + Support highlight */
+.footer-cta {
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:18px;padding:11px 20px;
+  background:var(--gold);color:#fff;
+  font-size:13px;font-weight:700;
+  border-radius:4px;text-decoration:none;
+  transition:.2s;
+}
+.footer-cta:hover {background:var(--gold-bright);transform:translateY(-1px);box-shadow:0 8px 20px rgba(160,126,42,.25)}
+.footer-col.support-col {
+  background:rgba(160,126,42,.06);
+  border:1px solid rgba(160,126,42,.20);
+  border-radius:8px;
+  padding:18px 20px;
+}
+.footer-col.support-col h4 {color:var(--gold-deep);margin-bottom:14px}
+.footer-col.support-col .support-mail {
+  display:inline-block;font-weight:700;color:var(--navy)!important;
+  font-size:14px;margin-bottom:8px;
+}
+.footer-col.support-col .support-mail:hover {color:var(--gold-deep)!important}
+.footer-col.support-col .support-meta {
+  display:block;font-family:var(--fm);font-size:11px;color:var(--t-3);
+  letter-spacing:.04em;line-height:1.7;
+}
+
 /* OVERRIDE for real PNG logo (replaces CSS-text version) */
 img.logo-mark { object-fit:cover; display:block; }
 
@@ -2261,21 +2288,29 @@ img.logo-mark { object-fit:cover; display:block; }
       <a href="/" class="logo">
         <img class="logo-mark" src="/logo-r3sto.jpg" alt="R3STO" width="44" height="44">
       </a>
-      <p>Plateforme SaaS suisse de gestion pour restaurants indépendants. Réservations directes, plan de salle, CRM, paiements Stripe. 0 % commission, hébergée en Suisse.</p>
+      <p>La plateforme SaaS suisse de gestion pour restaurants indépendants. Réservations directes, plan de salle, CRM, paiements Stripe. <strong>0 % commission</strong>, hébergée en Suisse.</p>
+      <a href="https://auth.r3sto.com/signup" class="footer-cta">Essai gratuit 14 jours →</a>
     </div>
     <div class="footer-col">
-      <h4>Découvrir</h4>
-      <a href="/">Annuaire</a>
-      <a href="/recherche.html">Tous les restaurants</a>
-      <a href="/#carat">Label Carat ◆</a>
-      <a href="/about.html">À propos R3STO</a>
+      <h4>Annuaire</h4>
+      <a href="/">Tous les restaurants</a>
+      <a href="/recherche.html">Recherche par ville</a>
+      <a href="/carat.html">Label Carat ◆</a>
+      <a href="/claim.html">Revendiquer ma fiche</a>
     </div>
     <div class="footer-col">
       <h4>R3STO Pro</h4>
       <a href="#fonctionnalites">Fonctionnalités</a>
       <a href="#tarifs">Tarifs</a>
-      <a href="/pro-claim.html">Revendiquer ma fiche</a>
-      <a href="mailto:pro@r3sto.com">pro@r3sto.com</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://auth.r3sto.com/signup">Démarrer l'essai</a>
+    </div>
+    <div class="footer-col support-col">
+      <h4>Support &amp; Contact</h4>
+      <a href="mailto:support@r3sto.com" class="support-mail">📧 support@r3sto.com</a>
+      <span class="support-meta">Réponse &lt; 2 h ouvrées</span>
+      <span class="support-meta">Lun – Ven, 8 h – 18 h</span>
+      <a href="/about.html" style="margin-top:10px">À propos R3STO</a>
     </div>
     <div class="footer-col admin">
       <h4>Légal</h4>
@@ -2284,22 +2319,13 @@ img.logo-mark { object-fit:cover; display:block; }
       <a href="/legal.html#cookies">Cookies</a>
       <a href="/legal.html#mentions">Mentions légales</a>
     </div>
-    <div class="footer-col admin">
-      <h4>Société</h4>
-      <a href="https://innoptim.ch" target="_blank" rel="noopener">Innoptim SA</a>
-      <a href="/about.html">Notre histoire</a>
-      <a href="mailto:press@r3sto.com">Presse</a>
-      <a href="mailto:contact@r3sto.com">contact@r3sto.com</a>
-    </div>
   </div>
   <div class="footer-bot">
     <div class="corp">
-      <span>© 2026 <a href="https://innoptim.ch" target="_blank" rel="noopener"><b>Innoptim SA</b></a> · Société éditrice de R3STO</span>
-      <span>Avenue d'Echallens 21, Lausanne (VD) — Suisse · IDE <b>CHE-430.441.925</b> · TVA non assujettie</span>
+      <span>© 2026 R3STO · Tous droits réservés</span>
     </div>
     <div class="made">
-      🇨🇭 Fait en Suisse<br>
-      Hébergé par Infomaniak · 100 % énergie renouvelable
+      🇨🇭 Fait en Suisse · Hébergé par Infomaniak · 100 % énergie renouvelable
     </div>
   </div>
 </footer>
