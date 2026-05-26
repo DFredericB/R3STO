@@ -1,5 +1,5 @@
 # R3STO — guide gourmand international
-# Innoptim SA · Le Mont-sur-Lausanne · Suisse
+# Xeuss Sàrl · Lausanne · Suisse
 
 User-agent: *
 Allow: /
