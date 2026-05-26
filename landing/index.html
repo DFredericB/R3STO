@@ -861,6 +861,21 @@ section {padding:96px 24px;position:relative}
 .pro-cmp.win .pro-cmp-amount {color:var(--gold-soft)}
 .pro-cmp-desc {font-size:13px;color:rgba(255,255,255,.65);line-height:1.5}
 
+/* 4 plans strip — Mini / Essentiel / Premium / Signature */
+.pro-plans-strip{max-width:920px;margin:0 auto 44px}
+.pps-lbl{font-family:var(--fm);font-size:10.5px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.14em;text-align:center;margin-bottom:14px}
+.pps-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:760px){.pps-row{grid-template-columns:repeat(4,1fr)}}
+.pps-plan{position:relative;padding:18px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:.2s;cursor:default}
+.pps-plan:hover{background:rgba(255,255,255,.06);border-color:rgba(200,151,82,.30);transform:translateY(-2px)}
+.pps-plan.special{background:linear-gradient(135deg,rgba(200,151,82,.10),rgba(160,126,42,.06));border-color:rgba(200,151,82,.30)}
+.pps-plan.featured{background:rgba(200,151,82,.06);border-color:rgba(200,151,82,.40);box-shadow:0 4px 14px rgba(200,151,82,.10)}
+.pps-tag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-family:var(--fm);font-size:8.5px;font-weight:800;padding:3px 8px;background:var(--gold-bright);color:var(--navy-dark);border-radius:50px;letter-spacing:.10em;white-space:nowrap}
+.pps-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px}
+.pps-price{font-family:var(--ff);font-size:28px;font-weight:800;color:var(--gold-soft);line-height:1;letter-spacing:-1px}
+.pps-price small{font-size:11px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:0;margin-left:2px}
+.pps-eng{font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.04em;margin-top:6px}
+
 /* 4 bénéfices avec icônes */
 .pro-perks {
   display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
@@ -1763,7 +1778,36 @@ img.logo-mark { object-fit:cover; display:block; }
       <div class="pro-cmp win">
         <span class="pro-cmp-lbl">Avec R3STO Pro</span>
         <div class="pro-cmp-amount">– 228 CHF / an</div>
-        <div class="pro-cmp-desc">19 CHF par mois, c'est tout. <b style="color:#fff">Vous économisez 5 532 CHF — soit l'équivalent d'un mi-temps d'employé en plus.</b></div>
+        <div class="pro-cmp-desc">19 CHF par mois sur l'offre Mini, c'est tout. <b style="color:#fff">Vous économisez 5 532 CHF — soit l'équivalent d'un mi-temps d'employé en plus.</b></div>
+      </div>
+    </div>
+
+    <!-- 4 PLANS — strip compacte -->
+    <div class="pro-plans-strip">
+      <div class="pps-lbl">4 formules au choix</div>
+      <div class="pps-row">
+        <div class="pps-plan special">
+          <span class="pps-tag">🔥 Spécial</span>
+          <span class="pps-name">Mini</span>
+          <span class="pps-price">19 <small>CHF/mois</small></span>
+          <span class="pps-eng">3 ans</span>
+        </div>
+        <div class="pps-plan">
+          <span class="pps-name">Essentiel</span>
+          <span class="pps-price">39 <small>CHF/mois</small></span>
+          <span class="pps-eng">14 j gratuits</span>
+        </div>
+        <div class="pps-plan featured">
+          <span class="pps-tag">⭐ Populaire</span>
+          <span class="pps-name">Premium</span>
+          <span class="pps-price">59 <small>CHF/mois</small></span>
+          <span class="pps-eng">14 j gratuits</span>
+        </div>
+        <div class="pps-plan">
+          <span class="pps-name">Signature</span>
+          <span class="pps-price">79 <small>CHF/mois</small></span>
+          <span class="pps-eng">Site inclus</span>
+        </div>
       </div>
     </div>
 
@@ -1794,8 +1838,8 @@ img.logo-mark { object-fit:cover; display:block; }
         <div class="pro-perk-ic">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-        <h4>Support 7 j / 7</h4>
-        <p>Équipe humaine en Suisse, FR / DE / IT / EN. Réponse &lt; 2 h.</p>
+        <h4>Support humain</h4>
+        <p>Équipe basée en Suisse, FR / DE / IT / EN. Réponse en moins de 2 h ouvrées.</p>
       </div>
     </div>
 
@@ -1830,10 +1874,10 @@ img.logo-mark { object-fit:cover; display:block; }
     <!-- CTA FINAL -->
     <div class="pro-cta-row">
       <a href="/pro.html" class="pro-band-cta">
-        Essayer 14 jours gratuits
+        Découvrir R3STO Pro
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
       </a>
-      <a href="/pro.html#tarifs" class="pro-band-secondary">Voir les tarifs · dès 19 CHF / mois</a>
+      <a href="/pro.html#tarifs" class="pro-band-secondary">Voir les tarifs détaillés →</a>
     </div>
 
   </div>
