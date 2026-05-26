@@ -2250,17 +2250,38 @@ app.get('/public/directory', async (req, res) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '24', 10)));
     const offset = (page - 1) * limit;
 
-    const where = ["status='live'"];
+    // CRITIQUE: exclure les restos fermés définitivement
+    const where = ["status='live'", "closed_at IS NULL"];
     const args = [];
     if (req.query.canton) { where.push('canton_iso = ?'); args.push(req.query.canton); }
-    if (req.query.city) { where.push('city = ?'); args.push(req.query.city); }
-    if (req.query.cuisine) { where.push('cuisine_tag = ?'); args.push(req.query.cuisine); }
-    if (req.query.carat) { where.push('carat_level = ?'); args.push(req.query.carat); }
+    if (req.query.city) {
+      // Fuzzy match sur ville (Mont-sur-Lausanne, le-mont-sur-lausanne, etc.)
+      where.push('LOWER(REPLACE(REPLACE(city, "-", " "), "  ", " ")) LIKE ?');
+      args.push('%' + req.query.city.toLowerCase().replace(/-/g, ' ') + '%');
+    }
+    if (req.query.cuisine) {
+      // Accept multiple variants: pizzeria, pizza, italienne...
+      const cuisineMap = {
+        'pizza': ['pizzeria', 'italienne'],
+        'sushi': ['japonaise', 'asiatique'],
+        'gastro': ['gastronomique', 'française'],
+      };
+      const cuisines = cuisineMap[req.query.cuisine] || [req.query.cuisine];
+      where.push('cuisine_tag IN (' + cuisines.map(() => '?').join(',') + ')');
+      args.push(...cuisines);
+    }
+    if (req.query.carat) {
+      // Map FR Or/Argent/Bronze to EN gold/silver/bronze
+      const m = { 'or':'gold', 'argent':'silver', 'bronze':'bronze', 'gold':'gold', 'silver':'silver' };
+      where.push('carat_level = ?');
+      args.push(m[req.query.carat.toLowerCase()] || req.query.carat);
+    }
     if (req.query.claimed === 'true') where.push("claim_status='claimed'");
     if (req.query.q) {
-      where.push('(name LIKE ? OR city LIKE ? OR cuisine LIKE ?)');
-      const like = '%' + req.query.q.replace(/[%_]/g, '') + '%';
-      args.push(like, like, like);
+      // Fuzzy search : name OR city OR cuisine, avec normalisation
+      where.push('(LOWER(name) LIKE ? OR LOWER(city) LIKE ? OR LOWER(cuisine) LIKE ? OR LOWER(cuisine_tag) LIKE ?)');
+      const like = '%' + req.query.q.toLowerCase().replace(/[%_]/g, '') + '%';
+      args.push(like, like, like, like);
     }
     const whereSql = where.join(' AND ');
 
@@ -2351,14 +2372,107 @@ app.get('/public/directory', async (req, res) => {
   }
 });
 
+// GET /public/carat — restos Carat groupés par cuisine
+// Query: cuisine (optional), city (optional), level (or/argent/bronze)
+app.get('/public/carat', async (req, res) => {
+  try {
+    const where = ["status='live'", "closed_at IS NULL", "carat_level IS NOT NULL"];
+    const args = [];
+
+    if (req.query.cuisine) {
+      const cuisineMap = {
+        'pizza': ['pizzeria', 'italienne'],
+        'sushi': ['japonaise', 'asiatique'],
+        'gastro': ['gastronomique', 'française', 'suisse'],
+      };
+      const cuisines = cuisineMap[req.query.cuisine] || [req.query.cuisine];
+      where.push('cuisine_tag IN (' + cuisines.map(() => '?').join(',') + ')');
+      args.push(...cuisines);
+    }
+    if (req.query.city) {
+      where.push('LOWER(REPLACE(city, "-", " ")) LIKE ?');
+      args.push('%' + req.query.city.toLowerCase().replace(/-/g, ' ') + '%');
+    }
+    if (req.query.level) {
+      const m = { 'or':'gold', 'argent':'silver', 'bronze':'bronze' };
+      where.push('carat_level = ?');
+      args.push(m[req.query.level.toLowerCase()] || req.query.level);
+    }
+    if (req.query.canton) { where.push('canton_iso = ?'); args.push(req.query.canton); }
+
+    const whereSql = where.join(' AND ');
+
+    const [rows] = await pool.query(
+      `SELECT slug, name, city, canton_iso, cuisine_tag, phone, website, email,
+              rating, reviews_count, carat_level, carat_score, photo_url
+       FROM directory_restaurants
+       WHERE ${whereSql}
+       ORDER BY
+         CASE carat_level WHEN 'gold' THEN 3 WHEN 'silver' THEN 2 WHEN 'bronze' THEN 1 ELSE 0 END DESC,
+         carat_score DESC,
+         rating DESC
+       LIMIT 200`,
+      args
+    );
+
+    // Group by cuisine_tag
+    const byCuisine = {};
+    rows.forEach(r => {
+      const tag = r.cuisine_tag || 'autre';
+      if (!byCuisine[tag]) byCuisine[tag] = { gold: [], silver: [], bronze: [] };
+      byCuisine[tag][r.carat_level].push({
+        slug: r.slug,
+        name: r.name,
+        city: r.city,
+        canton: r.canton_iso,
+        rating: r.rating,
+        reviews: r.reviews_count,
+        carat: r.carat_level,
+        score: r.carat_score,
+        phone: r.phone,
+        website: r.website,
+        hasEmail: !!r.email,
+      });
+    });
+
+    res.json({
+      total: rows.length,
+      byCuisine,
+      stats: {
+        gold: rows.filter(r => r.carat_level === 'gold').length,
+        silver: rows.filter(r => r.carat_level === 'silver').length,
+        bronze: rows.filter(r => r.carat_level === 'bronze').length,
+      },
+    });
+  } catch (err) {
+    console.error('[carat]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /public/directory/:slug — fiche détaillée
 app.get('/public/directory/:slug', async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM directory_restaurants WHERE slug = ? AND status = 'live' LIMIT 1`,
+      `SELECT * FROM directory_restaurants WHERE slug = ? AND closed_at IS NULL AND status = 'live' LIMIT 1`,
       [req.params.slug]
     );
-    if (rows.length === 0) return res.status(404).json({ error: 'Fiche non trouvée' });
+    if (rows.length === 0) {
+      // Vérifier si la fiche existe mais est fermée
+      const [closedRows] = await pool.query(
+        `SELECT name, city, closed_at FROM directory_restaurants WHERE slug = ? LIMIT 1`,
+        [req.params.slug]
+      );
+      if (closedRows.length > 0 && closedRows[0].closed_at) {
+        return res.status(410).json({
+          error: 'Restaurant fermé définitivement',
+          name: closedRows[0].name,
+          city: closedRows[0].city,
+          closed_at: closedRows[0].closed_at,
+        });
+      }
+      return res.status(404).json({ error: 'Fiche non trouvée' });
+    }
     const r = rows[0];
     const ps = genPhotoSource(r);
     r.photo = ps.url;
