@@ -282,22 +282,23 @@ section {padding:96px 24px;position:relative}
 .hero-in {position:relative;z-index:2;max-width:880px;margin:0 auto}
 
 /* Wordmark filigrane R3STO (cohérence avec pro.html) */
-.hero-watermark {
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%, -50%);
-  font-family:var(--ff);
-  font-size:clamp(180px, 22vw, 320px);
-  font-weight:900;letter-spacing:-8px;
-  color:var(--navy);opacity:0.04;
-  pointer-events:none;z-index:0;white-space:nowrap;
-}
+
 /* Logo XL hero (charte : carré, jamais arrondi) */
 .hero-logo {margin:0 auto 24px;display:flex;justify-content:center}
 .hero-logo-img {
   width:88px;height:88px;
-  /* logo R3STO TOUJOURS carré */
+  /* logo R3STO TOUJOURS carré (charte) */
   box-shadow:0 12px 30px rgba(28,46,88,.20);
   display:block;
+  transition: all .4s cubic-bezier(.2, .8, .2, 1);
+  cursor:pointer;
+}
+.hero-logo-img:hover {
+  box-shadow:
+    0 12px 30px rgba(28,46,88,.25),
+    0 0 0 6px rgba(160,126,42,.12),
+    0 0 40px rgba(200,151,82,.35);
+  transform: scale(1.04) rotate(-1deg);
 }
 
 .hero-eyebrow {
@@ -1219,7 +1220,7 @@ img.logo-mark { object-fit:cover; display:block; }
      ========================================================= -->
 <section class="hero" id="search">
   <!-- Wordmark filigrane (cohérence avec pro.html) -->
-  <div class="hero-watermark" aria-hidden="true">R3STO</div>
+  
 
   <div class="hero-in">
     <!-- Logo XL au-dessus du eyebrow (cohérence avec pro.html) -->
