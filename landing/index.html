@@ -280,6 +280,26 @@ section {padding:96px 24px;position:relative}
   pointer-events:none;
 }
 .hero-in {position:relative;z-index:2;max-width:880px;margin:0 auto}
+
+/* Wordmark filigrane R3STO (cohérence avec pro.html) */
+.hero-watermark {
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%, -50%);
+  font-family:var(--ff);
+  font-size:clamp(180px, 22vw, 320px);
+  font-weight:900;letter-spacing:-8px;
+  color:var(--navy);opacity:0.04;
+  pointer-events:none;z-index:0;white-space:nowrap;
+}
+/* Logo XL hero (charte : carré, jamais arrondi) */
+.hero-logo {margin:0 auto 24px;display:flex;justify-content:center}
+.hero-logo-img {
+  width:88px;height:88px;
+  /* logo R3STO TOUJOURS carré */
+  box-shadow:0 12px 30px rgba(28,46,88,.20);
+  display:block;
+}
+
 .hero-eyebrow {
   display:inline-flex;align-items:center;gap:12px;
   font-family:var(--fm);font-size:11px;font-weight:700;
@@ -1198,7 +1218,15 @@ img.logo-mark { object-fit:cover; display:block; }
      HERO + SEARCH
      ========================================================= -->
 <section class="hero" id="search">
+  <!-- Wordmark filigrane (cohérence avec pro.html) -->
+  <div class="hero-watermark" aria-hidden="true">R3STO</div>
+
   <div class="hero-in">
+    <!-- Logo XL au-dessus du eyebrow (cohérence avec pro.html) -->
+    <div class="hero-logo">
+      <img src="/logo-r3sto.jpg" alt="R3STO" class="hero-logo-img">
+    </div>
+
     <span class="hero-eyebrow" id="heroEyebrow">The international gourmet guide</span>
     <h1 id="heroH1">Discover the <span class="navy">best</span><br>restaurants <span id="heroScope">worldwide</span>.</h1>
     <p class="hero-sub" id="heroSub">The directory that highlights independent restaurateurs. Book online directly, without hidden commission, supporting the establishment.</p>

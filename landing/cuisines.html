@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Restaurants par cuisine en Suisse — R3STO</title>
+<meta name="description" content="Découvrez les restaurants suisses par type de cuisine : française, italienne, japonaise, méditerranéenne, fusion... Annuaire R3STO sans commission.">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3fa;--text:#0c1730;--t-2:#475a78;--navy:#1c2e58;--gold:#a07e2a;--gold-deep:#7d5e1a;--border:#d6dfee;--ff:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.55}
+a{text-decoration:none;transition:.15s}
+.nav{padding:18px 24px;border-bottom:1px solid var(--border);background:rgba(238,243,250,.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.nav-row{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px;color:var(--navy)}
+.logo img{width:40px;height:40px}
+.logo b{font-size:14px;font-weight:800}
+.logo span{font-family:var(--fm);font-size:10px;color:var(--gold-deep);letter-spacing:.14em;text-transform:uppercase;display:block}
+.nav-cta{padding:9px 18px;background:var(--navy);color:#fff!important;border-radius:4px;font-size:13px;font-weight:700}
+.hero{padding:80px 24px 50px;text-align:center;background:linear-gradient(180deg,var(--bg) 0%,#fff 100%)}
+.eyebrow{font-family:var(--fm);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:16px}
+h1{font-size:clamp(36px,5vw,56px);font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin-bottom:18px}
+h1 .gold{color:var(--gold-deep)}
+.sub{font-size:17px;color:var(--t-2);max-width:620px;margin:0 auto}
+.section{padding:60px 24px}
+.inner{max-width:1100px;margin:0 auto}
+.cuisines-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.cuisine{padding:24px 20px;background:#fff;border:1px solid var(--border);border-radius:10px;text-align:center;transition:.2s;color:var(--text)!important;cursor:pointer}
+.cuisine:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(28,46,88,.10);border-color:var(--gold-deep)}
+.cuisine .emoji{font-size:38px;line-height:1;margin-bottom:10px}
+.cuisine .name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.cuisine .meta{font-family:var(--fm);font-size:10.5px;color:var(--gold-deep);letter-spacing:.04em}
+.footer{padding:40px 24px;text-align:center;background:var(--navy);color:rgba(255,255,255,.7);font-size:13px}
+.footer a{color:var(--gold)!important}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-row">
+    <a href="/" class="logo">
+      <img src="/logo-r3sto.jpg" alt="R3STO">
+      <div><b>R3STO</b><span>Cuisines</span></div>
+    </a>
+    <a href="/pro.html" class="nav-cta">Espace Pro →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">🍽️ Par type de cuisine</div>
+  <h1>Trouvez par <span class="gold">cuisine</span>.</h1>
+  <p class="sub">Du sushi tokyoïte à l'osteria milanaise, du bistrot lyonnais au food truck mexicain — toutes les cuisines du monde, en Suisse.</p>
+</section>
+
+<section class="section">
+  <div class="inner">
+    <div class="cuisines-grid">
+      <a class="cuisine" href="/recherche.html?cuisine=francaise"><div class="emoji">🥖</div><div class="name">Française</div><div class="meta">2 100+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=italienne"><div class="emoji">🍝</div><div class="name">Italienne</div><div class="meta">1 850+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=suisse"><div class="emoji">🧀</div><div class="name">Suisse</div><div class="meta">1 200+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=japonaise"><div class="emoji">🍣</div><div class="name">Japonaise</div><div class="meta">680+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=mediterraneenne"><div class="emoji">🫒</div><div class="name">Méditerranéenne</div><div class="meta">540+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=chinoise"><div class="emoji">🥢</div><div class="name">Chinoise</div><div class="meta">420+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=thai"><div class="emoji">🍜</div><div class="name">Thaïlandaise</div><div class="meta">310+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=indienne"><div class="emoji">🍛</div><div class="name">Indienne</div><div class="meta">280+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=espagnole"><div class="emoji">🥘</div><div class="name">Espagnole</div><div class="meta">240+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=portugaise"><div class="emoji">🐟</div><div class="name">Portugaise</div><div class="meta">220+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=libanaise"><div class="emoji">🥙</div><div class="name">Libanaise</div><div class="meta">180+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=mexicaine"><div class="emoji">🌮</div><div class="name">Mexicaine</div><div class="meta">150+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=vegetarienne"><div class="emoji">🥗</div><div class="name">Végétarienne</div><div class="meta">340+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=vegan"><div class="emoji">🌱</div><div class="name">Vegan</div><div class="meta">125+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=fusion"><div class="emoji">✨</div><div class="name">Fusion</div><div class="meta">190+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=gastronomique"><div class="emoji">⭐</div><div class="name">Gastronomique</div><div class="meta">194 Carat Or</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=brasserie"><div class="emoji">🍻</div><div class="name">Brasserie</div><div class="meta">580+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=pizzeria"><div class="emoji">🍕</div><div class="name">Pizzeria</div><div class="meta">920+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=burger"><div class="emoji">🍔</div><div class="name">Burger</div><div class="meta">340+ restos</div></a>
+      <a class="cuisine" href="/recherche.html?cuisine=cafe"><div class="emoji">☕</div><div class="name">Café / Tea-room</div><div class="meta">720+ restos</div></a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  © 2026 R3STO · <a href="/">Accueil</a> · <a href="/villes.html">Par ville</a> · <a href="/pro.html">Espace Pro</a>
+</footer>
+</body>
+</html>
